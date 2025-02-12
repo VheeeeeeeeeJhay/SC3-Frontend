@@ -92,12 +92,12 @@ function submit() {
 
         <button type="submit" class=" col-span-3 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">Sign Up</button>
         
-        <div>
+        <!-- <div>
           <button type="submit"
             class="col-span-3 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">
             Sign Up
           </button>
-        </div>
+        </div> -->
       </form>
 
       <div class="text-sm text-center mt-4">

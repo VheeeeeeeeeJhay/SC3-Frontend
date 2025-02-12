@@ -19,7 +19,7 @@
         <div class="flex justify-end mb-4">
           <button @click="ToggleMenu" class="w-8 flex-shrink-0 transition-transform duration-200 ease-in-out transform"
             :class="{ 'rotate-180': is_expanded }">
-            <span class="material-icons text-2xl text-white hover:text-indigo-500">keyboard_double_arrow_right</span>
+            <span class="material-icons text-2xl text-white hover:text-indigo-500">menu</span>
           </button>
         </div>
 
