@@ -4,6 +4,7 @@ import { ref, computed } from "vue";
 import axiosClient from "../axios.js";
 import router from "../router.js";
 import { useThemeStore } from '../stores/themeStore';
+import PrimaryButton from '../components/PrimaryButton.vue';
 
 const themeStore = useThemeStore();
 
@@ -65,10 +66,11 @@ function submit() {
                 class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
             </div>
           </div>
-          <button type="submit"
+          <!-- <button type="submit"
             class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
             Upload
-          </button>
+          </button> -->
+          <PrimaryButton class="bg-green-500 hover:bg-green-600 hover:shadow-md" name="Upload" type="submit"/>
         </form>
       </div>
     </main>
