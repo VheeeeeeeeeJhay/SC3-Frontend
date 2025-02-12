@@ -163,8 +163,9 @@ const signout_visible = ref(false);
   });
 
   const navigation = [
-    { name: 'Upload', to: { name: 'Home' }, icon: 'home' },
-    { name: 'My Images', to: { name: 'MyImages' }, icon: 'collections' },
+    { name: 'Dashboard', to: { name: 'Dashboard' }, icon: 'bar_chart' },
+    { name: 'Map', to: { name: 'Map' }, icon: 'map' },
+    { name: 'Report Form', to: { name: 'ReportForm' }, icon: 'description' },
   ]
 
   const isProfileDropdownOpen = ref(false);

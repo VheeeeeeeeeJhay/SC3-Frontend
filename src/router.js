@@ -7,6 +7,10 @@ import Signup from "./pages/Signup.vue";
 import NotFound from "./pages/NotFound.vue";
 import useUserStore from "./stores/user.js";
 
+import Dashboard from "./pages/Dashboard.vue";
+import Map from "./pages/Map.vue";
+import ReportForm from "./pages/ReportForm.vue";
+
 const routes = [
   {
     path: "/",
@@ -14,6 +18,9 @@ const routes = [
     children: [
       {path: '/', name: 'Home', component: Home},
       {path: '/images', name: 'MyImages', component: MyImages},
+      {path: '/dashboard', name: 'Dashboard', component: Dashboard},
+      {path: '/map', name: 'Map', component: Map},
+      {path: '/reportform', name: 'ReportForm', component: ReportForm},
     ],
     beforeEnter: async (to, from, next) => {
       try {
