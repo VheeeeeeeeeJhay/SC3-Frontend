@@ -1,9 +1,20 @@
 <script setup>
 
+import PrimaryButton from '../components/PrimaryButton.vue';
+
 </script>
 
 <template>
-  <h1>Page Not Found</h1>
+  <div class="justify-center items-center flex flex-col h-screen w-screen bg-red-400">
+    <h1 class="text-[90px] font-bold tracking-tight text-gray-900">Page Not Found</h1>
+    
+    
+
+    <RouterLink to="/dashboard">
+      <br />
+      <PrimaryButton class="bg-green-500 hover:bg-green-600 hover:shadow-md" name="Go Back" type="submit"/>
+    </RouterLink>
+  </div>
 </template>
 
 <style scoped>
