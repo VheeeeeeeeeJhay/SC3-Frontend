@@ -19,7 +19,7 @@
         <div class="flex justify-end mb-4">
           <button @click="ToggleMenu" class="w-8 flex-shrink-0 transition-transform duration-200 ease-in-out transform"
             :class="{ 'rotate-180': is_expanded }">
-            <span class="material-icons text-2xl text-white hover:text-indigo-500">menu</span>
+            <span class="material-icons text-2xl text-white hover:text-green-500">menu</span>
           </button>
         </div>
 
@@ -32,7 +32,7 @@
 
         <div class="-mx-4">
           <RouterLink v-for='item in navigation' :to="item.to" :key="item.name"
-            :class="[$route.name === item.to.name ? 'bg-gray-800 border-r-4 border-indigo-500' : ' hover:bg-gray-800', 'flex items-center p-2 pl-4 transition duration-200 ease-in-out']">
+            :class="[$route.name === item.to.name ? 'bg-gray-800 border-r-4 border-green-500' : ' hover:bg-gray-800', 'flex items-center p-2 pl-4 transition duration-200 ease-in-out']">
             <div class="w-8 flex-shrink-0">
               <span class="material-icons text-2xl text-white">{{ item.icon }}</span>
             </div>
@@ -165,7 +165,7 @@ const signout_visible = ref(false);
   const navigation = [
     { name: 'Dashboard', to: { name: 'Dashboard' }, icon: 'bar_chart' },
     { name: 'Map', to: { name: 'Map' }, icon: 'map' },
-    { name: 'Report Form', to: { name: 'ReportForm' }, icon: 'description' },
+    { name: 'Report Form', to: { name: 'ReportForm' }, icon: 'note_add' },
   ]
 
   const isProfileDropdownOpen = ref(false);
