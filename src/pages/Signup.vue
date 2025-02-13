@@ -7,14 +7,18 @@ import router from "../router.js";
 import logo from "../assets/baguio-logo.png";
 
 const data = ref({
-  name: '',
+  firstName: '',
+  middleName: '',
+  lastName: '',
   email: '',
   password: '',
   password_confirmation: '',
 })
 
 const errors = ref({
-  name: [],
+  firstNamename: [],
+  middleName: [],
+  lastName: [],
   email: [],
   password: [],
 })
@@ -51,23 +55,24 @@ function submit() {
 
     <!-- Login Form -->
     <div class="bg-white p-6 rounded-xl shadow-lg max-w-lg">
+    <div class="text-slate-900">{{ data }}</div>
       <h2 class="text-gray-800 text-lg font-semibold mb-4">Account Registration</h2>
 
       <form @submit.prevent="submit" class="flex grid grid-cols-3 gap-4">
         <div>
           <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>
-          <input type="text" name="name" id="name" v-model="data.name" class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <input type="text" name="name" id="name" v-model="data.firstName" class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
           <p class="text-sm mt-1 text-red-600">
             {{ errors.name ? errors.name[0] : '' }}
           </p>
         </div>
         <div>
           <label for="middleName" class="block text-sm font-medium text-gray-700">Middle Name</label>
-          <input type="text" v-model="middleName" id="middleName" class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <input type="text" v-model="data.middleName" id="middleName" class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
         <div>
           <label for="lastName" class="block text-sm font-medium text-gray-700">Last Name</label>
-          <input type="text" v-model="lastName" id="lastName" class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <input type="text" v-model="data.lastName" id="lastName" class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
         <div class="col-span-3">
           <label for="email" class="block text-sm font-medium text-gray-700">Email</label>

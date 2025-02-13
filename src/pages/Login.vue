@@ -42,8 +42,11 @@ function submit() {
         </h1>
       </div>
 
+      
+
       <!-- Login Form -->
       <div class="bg-white p-6 rounded-xl shadow-lg w-80">
+      <div class="text-slate-900">{{ data }}</div>
         <h2 class="text-gray-800 text-lg text-center font-semibold mb-4">Sign in to your account</h2>
 
         <form @submit.prevent="submit" class="flex flex-col gap-4">
