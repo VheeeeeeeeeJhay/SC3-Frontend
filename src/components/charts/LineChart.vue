@@ -3,11 +3,11 @@ import { ref, onMounted } from 'vue';
 import Chart from 'primevue/chart';
 
 const chartData = ref({
-    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
     datasets: [
         {
             label: 'Growth',
-            data: [28, 48, 40, 19, 86, 27, 90],
+            data: [28, 48, 40, 19, 86, 27, 90, 43, 64, 12, 56, 23],
             fill: false,
             borderColor: '#66BB6A',
             tension: 0.4

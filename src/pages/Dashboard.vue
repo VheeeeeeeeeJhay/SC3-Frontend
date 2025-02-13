@@ -11,7 +11,7 @@ import { useThemeStore } from '../stores/themeStore';
 const themeStore = useThemeStore();
 
 const bgClass = computed(() => {
-  return themeStore.isDarkMode ? 'bg-gray-900' : 'bg-gray-100';
+  return themeStore.isDarkMode ? 'bg-slate-900' : 'bg-stone-200';
 })
 const textClass = computed(() => {
   return themeStore.isDarkMode ? 'text-gray-100' : 'text-gray-900';
@@ -27,15 +27,15 @@ const chartClass = computed(() => {
 
 <template>
     <div :class="bgClass" style="min-height: 100vh;">
-      <header :class="boxClass">
-        <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <header>
+        <div class="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
           <h1 class="text-3xl font-bold tracking-tight" :class="textClass">
-            Analytics
+            Dashboard
           </h1>
         </div>
       </header>
 
-      <main class="flex-1" :class="boxClass">
+      <main class="flex-1 my-3">
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3">
             <div class="rounded-lg shadow-lg p-4 border h-[350px] mx-4" :class="chartClass">

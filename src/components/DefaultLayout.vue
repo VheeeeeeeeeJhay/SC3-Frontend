@@ -2,33 +2,34 @@
     <div class="flex flex-row min-h-screen relative">
       <!-- Sidebar -->
       <aside :class="[
-        is_expanded ? 'w-full md:w-64' : 'w-16',
-        'flex flex-col bg-gray-900 text-white p-4 transition-all duration-200 ease-in-out overflow-hidden',
-        is_expanded && isMobileOrTablet ? 'fixed inset-0 z-50' : 'relative'
-      ]">
+      is_expanded ? 'w-full md:w-64' : 'w-16',
+      'flex flex-col bg-gray-900 text-white p-4 transition-all duration-200 ease-in-out overflow-hidden h-screen sticky top-0',
+      is_expanded && isMobileOrTablet ? 'fixed inset-0 z-50' : 'relative',
+      themeStore.isDarkMode ? 'bg-slate-950' : 'bg-gray-900',
+    ]">
         <!-- Logo Section -->
         <div class="mb-4 flex items-center">
           <div class="w-8 flex-shrink-0">
             <img :src="logoURL" alt="Logo" class="w-8 h-8" />
           </div>
           <span class="ml-4 transition-opacity duration-300 ease-in-out whitespace-nowrap overflow-hidden"
-            :class="{ 'opacity-100 max-w-full': is_expanded, 'opacity-0 max-w-0': !is_expanded }">Inventory System</span>
+            :class="{ 'opacity-100 max-w-full': is_expanded, 'opacity-0 max-w-0': !is_expanded }">911 Dashboard</span>
         </div>
 
         <!-- Toggle Button -->
         <div class="flex justify-end mb-4">
-          <button @click="ToggleMenu" class="w-8 flex-shrink-0 transition-transform duration-200 ease-in-out transform"
-            :class="{ 'rotate-180': is_expanded }">
-            <span class="material-icons text-2xl text-white hover:text-indigo-500">menu</span>
-          </button>
-        </div>
+        <button @click="ToggleMenu" class="w-8 flex-shrink-0 transition-transform duration-200 ease-in-out transform"
+          :class="{ 'rotate-180': is_expanded }">
+          <span class="material-icons text-2xl text-white hover:text-indigo-500">keyboard_double_arrow_right</span>
+        </button>
+      </div>
 
         <!-- Menu -->
         <h3
-          class="text-gray-400 text-sm uppercase mb-2 transition-opacity duration-300 ease-in-out whitespace-nowrap overflow-hidden"
-          :class="{ 'opacity-100 max-w-full': is_expanded, 'opacity-0 max-w-0': !is_expanded }">
-          Menu
-        </h3>
+        class="text-gray-400 text-sm uppercase mb-2 transition-opacity duration-300 ease-in-out whitespace-nowrap overflow-hidden"
+        :class="{ 'opacity-100 max-w-full': is_expanded, 'opacity-0 max-w-0': !is_expanded }">
+        Menu
+      </h3>
 
         <div class="-mx-4">
           <RouterLink v-for='item in navigation' :to="item.to" :key="item.name"
@@ -109,7 +110,7 @@
       </div>
 
       <!-- Main Content Area -->
-      <main class="flex-1 transition-all duration-300 ease-in-out">
+      <main class="flex-1 transition-all duration-300 ease-in-out overflow-auto">
         <router-view />
 
         <Dialog :visible="signout_visible" modal header="Sign out" :style="{ width: '25rem' }">
@@ -136,12 +137,13 @@
   import Button from 'primevue/button';
 
 const signout_visible = ref(false);
-
+// const isProfileDropdownOpen = ref(false);
   const is_expanded = ref(localStorage.getItem("is_expanded") === "true");
 
   const ToggleMenu = () => {
     is_expanded.value = !is_expanded.value;
     localStorage.setItem("is_expanded", is_expanded.value);
+    isProfileDropdownOpen.value = false;
   };
 
   const route = useRoute();
@@ -149,10 +151,10 @@ const signout_visible = ref(false);
   const themeStore = useThemeStore();
   const user = computed(() => userStore.user);
 
-  const isMobileOrTablet = ref(window.innerWidth < 1024);
-  const handleResize = () => {
-    isMobileOrTablet.value = window.innerWidth < 1024;
-  };
+  const isMobileOrTablet = ref(window.innerWidth < 767);
+const handleResize = () => {
+  isMobileOrTablet.value = window.innerWidth < 767;
+};
 
   onMounted(() => {
     window.addEventListener('resize', handleResize);
@@ -165,14 +167,14 @@ const signout_visible = ref(false);
   const navigation = [
     { name: 'Dashboard', to: { name: 'Dashboard' }, icon: 'bar_chart' },
     { name: 'Map', to: { name: 'Map' }, icon: 'map' },
-    { name: 'Report Form', to: { name: 'ReportForm' }, icon: 'description' },
+    { name: 'Report Form', to: { name: 'ReportForm' }, icon: 'note_add' },
   ]
 
   const isProfileDropdownOpen = ref(false);
 
   // Toggle dropdown visibility
   const toggleProfileDropdown = () => {
-  isProfileDropdownOpen.value = !isProfileDropdownOpen.value;
+    isProfileDropdownOpen.value = !isProfileDropdownOpen.value;
     is_expanded.value = "true";
     localStorage.setItem("is_expanded", is_expanded.value);
 };

@@ -1,178 +1,175 @@
 <template>
     <div :class="bgClass" style="min-height: 100vh;">
-        <div class="mx-4" :class>
-        <h1 class="text-2xl font-bold mb-6 text-gray-100">Incident Report Form</h1>
+        <header>
+            <div class="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
+                <h1 class="text-3xl font-bold tracking-tight text-white" :class="textClass">
+                    Incident Report Form
+                </h1>
+            </div>
+        </header>
+
+        <main class="flex-1 my-6 px-6">
+    <form @submit.prevent="submitForm" class="space-y-8 mx-auto max-w-4xl p-6 rounded-lg shadow-lg" :class="chartClass">
         
-        <form @submit.prevent="submitForm" class="space-y-6">
+        <!-- Report Details -->
+        <div class="bg-gray-950 p-6 rounded-lg shadow">
+            <h2 class="text-lg font-semibold text-gray-100 mb-4">Report Details</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Source of Report -->
                 <div class="form-group">
-                    <label for="source" class="block text-sm font-medium text-gray-300 mb-2">
+                    <label for="source" class="block text-sm font-medium mb-2" :class="textClass">
                         Source of Report*
                     </label>
-                    <Dropdown
-                        id="source"
-                        v-model="formData.source"
-                        :options="reportSources"
-                        optionLabel="name"
-                        optionValue="value"
-                        placeholder="Select source"
-                        class="w-full bg-gray-700"
-                        :required="true"
-                    />
+                    <select id="source" v-model="formData.source" class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600" required>
+                        <option disabled value="">Select source</option>
+                        <option v-for="option in reportSources" :key="option.value" :value="option.value">
+                            {{ option.name }}
+                        </option>
+                    </select>
                 </div>
 
                 <!-- Type of Incident -->
                 <div class="form-group">
-                    <label for="incidentType" class="block text-sm font-medium text-gray-300 mb-2">
+                    <label for="incidentType" class="block text-sm font-medium mb-2" :class="textClass">
                         Case Classification
                     </label>
-                    <Dropdown
-                        id="incidentType"
-                        v-model="formData.incidentType"
-                        :options="incidentTypes"
-                        optionLabel="name"
-                        optionValue="value"
-                        placeholder="Select incident type"
-                        class="w-full bg-gray-700"
-                        :required="true"
-                    />
+                    <select id="incidentType" v-model="formData.incidentType" class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600" required>
+                        <option disabled value="">Select incident type</option>
+                        <option v-for="option in incidentTypes" :key="option.value" :value="option.value">
+                            {{ option.name }}
+                        </option>
+                    </select>
                 </div>
-                <div>
-                    <label for="incidentType" class="block text-sm font-medium text-gray-300 mb-2">
-                        Incident/Case (ex. brawl)
+
+                <!-- Specific Incident -->
+                <div class="form-group">
+                    <label for="incident" class="block text-sm font-medium mb-2" :class="textClass">
+                        Incident/Case (e.g., Brawl)
                     </label>
-                    <Dropdown
-                        id="incidentType"
-                        v-model="formData.incident"
-                        :options="incident"
-                        optionLabel="name"
-                        optionValue="value"
-                        placeholder="Select incident"
-                        class="w-full bg-gray-700"
-                        :required="true"
-                    />
+                    <select id="incident" v-model="formData.incident" class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600" required>
+                        <option disabled value="">Select incident</option>
+                        <option v-for="option in incident" :key="option.value" :value="option.value">
+                            {{ option.name }}
+                        </option>
+                    </select>
                 </div>
-            </div>
-
-            <!-- Place -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="form-group">
-                <label for="place" class="block text-sm font-medium text-gray-300 mb-2">
-                    Place of Incident 
-                </label>
-                <InputText
-                    id="place"
-                    v-model="formData.place"
-                    placeholder="Enter the location of the incident (128 barangay)"
-                    class="w-full bg-gray-700 text-gray-100"
-                    required
-                />
-            </div>
-
-            <div class="form-group">
-                <label for="titude" class="block text-sm font-medium text-gray-300 mb-2">
-                    Longitude and Latitude
-                </label>
-                
-                <InputText
-                    id="Longitude"
-                    v-model="formData.Longitude"
-                    placeholder="Enter Longitude"
-                    class="w-full bg-gray-700 text-gray-100"
-                    required
-                />
-            </div>
-            <div class="form-group">
-                <InputText
-                    id="details"
-                    v-model="formData.details"
-                    placeholder="Enter location details/landmarks"
-                    class="w-full bg-gray-700 text-gray-100"
-                    required
-                />
-            </div>
-            <div class="form-group">
-                <InputText
-                    id="Latitude"
-                    v-model="formData.Latitude"
-                    placeholder="Enter Latitude"
-                    class="w-full bg-gray-700 text-gray-100"
-                    required
-                />
             </div>
         </div>
-            <!-- Actions Taken -->
+
+        <!-- Location Details -->
+        <div class="bg-gray-900 p-6 rounded-lg shadow">
+            <h2 class="text-lg font-semibold text-gray-100 mb-4">Location Details</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label for="place" class="block text-sm font-medium mb-2" :class="textClass">
+                        Place of Incident
+                    </label>
+                    <input
+                        id="place"
+                        v-model="formData.place"
+                        placeholder="Enter the location of the incident (128 barangay)"
+                        class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600"
+                        required
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="longitude" class="block text-sm font-medium mb-2" :class="textClass">
+                        Longitude
+                    </label>
+                    <input
+                        id="longitude"
+                        v-model="formData.Longitude"
+                        placeholder="Enter Longitude"
+                        class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600"
+                        required
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="latitude" class="block text-sm font-medium mb-2" :class="textClass">
+                        Latitude
+                    </label>
+                    <input
+                        id="latitude"
+                        v-model="formData.Latitude"
+                        placeholder="Enter Latitude"
+                        class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600"
+                        required
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="details" class="block text-sm font-medium mb-2" :class="textClass">
+                        Location Details/Landmarks
+                    </label>
+                    <input
+                        id="details"
+                        v-model="formData.details"
+                        placeholder="Enter location details/landmarks"
+                        class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600"
+                        required
+                    />
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions Taken -->
+        <div class="bg-gray-900 p-6 rounded-lg shadow">
+            <h2 class="text-lg font-semibold text-gray-100 mb-4">Actions Taken</h2>
             <div class="form-group">
-                <label for="actionType" class="block text-sm font-medium text-gray-300 mb-2">
+                <label for="actionType" class="block text-sm font-medium mb-2" :class="textClass">
                     Type of Action*
                 </label>
-                <Dropdown
-                    id="actionType"
-                    v-model="formData.actionType"
-                    :options="actionTypes"
-                    optionLabel="name"
-                    optionValue="value"
-                    placeholder="Select action type"
-                    class="w-full bg-gray-700"
-                    :required="true"
-                />
+                <select id="actionType" v-model="formData.actionType" class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600" required>
+                    <option disabled value="">Select action type</option>
+                    <option v-for="option in actionTypes" :key="option.value" :value="option.value">
+                        {{ option.name }}
+                    </option>
+                </select>
             </div>
+        </div>
 
-    
-<!-- modify for form inputs -->
-            <div class="flex justify-end space-x-4">
-                <Button
-                    type="button"
-                    label="Clear"
-                    class="p-button-secondary"
-                    @click="formData = {
-                        source: '',
-                        incidentType: '',
-                        place: '',
-                        actionType: ''
-                    }"
-                />
-                <Button
-                    type="submit"
-                    label="Submit Report"
-                    class="p-button-success"
-                />
-            </div>
+        <!-- Buttons -->
+        <div class="flex justify-end space-x-4">
+            <Button
+                type="button"
+                label="Clear"
+                class="p-button-secondary"
+                @click="formData = { source: '', incidentType: '', incident: '', place: '', Longitude: '', Latitude: '', details: '', actionType: '' }"
+            />
+            <Button
+                type="submit"
+                label="Submit Report"
+                class="p-button-success"
+            />
+        </div>
         </form>
-    </div>
+        </main>
     </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
-import InputText from 'primevue/inputtext';
-import Dropdown from 'primevue/dropdown';
 import Button from 'primevue/button';
 import { useThemeStore } from '../stores/themeStore';
 
 const themeStore = useThemeStore();
 
-const bgClass = computed(() => {
-  return themeStore.isDarkMode ? 'bg-gray-900' : 'bg-gray-100';
-})
-const textClass = computed(() => {
-  return themeStore.isDarkMode ? 'text-gray-100' : 'text-gray-900';
-})
-const boxClass = computed(() => {
-  return themeStore.isDarkMode ? 'bg-gray-800' : 'bg-white';
-})
+const bgClass = computed(() => themeStore.isDarkMode ? 'bg-slate-900' : 'bg-stone-200');
+const textClass = computed(() => themeStore.isDarkMode ? 'text-gray-100' : 'text-gray-900');
 const chartClass = computed(() => {
   return themeStore.isDarkMode ? 'bg-gray-700 border-gray-500' : 'bg-gray-200 border-gray-900';
 })
-
 
 const formData = ref({
     source: '',
     incidentType: '',
     incident: '',
     place: '',
-    actionsTaken: '',
+    Longitude: '',
+    Latitude: '',
+    details: '',
     actionType: ''
 });
 
@@ -209,14 +206,26 @@ const actionTypes = [
 ];
 
 const submitForm = () => {
-    // TODO: Implement form submission logic
     console.log('Form submitted:', formData.value);
 };
 </script>
 
 <style scoped>
-.form-group :deep(.p-dropdown),
-.form-group :deep(.p-inputtext) {
+/* Ensure all form input elements inside .form-group are styled correctly */
+.form-group select {
     width: 100%;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid #4b5563; /* Tailwind gray-600 */
+    background-color: #ffffff; /* Tailwind gray-800 */
+    color: #4b5563; /* Tailwind gray-600 */
+}
+.form-group :deep(input) {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid #4b5563; /* Tailwind gray-600 */
+    background-color: #ffffff; /* Tailwind gray-800 */
+    color: #4b5563; /* Tailwind gray-600 */
 }
 </style>

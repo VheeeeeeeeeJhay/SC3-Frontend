@@ -4,11 +4,11 @@ import Chart from 'primevue/chart';
 
 
 const chartData = ref({
-    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
     datasets: [
         {
             label: 'No.of Report',
-            data: [65, 59, 180, 81, 56, 55, 40],
+            data: [65, 59, 180, 81, 56, 55, 40, 43, 64, 12, 56, 23],
             backgroundColor: '#42A5F5',
         }
     ]
