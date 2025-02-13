@@ -17,11 +17,11 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Source of Report -->
                 <div class="form-group">
-                    <label for="source" class="block text-sm font-medium mb-2" :class="textClass">
+                    <!-- <label for="source" class="block text-sm font-medium mb-2" :class="textClass">
                         Source of Report*
-                    </label>
+                    </label> -->
                     <select id="source" v-model="formData.source" class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600" required>
-                        <option disabled value="">Select source</option>
+                        <option disabled value="">Source of Report</option>
                         <option v-for="option in reportSources" :key="option.value" :value="option.value">
                             {{ option.name }}
                         </option>
@@ -30,11 +30,11 @@
 
                 <!-- Type of Incident -->
                 <div class="form-group">
-                    <label for="incidentType" class="block text-sm font-medium mb-2" :class="textClass">
+                    <!-- <label for="incidentType" class="block text-sm font-medium mb-2" :class="textClass">
                         Case Classification
-                    </label>
+                    </label> -->
                     <select id="incidentType" v-model="formData.incidentType" class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600" required>
-                        <option disabled value="">Select incident type</option>
+                        <option disabled value="">Case Classification</option>
                         <option v-for="option in incidentTypes" :key="option.value" :value="option.value">
                             {{ option.name }}
                         </option>
@@ -43,11 +43,11 @@
 
                 <!-- Specific Incident -->
                 <div class="form-group">
-                    <label for="incident" class="block text-sm font-medium mb-2" :class="textClass">
+                    <!-- <label for="incident" class="block text-sm font-medium mb-2" :class="textClass">
                         Incident/Case (e.g., Brawl)
-                    </label>
+                    </label> -->
                     <select id="incident" v-model="formData.incident" class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600" required>
-                        <option disabled value="">Select incident</option>
+                        <option disabled value="">Incident/Case (e.g., Brawl)</option>
                         <option v-for="option in incident" :key="option.value" :value="option.value">
                             {{ option.name }}
                         </option>
@@ -61,22 +61,16 @@
             <h2 class="text-lg font-semibold text-gray-100 mb-4">Location Details</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="form-group">
-                    <label for="place" class="block text-sm font-medium mb-2" :class="textClass">
-                        Place of Incident
-                    </label>
                     <input
                         id="place"
                         v-model="formData.place"
-                        placeholder="Enter the location of the incident (128 barangay)"
+                        placeholder="Place of incident (128 barangay)"
                         class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600"
                         required
                     />
                 </div>
 
                 <div class="form-group">
-                    <label for="longitude" class="block text-sm font-medium mb-2" :class="textClass">
-                        Longitude
-                    </label>
                     <input
                         id="longitude"
                         v-model="formData.Longitude"
@@ -87,9 +81,6 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="latitude" class="block text-sm font-medium mb-2" :class="textClass">
-                        Latitude
-                    </label>
                     <input
                         id="latitude"
                         v-model="formData.Latitude"
@@ -100,9 +91,6 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="details" class="block text-sm font-medium mb-2" :class="textClass">
-                        Location Details/Landmarks
-                    </label>
                     <input
                         id="details"
                         v-model="formData.details"

@@ -168,7 +168,6 @@ const handleResize = () => {
     { name: 'Dashboard', to: { name: 'Dashboard' }, icon: 'bar_chart' },
     { name: 'Map', to: { name: 'Map' }, icon: 'map' },
     { name: 'Report Form', to: { name: 'ReportForm' }, icon: 'note_add' },
-    { name: 'Report Form', to: { name: 'ReportForm' }, icon: 'note_add' },
   ]
 
   const isProfileDropdownOpen = ref(false);
