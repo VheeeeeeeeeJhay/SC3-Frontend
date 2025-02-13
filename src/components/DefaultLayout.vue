@@ -33,7 +33,7 @@
 
         <div class="-mx-4">
           <RouterLink v-for='item in navigation' :to="item.to" :key="item.name"
-            :class="[$route.name === item.to.name ? 'bg-gray-800 border-r-4 border-indigo-500' : ' hover:bg-gray-800', 'flex items-center p-2 pl-4 transition duration-200 ease-in-out']">
+            :class="[$route.name === item.to.name ? 'bg-gray-800 border-r-4 border-green-500' : ' hover:bg-gray-800', 'flex items-center p-2 pl-4 transition duration-200 ease-in-out']">
             <div class="w-8 flex-shrink-0">
               <span class="material-icons text-2xl text-white">{{ item.icon }}</span>
             </div>
@@ -167,6 +167,7 @@ const handleResize = () => {
   const navigation = [
     { name: 'Dashboard', to: { name: 'Dashboard' }, icon: 'bar_chart' },
     { name: 'Map', to: { name: 'Map' }, icon: 'map' },
+    { name: 'Report Form', to: { name: 'ReportForm' }, icon: 'note_add' },
     { name: 'Report Form', to: { name: 'ReportForm' }, icon: 'note_add' },
   ]
 
