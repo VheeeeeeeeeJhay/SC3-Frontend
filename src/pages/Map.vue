@@ -1,9 +1,25 @@
 <template>
     <div :class="bgClass" style="min-height: 100vh;">
         <div class="mx-4" :class>
-        <h1 class="text-2xl font-bold mb-6 text-gray-100" :class="textClass">Heat Map here</h1>
+        <!-- <h1 class="text-2xl font-bold mb-6 text-gray-100" :class="textClass">Heat Map here</h1>
         
-        <img src="https://th.bing.com/th/id/R.450d7cb80e9013f6d80ad1547a3414c5?rik=f20epSYlcY25AQ&riu=http%3a%2f%2fgetwallpapers.com%2fwallpaper%2ffull%2ff%2f9%2ff%2f327112.jpg&ehk=iBETV2e95IbNX0zVk%2bZgxp%2bIG0HrkXfGDa7ycjRQ%2bIA%3d&risl=&pid=ImgRaw&r=0" class="w-full h-[700px]" alt="Mapa to"/>
+        <img src="https://th.bing.com/th/id/R.450d7cb80e9013f6d80ad1547a3414c5?rik=f20epSYlcY25AQ&riu=http%3a%2f%2fgetwallpapers.com%2fwallpaper%2ffull%2ff%2f9%2ff%2f327112.jpg&ehk=iBETV2e95IbNX0zVk%2bZgxp%2bIG0HrkXfGDa7ycjRQ%2bIA%3d&risl=&pid=ImgRaw&r=0" class="w-full h-[700px]" alt="Mapa to"/> -->
+        <form @submit.prevent="submitForm" class="mt-4">
+            <input 
+                type="text" 
+                v-model="inputValue" 
+                placeholder="Enter value" 
+                class="px-4 py-2 border rounded-md mr-2"
+                :class="themeStore.isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-gray-900'"
+            />
+            <button 
+                type="submit" 
+                class="px-4 py-2 rounded-md"
+                :class="themeStore.isDarkMode ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'"
+            >
+                Submit
+            </button>
+        </form>
         
     </div>
     </div>

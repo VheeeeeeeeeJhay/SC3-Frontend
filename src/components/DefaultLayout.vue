@@ -45,11 +45,16 @@ const logout = () => {
   //   router.push({ name: 'Login' });
   // });
 };
+
+const themeClasses = computed(() => 
+    theme.value === "dark" ? "bg-black border-black text-white" : "bg-white border-gray-200 text-gray-900"
+);
+
 </script>  
 
 <template>
   <div>
-      <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-black dark:border-black">
+      <nav class="fixed top-0 z-50 w-full border-b" :class="themeClasses">
           <div class="px-3 py-3 lg:px-5 lg:pl-3">
               <div class="flex items-center justify-between">
                   <div class="flex items-center justify-start rtl:justify-end">
@@ -66,7 +71,7 @@ const logout = () => {
                       </button>
                       <a href="#" class="flex ms-2 md:me-24">
                           <img src="../assets/baguio-logo.png" class="h-10 me-3" alt="Smart City Baguio" />
-                          <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">SCCC-911 Dashboard</span>
+                          <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap" :class="themeClasses">SCCC-911 Dashboard</span>
                       </a>
                   </div>
 
@@ -111,15 +116,24 @@ const logout = () => {
       </nav>
 
       <aside id="logo-sidebar"
-          class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0 dark:bg-black dark:border-black"
+          class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full border-r sm:translate-x-0" :class="themeClasses"
           aria-label="Sidebar">
-          <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-black">
+          <div class="h-full px-3 pb-4 overflow-y-auto" :class="themeClasses">
               <ul class="space-y-2 font-medium">
                   <li v-for='item in navigation' :key="item.name">
-                      <RouterLink :to="item.to"
-                      :class="[route.name === item.to.name ? 'text-gray-700 bg-gray-300 hover:text-gray-700 hover:bg-gray-300 dark:text-gray-300 dark:bg-gray-600 dark:hover:text-gray-300 dark:hover:bg-gray-600' : 'text-gray-900 hover:text-gray-700 hover:bg-gray-300 dark:text-white dark:hover:text-gray-400 dark:hover:bg-gray-700', 'flex my-2 items-center p-2 rounded-lg group']">
-                          <span 
-                          :class="[route.name === item.to.name ? 'text-gray-700 group-hover:text-gray-700 dark:text-gray-300 dark:group-hover:text-gray-300' : 'text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-400 dark:group-hover:text-gray-400', 'material-icons w-5 h-5 transition duration-75']">
+                      <RouterLink :to="item.to" :class="[
+                          themeClasses,
+                          route.name === item.to.name 
+                              ? 'bg-gray-300 dark:bg-gray-600' 
+                              : 'hover:bg-gray-300 dark:hover:bg-gray-700',
+                          'flex my-2 items-center p-2 rounded-lg group'
+                      ]">
+                          <span :class="[
+                              route.name === item.to.name 
+                                  ? 'text-gray-700 dark:text-gray-300' 
+                                  : 'text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-400',
+                              'material-icons w-5 h-5 transition duration-75'
+                          ]">
                               {{ item.icon }}
                           </span>
                           <span class="ms-3">{{ item.name }}</span>
@@ -129,7 +143,7 @@ const logout = () => {
           </div>
       </aside>
 
-      <div class="h-screen pt-14 p-4 sm:ml-64 dark:bg-gray-900">
+      <div class=" pt-14 p-4 sm:ml-64 dark:bg-gray-900">
           <router-view />
       </div>
   </div>
