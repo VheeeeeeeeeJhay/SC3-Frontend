@@ -56,6 +56,12 @@ const actionTypes = [
   { name: 'Referred', value: 'referred' }
 ];
 
+const barangay = [
+  { name: 'Itogon', value: 'itogon' },
+  { name: 'Bakakeng', value: 'bakakeng' },
+  { name: 'St. Antonio', value: 'stAntonio' }
+]
+
 const submitForm = () => {
   console.log('Form submitted:', formData.value);
 };
@@ -176,9 +182,13 @@ const clearForm = () => {
                         <div class="form-group">
                             <label for="place" class="block text-sm font-medium mb-2 text-gray-100">Place of
                                 Incident</label>
-                            <input id="place" v-model="formData.place" placeholder="Enter place (128 barangay)"
-                                class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600"
-                                required />
+                                <select id="place" v-model="formData.place"
+                                class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600" required>
+                                <option disabled value="">Select Barangay (128)</option>
+                                <option v-for="option in barangay" :key="option.value" :value="option.value">
+                                    {{ option.name }}
+                                </option>
+                            </select>
                         </div>
 
                         <div class="form-group">
