@@ -45,7 +45,7 @@ function submit() {
       <h1 class="text-white text-2xl font-bold leading-tight">
         Smart City Command<br />
         and Control Center<br />
-        Inventory System
+        911 Dashboard
       </h1>
     </div>
 

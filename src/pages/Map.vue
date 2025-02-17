@@ -11,9 +11,6 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import InputText from 'primevue/inputtext';
-import Dropdown from 'primevue/dropdown';
-import Button from 'primevue/button';
 import { useThemeStore } from '../stores/themeStore';
 
 const themeStore = useThemeStore();

@@ -113,13 +113,15 @@
       <main class="flex-1 transition-all duration-300 ease-in-out overflow-auto">
         <router-view />
 
-        <Dialog :visible="signout_visible" modal header="Sign out" :style="{ width: '25rem' }">
+        <div v-if="signout_visible" class="fixed inset-0 flex items-center justify-center z-50">
+          <div class="bg-gray-800 border border-gray-700 rounded-md shadow-lg p-4 w-1/3">
             <span class="text-surface-500 dark:text-surface-400 block mb-8">Are you sure you want to sign out?</span>
             <div class="flex justify-end gap-2">
-                <Button type="button" label="Cancel" severity="secondary" @click="signout_visible = false"></Button>
-                <Button type="button" label="Sign out" @click="logout"></Button>
+              <button type="button" class="px-4 py-2 bg-gray-600 text-white rounded" @click="signout_visible = false">Cancel</button>
+              <button type="button" class="px-4 py-2 bg-red-600 text-white rounded" @click="logout">Sign out</button>
             </div>
-        </Dialog>
+          </div>
+        </div>
       </main>
     </div>
   </template>
@@ -132,9 +134,6 @@
   import router from "../router.js";
   import useUserStore from "../stores/user.js";
   import { useThemeStore } from '../stores/themeStore';
-  import { DisclosureButton, Disclosure, DisclosurePanel } from '@headlessui/vue'
-  import Dialog from 'primevue/dialog';
-  import Button from 'primevue/button';
 
 const signout_visible = ref(false);
 // const isProfileDropdownOpen = ref(false);

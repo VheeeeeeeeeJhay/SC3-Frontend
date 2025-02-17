@@ -139,7 +139,6 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import Button from 'primevue/button';
 import { useThemeStore } from '../stores/themeStore';
 
 const themeStore = useThemeStore();

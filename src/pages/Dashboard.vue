@@ -3,9 +3,6 @@
 import { ref, computed } from "vue";
 import axiosClient from "../axios.js";
 import router from "../router.js";
-import BarChart from '../components/charts/BarChart.vue';
-import LineChart from '../components/charts/LineChart.vue';
-import PieChart from '../components/charts/PieChart.vue';
 import { useThemeStore } from '../stores/themeStore';
 
 const themeStore = useThemeStore();
@@ -41,19 +38,19 @@ const chartClass = computed(() => {
             <div class="rounded-lg shadow-lg p-4 border h-[350px] mx-4" :class="chartClass">
                 <h2 class="text-lg font-semibold mb-2" :class="textClass">Distribution of incident</h2>
                 <div class="h-[calc(100%-2rem)]">                 
-                    <PieChart />
+                    <!-- <PieChart /> -->
                 </div>
             </div>
             <div class="rounded-lg shadow-lg p-4 border h-[350px] mx-4" :class="chartClass">
                 <h2 class="text-lg font-semibold mb-2" :class="textClass">Crime chuchu</h2>
                 <div class="h-[calc(100%-2rem)]">                
-                    <BarChart />
+                    <!-- <BarChart /> -->
                 </div>
             </div>
             <div class="rounded-lg shadow-lg p-4 border md:col-span-2 h-[350px] mx-4" :class="chartClass">
                 <h2 class="text-lg font-semibold mb-2" :class="textClass">Crime Rate</h2>
                 <div class="h-[calc(100%-2rem)]">
-                    <LineChart />
+                    <!-- <LineChart /> -->
                 </div>
             </div>
         </div>
