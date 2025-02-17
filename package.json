@@ -13,14 +13,17 @@
     "@heroicons/vue": "^2.2.0",
     "@primevue/themes": "^4.2.5",
     "@tailwindcss/vite": "^4.0.5",
+    "apexcharts": "^4.4.0",
     "axios": "^1.7.9",
     "chart.js": "^4.4.7",
     "flowbite": "^3.1.2",
+    "flowbite-vue": "^0.1.7",
     "material-design-icons-iconfont": "^6.7.0",
     "pinia": "^2.3.1",
     "primeicons": "^7.0.0",
     "vue": "^3.5.13",
-    "vue-router": "^4.5.0"
+    "vue-router": "^4.5.0",
+    "vue3-apexcharts": "^1.8.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.1",

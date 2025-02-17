@@ -1,6 +1,6 @@
 <script setup>
 
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import axiosClient from "../axios.js";
 import router from "../router.js";
 import { useThemeStore } from '../stores/themeStore';
@@ -20,6 +20,11 @@ const chartClass = computed(() => {
   return themeStore.isDarkMode ? 'bg-gray-700 border-gray-500' : 'bg-gray-200 border-gray-900';
 })
 
+import PieChart from "../components/charts/PieChart.vue";
+
+
+
+
 </script>
 
 <template>
@@ -33,30 +38,26 @@ const chartClass = computed(() => {
       </header>
 
       <main class="flex-1 my-3">
+    <!-- Grid layout for the charts -->
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4">
+      <!-- First chart in the first row -->
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3">
-            <div class="rounded-lg shadow-lg p-4 border h-[350px] mx-4" :class="chartClass">
-                <h2 class="text-lg font-semibold mb-2" :class="textClass">Distribution of incident</h2>
-                <div class="h-[calc(100%-2rem)]">                 
-                    <!-- <PieChart /> -->
-                </div>
-            </div>
-            <div class="rounded-lg shadow-lg p-4 border h-[350px] mx-4" :class="chartClass">
-                <h2 class="text-lg font-semibold mb-2" :class="textClass">Crime chuchu</h2>
-                <div class="h-[calc(100%-2rem)]">                
-                    <!-- <BarChart /> -->
-                </div>
-            </div>
-            <div class="rounded-lg shadow-lg p-4 border md:col-span-2 h-[350px] mx-4" :class="chartClass">
-                <h2 class="text-lg font-semibold mb-2" :class="textClass">Crime Rate</h2>
-                <div class="h-[calc(100%-2rem)]">
-                    <!-- <LineChart /> -->
-                </div>
-            </div>
-        </div>
+          <PieChart />
+        
+      
+      <!-- Second chart in the first row (empty for now, you can add it later) -->
+
+          <!-- Replace this with your actual BarChart component -->
+          <!-- <BarChart /> -->
 
 
-      </main>
+      <!-- Third chart in the first row (empty for now, you can add it later) -->
+
+          <!-- Replace this with your actual LineChart component -->
+          <!-- <LineChart /> -->
+
+    </div>
+  </main>
     </div>
 </template>
 
