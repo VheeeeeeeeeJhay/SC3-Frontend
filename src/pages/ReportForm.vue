@@ -9,7 +9,7 @@
         </header>
 
         <main class="flex-1 my-6 px-6">
-    <form @submit.prevent="submitForm" class="space-y-8 mx-auto max-w-4xl p-6 rounded-lg shadow-lg" :class="chartClass">
+    <form @submit.prevent="submitForm" class="space-y-8 mx-auto max-w-4xl p-6">
         
         <!-- Report Details -->
         <div class="bg-gray-950 p-6 rounded-lg shadow">
@@ -64,7 +64,7 @@
             </div>
 
             <!-- Time Information -->
-            <h2 class="text-md font-semibold text-gray-300 mb-3">Time Information</h2>
+            <h2 class="text-md font-semibold text-gray-300 mb-3">Date and Time Information</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div class="form-group">
                     <label for="receivedDate" class="block text-sm font-medium mb-2 text-gray-100">Date Received</label>

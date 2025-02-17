@@ -1,205 +1,136 @@
-  <template>
-    <div class="flex flex-row min-h-screen relative">
-      <!-- Sidebar -->
-      <aside :class="[
-      is_expanded ? 'w-full md:w-64' : 'w-16',
-      'flex flex-col bg-gray-900 text-white p-4 transition-all duration-200 ease-in-out overflow-hidden h-screen sticky top-0',
-      is_expanded && isMobileOrTablet ? 'fixed inset-0 z-50' : 'relative',
-      themeStore.isDarkMode ? 'bg-slate-950' : 'bg-gray-900',
-    ]">
-        <!-- Logo Section -->
-        <div class="mb-4 flex items-center">
-          <div class="w-8 flex-shrink-0">
-            <img :src="logoURL" alt="Logo" class="w-8 h-8" />
-          </div>
-          <span class="ml-4 transition-opacity duration-300 ease-in-out whitespace-nowrap overflow-hidden"
-            :class="{ 'opacity-100 max-w-full': is_expanded, 'opacity-0 max-w-0': !is_expanded }">911 Dashboard</span>
-        </div>
+<script setup>
+import { ref, computed, onMounted } from "vue";
+import { RouterLink, useRoute } from 'vue-router';
+import useUserStore from "../stores/user.js";
 
-        <!-- Toggle Button -->
-        <div class="flex justify-end mb-4">
-        <button @click="ToggleMenu" class="w-8 flex-shrink-0 transition-transform duration-200 ease-in-out transform"
-          :class="{ 'rotate-180': is_expanded }">
-          <span class="material-icons text-2xl text-white hover:text-indigo-500">keyboard_double_arrow_right</span>
-        </button>
-      </div>
+const theme = ref(localStorage.getItem("theme") || "light");
+const dropdownOpen = ref(false);
 
-        <!-- Menu -->
-        <h3
-        class="text-gray-400 text-sm uppercase mb-2 transition-opacity duration-300 ease-in-out whitespace-nowrap overflow-hidden"
-        :class="{ 'opacity-100 max-w-full': is_expanded, 'opacity-0 max-w-0': !is_expanded }">
-        Menu
-      </h3>
+const toggleTheme = () => {
+    if (theme.value === "light") {
+        document.documentElement.classList.add("dark");
+        localStorage.setItem("theme", "dark");
+        theme.value = "dark";
+    } else {
+        document.documentElement.classList.remove("dark");
+        localStorage.setItem("theme", "light");
+        theme.value = "light";
+    }
+};
 
-        <div class="-mx-4">
-          <RouterLink v-for='item in navigation' :to="item.to" :key="item.name"
-            :class="[$route.name === item.to.name ? 'bg-gray-800 border-r-4 border-green-500' : ' hover:bg-gray-800', 'flex items-center p-2 pl-4 transition duration-200 ease-in-out']">
-            <div class="w-8 flex-shrink-0">
-              <span class="material-icons text-2xl text-white">{{ item.icon }}</span>
-            </div>
-            <span class="ml-4 transition-opacity duration-300 ease-in-out whitespace-nowrap overflow-hidden"
-              :class="{ 'opacity-100 max-w-full': is_expanded, 'opacity-0 max-w-0': !is_expanded }">{{ item.name }}</span>
-          </RouterLink>
-        </div>
+const toggleDropdown = () => {
+    dropdownOpen.value = !dropdownOpen.value;
+};
 
-        <div class="flex-1"></div>
+onMounted(() => {
+    if (localStorage.getItem("theme") === "dark") {
+        document.documentElement.classList.add("dark");
+        theme.value = "dark";
+    }
+});
 
-        <h3
-          class="text-gray-400 text-sm uppercase mb-2 transition-opacity duration-300 ease-in-out whitespace-nowrap overflow-hidden"
-          :class="{ 'opacity-100 max-w-full': is_expanded, 'opacity-0 max-w-0': !is_expanded }">
-          Settings
-        </h3>
+const userStore = useUserStore();
+const user = computed(() => userStore.user);
+const route = useRoute();
 
-        <!-- Theme Toggle Button -->
-      <button @click="themeStore.toggleTheme" class="min-w-full text-left -mx-4">
-        <div class="flex items-center p-2 pl-4 transition duration-200 ease-in-out hover:bg-gray-800">
-          <div class="w-8 flex-shrink-0">
-            <span class="material-icons text-2xl text-white">
-              {{ themeIcon }}
-            </span>
-          </div>
-          <span class="ml-4 transition-opacity duration-300 ease-in-out whitespace-nowrap overflow-hidden"
-            :class="{ 'opacity-100 max-w-full': is_expanded, 'opacity-0 max-w-0': !is_expanded }">
-            {{ themeLabel }}
-          </span>
-        </div>
-      </button>
+const navigation = [
+  { name: 'Dashboard', to: { name: 'Dashboard' }, icon: 'bar_chart' },
+  { name: 'Map', to: { name: 'Map' }, icon: 'map' },
+  { name: 'Report Form', to: { name: 'ReportForm' }, icon: 'note_add' },
+];
 
+const logout = () => {
+  // Implement logout functionality
+  // axiosClient.post('/logout').then(() => {
+  //   router.push({ name: 'Login' });
+  // });
+};
+</script>  
 
-        <div class="relative -mx-4">
-          <!-- Profile Section -->
-          <button @click="toggleProfileDropdown" class="w-full text-left">
-            <div class="flex items-center p-2 pl-4 transition duration-200 ease-in-out hover:bg-gray-800">
-              <div class="w-8 flex-shrink-0">
-                <img class="size-8 rounded-full" src="https://randomuser.me/api/portraits/men/81.jpg" alt="Profile" />
+<template>
+  <div>
+      <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-black dark:border-black">
+          <div class="px-3 py-3 lg:px-5 lg:pl-3">
+              <div class="flex items-center justify-between">
+                  <div class="flex items-center justify-start rtl:justify-end">
+                      <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar"
+                          aria-controls="logo-sidebar" type="button"
+                          class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
+                          <span class="sr-only">Open sidebar</span>
+                          <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
+                              xmlns="http://www.w3.org/2000/svg">
+                              <path clip-rule="evenodd" fill-rule="evenodd"
+                                  d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z">
+                              </path>
+                          </svg>
+                      </button>
+                      <a href="#" class="flex ms-2 md:me-24">
+                          <img src="../assets/baguio-logo.png" class="h-10 me-3" alt="Smart City Baguio" />
+                          <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">SCCC-911 Dashboard</span>
+                      </a>
+                  </div>
+
+                  <div class="flex items-center">
+                      <div class="flex items-center ms-3 relative">
+                          <button @click="toggleDropdown" type="button"
+                              class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+                              aria-expanded="false">
+                              <span class="sr-only">Open user menu</span>
+                              <img class="w-8 h-8 rounded-full"
+                                  src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+                                  alt="user photo">
+                          </button>
+                          <div v-show="dropdownOpen" 
+                              class="absolute right-0 top-full mt-2 z-50 w-48 text-base list-none bg-white divide-y divide-gray-100 rounded-sm shadow-sm dark:bg-gray-700 dark:divide-gray-600">
+                              <div class="px-4 py-3" role="none">
+                                  <p class="text-sm text-gray-900 dark:text-white" role="none">
+                                      {{ user?.firstname || 'Guest' }}
+                                  </p>
+                                  <p class="text-sm font-medium text-gray-900 truncate dark:text-gray-300"
+                                      role="none">
+                                      {{ user?.email || 'No email' }}
+                                  </p>
+                              </div>
+                              <ul class="py-1" role="none">
+                                  <li>
+                                      <button @click="toggleTheme" class="block w-full text-start px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white">
+                                          {{ theme === 'light' ? '🌞 Light Mode' : '🌙 Dark Mode' }}
+                                      </button>
+                                  </li>
+                                  <li>
+                                      <a @click="logout" href="#"
+                                          class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+                                          role="menuitem">Sign out</a>
+                                  </li>
+                              </ul>
+                          </div>
+                      </div>
+                  </div>
               </div>
-              <span class="ml-4 transition-opacity duration-300 ease-in-out whitespace-nowrap overflow-hidden"
-                :class="{ 'opacity-100 max-w-full': is_expanded, 'opacity-0 max-w-0': !is_expanded }">
-
-                <div class="ml-3 text-left transition-opacity duration-300 ease-in-out whitespace-nowrap overflow-hidden"
-                  :class="{ 'opacity-100 max-w-full': is_expanded, 'opacity-0 max-w-0': !is_expanded }">
-                  <div class="text-base font-medium text-white">{{ user?.name || 'Guest' }}</div>
-                  <div class="text-sm font-medium text-gray-400">{{ user?.email || 'No email' }}</div>
-                </div>
-              </span>
-
-              <span class="material-icons ml-auto text-gray-400 transition-transform"
-                :class="{ 'rotate-180': isProfileDropdownOpen }">
-                expand_more
-              </span>
-            </div>
-          </button>
-
-          <!-- Dropdown Menu -->
-          <div v-if="isProfileDropdownOpen"
-            class="absolute right-4 bottom-full mb-2 w-48 bg-gray-800 border border-gray-700 rounded-md shadow-lg z-100 w-[90%]">
-            <button @click="editProfile"
-              class="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white">
-              Edit Profile
-            </button>
-            <button @click="signout_visible = true"
-              class="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white">
-              Sign Out
-            </button>
           </div>
-        </div>
+      </nav>
+
+      <aside id="logo-sidebar"
+          class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0 dark:bg-black dark:border-black"
+          aria-label="Sidebar">
+          <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-black">
+              <ul class="space-y-2 font-medium">
+                  <li v-for='item in navigation' :key="item.name">
+                      <RouterLink :to="item.to"
+                      :class="[route.name === item.to.name ? 'text-gray-700 bg-gray-300 hover:text-gray-700 hover:bg-gray-300 dark:text-gray-300 dark:bg-gray-600 dark:hover:text-gray-300 dark:hover:bg-gray-600' : 'text-gray-900 hover:text-gray-700 hover:bg-gray-300 dark:text-white dark:hover:text-gray-400 dark:hover:bg-gray-700', 'flex my-2 items-center p-2 rounded-lg group']">
+                          <span 
+                          :class="[route.name === item.to.name ? 'text-gray-700 group-hover:text-gray-700 dark:text-gray-300 dark:group-hover:text-gray-300' : 'text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-400 dark:group-hover:text-gray-400', 'material-icons w-5 h-5 transition duration-75']">
+                              {{ item.icon }}
+                          </span>
+                          <span class="ms-3">{{ item.name }}</span>
+                      </RouterLink>
+                  </li>
+              </ul>
+          </div>
       </aside>
 
-      <!-- Backdrop for Mobile/Tablet -->
-      <div v-if="is_expanded && isMobileOrTablet" class="fixed inset-0 bg-black bg-opacity-50 z-40" @click="ToggleMenu">
+      <div class="h-screen pt-14 p-4 sm:ml-64 dark:bg-gray-900">
+          <router-view />
       </div>
-
-      <!-- Main Content Area -->
-      <main class="flex-1 transition-all duration-300 ease-in-out overflow-auto">
-        <router-view />
-
-        <div v-if="signout_visible" class="fixed inset-0 flex items-center justify-center z-50">
-          <div class="bg-gray-800 border border-gray-700 rounded-md shadow-lg p-4 w-1/3">
-            <span class="text-surface-500 dark:text-surface-400 block mb-8">Are you sure you want to sign out?</span>
-            <div class="flex justify-end gap-2">
-              <button type="button" class="px-4 py-2 bg-gray-600 text-white rounded" @click="signout_visible = false">Cancel</button>
-              <button type="button" class="px-4 py-2 bg-red-600 text-white rounded" @click="logout">Sign out</button>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
-  </template>
-
-  <script setup>
-  import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-  import { useRoute } from 'vue-router';
-  import logoURL from '../assets/baguio-logo.png';
-  import axiosClient from "../axios.js";
-  import router from "../router.js";
-  import useUserStore from "../stores/user.js";
-  import { useThemeStore } from '../stores/themeStore';
-
-const signout_visible = ref(false);
-// const isProfileDropdownOpen = ref(false);
-  const is_expanded = ref(localStorage.getItem("is_expanded") === "true");
-
-  const ToggleMenu = () => {
-    is_expanded.value = !is_expanded.value;
-    localStorage.setItem("is_expanded", is_expanded.value);
-    isProfileDropdownOpen.value = false;
-  };
-
-  const route = useRoute();
-  const userStore = useUserStore();
-  const themeStore = useThemeStore();
-  const user = computed(() => userStore.user);
-
-  const isMobileOrTablet = ref(window.innerWidth < 767);
-const handleResize = () => {
-  isMobileOrTablet.value = window.innerWidth < 767;
-};
-
-  onMounted(() => {
-    window.addEventListener('resize', handleResize);
-  });
-
-  onBeforeUnmount(() => {
-    window.removeEventListener('resize', handleResize);
-  });
-
-  const navigation = [
-    { name: 'Dashboard', to: { name: 'Dashboard' }, icon: 'bar_chart' },
-    { name: 'Map', to: { name: 'Map' }, icon: 'map' },
-    { name: 'Report Form', to: { name: 'ReportForm' }, icon: 'note_add' },
-  ]
-
-  const isProfileDropdownOpen = ref(false);
-
-  // Toggle dropdown visibility
-  const toggleProfileDropdown = () => {
-    isProfileDropdownOpen.value = !isProfileDropdownOpen.value;
-    is_expanded.value = "true";
-    localStorage.setItem("is_expanded", is_expanded.value);
-};
-
-  // Dummy edit profile function (replace with actual navigation)
-  const editProfile = () => {
-    router.push({ name: 'EditProfile' }); // Make sure this route exists
-  };
-
-  function logout() {
-    axiosClient.post('/logout').then(() => {
-      router.push({ name: 'Login' });
-    });
-  }
-
-
-// Theme Computed Properties
-const themeIcon = computed(() => themeStore.isDarkMode ? 'dark_mode': 'light_mode' );
-const themeLabel = computed(() => themeStore.isDarkMode ? 'Dark Mode' : 'Light Mode');
-
-  </script>
-
-  <style scoped>
-  @media (max-width: 1024px) {
-    aside {
-      height: 100vh;
-    }
-  }
-  </style>
+  </div>
+</template>
