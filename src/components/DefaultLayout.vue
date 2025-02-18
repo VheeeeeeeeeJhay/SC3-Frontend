@@ -4,32 +4,15 @@ import { RouterLink, useRoute } from 'vue-router';
 import useUserStore from "../stores/user.js";
 import axiosClient from "../axios.js";
 import router from "../router.js";
+import { useThemeStore } from '../stores/themeStore';
 
-const theme = ref(localStorage.getItem("theme") || "light");
+const themeStore = useThemeStore();
+
 const dropdownOpen = ref(false);
-
-const toggleTheme = () => {
-    if (theme.value === "light") {
-        document.documentElement.classList.add("dark");
-        localStorage.setItem("theme", "dark");
-        theme.value = "dark";
-    } else {
-        document.documentElement.classList.remove("dark");
-        localStorage.setItem("theme", "light");
-        theme.value = "light";
-    }
-};
-
 const toggleDropdown = () => {
     dropdownOpen.value = !dropdownOpen.value;
 };
 
-onMounted(() => {
-    if (localStorage.getItem("theme") === "dark") {
-        document.documentElement.classList.add("dark");
-        theme.value = "dark";
-    }
-});
 
 const userStore = useUserStore();
 const user = computed(() => userStore.user);
@@ -49,9 +32,13 @@ const logout = () => {
   });
 };
 
-const themeClasses = computed(() => 
-    theme.value === "dark" ? "bg-black border-black text-white" : "bg-white border-gray-200 text-gray-900"
-);
+
+const themeClasses = computed(() => {
+  return themeStore.isDarkMode ? "bg-slate-800 border-black text-white" : "bg-sky-50 border-gray-200 text-sky-900"
+})
+const dropClasses = computed(() => {
+  return themeStore.isDarkMode ? "bg-slate-600 border-black text-white" : "bg-white border-gray-200 text-sky-900"
+})
 
 </script>  
 
@@ -89,25 +76,26 @@ const themeClasses = computed(() =>
                                   alt="user photo">
                           </button>
                           <div v-show="dropdownOpen" 
-                              class="absolute right-0 top-full mt-2 z-50 w-48 text-base list-none bg-white divide-y divide-gray-100 rounded-sm shadow-sm dark:bg-gray-700 dark:divide-gray-600">
+                              class="absolute right-0 top-full mt-2 z-50 w-48 text-base list-none divide-y divide-gray-100 rounded-lg shadow-lg" :class="dropClasses">
                               <div class="px-4 py-3" role="none">
-                                  <p class="text-sm text-gray-900 dark:text-white" role="none">
+                                  <p class="text-sm" :class="dropClasses" role="none">
                                       {{ user?.firstname || 'Guest' }}
                                   </p>
-                                  <p class="text-sm font-medium text-gray-900 truncate dark:text-gray-300"
+                                  <p class="text-sm font-medium truncate" :class="dropClasses"
                                       role="none">
                                       {{ user?.email || 'No email' }}
                                   </p>
                               </div>
+                              
                               <ul class="py-1" role="none">
                                   <li>
-                                      <button @click="toggleTheme" class="block w-full text-start px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white">
-                                          {{ theme === 'light' ? '🌞 Light Mode' : '🌙 Dark Mode' }}
-                                      </button>
+                                    <button @click="themeStore.toggleTheme">
+                                        {{ themeStore.theme === "light" ? "🌞 Light Mode" : "🌙 Dark Mode" }}
+                                    </button>
                                   </li>
                                   <li>
                                       <a @click="logout" href="#"
-                                          class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+                                          class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-sky-300 dark:hover:text-white" :class="dropClasses"
                                           role="menuitem">Sign out</a>
                                   </li>
                               </ul>
@@ -127,8 +115,8 @@ const themeClasses = computed(() =>
                       <RouterLink :to="item.to" :class="[
                           themeClasses,
                           route.name === item.to.name 
-                              ? 'bg-gray-300 dark:bg-gray-600' 
-                              : 'hover:bg-gray-300 dark:hover:bg-gray-700',
+                              ? 'bg-gray-300 dark:bg-sky-400' 
+                              : 'hover:bg-gray-300 dark:hover:bg-sky-300',
                           'flex my-2 items-center p-2 rounded-lg group'
                       ]">
                           <span :class="[
