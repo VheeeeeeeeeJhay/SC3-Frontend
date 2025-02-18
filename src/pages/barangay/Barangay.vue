@@ -1,6 +1,4 @@
 <template>
-
-  
     <div v-if="!formVisibility">
       <PrimaryButton name="Add New Barangay" @click.prevent="openForm" class="bg-green-500 hover:bg-green-600 hover:shadow-md"/>
     </div>
