@@ -1,6 +1,5 @@
 <script setup>
 import { ref } from 'vue';
-import { useThemeStore } from '../stores/themeStore';
 
 defineProps({
     class: String,
@@ -13,11 +12,15 @@ const props = ref({
     name: 'null',
     type: 'null'
 })
-
-const themeStore = useThemeStore();
-
 </script>
 
 <template>
-    <button :type="type" :name="name" :class="class" class="px-2 py-1.5 rounded-md my-2">{{ name }}</button>
+    <button 
+        :type="type" 
+        :name="name" 
+        :class="class" 
+        class="px-2 py-1.5 rounded-md my-2" 
+    >
+    {{ name }}
+    </button>
 </template>

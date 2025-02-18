@@ -56,9 +56,9 @@ function submit() {
       <form @submit.prevent="submit" class="flex grid grid-cols-3 gap-4">
         <div>
           <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>
-          <input type="text" name="name" id="name" v-model="data.name" class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <input type="text" name="firstname" id="firstname" v-model="data.firstname" class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
           <p class="text-sm mt-1 text-red-600">
-            {{ errors.name ? errors.name[0] : '' }}
+            {{ errors.firstname ? errors.firstname[0] : '' }}
           </p>
         </div>
         <div>

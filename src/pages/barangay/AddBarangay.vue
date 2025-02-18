@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import PrimaryButton from '../../components/PrimaryButton.vue';
 import router from '../../router.js';
 import axiosClient from '../../axios.js';
+import FormInput from '../../components/FormInput.vue';
 
 const data = ref({
   name: ''
@@ -34,16 +35,18 @@ function formSubmit() {
 <template>
     <div>
         <form @submit.prevent="formSubmit">
-            <input 
+            <!-- <input 
                 type="text" 
                 v-model="data.name" 
                 placeholder="Enter value" 
                 class="px-4 py-2 border rounded-md mr-2 text-white bg-gray-600"
-            />
+            /> -->
             <!-- <p class="text-sm mt-1 text-red-600">
               {{ errors.name ? errors.name[0] : '' }}
             </p> -->
-            <PrimaryButton name="Add" type="submit" class="bg-green-500 hover:bg-green-600 hover:shadow-md"/>
+
+            <FormInput v-model="data.name" type="text" name="name" placeholder="Enter value" class="px-4 py-2 border rounded-md mr-2 text-white bg-gray-600" />
+            <PrimaryButton name="Add" type="submit" class="bg-green-500 hover:bg-green-600 hover:shadow-md" />
         </form>
     </div>
 </template>

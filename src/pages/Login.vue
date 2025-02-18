@@ -18,10 +18,11 @@ function submit() {
   axiosClient.get('/sanctum/csrf-cookie').then(response => {
     axiosClient.post("/login", data.value)
       .then(response => {
-        router.push({ name: 'Home' })
+        router.push({ name: 'Dashboard' })
       })
       .catch(error => {
         console.log(error.response)
+        console.log('there was an error')
         errorMessage.value = error.response.data.message;
       })
   });
