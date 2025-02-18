@@ -33,11 +33,12 @@ function submit() {
   axiosClient.post("/api/911/barangay", formData.value)
     .then(response => {
       console.log('successfully added!' + response) 
+      formData.value.name = '';
       router.push({ name: 'Map' })
     })
     .catch(error => {
-      console.log(error.response.formData)
-      errors.value = error.response.formData.errors;
+      console.log(error.response.data)
+      errors.value = error.response.data.errors;
     })
 }
 
@@ -73,13 +74,14 @@ function submit() {
             <p class="text-sm mt-1 text-red-600">
               {{ errors.name ? errors.name[0] : '' }}
             </p>
-            <button 
+            <!-- <button 
                 type="submit" 
                 class="px-4 py-2 rounded-md"
                 :class="themeStore.isDarkMode ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'"
             >
                 Submit
-            </button>
+            </button> -->
+            <button type="submit" class=" col-span-3 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">Sign Up</button>
         </form>
         
     </div>
