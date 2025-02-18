@@ -10,20 +10,6 @@ const chartClass = computed(() => {
     return themeStore.isDarkMode ? 'bg-gray-700 border-gray-500' : 'bg-gray-700 border-gray-900';
 })
 
-const formData = ref({
-    source: '',
-    incidentType: '',
-    incident: '',
-    place: '',
-    Longitude: '',
-    Latitude: '',
-    details: '',
-    actionType: '',
-    incidentTime: '',
-    arrivalTime: '',
-    dateReceived: ''
-});
-
 const reportSources = [
   { name: '911', value: '911' },
   { name: 'CDRRMO', value: 'cdrrmo' },
@@ -67,10 +53,34 @@ const submitForm = () => {
 };
 
 const clearForm = () => {
-  Object.keys(formData.value).forEach(key => {
-    formData.value[key] = '';
-  });
+  formData.value = {
+    source: '',
+    incidentType: '',
+    incident: '',
+    actionType: '',
+    receivedDate: '',
+    arrivalTime: '',
+    incidentTime: '',
+    place: '',
+    details: '',
+    Longitude: '',
+    Latitude: '',
+  }
 };
+
+const formData = ref({
+    source: '',
+    incidentType: '',
+    incident: '',
+    actionType: '',
+    receivedDate: '',
+    arrivalTime: '',
+    incidentTime: '',
+    place: '',
+    details: '',
+    Longitude: '',
+    Latitude: '',
+});
 </script>
 
 <template>
@@ -192,6 +202,15 @@ const clearForm = () => {
                         </div>
 
                         <div class="form-group">
+                            <label for="details" class="block text-sm font-medium mb-2 text-gray-100">Location
+                                Details</label>
+                            <input id="details" v-model="formData.details"
+                                placeholder="Enter location details/landmarks"
+                                class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600"
+                                required />
+                        </div>
+
+                        <div class="form-group">
                             <label for="longitude"
                                 class="block text-sm font-medium mb-2 text-gray-100">Longitude</label>
                             <input id="longitude" v-model="formData.Longitude" placeholder="Enter Longitude"
@@ -202,15 +221,6 @@ const clearForm = () => {
                         <div class="form-group">
                             <label for="latitude" class="block text-sm font-medium mb-2 text-gray-100">Latitude</label>
                             <input id="latitude" v-model="formData.Latitude" placeholder="Enter Latitude"
-                                class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600"
-                                required />
-                        </div>
-
-                        <div class="form-group">
-                            <label for="details" class="block text-sm font-medium mb-2 text-gray-100">Location
-                                Details</label>
-                            <input id="details" v-model="formData.details"
-                                placeholder="Enter location details/landmarks"
                                 class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600"
                                 required />
                         </div>

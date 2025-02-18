@@ -2,6 +2,8 @@
 import { ref, computed, onMounted } from "vue";
 import { RouterLink, useRoute } from 'vue-router';
 import useUserStore from "../stores/user.js";
+import axiosClient from "../axios.js";
+import router from "../router.js";
 
 const theme = ref(localStorage.getItem("theme") || "light");
 const dropdownOpen = ref(false);
@@ -37,13 +39,14 @@ const navigation = [
   { name: 'Dashboard', to: { name: 'Dashboard' }, icon: 'bar_chart' },
   { name: 'Map', to: { name: 'Map' }, icon: 'map' },
   { name: 'Report Form', to: { name: 'ReportForm' }, icon: 'note_add' },
+  { name: 'Barangay', to: { name: 'Barangay' }, icon: 'home' },
 ];
 
 const logout = () => {
-  // Implement logout functionality
-  // axiosClient.post('/logout').then(() => {
-  //   router.push({ name: 'Login' });
-  // });
+//   Implement logout functionality
+  axiosClient.post('/logout').then(() => {
+    router.push({ name: 'Login' });
+  });
 };
 
 const themeClasses = computed(() => 

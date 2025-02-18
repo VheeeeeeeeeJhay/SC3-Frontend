@@ -4,6 +4,7 @@ import { useThemeStore } from '../stores/themeStore';
 import axios from 'axios';
 import axiosClient from '../axios';
 import router from '../router.js';
+import PrimaryButton from '../components/PrimaryButton.vue';
 
 const themeStore = useThemeStore();
 
@@ -20,7 +21,7 @@ const chartClass = computed(() => {
   return themeStore.isDarkMode ? 'bg-gray-700 border-gray-500' : 'bg-gray-200 border-gray-900';
 })
 
-const formData = ref({
+const data = ref({
   name: ''
 })
 
@@ -28,24 +29,30 @@ const errors = ref({
   name: []
 });
 
-
-function submit() {
-  axiosClient.post("/api/911/barangay", formData.value)
+function formSubmit() {
+  const formData = new FormData()
+  formData.append('name', data.value.name)
+  axiosClient.post("/api/911/barangay", formData, {
+    headers: {
+      'x-api-key':'$m@rtC!ty'
+    }
+    })
     .then(response => {
-      console.log('successfully added!' + response) 
       formData.value.name = '';
       router.push({ name: 'Map' })
     })
-    .catch(error => {
-      console.log(error.response.data)
-      errors.value = error.response.data.errors;
-    })
+    // .catch(error => {
+    //   console.log(error.response.data)
+    //   errors.value = error.response.data.errors;
+    // })
 }
 
-// function submit() {
+// function formSubmit() {
 //   axiosClient.get('/sanctum/csrf-cookie').then(response => {
 //     axiosClient.post("/api/911/barangay", formData.value)
 //       .then(response => {
+//         console.log('successfully added!' + response) 
+//         formData.value.name = '';
 //         router.push({ name: 'Map' })
 //       })
 //       .catch(error => {
@@ -59,14 +66,14 @@ function submit() {
 <template>
     <div :class="bgClass" style="min-height: 100vh;">
         <div class="mx-4" :class="boxClass">
-          {{ formData.name }}
+          {{ data.name }}
         <!-- <h1 class="text-2xl font-bold mb-6 text-gray-100" :class="textClass">Heat Map here</h1>
         
         <img src="https://th.bing.com/th/id/R.450d7cb80e9013f6d80ad1547a3414c5?rik=f20epSYlcY25AQ&riu=http%3a%2f%2fgetwallpapers.com%2fwallpaper%2ffull%2ff%2f9%2ff%2f327112.jpg&ehk=iBETV2e95IbNX0zVk%2bZgxp%2bIG0HrkXfGDa7ycjRQ%2bIA%3d&risl=&pid=ImgRaw&r=0" class="w-full h-[700px]" alt="Mapa to"/> -->
-        <form @submit.prevent="submit" class="mt-4">
+        <form @submit.prevent="formSubmit" class="mt-4">
             <input 
                 type="text" 
-                v-model="formData.name" 
+                v-model="data.name" 
                 placeholder="Enter value" 
                 class="px-4 py-2 border rounded-md mr-2"
                 :class="themeStore.isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-gray-900'"
@@ -81,7 +88,8 @@ function submit() {
             >
                 Submit
             </button> -->
-            <button type="submit" class=" col-span-3 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">Sign Up</button>
+            <!-- <button type="submit" class=" col-span-3 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">Sign Up</button> -->
+            <PrimaryButton name="Submit" type="submit" class="bg-green-500 hover:bg-green-600 hover:shadow-md"/>
         </form>
         
     </div>

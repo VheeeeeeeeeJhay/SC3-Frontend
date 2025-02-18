@@ -10,6 +10,8 @@ import useUserStore from "./stores/user.js";
 import Dashboard from "./pages/Dashboard.vue";
 import Map from "./pages/Map.vue";
 import ReportForm from "./pages/ReportForm.vue";
+import Barangay from "./pages/barangay/Barangay.vue";
+import AddBarangay from "./pages/barangay/AddBarangay.vue";
 
 const routes = [
   {
@@ -21,6 +23,8 @@ const routes = [
       {path: '/dashboard', name: 'Dashboard', component: Dashboard},
       {path: '/map', name: 'Map', component: Map},
       {path: '/reportform', name: 'ReportForm', component: ReportForm},
+      {path: '/barangay', name: 'Barangay', component: Barangay},
+      // {path: '/addbarangay', name: 'AddBarangay', component: AddBarangay},
     ],
     beforeEnter: async (to, from, next) => {
       try {
