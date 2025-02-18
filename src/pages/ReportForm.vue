@@ -93,10 +93,10 @@ const formData = ref({
 </script>
 
 <template>
-    <div :class="bgClass" style="min-height: 100vh;">
+    <div style="min-height: 100vh;">
 
         <main class="flex-1 my-2 px-2">
-            <div>{{ formData }}</div>
+            <div :class="bgClass">{{ formData }}</div>
             <form @submit.prevent="submitForm" class="space-y-6 mx-auto max-w-3xl p-4">
                 <div class="bg-gray-100 p-6 rounded-lg shadow-lg">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6">Source Information</h2>
