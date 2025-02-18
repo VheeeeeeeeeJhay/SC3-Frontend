@@ -211,7 +211,7 @@ onMounted(() => {
   </div>
 </div>
 </div>
-        <!-- <Chart type="pie" :data="chartData" :options="chartOptions" class="w-full h-full" style="max-width: 100%; max-height: 100%;" /> -->
+    
     </div>
 </template>
 
