@@ -47,7 +47,7 @@ const logout = () => {
 };
 
 const themeClasses = computed(() => 
-    theme.value === "dark" ? "bg-black border-black text-white" : "bg-white border-gray-200 text-gray-900"
+    theme.value === "dark" ? "bg-slate-800 border-black text-white" : "bg-white border-gray-200 text-gray-900"
 );
 
 </script>  

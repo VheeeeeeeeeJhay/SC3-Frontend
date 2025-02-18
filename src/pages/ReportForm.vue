@@ -74,7 +74,7 @@ const clearForm = () => {
 </script>
 
 <template>
-    <div :class="bgClass" style="min-height: 100vh;">
+    <div :class="bgClass" style="min-height: 100vh;" class="m-8">
         <header>
             <div class="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
                 <h1 class="text-3xl font-bold tracking-tight text-white" :class="textClass">
@@ -85,7 +85,7 @@ const clearForm = () => {
 
         <main class="flex-1 my-6 px-6">
             <div>{{ formData }}</div>
-            <form @submit.prevent="submitForm" class="space-y-8 mx-auto max-w-4xl p-6">
+            <form @submit.prevent="submitForm" class="space-y-8 mx-auto max-w-4xl p-6 ">
 
                 <!-- Report Details -->
                 <div class="bg-gray-950 p-6 rounded-lg shadow">
@@ -175,7 +175,7 @@ const clearForm = () => {
                             required />
                         </div>
                     </div>
-
+<hr>
                     <!-- Location Details -->
                     <h2 class="text-md font-semibold text-gray-300 mb-3">Location Details</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
