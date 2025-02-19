@@ -147,14 +147,14 @@ const cancelSignout = () => {
                       <RouterLink :to="item.to" :class="[
                           themeClasses,
                           route.name === item.to.name 
-                              ? 'bg-green-300 dark:bg-green-600 text-white' 
-                              : 'hover:bg-gray-300 dark:hover:bg-green-600 hover:text-white',
+                              ? 'bg-gray-300 dark:bg-sky-400' 
+                              : 'hover:bg-gray-300 dark:hover:bg-sky-300',
                           'flex my-2 items-center p-2 rounded-lg group'
                       ]">
                           <span :class="[
                               route.name === item.to.name 
-                                  ? 'text-white dark:text-gray-300' 
-                                  : 'text-white dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-400 hover:text-white',
+                                  ? 'text-gray-700 dark:text-gray-300' 
+                                  : 'text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-400',
                               'material-icons w-5 h-5 transition duration-75'
                           ]">
                               {{ item.icon }}

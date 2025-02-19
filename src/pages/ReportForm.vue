@@ -145,29 +145,18 @@ onMounted(() => {
 
 <template>
     <div style="min-height: 100vh;">
-        <header>
-            <div class="text-white">{{ sources }}</div><br>
+        <div class="text-white">{{ sources }}</div><br>
             <div class="text-white">{{ actions }}</div><br>
             <div class="text-white">{{ incidents }}</div><br>
             <div class="text-white">{{ assistance }}</div><br>
             <div class="text-white">{{ locations }}</div><br>
-            <div class="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
-                <h1 class="text-3xl font-bold tracking-tight text-white" :class="textClass">
-                    Incident Report Form
-                </h1>
-            </div>
-        </header>
 
-        <main class="flex-1 my-6 px-6">
+        <main class="flex-1 my-2 px-2">
             <div>{{ data }}</div>
-            <form @submit.prevent="submitForm" class="space-y-8 mx-auto max-w-4xl p-6 ">
-                <!-- Report Details -->
-                <div class="bg-gray-950 p-6 rounded-lg shadow">
-                    <h2 class="text-lg font-semibold text-gray-100 mb-4">Report Details</h2>
-
-                    <!-- Incident Information -->
-                    <h2 class="text-md font-semibold text-gray-300 mb-3">Incident Information</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <form @submit.prevent="submitForm" class="space-y-6 mx-auto max-w-3xl p-4">
+                <div class="bg-gray-100 p-6 rounded-lg shadow-lg">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Source Information</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                         <div class="form-group">
                             <label for="source" class="block text-sm font-medium mb-2 text-gray-700">Source of Report</label>
                             <select id="source" v-model="data.source" class="w-full bg-white text-gray-800 p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition duration-200">
