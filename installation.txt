@@ -1,0 +1,1 @@
+npm install apexcharts@3.46.0 --save 
