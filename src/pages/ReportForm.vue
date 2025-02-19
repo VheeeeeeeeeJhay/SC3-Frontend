@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useThemeStore } from '../stores/themeStore';
 import PrimaryButton from '../components/PrimaryButton.vue';
+import axiosClient from '../axios';
 
 const themeStore = useThemeStore();
 const theme = ref(localStorage.getItem("theme") || "light");

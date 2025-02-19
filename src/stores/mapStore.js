@@ -1,13 +1,8 @@
 import { useLocalStorage } from '@vueuse/core';
 
-let Marker ={
-    latitude: Number,
-    longitude: Number
-};
-
-export const userMarker = useLocalStorage<Marker>('userMarker', {
-    latitude: 16.41,
-    longitude: 120.59
-});
-
-export const nearbyMarkers = useLocalStorage<Marker>("NEARBY_MARKERS", []);
+export const userMarker = useLocalStorage("USER_MARKER", {
+    latitude: 0,
+    longitude: 0,
+  });
+  
+export const nearbyMarkers = useLocalStorage("NEARBY_MARKERS", [1]);

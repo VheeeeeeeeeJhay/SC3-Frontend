@@ -1,128 +1,75 @@
 <script setup>
-import { ref, computed, onMounted, watchEffect } from 'vue';
-import { useThemeStore } from '../stores/themeStore';
-import axios from 'axios';
-import axiosClient from '../axios';
-import router from '../router.js';
-import PrimaryButton from '../components/PrimaryButton.vue';
-
-const themeStore = useThemeStore();
-const bgClass = computed(() => {
-  return themeStore.isDarkMode ? 'bg-slate-900' : 'bg-gray-900';
-})
-const boxClass = computed(() => {
-  return themeStore.isDarkMode ? 'bg-gray-800' : 'bg-white';
-})
+import { ref, computed, onMounted, watchEffect} from 'vue';
 
 
-const data = ref({
-  name: ''
-})
-
-const errors = ref({
-  name: []
-});
-
-function formSubmit() {
-  const formData = new FormData()
-  formData.append('name', data.value.name)
-  axiosClient.post("/api/911/barangay", formData, {
-    headers: {
-      'x-api-key':'$m@rtC!ty'
-    }
-    })
-    .then(response => {
-      formData.value.name = '';
-      router.push({ name: 'Map' })
-    })
-    // .catch(error => {
-    //   console.log(error.response.data)
-    //   errors.value = error.response.data.errors;
-    // })
-}
-
-// function formSubmit() {
-//   axiosClient.get('/sanctum/csrf-cookie').then(response => {
-//     axiosClient.post("/api/911/barangay", formData.value)
-//       .then(response => {
-//         console.log('successfully added!' + response) 
-//         formData.value.name = '';
-//         router.push({ name: 'Map' })
-//       })
-//       .catch(error => {
-//         console.log(error.response.data)
-//         errors.value = error.response.data.errors;
-//       })
-//   });
-// }
 import leaflet from 'leaflet';
 import {useGeolocation} from '@vueuse/core';
-import { userMarker,nearbyMarkers } from '../stores/mapStore.js';
+import { userMarker, nearbyMarkers } from '../stores/mapStore.js';
 const{coords} = useGeolocation();
+
+const latitude = ref(0);
+const longitude = ref(0);
 
 let map = leaflet.Map;
 let userGeoMarker = leaflet.Marker;
+
 onMounted(() => {
   map = leaflet
   .map('map')
-  // .setView([userMarker.value.latitude, userMarker.value.longitude], 13);
-  .setView([16.41, 120.59], 13); 
-  // baguio coords
+  .setView([userMarker.value.latitude, userMarker.value.longitude], 13);
 
-  leaflet.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  leaflet
+    .tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
-    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-}).addTo(map);
+    keepBuffer: 2,
+    attribution: 
+      '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    })
+    .addTo(map);
 
-nearbyMarkers.valueOf.forEach(({ latitude, longitude }) => {
-    leaflet
-      .marker([latitude, longitude])
-      .addTo(map)
-      .bindPopup(
-        `Saved Marker at (<strong>${latitude.toFixed(2)},${longitude.toFixed(
-          2
-        )}</strong>)`
-      );
-  });
+    const bounds = leaflet.latLngBounds(
+      [16.350, 120.520], // Southwest (bottom-left) - moved further out
+      [16.480, 120.660]  // Northeast (top-right) - moved further out
+    );
+    map.setMaxBounds(bounds);
+    map.setMinZoom(12); // Prevent zooming out too much
 
-map.addEventListener("click", (e) => {
-    const { lat: latitude, lng: longitude } = e.latlng;
+    let singleMarker = null;
 
-    leaflet
-      .marker([latitude, longitude])
-      .addTo(map)
-      .bindPopup(
-        `Saved Marker at (<strong>${latitude.toFixed(2)},${longitude.toFixed(
-          2
-        )}</strong>)`
-      );
+    map.addEventListener("click", (e) => {
+    const { lat: newLat, lng: newLng } = e.latlng;
 
-    nearbyMarkers.value.push({ latitude, longitude });
+    if (bounds.contains([newLat, newLng])) {
+      if (singleMarker) {
+        map.removeLayer(singleMarker);
+      }
+
+      // 📍 Add a new marker
+      singleMarker = leaflet
+        .marker([newLat, newLng])
+        .addTo(map)
+        .bindPopup(
+          `Selected Marker at (<strong>${newLat.toFixed(5)}, ${newLng.toFixed(5)}</strong>)`
+        )
+        .openPopup();
+
+      // Update the stored user marker
+      userMarker.value.latitude = newLat;
+      userMarker.value.longitude = newLng;
+      // update new value
+      latitude.value = newLat;
+      longitude.value = newLng;
+
+    } else {
+      alert("You cannot place markers outside Baguio City.");
+    }
   });
 });
 
 watchEffect(() => {
-  if(
-    coords.value.latitude !== Number.POSITIVE_INFINITY && 
-    coords.value.longitude !== Number.POSITIVE_INFINITY
-  ) {
-    userMarker.value.latitude = coords.value.latitude;
-    userMarker.value.longitude = coords.value.longitude;
-
-
-    if(userGeoMarker) {
-      map.removeLayer(userGeoMarker);
-    }
-
-    userGeoMarker = leaflet
-    .marker([userMarker.value.latitude, userMarker.value.longitude])
-    .addTo(map)
-    .bindPopup("User Marker");
-
-    const el = userGeoMarker.useGetElement();
-    if(el) {
-      el.style.filter = `hue-rotate(120deg)`;
-    }
+  if (coords.value.latitude && coords.value.longitude) {
+    latitude.value = coords.value.latitude;
+    longitude.value = coords.value.longitude;
   }
 });
 
@@ -130,14 +77,17 @@ watchEffect(() => {
 
 <template>
   
-
+<br>
 
     <div id="map"></div>
+
+    <div class="text-white text-lg"><p>hello</p> {{ latitude }} {{ longitude }}</div>
+    
 </template>
 
 
 <style scoped>
 #map { 
-  height: 100vh;
-  width: 100%; }
+  height: 70vh;
+  width: 50%; }
 </style>
