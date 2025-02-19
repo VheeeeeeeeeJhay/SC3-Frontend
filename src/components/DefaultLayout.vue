@@ -89,9 +89,10 @@ const dropClasses = computed(() => {
                               
                               <ul class="py-1" role="none">
                                   <li>
-                                    <button @click="themeStore.toggleTheme">
+                                    <a @click="themeStore.toggleTheme" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-sky-300 dark:hover:text-white" :class="dropClasses"
+                                    role="menuitem">
                                         {{ themeStore.theme === "light" ? "🌞 Light Mode" : "🌙 Dark Mode" }}
-                                    </button>
+                                    </a>
                                   </li>
                                   <li>
                                       <a @click="logout" href="#"
