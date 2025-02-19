@@ -172,7 +172,7 @@ const formData = ref({
 
                     <div class="flex justify-end space-x-4 mt-8">
                         <PrimaryButton type="button" name="Clear" @click="clearForm" class="px-6 py-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200" />
-                        <PrimaryButton type="submit" name="submit" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200" />
+                        <PrimaryButton type="submit" name="Add Report" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200" />
                     </div>
                 </div>
             </form>
