@@ -55,18 +55,16 @@ onMounted(() => {
     </div>
     <fwb-table hoverable>
       <fwb-table-head>
-        <fwb-table-head-cell v-for="(value, key) in barangays[0]" :key="key">
+        <fwb-table-head-cell class="text-center" v-for="(value, key) in barangays[0]" :key="key">
           {{ key }}
         </fwb-table-head-cell>
       </fwb-table-head>
       <fwb-table-body>
-        <fwb-table-row v-for="barangay in barangays" :key="barangay.id">
+        <fwb-table-row v-for="barangay in barangays" :key="barangay.id" class="text-center">
           <fwb-table-cell>{{ barangay.id }}</fwb-table-cell>
           <fwb-table-cell>{{ barangay.name }}</fwb-table-cell>
           <fwb-table-cell>{{ barangay.longitude }}</fwb-table-cell>
           <fwb-table-cell>{{ barangay.latitude }}</fwb-table-cell>
-          <fwb-table-cell>{{ barangay.created_at }}</fwb-table-cell>
-          <fwb-table-cell>{{ barangay.updated_at }}</fwb-table-cell>
         </fwb-table-row>
       </fwb-table-body>
     </fwb-table>
