@@ -1,97 +1,74 @@
-<template>
-    <div v-if="!formVisibility">
-      <PrimaryButton name="Add New Barangay" @click.prevent="openForm" class="bg-white text-green-700 border border-2 border-green-700 font-bold hover:bg-green-700 hover:text-white hover:shadow-md"/>
-    </div>
-    <div v-else="formVisibility">
-      <PrimaryButton name="Close Add Form" @click.prevent="closeForm" class="bg-red-500 hover:bg-red-600 hover:shadow-md"/>
-    </div>
-    
-  
-    <div v-if="formVisibility">
-      <AddBarangay />
-    </div>
-
-    <div>
-
-    <fwb-table hoverable>
-    <fwb-table-head>
-      <fwb-table-head-cell>Product name</fwb-table-head-cell>
-      <fwb-table-head-cell>Color</fwb-table-head-cell>
-      <fwb-table-head-cell>Category</fwb-table-head-cell>
-      <fwb-table-head-cell>Price</fwb-table-head-cell>
-      <fwb-table-head-cell>
-        <span class="sr-only">Edit</span>
-      </fwb-table-head-cell>
-    </fwb-table-head>
-    <fwb-table-body>
-      <fwb-table-row>
-        <fwb-table-cell>Apple MacBook Pro 17"</fwb-table-cell>
-        <fwb-table-cell>Sliver</fwb-table-cell>
-        <fwb-table-cell>Laptop</fwb-table-cell>
-        <fwb-table-cell>$2999</fwb-table-cell>
-        <fwb-table-cell>
-          <fwb-a href="#">
-            Edit
-          </fwb-a>
-        </fwb-table-cell>
-      </fwb-table-row>
-      <fwb-table-row>
-        <fwb-table-cell>Microsoft Surface Pro</fwb-table-cell>
-        <fwb-table-cell>White</fwb-table-cell>
-        <fwb-table-cell>Laptop PC</fwb-table-cell>
-        <fwb-table-cell>$1999</fwb-table-cell>
-        <fwb-table-cell>
-          <fwb-a href="#">
-            Edit
-          </fwb-a>
-        </fwb-table-cell>
-      </fwb-table-row>
-      <fwb-table-row>
-        <fwb-table-cell>Magic Mouse 2</fwb-table-cell>
-        <fwb-table-cell>Black</fwb-table-cell>
-        <fwb-table-cell>Accessories</fwb-table-cell>
-        <fwb-table-cell>$99</fwb-table-cell>
-        <fwb-table-cell>
-          <fwb-a href="#">
-            Edit
-          </fwb-a>
-        </fwb-table-cell>
-      </fwb-table-row>
-    </fwb-table-body>
-  </fwb-table>
-  </div>
-</template>
-
 <script setup>
-import { ref } from 'vue';
-import {
-  FwbA,
-  FwbTable,
-  FwbTableBody,
-  FwbTableCell,
-  FwbTableHead,
-  FwbTableHeadCell,
-  FwbTableRow,
-} from 'flowbite-vue'
-import { RouterLink } from 'vue-router';
+import { ref, onMounted } from 'vue';
+import { FwbA, FwbTable, FwbTableBody, FwbTableCell, FwbTableHead, FwbTableHeadCell, FwbTableRow } from 'flowbite-vue'
 import PrimaryButton from '../../components/PrimaryButton.vue';
 import AddBarangay from './AddBarangay.vue';
-
-
-const navigation = [
-  { name: 'AddBarangay', to: { name: 'AddBarangay' } },
-]
+import axiosClient from '../../axios.js';
 
 const formVisibility = ref(false);
 
 const openForm = () => {
-  console.log('Form opened');
   formVisibility.value = true;
 };
 
 const closeForm = () => {
-  console.log('Form closed');
   formVisibility.value = false;
 };
+
+const barangays = ref([]);
+
+const errorMessage = ref('');
+
+onMounted(() => {
+  axiosClient.get('/api/911/barangay', {
+      headers: {
+          'x-api-key': '$m@rtC!ty'
+      }
+  })
+  .then((res) => {
+      console.log(res);
+      barangays.value = res.data;
+  })
+  .catch((error) => {
+      console.error('Error fetching data:', error);
+      errorMessage.value = 'Failed to load barangays. Please try again later.';
+  });
+});
 </script>
 
+<template>
+  <div v-if="!formVisibility">
+    <PrimaryButton name="Add New Barangay" @click.prevent="openForm"
+      class="bg-white text-green-700 border border-2 border-green-700 font-bold hover:bg-green-700 hover:text-white hover:shadow-md" />
+  </div>
+  <div v-else="formVisibility">
+    <PrimaryButton name="Back to DataTable" @click.prevent="closeForm"
+      class="bg-red-500 hover:bg-red-600 hover:shadow-md" />
+  </div>
+
+  <div v-if="formVisibility">
+    <AddBarangay />
+  </div>
+  <div v-else="!formVisibility">
+    <div v-if="errorMessage">
+      <p class="text-red-500">{{ errorMessage }}</p>
+    </div>
+    <fwb-table hoverable>
+      <fwb-table-head>
+        <fwb-table-head-cell v-for="(value, key) in barangays[0]" :key="key">
+          {{ key }}
+        </fwb-table-head-cell>
+      </fwb-table-head>
+      <fwb-table-body>
+        <fwb-table-row v-for="barangay in barangays" :key="barangay.id">
+          <fwb-table-cell>{{ barangay.id }}</fwb-table-cell>
+          <fwb-table-cell>{{ barangay.name }}</fwb-table-cell>
+          <fwb-table-cell>{{ barangay.longitude }}</fwb-table-cell>
+          <fwb-table-cell>{{ barangay.latitude }}</fwb-table-cell>
+          <fwb-table-cell>{{ barangay.created_at }}</fwb-table-cell>
+          <fwb-table-cell>{{ barangay.updated_at }}</fwb-table-cell>
+        </fwb-table-row>
+      </fwb-table-body>
+    </fwb-table>
+  </div>
+</template>

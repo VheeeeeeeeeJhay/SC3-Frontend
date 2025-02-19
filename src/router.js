@@ -1,8 +1,8 @@
 import {createRouter, createWebHistory} from "vue-router";
 import DefaultLayout from "./components/DefaultLayout.vue";
 
-import Login from "./pages/Login.vue";
-import Signup from "./pages/Signup.vue";
+import Login from "./pages/auth/Login.vue";
+import Signup from "./pages/auth/Signup.vue";
 import NotFound from "./pages/NotFound.vue";
 import useUserStore from "./stores/user.js";
 

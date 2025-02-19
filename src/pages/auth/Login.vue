@@ -1,10 +1,10 @@
 <script setup>
 
-import GuestLayout from "../components/GuestLayout.vue";
-import axiosClient from "../axios.js";
+import GuestLayout from "../../components/GuestLayout.vue";
+import axiosClient from "../../axios.js";
 import { ref } from "vue";
-import router from "../router.js";
-import logo from '../assets/baguio-logo.png';
+import router from "../../router.js";
+import logo from '../../assets/baguio-logo.png';
 
 
 
@@ -16,7 +16,11 @@ const errorMessage = ref('')
 
 function submit() {
   axiosClient.get('/sanctum/csrf-cookie').then(response => {
-    axiosClient.post("/login", data.value)
+    axiosClient.post("/login", data.value, {
+      headers: {
+        'x-api-key':'$m@rtC!ty'
+      }
+      })
       .then(response => {
         router.push({ name: 'Dashboard' })
       })

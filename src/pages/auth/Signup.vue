@@ -1,29 +1,38 @@
 <script setup>
 
-import GuestLayout from "../components/GuestLayout.vue";
+import GuestLayout from "../../components/GuestLayout.vue";
 import { ref } from "vue";
-import axiosClient from "../axios.js";
-import router from "../router.js";
-import logo from "../assets/baguio-logo.png";
+import axiosClient from "../../axios.js";
+import router from "../../router.js";
+import logo from "../../assets/baguio-logo.png";
 
 const data = ref({
-  name: '',
+  firstName: '',
+  middleName: '',
+  lastName: '',
   email: '',
   password: '',
   password_confirmation: '',
 })
 
 const errors = ref({
-  name: [],
+  firstName: [],
+  middleName: [],
+  lastName: [],
   email: [],
   password: [],
 })
 
 function submit() {
+  console.log(data.value);
   axiosClient.get('/sanctum/csrf-cookie').then(response => {
-    axiosClient.post("/register", data.value)
+    axiosClient.post("/register", data.value, {
+      headers: {
+        'x-api-key':'$m@rtC!ty'
+      }
+      })
       .then(response => {
-        router.push({ name: 'Home' })
+        router.push({ name: 'Dashboard' })
       })
       .catch(error => {
         console.log(error.response.data)
@@ -36,7 +45,6 @@ function submit() {
 
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-black to-blue-900 relative">
-  
   <!-- Main Container -->
   <div class="flex flex-col sm:flex-row items-center gap-8 z-10">
     <!-- City Logo and Title -->
@@ -49,25 +57,27 @@ function submit() {
       </h1>
     </div>
 
-    <!-- Login Form -->
+    
+
+    <!-- Registration Form -->
     <div class="bg-white p-6 rounded-xl shadow-lg max-w-lg">
       <h2 class="text-gray-800 text-lg font-semibold mb-4">Account Registration</h2>
 
       <form @submit.prevent="submit" class="flex grid grid-cols-3 gap-4">
         <div>
           <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>
-          <input type="text" name="firstname" id="firstname" v-model="data.firstname" class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          <p class="text-sm mt-1 text-red-600">
-            {{ errors.firstname ? errors.firstname[0] : '' }}
-          </p>
+          <input type="text" name="firstName" id="firstName" v-model="data.firstName" class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <!-- <p class="text-sm mt-1 text-red-600">
+            {{ errors.firstName ? errors.firstName[0] : '' }}
+          </p> -->
         </div>
         <div>
           <label for="middleName" class="block text-sm font-medium text-gray-700">Middle Name</label>
-          <input type="text" v-model="middleName" id="middleName" class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <input type="text" v-model="data.middleName" id="middleName" class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
         <div>
           <label for="lastName" class="block text-sm font-medium text-gray-700">Last Name</label>
-          <input type="text" v-model="lastName" id="lastName" class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <input type="text" v-model="data.lastName" id="lastName" class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
         <div class="col-span-3">
           <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
