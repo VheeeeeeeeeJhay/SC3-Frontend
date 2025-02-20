@@ -22,7 +22,8 @@ const navigation = [
   { name: 'Dashboard', to: { name: 'Dashboard' }, icon: 'bar_chart' },
   { name: 'Map', to: { name: 'Map' }, icon: 'map' },
   { name: 'Report Form', to: { name: 'ReportForm' }, icon: 'note_add' },
-  { name: 'Barangay', to: { name: 'Barangay' }, icon: 'home' },
+  { name: 'Barangays', to: { name: 'Barangay' }, icon: 'home' },
+  { name: 'Incidents', to: { name: 'Incident' }, icon: 'warning' },
 ];
 
 const logout = () => {

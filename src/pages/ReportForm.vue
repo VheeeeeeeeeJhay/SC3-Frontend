@@ -7,6 +7,7 @@ import { useGeolocation } from '@vueuse/core';
 import { userMarker } from '../stores/mapStore.js';
 import leaflet from 'leaflet';
 
+// For dark mode
 const themeStore = useThemeStore();
 const themeClasses = computed(() => {
   return themeStore.isDarkMode ? "bg-slate-800 border-black text-white" : "bg-sky-50 border-gray-200 text-sky-900"
@@ -15,75 +16,10 @@ const dropClasses = computed(() => {
   return themeStore.isDarkMode ? "bg-slate-600 border-black text-white" : "bg-white border-gray-200 text-sky-900"
 })
 
-const reportSources = [
-  { name: '911', value: '911' },
-  { name: 'CDRRMO', value: 'cdrrmo' },
-  { name: 'Icom Radio', value: 'icomradio' },
-  { name: 'EMS Hotline', value: 'emshotline' },
-  { name: 'Other', value: 'other' }
-];
-
-const incidentTypes = [
-  { name: 'Medical Assistance', value: 'medical' },
-  { name: 'Police Assistance', value: 'police' },
-  { name: 'Fire Assistance', value: 'fire' },
-  { name: 'Rescue Assistance', value: 'rescue' },
-  { name: 'General Assistance', value: 'general' },
-  { name: 'Other', value: 'other' }
-];
-
-const incident = [
-  { name: 'Brawl', value: 'brawl' },
-  { name: 'Assault', value: 'assault' },
-  { name: 'Vandalism', value: 'vandalism' },
-  { name: 'Traffic Violation', value: 'traffic' },
-  { name: 'Suspicious Activity', value: 'suspicious' },
-  { name: 'Other', value: 'other' }
-];
-
-const actionTypes = [
-  { name: 'Solved', value: 'solved' },
-  { name: 'Pending', value: 'pending' },
-  { name: 'Referred', value: 'referred' }
-];
-
-const barangay = [
-  { name: 'Itogon', value: 'itogon' },
-  { name: 'Bakakeng', value: 'bakakeng' },
-  { name: 'St. Antonio', value: 'stAntonio' }
-]
-
-const submitForm = () => {
-//   console.log('Form submitted:', data.value);
-//   const formData = new FormData();
-//   formData.append('source_id', data.value.source)
-//   formData.append('time', data.value.incidentTime)
-//   formData.append('incident_id', data.value.incident)
-//   formData.append('date_received', data.value.receivedDate)
-//   formData.append('arrival_on_site', data.value.arrivalTime)
-//   formData.append('name', 'vicnent')
-//   formData.append('location_id', data.value.location)
-//   formData.append('actions_id', data.value.actionType)
-//   formData.append('assistance_id', data.value.incidentType)
-//   console.log(formData)
-//   formData.append('longitude', data.value.)
-//   formData.append('latitude', data.value.)
-  axiosClient.post('/api/911/report', formData, {
-    headers: {
-      'x-api-key':'$m@rtC!ty'
-    }
-    })
-    .then(response => {
-      console.log('Form submitted successfully:', response.data);
-      clearForm();
-    })
-    .catch(error => {
-      console.log('Error:', error.response.data);
-    })
-};
 
 const clearForm = () => {
   data.value = {
+    // firstName: '',
     source: '',
     incidentType: '',
     incident: '',
@@ -99,7 +35,7 @@ const clearForm = () => {
 };
 
 const data = ref({
-  firstName: '',
+  // firstName: '',
   source: '',
   incidentType: '',
   incident: '',
@@ -119,42 +55,56 @@ const incidents = ref([]);
 const assistance = ref([]);
 const barangays = ref([]);
 
+const errorMessage = ref('');
+
 onMounted(() => {
-  axiosClient.get('/api/911/barangay', {
+  axiosClient.get('/api/911/report', {
       headers: {
           'x-api-key': '$m@rtC!ty'
       }
   })
   .then((res) => {
       console.log(res);
-      barangays.value = res.data;
-      sources.value = res.data;
-      actions.value = res.data;
-      incidents.value = res.data;
-      assistance.value = res.data;
+      sources.value = res.data.sources;
+      actions.value = res.data.actions;
+      incidents.value = res.data.incidents;
+      assistance.value = res.data.assistance;
+      barangays.value = res.data.barangays;
   })
   .catch((error) => {
       console.error('Error fetching data:', error);
-      errorMessage.value = 'Failed to load barangays. Please try again later.';
+      errorMessage.value = 'Failed to load data. Please try again later.';
   });
 });
 
-console.log(actions);
+const submitForm = () => {
+  const formData = new FormData();
+  formData.append('source_id', data.value.source)
+  formData.append('time', data.value.incidentTime)
+  formData.append('incident_id', data.value.incident)
+  formData.append('date_received', data.value.receivedDate)
+  formData.append('arrival_on_site', data.value.arrivalTime)
+  formData.append('name', 'vicnent')
+  formData.append('location_id', data.value.location)
+  formData.append('actions_id', data.value.actionType)
+  formData.append('assistance_id', data.value.incidentType)
+  formData.append('longitude', data.value.Longitude)
+  formData.append('latitude', data.value.Latitude)
 
-// const submitForm = () => {
-//   axiosClient.post('/api/911/report', formData, {
-//     headers: {
-//       'x-api-key': '$m@rtC!ty'
-//     }
-//   })
-//     .then(response => {
-//       console.log('Form submitted successfully:', response.data);
-//       clearForm();
-//     })
-//     .catch(error => {
-//       console.log('Error:', error.response.data);
-//     })
-// };
+  axiosClient.post('/api/911/report', formData, {
+    headers: {
+      'x-api-key':'$m@rtC!ty'
+    }
+    })
+    .then(response => {
+      console.log('Form submitted successfully:', response.data);
+      clearForm();
+    })
+    // .catch(error => {
+    //   console.log('Error:', error.response.data);
+    // })
+};
+
 
 //Map scripts
 const { coords } = useGeolocation();
@@ -226,11 +176,11 @@ watchEffect(() => {
 
 <template>
     <div style="min-height: 100vh;" >
-        <!-- <div class="text-white">{{ sources }}</div><br>
+        <div class="text-white">{{ sources }}</div><br>
             <div class="text-white">{{ actions }}</div><br>
             <div class="text-white">{{ incidents }}</div><br>
             <div class="text-white">{{ assistance }}</div><br>
-            <div class="text-white">{{ locations }}</div><br> -->
+            <div class="text-white">{{ barangays }}</div><br>
 
         <main class="flex-1 my-2 px-2">
             <div class="text-white">{{ data }}</div>
@@ -243,7 +193,7 @@ watchEffect(() => {
                             <select id="source" v-model="data.source" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
                                 <option disabled value="">Select source</option>
                                 <option v-for="source in sources" :key="source.id" :value="source.sources">
-                                    {{ source.sources }}
+                                    {{ source.sources || "No Source Available"}}
                                 </option>
                             </select>
                         </div>
@@ -290,9 +240,9 @@ watchEffect(() => {
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="form-group">
                             <label for="place" class="block text-sm font-medium mb-2" :class="themeClasses">Place of Incident</label>
-                            <select id="place" v-model="data.location" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
+                            <select id="place" v-model="data.barangay" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
                                 <option disabled value="">Select Barangay (128)</option>
-                                <option v-for="location in locations" :key="location.id" :value="location.burnham">{{ location.name }}</option>
+                                <option v-for="barangay in barangays" :key="barangay.id" :value="barangay.burnham">{{ barangay.name }}</option>
                             </select>
                         </div>
                         <div class="form-group md:col-span-2">
