@@ -41,7 +41,6 @@ const dropClasses = computed(() => {
   return themeStore.isDarkMode ? "bg-slate-600 border-black text-white" : "bg-white border-gray-200 text-sky-900"
 })
 
-
 const signoutConfirmationVisible = ref(false);
 
 const showSignoutConfirmation = () => {
