@@ -141,20 +141,20 @@ onMounted(() => {
 
 console.log(actions);
 
-const submitForm = () => {
-  axiosClient.post('/api/911/report', formData, {
-    headers: {
-      'x-api-key': '$m@rtC!ty'
-    }
-  })
-    .then(response => {
-      console.log('Form submitted successfully:', response.data);
-      clearForm();
-    })
-    .catch(error => {
-      console.log('Error:', error.response.data);
-    })
-};
+// const submitForm = () => {
+//   axiosClient.post('/api/911/report', formData, {
+//     headers: {
+//       'x-api-key': '$m@rtC!ty'
+//     }
+//   })
+//     .then(response => {
+//       console.log('Form submitted successfully:', response.data);
+//       clearForm();
+//     })
+//     .catch(error => {
+//       console.log('Error:', error.response.data);
+//     })
+// };
 
 //Map scripts
 const { coords } = useGeolocation();
