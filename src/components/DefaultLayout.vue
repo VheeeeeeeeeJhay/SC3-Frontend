@@ -41,6 +41,10 @@ const dropClasses = computed(() => {
   return themeStore.isDarkMode ? "bg-slate-600 border-black text-white" : "bg-white border-gray-200 text-sky-900"
 })
 
+const bgClasses = computed(() => {
+  return themeStore.isDarkMode ? "bg-gray-500 border-black text-white" : "bg-gray-500 border-black text-white"
+})
+
 
 const signoutConfirmationVisible = ref(false);
 
@@ -166,7 +170,7 @@ const cancelSignout = () => {
           </div>
       </aside>
 
-      <div class=" pt-14 p-4 sm:ml-64 dark:bg-gray-900">
+      <div class=" pt-14 p-4 sm:ml-64 " :class="bgClasses">
           <router-view />
       </div>
   </div>
