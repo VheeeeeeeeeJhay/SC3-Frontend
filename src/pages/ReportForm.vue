@@ -3,6 +3,9 @@ import { ref, computed, onMounted, watchEffect } from 'vue';
 import { useThemeStore } from '../stores/themeStore';
 import PrimaryButton from '../components/PrimaryButton.vue';
 import axiosClient from '../axios';
+import { useGeolocation } from '@vueuse/core';
+import { userMarker } from '../stores/mapStore.js';
+import leaflet from 'leaflet';
 
 const themeStore = useThemeStore();
 const themeClasses = computed(() => {
@@ -88,7 +91,7 @@ const clearForm = () => {
     receivedDate: '',
     arrivalTime: '',
     incidentTime: '',
-    location: '',
+    barangay: '',
     details: '',
     Longitude: '',
     Latitude: '',
@@ -96,50 +99,65 @@ const clearForm = () => {
 };
 
 const data = ref({
-    firstName: '',
-    source: '',
-    incidentType: '',
-    incident: '',
-    actionType: '',
-    receivedDate: '',
-    arrivalTime: '',
-    incidentTime: '',
-    location: '',
-    details: '',
-    Longitude: '',
-    Latitude: '',
+  firstName: '',
+  source: '',
+  incidentType: '',
+  incident: '',
+  actionType: '',
+  receivedDate: '',
+  arrivalTime: '',
+  incidentTime: '',
+  barangay: '',
+  details: '',
+  Longitude: '',
+  Latitude: '',
 });
 
 const sources = ref([]);
 const actions = ref([]);
 const incidents = ref([]);
 const assistance = ref([]);
-const locations = ref([]);
+const barangays = ref([]);
 
 onMounted(() => {
-    axiosClient.get('/api/911/report', {
-        headers: {
-            'x-api-key': '$m@rtC!ty'
-        }
+  axiosClient.get('/api/911/barangay', {
+      headers: {
+          'x-api-key': '$m@rtC!ty'
+      }
+  })
+  .then((res) => {
+      console.log(res);
+      barangays.value = res.data;
+      sources.value = res.data;
+      actions.value = res.data;
+      incidents.value = res.data;
+      assistance.value = res.data;
+  })
+  .catch((error) => {
+      console.error('Error fetching data:', error);
+      errorMessage.value = 'Failed to load barangays. Please try again later.';
+  });
+});
+
+console.log(actions);
+
+const submitForm = () => {
+  axiosClient.post('/api/911/report', formData, {
+    headers: {
+      'x-api-key': '$m@rtC!ty'
+    }
+  })
+    .then(response => {
+      console.log('Form submitted successfully:', response.data);
+      clearForm();
     })
-    .then((res) => {
-        sources.value = res.data.sources;
-        actions.value = res.data.actions;
-        incidents.value = res.data.incidents;
-        assistance.value = res.data.assistance;
-        locations.value = res.data.locations;
+    .catch(error => {
+      console.log('Error:', error.response.data);
     })
-    .catch((error) => {
-        console.error('Error fetching data:', error);
-        console.log('theres an error')
-    });
-})
+};
 
 //Map scripts
-import leaflet from 'leaflet';
-import {useGeolocation} from '@vueuse/core';
-import { userMarker } from '../stores/mapStore.js';
-const{coords} = useGeolocation();
+const { coords } = useGeolocation();
 
 const latitude = ref(0);
 const longitude = ref(0);
@@ -147,28 +165,28 @@ let map = leaflet.Map;
 
 onMounted(() => {
   map = leaflet
-  .map('map')
-  .setView([userMarker.value.latitude, userMarker.value.longitude], 13);
+    .map('map')
+    .setView([userMarker.value.latitude, userMarker.value.longitude], 13);
 
   leaflet
     .tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    keepBuffer: 2,
-    attribution: 
-      '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      maxZoom: 19,
+      keepBuffer: 2,
+      attribution:
+        '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     })
     .addTo(map);
 
-    const bounds = leaflet.latLngBounds(
-      [16.350, 120.520], // Southwest (bottom-left)
-      [16.480, 120.660]  // Northeast (top-right) 
-    );
-    map.setMaxBounds(bounds);
-    map.setMinZoom(12); 
+  const bounds = leaflet.latLngBounds(
+    [16.350, 120.520], // Southwest (bottom-left)
+    [16.480, 120.660]  // Northeast (top-right) 
+  );
+  map.setMaxBounds(bounds);
+  map.setMinZoom(12);
 
-    let singleMarker = null;
+  let singleMarker = null;
 
-    map.addEventListener("click", (e) => {
+  map.addEventListener("click", (e) => {
     const { lat: newLat, lng: newLng } = e.latlng;
 
     if (bounds.contains([newLat, newLng])) {
@@ -294,19 +312,21 @@ watchEffect(() => {
                         </div>
                     </div>
 
-                    <div class="flex justify-end space-x-4 mt-8">
-                        <PrimaryButton type="button" name="Clear" @click="clearForm" class="px-6 py-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200" />
-                        <PrimaryButton type="submit" name="Add Report" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200" />
-                    </div>
-                </div>
-            </form>
-        </main>
-    </div>
+          <div class="flex justify-end space-x-4 mt-8">
+            <PrimaryButton type="button" name="Clear" @click="clearForm"
+              class="px-6 py-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200" />
+            <PrimaryButton type="submit" name="Add Report"
+              class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200" />
+          </div>
+        </div>
+      </form>
+    </main>
+  </div>
 </template>
 
 <style scoped>
-#map { 
+#map {
   height: 50vh;
-  width: 100%; 
+  width: 100%;
 }
 </style>
