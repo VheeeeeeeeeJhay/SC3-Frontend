@@ -250,7 +250,6 @@ const barOptions = {
   },
 }
 
-
 onMounted(() => {
   if(document.getElementById("column-chart") && typeof ApexCharts !== 'undefined') {
     const barchart = new ApexCharts(document.getElementById("column-chart"), barOptions);
@@ -258,30 +257,60 @@ onMounted(() => {
   }
 });
 
+const incidents = [
+  { name: 'Brawl', value: 'brawl' },
+  { name: 'Assault', value: 'assault' },
+  { name: 'Vandalism', value: 'vandalism' },
+  { name: 'Traffic Violation', value: 'traffic' },
+  { name: 'Suspicious Activity', value: 'suspicious' },
+  { name: 'Other', value: 'other' }
+];
 
+const dateFilters = [
+  { name: 'Today', value: 'today' },
+  { name: 'This Week', value: 'week' },
+  { name: 'This Month', value: 'month' },
+  { name: 'This Year', value: 'year' },
+];
+
+const selectedIncident = ref('');
+const selectedDateFilter = ref('');
+const selectedMonth1 = ref('');
+const selectedMonth2 = ref('');
+
+const months = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
 </script>
 
 <template>
   <div class="min-h-screen">
-
-
     <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
       <div class="grid grid-cols-3 gap-6">
         <div class="col-span-1 p-6 rounded-lg shadow" :class="themeClasses">
           <div class="flex justify-between items-center mb-4" >
             <h2 class="text-xl font-semibold" :class="themeClasses">Distribution of Incidents</h2>
-            <button class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600">
-              Date Filter
-            </button>
+            <select v-model="selectedDateFilter" class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600">
+              <option value="" disabled>Date Filter</option>
+              <option v-for="filter in dateFilters" :key="filter.value" :value="filter.value" :class="themeClasses">
+                {{ filter.name }}
+              </option>
+            </select>
           </div>
           <div id="pie-chart" class="h-64"></div>
         </div>
         
         <div class="col-span-1 p-6 rounded-lg shadow" :class="themeClasses">
           <h2 class="text-xl font-semibold mb-4" :class="themeClasses">Recent Activities</h2>
-          <!-- Add content for key metrics -->
+          <label for="incident" class="block text-sm font-medium mb-2 text-gray-700">Incident/Case</label>
+          <select id="incident" v-model="selectedIncident" class="w-full bg-white text-gray-800 p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition duration-200">
+            <option value="" disabled>Select Incident</option>
+            <option v-for="incident in incidents" :key="incident.value" :value="incident.value" :class="themeClasses">
+              {{ incident.name }}
+            </option>
+          </select>
         </div>
-        
         <div class="col-span-1 p-6 rounded-lg shadow" :class="themeClasses">
           <h2 class="text-xl font-semibold mb-4" :class="themeClasses">Growth Rate of Incidents</h2>
           <div class="text-4xl font-bold text-green-500 dark:text-green-500 text-center mb-4">
@@ -291,12 +320,14 @@ onMounted(() => {
             </svg>
           </div>
           <div class="flex justify-center space-x-4">
-            <button class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300">
-              Select Month 1
-            </button>
-            <button class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300">
-              Select Month 2
-            </button>
+            <select v-model="selectedMonth1" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300">
+              <option value="" disabled>Select Month 1</option>
+              <option v-for="month in months" :key="month" :value="month">{{ month }}</option>
+            </select>
+            <select v-model="selectedMonth2" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300">
+              <option value="" disabled>Select Month 2</option>
+              <option v-for="month in months" :key="month" :value="month">{{ month }}</option>
+            </select>
           </div>
         </div>
       </div>
@@ -304,11 +335,14 @@ onMounted(() => {
       <div class="mt-6 grid grid-cols-2 gap-6">
         <!-- linechart -->
         <div class="p-6 rounded-lg shadow" :class="themeClasses">
-            <div class="flex justify-between items-center mb-4">
+            <div class="flex justify-between items-center mb-4" >
               <h2 class="text-xl font-semibold" :class="themeClasses">Crime Statistics</h2>
-              <button class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600">
-                Date Filter
-              </button>
+                <select v-model="selectedDateFilter" class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600">
+                  <option value="" disabled>Date Filter</option>
+                  <option v-for="filter in dateFilters" :key="filter.value" :value="filter.value">
+                    {{ filter.name }}
+                  </option>
+                </select>
             </div>
           <div id="line-chart" class="h-full"></div>
         </div>
