@@ -36,22 +36,21 @@ onMounted(() => {
   });
 });
 
-const openEditForm = (barangayId) => {
-  console.log(barangayId);
-  axiosClient.put(`/api/911/barangay/${barangayId}`, {}, {
-    headers: {
-        'x-api-key': '$m@rtC!ty'
-    }
-    })
-    .then((res) => {
-      console.log(res);
-      // router.push({ name: 'EditBarangay', params: { id: barangayId } });
-    })
-    .catch((error) => {
-    console.error('Error fetching data:', error);
-    errorMessage.value = 'Failed to load barangays. Please try again later.';
-    });
-}
+// const openEditForm = (barangayId) => {
+//   console.log(barangayId);
+//   axiosClient.put(`/api/911/barangay/${barangayId}`, {}, {
+//     headers: {
+//         'x-api-key': '$m@rtC!ty'
+//     }
+//     })
+//     .then((res) => {
+//       console.log(res);
+//     })
+//     .catch((error) => {
+//     console.error('Error fetching data:', error);
+//     errorMessage.value = 'Failed to load barangays. Please try again later.';
+//     });
+// }
 </script>
 
 <template>
@@ -86,7 +85,6 @@ const openEditForm = (barangayId) => {
           <fwb-table-cell>{{ barangay.longitude }}</fwb-table-cell>
           <fwb-table-cell>{{ barangay.latitude }}</fwb-table-cell>
           <fwb-table-cell>
-            <!-- <PrimaryButton name="Edit" @click="openEditForm(barangay.id)" :value="barangay.id" /> -->
             <RouterLink :to="{ name: 'EditBarangay', params: { id: barangay.id } }">
               Edit
             </RouterLink>

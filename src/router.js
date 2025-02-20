@@ -21,8 +21,8 @@ const routes = [
       {path: '/map', name: 'Map', component: Map},
       {path: '/reportform', name: 'ReportForm', component: ReportForm},
       {path: '/barangay', name: 'Barangay', component: Barangay},
-      {path: '/barangay/:id/edit', name: 'EditBarangay', component: EditBarangay},
-      {path: '/barangay/:id/update', name: 'UpdateBarangay', component: Barangay},
+      {path: '/barangay-edit/:id', name: 'EditBarangay', component: EditBarangay},
+      {path: '/barangay-update/:id', name: 'UpdateBarangay', component: Barangay},
     ],
     beforeEnter: async (to, from, next) => {
       try {

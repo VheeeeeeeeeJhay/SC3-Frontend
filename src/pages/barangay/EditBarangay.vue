@@ -9,6 +9,7 @@ import PrimaryButton from '../../components/PrimaryButton.vue';
 const route = useRoute();
 const router = useRouter(); // Initialize router
 const barangay_Id = route.params.id; // Get the barangay ID from route params
+
 const data = ref({
     name: '',
     longitude: '',
@@ -16,7 +17,7 @@ const data = ref({
 });
 
 onMounted(() => {
-    axiosClient.get(`/api/911/barangay/${barangay_Id}/edit`, {
+    axiosClient.get(`/api/911/barangay-edit/${barangay_Id}`, {
         headers: {
             'x-api-key': '$m@rtC!ty'
         }
@@ -32,15 +33,16 @@ onMounted(() => {
 
 const errors = ref('');
 
+console.log(data.value);
+
 function formSubmit() {
     console.log(data.value);
-    const formData = new FormData();
-    formData.append('name', data.value.name);
-    formData.append('longitude', data.value.longitude);
-    formData.append('latitude', data.value.latitude);
-    errors.value = ''; // Clear previous errors
-
-    axiosClient.put(`/api/911/barangay/${barangay_Id}/update`, formData, {
+    // const formData = new FormData();
+    // formData.append('name', data.value.name);
+    // formData.append('longitude', data.value.longitude);
+    // formData.append('latitude', data.value.latitude);
+    // errors.value = '';
+    axiosClient.put(`/api/911/barangay-update/${barangay_Id}`, data.value, {
         headers: {
             'x-api-key': '$m@rtC!ty'
         }
@@ -50,14 +52,13 @@ function formSubmit() {
     })
     .catch(error => {
         console.log(error.response.data.data);
-        errors.value = error.response.data.errors; // Store the errors
+        errors.value = error.response.data.errors;
     });
 }
 </script>
 
 <template>
   <div class="mt-10 bg-white">
-    <div>{{ data }}</div>
     <form @submit.prevent="formSubmit">
         <FormInput 
                 name="name" 
