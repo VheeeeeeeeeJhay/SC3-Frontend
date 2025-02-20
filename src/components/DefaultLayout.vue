@@ -4,32 +4,15 @@ import { RouterLink, useRoute } from 'vue-router';
 import useUserStore from "../stores/user.js";
 import axiosClient from "../axios.js";
 import router from "../router.js";
+import { useThemeStore } from '../stores/themeStore';
 
-const theme = ref(localStorage.getItem("theme") || "light");
+const themeStore = useThemeStore();
+
 const dropdownOpen = ref(false);
-
-const toggleTheme = () => {
-    if (theme.value === "light") {
-        document.documentElement.classList.add("dark");
-        localStorage.setItem("theme", "dark");
-        theme.value = "dark";
-    } else {
-        document.documentElement.classList.remove("dark");
-        localStorage.setItem("theme", "light");
-        theme.value = "light";
-    }
-};
-
 const toggleDropdown = () => {
     dropdownOpen.value = !dropdownOpen.value;
 };
 
-onMounted(() => {
-    if (localStorage.getItem("theme") === "dark") {
-        document.documentElement.classList.add("dark");
-        theme.value = "dark";
-    }
-});
 
 const userStore = useUserStore();
 const user = computed(() => userStore.user);
@@ -49,9 +32,15 @@ const logout = () => {
   });
 };
 
-const themeClasses = computed(() => 
-    theme.value === "dark" ? "bg-slate-800 border-black text-white" : "bg-white border-gray-200 text-gray-900"
-);
+
+const themeClasses = computed(() => {
+  return themeStore.isDarkMode ? "bg-slate-800 border-black text-white" : "bg-sky-50 border-gray-200 text-sky-900"
+})
+
+const dropClasses = computed(() => {
+  return themeStore.isDarkMode ? "bg-slate-600 border-black text-white" : "bg-white border-gray-200 text-sky-900"
+})
+
 
 const signoutConfirmationVisible = ref(false);
 
@@ -101,38 +90,40 @@ const cancelSignout = () => {
                                   alt="user photo">
                           </button>
                           <div v-show="dropdownOpen" 
-                              class="absolute right-0 top-full mt-2 z-50 w-48 text-base list-none bg-white divide-y divide-gray-100 rounded-sm shadow-sm dark:bg-gray-700 dark:divide-gray-600">
+                              class="absolute right-0 top-full mt-2 z-50 w-48 text-base list-none divide-y divide-gray-100 rounded-lg shadow-lg" :class="dropClasses">
                               <div class="px-4 py-3" role="none">
-                                  <p class="text-sm text-gray-900 dark:text-white" role="none">
+                                  <p class="text-sm" :class="dropClasses" role="none">
                                       {{ user?.firstname || 'Guest' }}
                                   </p>
-                                  <p class="text-sm font-medium text-gray-900 truncate dark:text-gray-300"
+                                  <p class="text-sm font-medium truncate" :class="dropClasses"
                                       role="none">
                                       {{ user?.email || 'No email' }}
                                   </p>
                               </div>
+                              
                               <ul class="py-1" role="none">
                                   <li>
                                     <a @click="themeStore.toggleTheme" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-sky-300 dark:hover:text-white" :class="dropClasses"
                                     role="menuitem">
-                                        {{ themeStore.isDarkMode ? "🌙 Dark Mode" : "🌞 Light Mode" }}
-                                    </a> 
+                                        {{ themeStore.theme === "light" ? "🌞 Light Mode" : "🌙 Dark Mode" }}
+                                    </a>
                                   </li>
                                   <li>
-                                      <button @click="showSignoutConfirmation" class="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white">
+                                      <a @click="showSignoutConfirmation" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-sky-300 dark:hover:text-white" :class="dropClasses">
                                           Sign Out
-                                      </button>
+                                      </a>
                                   </li>
                               </ul>
                           </div>
                       </div>
 
-                      <div v-if="signoutConfirmationVisible" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                          <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl">
-                              <h3 class="text-lg font-semibold mb-4">Sign out</h3>
-                              <p class="text-gray-600 dark:text-gray-400 mb-6">Are you sure you want to sign out?</p>
+                      <div v-if="signoutConfirmationVisible" class="fixed inset-0 flex items-center justify-center">
+                          <div class="fixed inset-0 bg-black opacity-60"></div>
+                          <div class=" p-6 rounded-lg shadow-xl z-10" :class="themeClasses">
+                              <h3 class="text-lg font-semibold mb-4 " :class="themeClasses">Sign out</h3>
+                              <p class="mb-6" :class="themeClasses">Are you sure you want to sign out?</p>
                               <div class="flex justify-end gap-2">
-                                  <button @click="cancelSignout" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">
+                                  <button @click="cancelSignout" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-300">
                                       Cancel
                                   </button>
                                   <button @click="logout" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
