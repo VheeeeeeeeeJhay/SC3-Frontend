@@ -4,6 +4,7 @@ import { FwbA, FwbTable, FwbTableBody, FwbTableCell, FwbTableHead, FwbTableHeadC
 import PrimaryButton from '../../components/PrimaryButton.vue';
 import AddBarangay from './AddBarangay.vue';
 import axiosClient from '../../axios.js';
+import Modal from '../../components/Modal.vue';
 
 const formVisibility = ref(false);
 
@@ -34,6 +35,23 @@ onMounted(() => {
       errorMessage.value = 'Failed to load barangays. Please try again later.';
   });
 });
+
+const openEditForm = (barangayId) => {
+  console.log(barangayId);
+  axiosClient.put(`/api/911/barangay/${barangayId}`, {}, {
+    headers: {
+        'x-api-key': '$m@rtC!ty'
+    }
+    })
+    .then((res) => {
+      console.log(res);
+      // router.push({ name: 'EditBarangay', params: { id: barangayId } });
+    })
+    .catch((error) => {
+    console.error('Error fetching data:', error);
+    errorMessage.value = 'Failed to load barangays. Please try again later.';
+    });
+}
 </script>
 
 <template>
@@ -46,10 +64,12 @@ onMounted(() => {
       class="bg-red-500 hover:bg-red-600 hover:shadow-md" />
   </div>
 
+  <Modal />
+
   <div v-if="formVisibility">
     <AddBarangay />
   </div>
-  <div v-else="!formVisibility">
+  <div v-else>
     <div v-if="errorMessage">
       <p class="text-red-500">{{ errorMessage }}</p>
     </div>
@@ -65,6 +85,12 @@ onMounted(() => {
           <fwb-table-cell>{{ barangay.name }}</fwb-table-cell>
           <fwb-table-cell>{{ barangay.longitude }}</fwb-table-cell>
           <fwb-table-cell>{{ barangay.latitude }}</fwb-table-cell>
+          <fwb-table-cell>
+            <!-- <PrimaryButton name="Edit" @click="openEditForm(barangay.id)" :value="barangay.id" /> -->
+            <RouterLink :to="{ name: 'EditBarangay', params: { id: barangay.id } }">
+              Edit
+            </RouterLink>
+          </fwb-table-cell>
         </fwb-table-row>
       </fwb-table-body>
     </fwb-table>
