@@ -217,85 +217,144 @@ watchEffect(() => {
                     <h2 class="text-2xl font-bold text-gray-800 mb-6">Source Information</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                         <div class="form-group">
-                            <label for="source" class="block text-sm font-medium mb-2 text-gray-700">Source of Report</label>
-                            <select id="source" v-model="data.source" class="w-full bg-white text-gray-800 p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition duration-200">
+                            <label for="source" class="block text-sm font-medium mb-2 text-gray-100">Source of
+                                Report</label>
+                            <select id="source" v-model="data.source"
+                                class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600" required>
                                 <option disabled value="">Select source</option>
                                 <option v-for="source in sources" :key="source.id" :value="source.sources">
                                     {{ source.sources }}
                                 </option>
                             </select>
                         </div>
+
                         <div class="form-group">
-                            <label for="incidentType" class="block text-sm font-medium mb-2 text-gray-700">Case Classification</label>
-                            <select id="incidentType" v-model="data.incidentType" class="w-full bg-white text-gray-800 p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition duration-200">
+                            <label for="incidentType" class="block text-sm font-medium mb-2 text-gray-100">Case
+                                Classification</label>
+                            <select id="incidentType" v-model="data.incidentType"
+                                class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600" required>
                                 <option disabled value="">Select classification</option>
-                                <option v-for="assistance in assistance" :key="assistance.id" :value="assistance.assistance">{{ assistance.assistance }}</option>
+                                <option v-for="assistance in assistance" :key="assistance.id" :value="assistance.assistance">
+                                    {{ assistance.assistance }}
+                                </option>
                             </select>
                         </div>
+
                         <div class="form-group">
-                            <label for="incident" class="block text-sm font-medium mb-2 text-gray-700">Incident/Case</label>
-                            <select id="incident" v-model="data.incident" class="w-full bg-white text-gray-800 p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition duration-200">
+                            <label for="incident"
+                                class="block text-sm font-medium mb-2 text-gray-100">Incident/Case</label>
+                            <select id="incident" v-model="data.incident"
+                                class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600" required>
                                 <option disabled value="">Select incident</option>
-                                <option v-for="incident in incidents" :key="incident.id" :value="incident.type">{{ incident.type }}</option>
+                                <option v-for="incident in incidents" :key="incident.id" :value="incident.type">
+                                    {{ incident.type }}
+                                </option>
                             </select>
                         </div>
+                    </div>
+
+                    <!-- Action Type -->
+                    <h2 class="text-md font-semibold text-gray-300 mb-3">Action Information</h2>
+                    <div class="grid grid-cols-1 mb-6">
                         <div class="form-group">
-                            <label for="actionType" class="block text-sm font-medium mb-2 text-gray-700">Type of Action</label>
-                            <select id="actionType" v-model="data.actionType" class="w-full bg-white text-gray-800 p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition duration-200">
+                            <label for="actionType" class="block text-sm font-medium mb-2 text-gray-100">Type of
+                                Action</label>
+                            <select id="actionType" v-model="data.actionType"
+                                class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600" required>
                                 <option disabled value="">Select action</option>
-                                <option v-for="action in actions" :key="action.id" :value="action.actions">{{ action.actions }}</option>
+                                <option v-for="action in actions" :key="action.id" :value="action.actions">
+                                    {{ action.actions }}
+                                </option>
                             </select>
                         </div>
                     </div>
 
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Time Information</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <!-- Time Information -->
+                    <h2 class="text-md font-semibold text-gray-300 mb-3">Date and Time Information</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                         <div class="form-group">
-                            <label for="receivedDate" class="block text-sm font-medium mb-2 text-gray-700">Date Received</label>
-                            <input type="date" id="receivedDate" v-model="data.receivedDate" class="w-full bg-white text-gray-800 p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition duration-200" />
+                            <label for="receivedDate" class="block text-sm font-medium mb-2 text-gray-100">Date
+                                Received</label>
+                            <input type="date" id="receivedDate" v-model="data.receivedDate"
+                                class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600"
+                                required />
                         </div>
+
                         <div class="form-group">
-                            <label for="arrivalDate" class="block text-sm font-medium mb-2 text-gray-700">Time of Arrival on Site</label>
-                            <input type="time" id="arrivalDate" v-model="data.arrivalTime" class="w-full bg-white text-gray-800 p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition duration-200" />
+                            <label for="arrivalDate" class="block text-sm font-medium mb-2 text-gray-100">Time of
+                                Arrival on Site
+                            </label>
+                            <input type="time" id="arrivalDate" v-model="data.arrivalTime"
+                                class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600"
+                                required />
                         </div>
+
                         <div class="form-group">
-                            <label for="incidentTime" class="block text-sm font-medium mb-2 text-gray-700">Time of Incident</label>
-                            <input type="time" id="incidentTime" v-model="data.incidentTime" class="w-full bg-white text-gray-800 p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition duration-200" />
+                            <label for="incidentTime" class="block text-sm font-medium mb-2 text-gray-100">Time of
+                                Incident</label>
+                            <input type="time" id="incidentTime" v-model="data.incidentTime"
+                            class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600"
+                            required />
                         </div>
                     </div>
-
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Place Information</h2>
+<hr>
+                    <!-- Location Details -->
+                    <h2 class="text-md font-semibold text-gray-300 mb-3">Location Details</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="form-group">
-                            <label for="place" class="block text-sm font-medium mb-2 text-gray-700">Place of Incident</label>
-                            <select id="place" v-model="data.location" class="w-full bg-white text-gray-800 p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition duration-200">
+                            <label for="place" class="block text-sm font-medium mb-2 text-gray-100">Place of
+                                Incident</label>
+                                <select id="place" v-model="data.location"
+                                class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600" required>
                                 <option disabled value="">Select Barangay (128)</option>
-                                <option v-for="location in locations" :key="location.id" :value="location.burnham">{{ location.name }}</option>
+                                <option v-for="location in locations" :key="location.id" :value="location.burnham">
+                                    {{ location.name }}
+                                </option>
                             </select>
                         </div>
-                        <div class="form-group md:col-span-2">
-                            <label for="details" class="block text-sm font-medium mb-2 text-gray-700">Location Details</label>
-                            <input id="details" v-model="data.details" placeholder="Enter location details/landmarks" class="w-full bg-white text-gray-800 p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition duration-200" />
+
+                        <div class="form-group">
+                            <label for="details" class="block text-sm font-medium mb-2 text-gray-100">Location
+                                Details</label>
+                            <input id="details" v-model="data.details"
+                                placeholder="Enter location details/landmarks"
+                                class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600"
+                                required />
                         </div>
                         <div class="form-group md:col-span-2">
                             <div id="map" class="mb-4"></div>
                         </div>
                         <div class="form-group">
-                            <label for="longitude" class="block text-sm font-medium mb-2 text-gray-700">Longitude</label>
-                            <input id="longitude" v-model="data.Longitude" placeholder="Enter Longitude" class="w-full bg-white text-gray-800 p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition duration-200" />
+                            <label for="longitude"
+                                class="block text-sm font-medium mb-2 text-gray-100">Longitude</label>
+                            <input id="longitude" v-model="data.Longitude" placeholder="Enter Longitude"
+                                class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600"
+                                required />
                         </div>
-                        <div class="form-group">
-                            <label for="latitude" class="block text-sm font-medium mb-2 text-gray-700">Latitude</label>
-                            <input id="latitude" v-model="data.Latitude" placeholder="Enter Latitude" class="w-full bg-white text-gray-800 p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition duration-200" />
-                        </div>
-                    </div>
 
-                    <div class="flex justify-end space-x-4 mt-8">
-                        <PrimaryButton type="button" name="Clear" @click="clearForm" class="px-6 py-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200" />
-                        <PrimaryButton type="submit" name="Add Report" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200" />
+                        <div class="form-group">
+                            <label for="latitude" class="block text-sm font-medium mb-2 text-gray-100">Latitude</label>
+                            <input id="latitude" v-model="data.Latitude" placeholder="Enter Latitude"
+                                class="w-full bg-gray-800 text-gray-100 p-2 rounded-lg border border-gray-600"
+                                required />
+                        </div>
+
+                        <div class="form-group"></div>
+                        <!-- Buttons -->
+                        <div class="flex justify-end space-x-4">
+                            <button type="button" @click="clearForm"
+                                class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+                                Clear
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-blue-900 text-white rounded hover:bg-blue-600">
+                                Submit Report
+                            </button>
+                        </div>
                     </div>
                 </div>
+
             </form>
+        </main>
         </main>
     </div>
 </template>
