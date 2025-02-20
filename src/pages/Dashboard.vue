@@ -282,14 +282,20 @@ onMounted(() => {
         </div>
         
         <div class="col-span-1 p-6 rounded-lg shadow" :class="themeClasses">
-          <h2 class="text-xl font-semibold mb-4" :class="themeClasses">Growth Rate of Incidents </h2>
-          <!-- Add content for recent activities -->
-           <h2>two buttons for date comparison</h2>
-          <div class="flex items-center px-2.5 py-0.5 text-base font-semibold text-green-500 dark:text-green-500 text-center">
+          <h2 class="text-xl font-semibold mb-4" :class="themeClasses">Growth Rate of Incidents</h2>
+          <div class="text-4xl font-bold text-green-500 dark:text-green-500 text-center mb-4">
             23%
-            <svg class="w-3 h-3 ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 14">
+            <svg class="w-6 h-6 inline-block ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 14">
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13V1m0 0L1 5m4-4 4 4"/>
             </svg>
+          </div>
+          <div class="flex justify-center space-x-4">
+            <button class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300">
+              Select Month 1
+            </button>
+            <button class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300">
+              Select Month 2
+            </button>
           </div>
         </div>
       </div>
@@ -314,7 +320,7 @@ onMounted(() => {
                   Date Filter
                 </button> -->
               </div>
-              <div id="column-chart"></div>
+              <div id="column-chart" class="h-full"></div>
           </div>
       </div>
     </main>

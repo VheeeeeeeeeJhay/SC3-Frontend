@@ -105,8 +105,8 @@ const cancelSignout = () => {
                                   <li>
                                     <a @click="themeStore.toggleTheme" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-sky-300 dark:hover:text-white" :class="dropClasses"
                                     role="menuitem">
-                                        {{ themeStore.theme === "light" ? "🌞 Light Mode" : "🌙 Dark Mode" }}
-                                    </a>
+                                        {{ themeStore.isDarkMode ? "🌙 Dark Mode" : "🌞 Light Mode" }}
+                                    </a> 
                                   </li>
                                   <li>
                                       <a @click="showSignoutConfirmation" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-sky-300 dark:hover:text-white" :class="dropClasses">
