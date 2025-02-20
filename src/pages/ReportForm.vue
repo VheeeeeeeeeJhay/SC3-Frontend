@@ -1,23 +1,11 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watchEffect } from 'vue';
 import { useThemeStore } from '../stores/themeStore';
 import PrimaryButton from '../components/PrimaryButton.vue';
 import axiosClient from '../axios';
 
 const themeStore = useThemeStore();
-const theme = ref(localStorage.getItem("theme") || "light");
-onMounted(() => {
-    if (localStorage.getItem("theme") === "dark") {
-        document.documentElement.classList.add("dark");
-        theme.value = "dark";
-    }
-    console.log(theme.value);
-});
 
-
-const bgClass = computed(() => {
-  return themeStore.isDarkMode ? "bg-slate-800 border-black text-white" : "bg-sky-950 border-gray-200 text-sky-900"
-})
 
 
 const reportSources = [
@@ -142,18 +130,88 @@ onMounted(() => {
         console.log('theres an error')
     });
 })
+
+//Map scripts
+import leaflet from 'leaflet';
+import {useGeolocation} from '@vueuse/core';
+import { userMarker } from '../stores/mapStore.js';
+const{coords} = useGeolocation();
+
+const latitude = ref(0);
+const longitude = ref(0);
+let map = leaflet.Map;
+
+onMounted(() => {
+  map = leaflet
+  .map('map')
+  .setView([userMarker.value.latitude, userMarker.value.longitude], 13);
+
+  leaflet
+    .tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    keepBuffer: 2,
+    attribution: 
+      '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    })
+    .addTo(map);
+
+    const bounds = leaflet.latLngBounds(
+      [16.350, 120.520], // Southwest (bottom-left)
+      [16.480, 120.660]  // Northeast (top-right) 
+    );
+    map.setMaxBounds(bounds);
+    map.setMinZoom(12); 
+
+    let singleMarker = null;
+
+    map.addEventListener("click", (e) => {
+    const { lat: newLat, lng: newLng } = e.latlng;
+
+    if (bounds.contains([newLat, newLng])) {
+      if (singleMarker) {
+        map.removeLayer(singleMarker);
+      }
+
+      // Add a new marker
+      singleMarker = leaflet
+        .marker([newLat, newLng])
+        .addTo(map)
+        .bindPopup(
+          `Selected Marker at (<strong>${newLat.toFixed(5)}, ${newLng.toFixed(5)}</strong>)`
+        )
+        .openPopup();
+
+      // Update the stored user marker
+      userMarker.value.latitude = newLat;
+      userMarker.value.longitude = newLng;
+      // Update form inputs
+      data.value.Latitude = newLat.toFixed(6);
+      data.value.Longitude = newLng.toFixed(6);
+
+    } else {
+      alert("You cannot place markers outside Baguio City.");
+    }
+  });
+});
+
+watchEffect(() => {
+  if (coords.value.latitude && coords.value.longitude) {
+    data.value.Latitude = coords.value.latitude.toFixed(6);
+    data.value.Longitude = coords.value.longitude.toFixed(6);
+  }
+});
 </script>
 
 <template>
     <div style="min-height: 100vh;">
-        <div class="text-white">{{ sources }}</div><br>
+        <!-- <div class="text-white">{{ sources }}</div><br>
             <div class="text-white">{{ actions }}</div><br>
             <div class="text-white">{{ incidents }}</div><br>
             <div class="text-white">{{ assistance }}</div><br>
-            <div class="text-white">{{ locations }}</div><br>
+            <div class="text-white">{{ locations }}</div><br> -->
 
         <main class="flex-1 my-2 px-2">
-            <div>{{ data }}</div>
+            <div class="text-white">{{ data }}</div>
             <form @submit.prevent="submitForm" class="space-y-6 mx-auto max-w-3xl p-4">
                 <div class="bg-gray-100 p-6 rounded-lg shadow-lg">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6">Source Information</h2>
@@ -219,6 +277,9 @@ onMounted(() => {
                             <label for="details" class="block text-sm font-medium mb-2 text-gray-700">Location Details</label>
                             <input id="details" v-model="data.details" placeholder="Enter location details/landmarks" class="w-full bg-white text-gray-800 p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition duration-200" />
                         </div>
+                        <div class="form-group md:col-span-2">
+                            <div id="map" class="mb-4"></div>
+                        </div>
                         <div class="form-group">
                             <label for="longitude" class="block text-sm font-medium mb-2 text-gray-700">Longitude</label>
                             <input id="longitude" v-model="data.Longitude" placeholder="Enter Longitude" class="w-full bg-white text-gray-800 p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition duration-200" />
@@ -235,10 +296,13 @@ onMounted(() => {
                     </div>
                 </div>
             </form>
-</main>
+        </main>
     </div>
 </template>
 
 <style scoped>
-
+#map { 
+  height: 50vh;
+  width: 100%; 
+}
 </style>
