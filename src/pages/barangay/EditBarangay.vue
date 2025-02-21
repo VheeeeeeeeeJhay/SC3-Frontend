@@ -5,7 +5,6 @@ import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router'; // Import useRouter
 import PrimaryButton from '../../components/PrimaryButton.vue';
 
-
 const route = useRoute();
 const router = useRouter(); // Initialize router
 const barangay_Id = route.params.id; // Get the barangay ID from route params

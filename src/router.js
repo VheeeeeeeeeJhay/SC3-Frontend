@@ -12,6 +12,7 @@ import Barangay from "./pages/barangay/Barangay.vue";
 import EditBarangay from "./pages/barangay/EditBarangay.vue";
 import Incident from "./pages/incident/Incident.vue";
 import ReportTable from "./pages/report/ReportsTable.vue";
+import ReportViewDetails from "./pages/report/ReportViewDetails.vue";
 
 const routes = [
   {
@@ -19,13 +20,18 @@ const routes = [
     component: DefaultLayout,
     children: [
       {path: '/', name: 'Dashboard', component: Dashboard},
+
       {path: '/map', name: 'Map', component: Map},
+
       {path: '/reportform', name: 'ReportForm', component: ReportForm},
       {path: '/report-table', name: 'ReportTable', component: ReportTable},
+      { path: '/report-view/:id', name: 'ReportViewDetails', component: ReportViewDetails },
+
       {path: '/barangay', name: 'Barangay', component: Barangay},
       {path: '/barangay-edit/:id', name: 'EditBarangay', component: EditBarangay},
       {path: '/barangay-update/:id', name: 'UpdateBarangay', component: Barangay},
       {path: '/barangay-delete/:id', name: 'DeleteBarangay', component: Barangay},
+
       {path: '/incident', name: 'Incident', component: Incident},
     ],
     beforeEnter: async (to, from, next) => {

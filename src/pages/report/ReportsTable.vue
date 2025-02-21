@@ -45,6 +45,10 @@ const closeDropdown = () => {
 const toggleDropdown = (transactionId) => {
     openDropdownId.value = openDropdownId.value === transactionId ? null : transactionId;
 };
+
+
+// Passed To View
+
 </script>
 
 <template>
@@ -218,7 +222,7 @@ const toggleDropdown = (transactionId) => {
                                         class="absolute z-[10] bg-white divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700 right-10 = mt-2">
                                         <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
                                             <li>
-                                                <RouterLink
+                                                <RouterLink :to="{ name: 'ReportViewDetails', params: { id: report.id } }"
                                                     class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">View Details</RouterLink>
                                             </li>
                                             <li>
