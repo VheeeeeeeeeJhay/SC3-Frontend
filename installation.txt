@@ -1,1 +1,2 @@
 npm install apexcharts@3.46.0 --save 
+npm install html2canvas jspdf

@@ -41,11 +41,11 @@ const themeClasses = computed(() => {
 const dropClasses = computed(() => {
   return themeStore.isDarkMode ? "bg-slate-600 border-black text-white" : "bg-white border-gray-200 text-sky-900"
 })
-
-const bgClasses = computed(() => {
-  return themeStore.isDarkMode ? "bg-gray-500 border-black text-white" : "bg-gray-500 border-black text-white"
+const iconClasses = computed(() => {
+  return themeStore.isDarkMode
+    ? "text-white hover:text-gray-300 transition-colors"
+    : "text-sky-900 hover:text-sky-700 transition-colors"
 })
-
 
 const signoutConfirmationVisible = ref(false);
 
@@ -170,14 +170,14 @@ const cancelSignout = () => {
                       <RouterLink :to="item.to" :class="[
                           themeClasses,
                           route.name === item.to.name 
-                              ? 'bg-gray-300 dark:bg-sky-400' 
-                              : 'hover:bg-gray-300 dark:hover:bg-sky-300',
+                              ? 'bg-gray-300 dark:bg-teal-400' 
+                              : 'hover:bg-gray-300 dark:hover:bg-teal-300',
                           'flex my-2 items-center p-2 rounded-lg group'
                       ]">
                           <span :class="[
                               route.name === item.to.name 
-                                  ? 'text-gray-700 dark:text-gray-300' 
-                                  : 'text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-400',
+                                  ? iconClasses
+                                  : iconClasses,
                               'material-icons w-5 h-5 transition duration-75'
                           ]">
                               {{ item.icon }}
@@ -189,7 +189,7 @@ const cancelSignout = () => {
           </div>
       </aside>
 
-      <div class=" pt-14 p-4 sm:ml-64 " :class="bgClasses">
+      <div class=" pt-14 p-4 sm:ml-64" :class="dropClasses">
           <router-view />
       </div>
   </div>
