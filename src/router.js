@@ -11,6 +11,7 @@ import Map from "./pages/Map.vue";
 import ReportForm from "./pages/ReportForm.vue";
 import Barangay from "./pages/barangay/Barangay.vue";
 import EditBarangay from "./pages/barangay/EditBarangay.vue";
+import Incident from "./pages/incident/Incident.vue";
 
 const routes = [
   {
@@ -23,6 +24,8 @@ const routes = [
       {path: '/barangay', name: 'Barangay', component: Barangay},
       {path: '/barangay-edit/:id', name: 'EditBarangay', component: EditBarangay},
       {path: '/barangay-update/:id', name: 'UpdateBarangay', component: Barangay},
+      {path: '/barangay-delete/:id', name: 'DeleteBarangay', component: Barangay},
+      {path: '/incident', name: 'Incident', component: Incident},
     ],
     beforeEnter: async (to, from, next) => {
       try {

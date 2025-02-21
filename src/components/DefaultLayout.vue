@@ -22,7 +22,8 @@ const navigation = [
   { name: 'Dashboard', to: { name: 'Dashboard' }, icon: 'bar_chart' },
   { name: 'Map', to: { name: 'Map' }, icon: 'map' },
   { name: 'Report Form', to: { name: 'ReportForm' }, icon: 'note_add' },
-  { name: 'Barangay', to: { name: 'Barangay' }, icon: 'home' },
+  { name: 'Barangays', to: { name: 'Barangay' }, icon: 'home' },
+  { name: 'Incidents', to: { name: 'Incident' }, icon: 'warning' },
 ];
 
 const logout = () => {
@@ -121,6 +122,24 @@ const cancelSignout = () => {
                           </div>
                       </div>
 
+
+                      <!--  
+                       maka this modal resusable, maka this modal resusable, maka this modal resusable, maka this modal resusable,
+                       maka this modal resusable, maka this modal resusable, maka this modal resusable, maka this modal resusable, 
+                       maka this modal resusable, maka this modal resusable, maka this modal resusable, maka this modal resusable,
+                       maka this modal resusable, maka this modal resusable, maka this modal resusable, maka this modal resusable,
+                       maka this modal resusable, maka this modal resusable, maka this modal resusable, maka this modal resusable, 
+                       maka this modal resusable, maka this modal resusable, maka this modal resusable, maka this modal resusable,
+                       maka this modal resusable, maka this modal resusable, maka this modal resusable, maka this modal resusable,
+                       maka this modal resusable, maka this modal resusable, maka this modal resusable, maka this modal resusable, 
+                       maka this modal resusable, maka this modal resusable, maka this modal resusable, maka this modal resusable,
+                       maka this modal resusable, maka this modal resusable, maka this modal resusable, maka this modal resusable,
+                       maka this modal resusable, maka this modal resusable, maka this modal resusable, maka this modal resusable, 
+                       maka this modal resusable, maka this modal resusable, maka this modal resusable, maka this modal resusable,
+                       maka this modal resusable, maka this modal resusable, maka this modal resusable, maka this modal resusable,
+                       maka this modal resusable, maka this modal resusable, maka this modal resusable, maka this modal resusable, 
+                       maka this modal resusable, maka this modal resusable, maka this modal resusable, maka this modal resusable, 
+                      -->
                       <div v-if="signoutConfirmationVisible" class="fixed inset-0 flex items-center justify-center">
                           <div class="fixed inset-0 bg-black opacity-60"></div>
                           <div class=" p-6 rounded-lg shadow-xl z-10" :class="themeClasses">
