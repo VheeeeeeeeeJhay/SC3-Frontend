@@ -7,6 +7,7 @@ import { useGeolocation } from '@vueuse/core';
 import { userMarker } from '../stores/mapStore.js';
 import leaflet from 'leaflet';
 import  useUserStore  from '../stores/user.js';
+import router from '../router.js';
 
 // Get Auth User Information
 const userStore = useUserStore();
@@ -74,7 +75,6 @@ onMounted(() => {
       }
   })
   .then((res) => {
-      console.log(res);
       sources.value = res.data.sources;
       actions.value = res.data.actions;
       incidents.value = res.data.incidents;
@@ -110,6 +110,7 @@ const submitForm = () => {
     .then(response => {
       console.log('Form submitted successfully:', response.data);
       clearForm();
+      router.push({ name: 'ReportTable' });
     })
     .catch(error => {
       console.log('Error:', error.response.data);
