@@ -1,10 +1,10 @@
 <script setup>
 
-import GuestLayout from "../components/GuestLayout.vue";
+import GuestLayout from "../../components/GuestLayout.vue";
 import { ref } from "vue";
-import axiosClient from "../axios.js";
-import router from "../router.js";
-import logo from "../assets/baguio-logo.png";
+import axiosClient from "../../axios.js";
+import router from "../../router.js";
+import logo from "../../assets/baguio-logo.png";
 
 const data = ref({
   name: '',
