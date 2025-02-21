@@ -35,6 +35,10 @@ onMounted(() => {
       errorMessage.value = 'Failed to load barangays. Please try again later.';
   });
 });
+
+
+// Pass The ID To Delete
+
 </script>
 
 <template>
@@ -61,6 +65,7 @@ onMounted(() => {
         <fwb-table-head-cell class="text-center" v-for="(value, key) in barangays[0]" :key="key">
           {{ key }}
         </fwb-table-head-cell>
+        <fwb-table-head-cell class="text-center">Action</fwb-table-head-cell>
       </fwb-table-head>
       <fwb-table-body>
         <fwb-table-row v-for="barangay in barangays" :key="barangay.id" class="text-center">
@@ -69,8 +74,11 @@ onMounted(() => {
           <fwb-table-cell>{{ barangay.longitude }}</fwb-table-cell>
           <fwb-table-cell>{{ barangay.latitude }}</fwb-table-cell>
           <fwb-table-cell>
-            <RouterLink :to="{ name: 'EditBarangay', params: { id: barangay.id } }">
-              Edit
+            <RouterLink class="p-2" :to="{ name: 'EditBarangay', params: { id: barangay.id } }">
+              <PrimaryButton name="Edit" class="bg-blue-500 hover:bg-blue-600 hover:shadow-md text-white" />
+            </RouterLink>
+            <RouterLink class="p-2" >
+              <PrimaryButton name="Delete" class="bg-red-500 hover:bg-red-600 hover:shadow-md text-white" />
             </RouterLink>
           </fwb-table-cell>
         </fwb-table-row>

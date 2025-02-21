@@ -1,11 +1,16 @@
 <script setup>
-import { ref, computed, onMounted, watchEffect } from 'vue';
+import { ref, computed, onMounted, watchEffect, watch } from 'vue';
 import { useThemeStore } from '../stores/themeStore';
 import PrimaryButton from '../components/PrimaryButton.vue';
 import axiosClient from '../axios';
 import { useGeolocation } from '@vueuse/core';
 import { userMarker } from '../stores/mapStore.js';
 import leaflet from 'leaflet';
+import  useUserStore  from '../stores/user.js';
+
+// Get Auth User Information
+const userStore = useUserStore();
+const user = computed(() => userStore.user);
 
 // For dark mode
 const themeStore = useThemeStore();
@@ -16,10 +21,9 @@ const dropClasses = computed(() => {
   return themeStore.isDarkMode ? "bg-slate-600 border-black text-white" : "bg-white border-gray-200 text-sky-900"
 })
 
-
+// Clearing Form Data
 const clearForm = () => {
   data.value = {
-    // firstName: '',
     source: '',
     incidentType: '',
     incident: '',
@@ -34,8 +38,13 @@ const clearForm = () => {
   }
 };
 
+// Full Name of Auth User
+const fullName = computed(() => {
+  return user.value.firstName + ' ' + user.value.lastName
+})
+
 const data = ref({
-  // firstName: '',
+  firstName: fullName.value,
   source: '',
   incidentType: '',
   incident: '',
@@ -49,6 +58,7 @@ const data = ref({
   Latitude: '',
 });
 
+// Store Fetch Data From Backend In An Array
 const sources = ref([]);
 const actions = ref([]);
 const incidents = ref([]);
@@ -84,13 +94,14 @@ const submitForm = () => {
   formData.append('incident_id', data.value.incident)
   formData.append('date_received', data.value.receivedDate)
   formData.append('arrival_on_site', data.value.arrivalTime)
-  formData.append('name', 'vicnent')
-  formData.append('location_id', data.value.location)
+  formData.append('name', data.value.firstName)
+  formData.append('landmark', data.value.details)
+  formData.append('barangay_id', data.value.barangay)
   formData.append('actions_id', data.value.actionType)
   formData.append('assistance_id', data.value.incidentType)
   formData.append('longitude', data.value.Longitude)
   formData.append('latitude', data.value.Latitude)
-
+  console.log(formData)
   axiosClient.post('/api/911/report', formData, {
     headers: {
       'x-api-key':'$m@rtC!ty'
@@ -100,10 +111,22 @@ const submitForm = () => {
       console.log('Form submitted successfully:', response.data);
       clearForm();
     })
-    // .catch(error => {
-    //   console.log('Error:', error.response.data);
-    // })
+    .catch(error => {
+      console.log('Error:', error.response.data);
+    })
 };
+
+
+// Filter The Incident/Case Base On The Assistance Type
+const filteredIncidents = computed(() => {
+  return data.value.incidentType
+    ? incidents.value.filter(incident => incident.assistance_id === data.value.incidentType)
+    : [];
+});
+
+watch(() => data.value.incidentType, () => {
+  data.value.incident = ''; // Reset the incident dropdown
+});
 
 
 //Map scripts
@@ -176,14 +199,7 @@ watchEffect(() => {
 
 <template>
     <div style="min-height: 100vh;" >
-        <div class="text-white">{{ sources }}</div><br>
-            <div class="text-white">{{ actions }}</div><br>
-            <div class="text-white">{{ incidents }}</div><br>
-            <div class="text-white">{{ assistance }}</div><br>
-            <div class="text-white">{{ barangays }}</div><br>
-
         <main class="flex-1 my-2 px-2">
-            <div class="text-white">{{ data }}</div>
             <form @submit.prevent="submitForm" class="space-y-6 mx-auto max-w-3xl p-4">
                 <div class="p-6 rounded-lg shadow-lg" :class="themeClasses">
                     <h2 class="text-2xl font-bold mb-6" :class="themeClasses">Source Information</h2>
@@ -192,7 +208,7 @@ watchEffect(() => {
                             <label for="source" class="block text-sm font-medium mb-2" :class="themeClasses">Source of Report</label>
                             <select id="source" v-model="data.source" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
                                 <option disabled value="">Select source</option>
-                                <option v-for="source in sources" :key="source.id" :value="source.sources">
+                                <option v-for="source in sources" :key="source.id" :value="source.id">
                                     {{ source.sources || "No Source Available"}}
                                 </option>
                             </select>
@@ -201,21 +217,32 @@ watchEffect(() => {
                             <label for="incidentType" class="block text-sm font-medium mb-2" :class="themeClasses">Case Classification</label>
                             <select id="incidentType" v-model="data.incidentType" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
                                 <option disabled value="">Select classification</option>
-                                <option v-for="assistance in assistance" :key="assistance.id" :value="assistance.assistance">{{ assistance.assistance }}</option>
+                                <option v-for="assistance in assistance" :key="assistance.id" :value="assistance.id">{{ assistance.assistance }}</option>
                             </select>
                         </div>
-                        <div class="form-group">
+                        <!-- <div class="form-group">
                             <label for="incident" class="block text-sm font-medium mb-2" :class="themeClasses">Incident/Case</label>
                             <select id="incident" v-model="data.incident" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
                                 <option disabled value="">Select incident</option>
-                                <option v-for="incident in incidents" :key="incident.id" :value="incident.type">{{ incident.type }}</option>
+                                <option v-for="incident in incidents" :key="incident.id" :value="incident.id">{{ incident.type }}</option>
                             </select>
+                        </div> -->
+                        <div class="form-group">
+                          <label for="incident" class="block text-sm font-medium mb-2" :class="themeClasses">Incident/Case</label>
+                          <select id="incident" v-model="data.incident" :class="dropClasses"
+                            class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200"
+                            :disabled="!data.incidentType || filteredIncidents.length === 0">
+                            <option disabled value="">Select incident</option>
+                            <option v-for="incident in filteredIncidents" :key="incident.id" :value="incident.id">
+                              {{ incident.type }}
+                            </option>
+                          </select>
                         </div>
                         <div class="form-group">
                             <label for="actionType" class="block text-sm font-medium mb-2" :class="themeClasses">Type of Action</label>
                             <select id="actionType" v-model="data.actionType" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
                                 <option disabled value="">Select action</option>
-                                <option v-for="action in actions" :key="action.id" :value="action.actions">{{ action.actions }}</option>
+                                <option v-for="action in actions" :key="action.id" :value="action.id">{{ action.actions }}</option>
                             </select>
                         </div>
                     </div>
@@ -242,7 +269,7 @@ watchEffect(() => {
                             <label for="place" class="block text-sm font-medium mb-2" :class="themeClasses">Place of Incident</label>
                             <select id="place" v-model="data.barangay" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
                                 <option disabled value="">Select Barangay (128)</option>
-                                <option v-for="barangay in barangays" :key="barangay.id" :value="barangay.burnham">{{ barangay.name }}</option>
+                                <option v-for="barangay in barangays" :key="barangay.id" :value="barangay.id">{{ barangay.name }}</option>
                             </select>
                         </div>
                         <div class="form-group md:col-span-2">
