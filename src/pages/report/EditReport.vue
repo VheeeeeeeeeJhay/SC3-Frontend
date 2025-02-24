@@ -1,8 +1,11 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watchEffect, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axiosClient from '../../axios.js';
 import FormInput from '../../components/FormInput.vue';
+import { useGeolocation } from '@vueuse/core';
+import { userMarker } from '../../stores/mapStore.js';
+import leaflet from 'leaflet';
 
 const route = useRoute();
 const router = useRouter();
@@ -36,20 +39,6 @@ onMounted(() => {
     .then((res) => {
         console.log(res);
         data.value = res.data;
-        // data.value = {
-        //     name: report.name || '',
-        //     source: report.source?.sources || '',
-        //     incidentType: report.incident?.type || '',
-        //     incident: report.incident_id || '',
-        //     actionType: report.actions?.actions || '',
-        //     receivedDate: report.date_received || '',
-        //     arrivalTime: report.arrival_on_site || '',
-        //     incidentTime: report.time || '',
-        //     barangay: report.barangay?.name || '',
-        //     details: report.landmark || '',
-        //     longitude: report.Longitude || '',
-        //     latitude: report.Latitude || ''
-        // }; // Assign response data to data.value
     })
     .catch((error) => {
         console.error('Error fetching data:', error);
@@ -58,6 +47,74 @@ onMounted(() => {
     .finally(() => {
         isLoading.value = false; // Set loading to false after fetching
     });
+});
+
+
+//Map scripts
+const { coords } = useGeolocation();
+
+const latitude = ref(0);
+const longitude = ref(0);
+let map = leaflet.Map;
+
+onMounted(() => {
+  map = leaflet
+    .map('map')
+    .setView([userMarker.value.latitude, userMarker.value.longitude], 13);
+
+  leaflet
+    .tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      keepBuffer: 2,
+      attribution:
+        '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    })
+    .addTo(map);
+
+  const bounds = leaflet.latLngBounds(
+    [16.350, 120.520], // Southwest (bottom-left)
+    [16.480, 120.660]  // Northeast (top-right) 
+  );
+  map.setMaxBounds(bounds);
+  map.setMinZoom(12);
+
+  let singleMarker = null;
+
+  map.addEventListener("click", (e) => {
+    const { lat: newLat, lng: newLng } = e.latlng;
+
+    if (bounds.contains([newLat, newLng])) {
+      if (singleMarker) {
+        map.removeLayer(singleMarker);
+      }
+
+      // Add a new marker
+      singleMarker = leaflet
+        .marker([newLat, newLng])
+        .addTo(map)
+        .bindPopup(
+          `Selected Marker at (<strong>${newLat.toFixed(5)}, ${newLng.toFixed(5)}</strong>)`
+        )
+        .openPopup();
+
+      // Update the stored user marker
+      userMarker.value.latitude = newLat;
+      userMarker.value.longitude = newLng;
+      // Update form inputs
+      data.value.latitude = newLat.toFixed(6);
+      data.value.longitude = newLng.toFixed(6);
+
+    } else {
+      alert("You cannot place markers outside Baguio City.");
+    }
+  });
+});
+
+watchEffect(() => {
+  if (coords.value.latitude && coords.value.longitude) {
+    data.value.latitude = coords.value.latitude.toFixed(6);
+    data.value.longitude = coords.value.longitude.toFixed(6);
+  }
 });
 </script>
 
@@ -116,12 +173,15 @@ onMounted(() => {
                 <FormInput name="landmark" class="px-4 py-2 border rounded-md mr-2 text-white bg-gray-600" v-model="data.landmark" />
             </div>
             <div>
-                <label for="longitude">Longitude</label>
+                <label for="longitude">longitude</label>
                 <FormInput name="longitude" class="px-4 py-2 border rounded-md mr-2 text-white bg-gray-600" v-model="data.longitude" />
             </div>
             <div>
-                <label for="latitude">Latitude</label>
+                <label for="latitude">latitude</label>
                 <FormInput name="latitude" class="px-4 py-2 border rounded-md mr-2 text-white bg-gray-600" v-model="data.latitude" />
+            </div>
+            <div class="form-group md:col-span-2">
+                <div id="map" class="mb-4"></div>
             </div>
         </form>
     </div>
