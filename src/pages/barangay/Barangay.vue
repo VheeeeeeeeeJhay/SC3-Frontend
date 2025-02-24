@@ -1,11 +1,34 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { FwbA, FwbTable, FwbTableBody, FwbTableCell, FwbTableHead, FwbTableHeadCell, FwbTableRow } from 'flowbite-vue';
 import PrimaryButton from '../../components/PrimaryButton.vue';
 import AddBarangay from './AddBarangay.vue';
 import axiosClient from '../../axios.js';
 import Modal from '../../components/Modal.vue';
 import { useRouter } from 'vue-router';
+import { useThemeStore } from '../../stores/themeStore';
+
+// For dark mode
+const themeStore = useThemeStore();
+const themeClasses = computed(() => {
+  return themeStore.isDarkMode 
+    ? "bg-slate-800 border border-black text-white hover:border-gray-600 focus:ring-2 focus:ring-slate-500 focus:outline-none"
+    : "bg-sky-50 border border-gray-200 text-sky-900 hover:border-gray-300 focus:ring-2 focus:ring-sky-400 focus:outline-none";
+});
+
+// Dropdown base styles
+const dropClasses = computed(() => {
+  return themeStore.isDarkMode 
+    ? "bg-slate-600 border border-black text-white focus:ring-2 focus:ring-slate-400 focus:outline-none"
+    : "bg-white border border-gray-200 text-sky-900 focus:ring-2 focus:ring-sky-300 focus:outline-none";
+});
+
+// Hover styles (separate for reusability)
+const hoverClasses = computed(() => {
+  return themeStore.isDarkMode 
+    ? "hover:bg-slate-700 hover:border-black"
+    : "hover:bg-sky-100 hover:border-black";
+});
 
 const router = useRouter();
 const formVisibility = ref(false);
