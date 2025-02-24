@@ -208,18 +208,6 @@ function goBack() {
 </script>
 
 <template>
-  <div style="min-height: 100vh;">
-    <main class="flex-1 my-2 px-2">
-      <form @submit.prevent="submitForm" class="space-y-6 mx-auto max-w-3xl p-4">
-        <div v-if="errorMessage">
-          <p class="text-red-500">{{ errorMessage }}</p>
-        </div>
-        <FormInput />
-      </template>
-    </Modal>
-</li>
-
-
     <div style="min-height: 100vh;" >
         <!-- Go Back Button -->
           <div class="mt-6 px-2 flex justify-end">
