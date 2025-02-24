@@ -31,24 +31,35 @@ const classifications = ref([]);
 
 const isLoading = ref(false);
 
+const selectedClassifications = ref([]);
+
+const filteredReports = computed(() => {
+  if (selectedClassifications.value.length === 0) {
+    return reports.value; // Return all reports if no classification is selected
+  }
+  return reports.value.filter(report => 
+    selectedClassifications.value.includes(report.assistance_id)
+  );
+});
+
 onMounted(() => {
-    isLoading.value = true;
-    axiosClient.get('/api/911/report-display', {
-        headers: {
-            'x-api-key': '$m@rtC!ty'
-        }
-    })
-    .then((res) => {
-        setTimeout(() => {
-            reports.value = res.data[0]; // Assuming reports are in the first index
-            classifications.value = res.data[1]; // Assuming classifications are in the second index
-            isLoading.value = false;
-        }, 1500);
-    })
-    .catch((error) => {
-        console.error('Error fetching data:', error);
-        errorMessage.value = 'Failed to load barangays. Please try again later.';
+isLoading.value = true;
+axiosClient.get('/api/911/report-display', {
+    headers: {
+        'x-api-key': '$m@rtC!ty'
+    }
+})
+.then((res) => {
+    setTimeout(() => {
+        reports.value = res.data[0]; // Assuming reports are in the first index
+        classifications.value = res.data[1]; // Assuming classifications are in the second index
         isLoading.value = false;
+    }, 1500);
+})
+.catch((error) => {
+    console.error('Error fetching data:', error);
+    errorMessage.value = 'Failed to load barangays. Please try again later.';
+    isLoading.value = false;
 });
 
 
@@ -62,7 +73,6 @@ onMounted(() => {
     }
   });
 });
-
 
 // -----------------------
 const openDropdownId = ref(null);
@@ -166,7 +176,7 @@ const formSubmit = (report_Id) => {
                         
                         <div class="flex items-center space-x-3 w-full md:w-auto relative">
                             <!-- Actions Dropdown Button -->
-                            <button
+                            <!-- <button
                             @click="toggleActionsDropdown"
                             class="border rounded-lg px-3 py-1 flex items-center"
                             :class="hoverClasses"
@@ -180,10 +190,10 @@ const formSubmit = (report_Id) => {
                                 />
                             </svg>
                             Actions
-                            </button>
+                            </button> -->
 
                             <!-- Actions Dropdown Menu -->
-                            <div
+                            <!-- <div
                             id="actionsDropdown"
                             v-show="isActionsDropdownOpen"
                             class="absolute top-full left-0 z-10 w-44 bg-white rounded shadow divide-y divide-gray-100 dark:divide-gray-600"
@@ -196,7 +206,7 @@ const formSubmit = (report_Id) => {
                                 <div class="py-1">
                                     <a href="#" class="block py-2 px-4 text-sm">Delete all</a>
                                 </div>
-                            </div>
+                            </div> -->
 
                             <!-- Filter Dropdown Button -->
                             <button
@@ -228,29 +238,19 @@ const formSubmit = (report_Id) => {
                             v-show="isFilterDropdownOpen"
                             class="absolute top-full left-0 z-10 w-48 p-3 bg-white rounded-lg shadow"
                             >
-                            <h6 class="mb-3 text-sm font-medium">Choose brand</h6>
-                            <ul class="space-y-2 text-sm">
-                                <li class="flex items-center">
-                                <input id="apple" type="checkbox" class="w-4 h-4" />
-                                <label for="apple" class="ml-2 text-sm font-medium">Apple (56)</label>
-                                </li>
-                                <li class="flex items-center">
-                                <input id="fitbit" type="checkbox" class="w-4 h-4" />
-                                <label for="fitbit" class="ml-2 text-sm font-medium">Microsoft (16)</label>
-                                </li>
-                                <li class="flex items-center">
-                                <input id="razor" type="checkbox" class="w-4 h-4" />
-                                <label for="razor" class="ml-2 text-sm font-medium">Razor (49)</label>
-                                </li>
-                                <li class="flex items-center">
-                                <input id="nikon" type="checkbox" class="w-4 h-4" />
-                                <label for="nikon" class="ml-2 text-sm font-medium">Nikon (12)</label>
-                                </li>
-                                <li class="flex items-center">
-                                <input id="benq" type="checkbox" class="w-4 h-4" />
-                                <label for="benq" class="ml-2 text-sm font-medium">BenQ (74)</label>
-                                </li>
-                            </ul>
+                            <h6 class="mb-3 text-sm font-medium">Choose Classification</h6>
+                                <ul class="space-y-2 text-sm">
+                                    <li v-for="classification in classifications" :key="classification.id" class="flex items-center">
+                                        <input
+                                          type="checkbox"
+                                          :id="classification.id"
+                                          :value="classification.id"
+                                          v-model="selectedClassifications"
+                                          class="w-4 h-4"
+                                        />
+                                        <label :for="classification.id" class="ml-2 text-sm font-medium">{{ classification.assistance }}</label>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -283,7 +283,7 @@ const formSubmit = (report_Id) => {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="border-b dark:border-gray-700" v-for="report in reports" :key="report.id">
+                            <tr class="border-b dark:border-gray-700" v-for="report in filteredReports" :key="report.id">
                                 <th scope="row"
                                     class="px-4 py-3 font-medium whitespace-nowrap">
                                     {{ report.id }}
