@@ -199,34 +199,9 @@ watchEffect(() => {
   }
 });
 
-const isModalOpen = ref(false)
-
-const openModal = () => {
-
-   isModalOpen.value = true;
-   console.log("🚀 ~ openModal ~ isModalOpen:", isModalOpen.value)
-};
 </script>
 
 <template>
-<li class="block hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-    <button @click.stop="openModal()" class="w-full text-start px-4 py-2 ">
-      Delete
-    </button>
-
-    <!-- Use the modal component and bind the v-model -->
-    <Modal v-if="isModalOpen" v-model="isModalOpen" @click.stop >
-      <template #contents>
-
-        <div class="p-6 rounded-lg shadow-lg bg-red-500 h-96 w-96">
-          hiii
-        </div>
-        <FormInput />
-      </template>
-    </Modal>
-</li>
-
-
     <div style="min-height: 100vh;" >
         <main class="flex-1 my-2 px-2">
             <form @submit.prevent="submitForm" class="space-y-6 mx-auto max-w-3xl p-4">

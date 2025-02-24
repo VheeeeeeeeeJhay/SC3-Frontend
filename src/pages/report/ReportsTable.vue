@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import axiosClient from '../../axios.js';
 import { RouterLink } from 'vue-router';
+import PrimaryButton from '../../components/PrimaryButton.vue';
 
 const reports = ref([]);
 const classifications = ref([]);
@@ -54,6 +55,28 @@ const toggleDropdown = (transactionId) => {
 
 const filterDropdown = ref(false);
 
+
+
+// Delete A Report
+const errors = ref('');
+
+const formSubmit = (report_Id) => {
+    errors.value = ''; // 🔹 Reset errors before making a request
+    axiosClient.delete(`/api/911/report-delete/${report_Id}`, {
+        headers: {
+            'x-api-key': '$m@rtC!ty'
+        }
+    })
+    .then(() => {
+        // Remove the deleted barangay from the list without refreshing the page
+        reports.value = reports.value.filter(b => b.id !== report_Id);
+        console.log('Report deleted successfully');
+    })
+    .catch(error => {
+        console.error('Error deleting report:', error.response?.data);
+        errors.value = error.response?.data?.errors || 'Failed to delete report.';
+    });
+};
 </script>
 
 <template>
@@ -246,9 +269,8 @@ const filterDropdown = ref(false);
                                                 <RouterLink :to="{ name: 'EditReport', params: { id: report.id } }"
                                                     class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Edit Report</RouterLink>
                                             </li>
-                                            <li>
-                                                <RouterLink 
-                                                    class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Delete Report</RouterLink>
+                                            <li class="block px-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                                                <PrimaryButton @click="formSubmit(report.id)" name="Delete Report" />
                                             </li>
                                         </ul>
                                     </div>
