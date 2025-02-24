@@ -1,13 +1,12 @@
 <script setup>
 import { ref, computed, onMounted, watchEffect, watch } from 'vue';
-import { useThemeStore } from '../../stores/themeStore.js';
+import { useThemeStore } from '../../stores/themeStore';
 import PrimaryButton from '../../components/PrimaryButton.vue';
-import axiosClient from '../../axios.js';
+import axiosClient from '../../axios';
 import { useGeolocation } from '@vueuse/core';
 import { userMarker } from '../../stores/mapStore.js';
 import leaflet from 'leaflet';
 import  useUserStore  from '../../stores/user.js';
-import router from '../../router.js';
 
 // Get Auth User Information
 const userStore = useUserStore();
@@ -75,6 +74,7 @@ onMounted(() => {
       }
   })
   .then((res) => {
+      console.log(res);
       sources.value = res.data.sources;
       actions.value = res.data.actions;
       incidents.value = res.data.incidents;
@@ -110,7 +110,6 @@ const submitForm = () => {
     .then(response => {
       console.log('Form submitted successfully:', response.data);
       clearForm();
-      router.push({ name: 'ReportTable' });
     })
     .catch(error => {
       console.log('Error:', error.response.data);
@@ -196,115 +195,136 @@ watchEffect(() => {
     data.value.Longitude = coords.value.longitude.toFixed(6);
   }
 });
+
+// Back Button
+function goBack() {
+  window.history.back();
+}
 </script>
 
 <template>
     <div style="min-height: 100vh;" >
-        <main class="flex-1 my-2 px-2">
-            <form @submit.prevent="submitForm" class="space-y-6 mx-auto max-w-3xl p-4">
-                <div class="p-6 rounded-lg shadow-lg" :class="themeClasses">
-                    <h2 class="text-2xl font-bold mb-6" :class="themeClasses">Source Information</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        <div class="form-group">
-                            <label for="source" class="block text-sm font-medium mb-2" :class="themeClasses">Source of Report</label>
-                            <select id="source" v-model="data.source" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
-                                <option disabled value="">Select source</option>
-                                <option v-for="source in sources" :key="source.id" :value="source.id">
-                                    {{ source.sources || "No Source Available"}}
-                                </option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="incidentType" class="block text-sm font-medium mb-2" :class="themeClasses">Case Classification</label>
-                            <select id="incidentType" v-model="data.incidentType" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
-                                <option disabled value="">Select classification</option>
-                                <option v-for="assistance in assistance" :key="assistance.id" :value="assistance.id">{{ assistance.assistance }}</option>
-                            </select>
-                        </div>
-                        <!-- <div class="form-group">
-                            <label for="incident" class="block text-sm font-medium mb-2" :class="themeClasses">Incident/Case</label>
-                            <select id="incident" v-model="data.incident" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
-                                <option disabled value="">Select incident</option>
-                                <option v-for="incident in incidents" :key="incident.id" :value="incident.id">{{ incident.type }}</option>
-                            </select>
-                        </div> -->
-                        <div class="form-group">
-                          <label for="incident" class="block text-sm font-medium mb-2" :class="themeClasses">Incident/Case</label>
-                          <select id="incident" v-model="data.incident" :class="dropClasses"
-                            class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200"
-                            :disabled="!data.incidentType || filteredIncidents.length === 0">
-                            <option disabled value="">Select incident</option>
-                            <option v-for="incident in filteredIncidents" :key="incident.id" :value="incident.id">
-                              {{ incident.type }}
-                            </option>
-                          </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="actionType" class="block text-sm font-medium mb-2" :class="themeClasses">Type of Action</label>
-                            <select id="actionType" v-model="data.actionType" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
-                                <option disabled value="">Select action</option>
-                                <option v-for="action in actions" :key="action.id" :value="action.id">{{ action.actions }}</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <h2 class="text-2xl font-bold mb-6" :class="themeClasses">Time Information</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        <div class="form-group">
-                            <label for="receivedDate" class="block text-sm font-medium mb-2" :class="themeClasses">Date Received</label>
-                            <input type="date" id="receivedDate" v-model="data.receivedDate" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
-                        </div>
-                        <div class="form-group">
-                            <label for="arrivalDate" class="block text-sm font-medium mb-2" :class="themeClasses">Time of Arrival on Site</label>
-                            <input type="time" id="arrivalDate" v-model="data.arrivalTime" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
-                        </div>
-                        <div class="form-group">
-                            <label for="incidentTime" class="block text-sm font-medium mb-2" :class="themeClasses">Time of Incident</label>
-                            <input type="time" id="incidentTime" v-model="data.incidentTime" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
-                        </div>
-                    </div>
-
-                    <h2 class="text-2xl font-bold mb-6" :class="themeClasses">Place Information</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="form-group">
-                            <label for="place" class="block text-sm font-medium mb-2" :class="themeClasses">Place of Incident</label>
-                            <select id="place" v-model="data.barangay" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
-                                <option disabled value="">Select Barangay (128)</option>
-                                <option v-for="barangay in barangays" :key="barangay.id" :value="barangay.id">{{ barangay.name }}</option>
-                            </select>
-                        </div>
-                        <div class="form-group md:col-span-2">
-                            <label for="details" class="block text-sm font-medium mb-2" :class="themeClasses">Location Details</label>
-                            <input id="details" v-model="data.details" :class="dropClasses" placeholder="Enter location details/landmarks" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
-                        </div>
-                        <div class="form-group md:col-span-2">
-                            <div id="map" class="mb-4"></div>
-                        </div>
-                        <div class="form-group">
-                            <label for="longitude" class="block text-sm font-medium mb-2" :class="themeClasses">Longitude</label>
-                            <input id="longitude" v-model="data.Longitude" :class="dropClasses" placeholder="Enter Longitude" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
-                        </div>
-                        <div class="form-group">
-                            <label for="latitude" class="block text-sm font-medium mb-2" :class="themeClasses">Latitude</label>
-                            <input id="latitude" v-model="data.Latitude" :class="dropClasses" placeholder="Enter Latitude" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
-                        </div>
-                    </div>
-
-          <div class="flex justify-end space-x-4 mt-8">
-            <PrimaryButton type="button" name="Clear" @click="clearForm"
-              class="px-6 py-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200" />
-            <PrimaryButton type="submit" name="Add Report"
-              class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200" />
+        <!-- Go Back Button -->
+          <div class="mt-6 px-2 flex justify-end">
+            <Button type="button" name="Back" @click="goBack"
+              class="px-3 py-1 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200 flex items-center">
+              <span class="material-icons mr-2">
+                arrow_back
+              </span>
+              Back
+            </Button>
           </div>
-        </div>
-      </form>
-    </main>
+
+        <main class="flex-1 my-2 px-2">
+
+            <form @submit.prevent="submitForm" class="space-y-6 mx-auto max-w-6xl p-4">
+                <div class="p-6 rounded-lg shadow-lg flex" :class="themeClasses">
+                    <div class="w-1/2 pr-4">
+                        <h2 class="text-2xl font-bold mb-6" :class="themeClasses">Source Information</h2>
+                        <div class="grid grid-cols-2 gap-4 mb-8">
+                            <div class="form-group">
+                                <label for="source" class="block text-sm font-medium mb-2" :class="themeClasses">Source of Report</label>
+                                <select id="source" v-model="data.source" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
+                                    <option disabled value="">Select source</option>
+                                    <option v-for="source in sources" :key="source.id" :value="source.id">
+                                        {{ source.sources || "No Source Available"}}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="incidentType" class="block text-sm font-medium mb-2" :class="themeClasses">Case Classification</label>
+                                <select id="incidentType" v-model="data.incidentType" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
+                                    <option disabled value="">Select classification</option>
+                                    <option v-for="assistance in assistance" :key="assistance.id" :value="assistance.id">{{ assistance.assistance }}</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="incident" class="block text-sm font-medium mb-2" :class="themeClasses">Incident/Case</label>
+                                <select id="incident" v-model="data.incident" :class="dropClasses"
+                                    class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200"
+                                    :disabled="!data.incidentType || filteredIncidents.length === 0">
+                                    <option disabled value="">Select incident</option>
+                                    <option v-for="incident in filteredIncidents" :key="incident.id" :value="incident.id">
+                                    {{ incident.type }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="actionType" class="block text-sm font-medium mb-2" :class="themeClasses">Type of Action</label>
+                                <select id="actionType" v-model="data.actionType" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
+                                    <option disabled value="">Select action</option>
+                                    <option v-for="action in actions" :key="action.id" :value="action.id">{{ action.actions }}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <h2 class="text-2xl font-bold mb-6 mt-12" :class="themeClasses">Time Information</h2>
+                        <div class="space-y-4">
+                            <div class="form-group">
+                                <label for="receivedDate" class="block text-sm font-medium mb-2" :class="themeClasses">Date Received</label>
+                                <input type="date" id="receivedDate" v-model="data.receivedDate" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
+                            </div>
+                            <div class="form-group">
+                                <label for="arrivalDate" class="block text-sm font-medium mb-2" :class="themeClasses">Time of Arrival on Site</label>
+                                <input type="time" id="arrivalDate" v-model="data.arrivalTime" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
+                            </div>
+                            <div class="form-group">
+                                <label for="incidentTime" class="block text-sm font-medium mb-2" :class="themeClasses">Time of Incident</label>
+                                <input type="time" id="incidentTime" v-model="data.incidentTime" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="w-px bg-gray-300 mx-4"></div>
+
+                    <!-- right side -->
+                    <div class="w-1/2 pl-4">
+                        <h2 class="text-2xl font-bold mb-6" :class="themeClasses">Place Information</h2>
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="form-group">
+                                    <label for="place" class="block text-sm font-medium mb-2" :class="themeClasses">Place of Incident</label>
+                                    <select id="place" v-model="data.barangay" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
+                                        <option disabled value="">Select Barangay (128)</option>
+                                        <option v-for="barangay in barangays" :key="barangay.id" :value="barangay.id">{{ barangay.name }}</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="details" class="block text-sm font-medium mb-2" :class="themeClasses">Location Details</label>
+                                    <input id="details" v-model="data.details" :class="dropClasses" placeholder="Enter location details/landmarks" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <div id="map" class="mb-4 h-64"></div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="form-group">
+                                    <label for="longitude" class="block text-sm font-medium mb-2" :class="themeClasses">Longitude</label>
+                                    <input id="longitude" v-model="data.Longitude" :class="dropClasses" placeholder="Enter Longitude" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="latitude" class="block text-sm font-medium mb-2" :class="themeClasses">Latitude</label>
+                                    <input id="latitude" v-model="data.Latitude" :class="dropClasses" placeholder="Enter Latitude" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
+                                </div>
+                            </div>
+                            <div class="flex justify-end space-x-4 mt-8">
+                              <PrimaryButton type="button" name="Clear" @click="clearForm"
+                              class="px-6 py-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200" />
+                              <PrimaryButton type="submit" name="Add Report"
+                              class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </main>
   </div>
 </template>
 
 <style scoped>
 #map {
-  height: 50vh;
+  height: 35vh;
   width: 100%;
 }
 </style>
