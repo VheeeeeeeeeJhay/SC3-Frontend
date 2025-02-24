@@ -28,15 +28,20 @@ const hoverClasses = computed(() => {
 const reports = ref([]);
 
 onMounted(() => {
+    
   axiosClient.get('/api/911/report-display', {
       headers: {
           'x-api-key': '$m@rtC!ty'
       }
   })
-  .then((res) => {
-      console.log(res);
-      reports.value = res.data;
-  })
+//   .then((res) => {
+//       console.log(res);
+//       reports.value = res.data;
+//   })
+    .then((res) => {
+        reports.value = res.data[0]; // Assuming reports are in the first index
+        classifications.value = res.data[1]; // Assuming classifications are in the second index
+    })
   .catch((error) => {
       console.error('Error fetching data:', error);
       errorMessage.value = 'Failed to load barangays. Please try again later.';
@@ -44,14 +49,14 @@ onMounted(() => {
 
 
 // ------------------------------------------
-  document.addEventListener("click", (event) => {
+    document.addEventListener("click", (event) => {
         if (
             openDropdownId.value !== null &&
             !dropdownRefs.value[openDropdownId.value]?.contains(event.target)
         ) {
-            closeDropdown();
-        }
-    });
+      closeDropdown();
+    }
+  });
 });
 
 
@@ -59,14 +64,34 @@ onMounted(() => {
 const openDropdownId = ref(null);
 
 const dropdownRefs = ref([]);
-
 const closeDropdown = () => {
     openDropdownId.value = null;
 };
-
 const toggleDropdown = (transactionId) => {
     openDropdownId.value = openDropdownId.value === transactionId ? null : transactionId;
 };
+
+const isActionsDropdownOpen = ref(false);
+const isFilterDropdownOpen = ref(false);
+
+const toggleActionsDropdown = () => {
+  isActionsDropdownOpen.value = !isActionsDropdownOpen.value;
+};
+
+const toggleFilterDropdown = () => {
+  isFilterDropdownOpen.value = !isFilterDropdownOpen.value;
+};
+
+const closeDropdowns = (event) => {
+  if (!event.target.closest("#actionsDropdownButton") && !event.target.closest("#actionsDropdown")) {
+    isActionsDropdownOpen.value = false;
+  }
+  if (!event.target.closest("#filterDropdownButton") && !event.target.closest("#filterDropdown")) {
+    isFilterDropdownOpen.value = false;
+  }
+};
+
+document.addEventListener("click", closeDropdowns);
 
 
 // Passed To View
@@ -75,7 +100,7 @@ const toggleDropdown = (transactionId) => {
 
 <template>
     <section class="w-full">
-        <div class="px-4 w-full" >
+        <div class="mt-6 px-4 w-full" >
             <!-- Start coding here -->
             <div class="relative shadow-md sm:rounded-lg overflow-hidden" :class="themeClasses">
                 <div
@@ -110,89 +135,93 @@ const toggleDropdown = (transactionId) => {
                             </button>
                         </RouterLink>
                         
-                        <div class="flex items-center space-x-3 w-full md:w-auto">
-                            <button id="actionsDropdownButton" data-dropdown-toggle="actionsDropdown"
-                                class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium rounded-lg border" :class="hoverClasses"
-                                type="button">
-                                <svg class="-ml-1 mr-1.5 w-5 h-5" fill="currentColor" viewbox="0 0 20 20"
-                                    xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                    <path clip-rule="evenodd" fill-rule="evenodd"
-                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                                </svg>
-                                Actions
+                        <div class="flex items-center space-x-3 w-full md:w-auto relative">
+                            <!-- Actions Dropdown Button -->
+                            <button
+                            @click="toggleActionsDropdown"
+                            class="border rounded-lg px-3 py-1 flex items-center"
+                            :class="hoverClasses"
+                            id="actionsDropdownButton"
+                            >
+                            <svg class="-ml-1 mr-1.5 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path
+                                clip-rule="evenodd"
+                                fill-rule="evenodd"
+                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                />
+                            </svg>
+                            Actions
                             </button>
-                            <div id="actionsDropdown"
-                                class="hidden z-10 w-44 rounded divide-y divide-gray-100 shadow dark:divide-gray-600">
-                                <ul class="py-1 text-sm"
-                                    aria-labelledby="actionsDropdownButton">
+
+                            <!-- Actions Dropdown Menu -->
+                            <div
+                            id="actionsDropdown"
+                            v-show="isActionsDropdownOpen"
+                            class="absolute top-full left-0 z-10 w-44 bg-white rounded shadow divide-y divide-gray-100 dark:divide-gray-600"
+                            >
+                                <ul class="py-1 text-sm">
                                     <li>
-                                        <a href="#"
-                                            class="block py-2 px-4">Mass
-                                            Edit</a>
+                                    <a href="#" class="block py-2 px-4">Mass Edit</a>
                                     </li>
                                 </ul>
                                 <div class="py-1">
-                                    <a href="#"
-                                        class="block py-2 px-4 text-sm">Delete
-                                        all</a>
+                                    <a href="#" class="block py-2 px-4 text-sm">Delete all</a>
                                 </div>
                             </div>
-                            <button id="filterDropdownButton" data-dropdown-toggle="filterDropdown"
-                                class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium focus:outline-none rounded-lg border"
-                                type="button" :class="hoverClasses">
-                                <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
-                                    class="h-4 w-4 mr-2" viewbox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd"
-                                        d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                                Filter
-                                <svg class="-mr-1 ml-1.5 w-5 h-5" fill="currentColor" viewbox="0 0 20 20"
-                                    xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                    <path clip-rule="evenodd" fill-rule="evenodd"
-                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                                </svg>
+
+                            <!-- Filter Dropdown Button -->
+                            <button
+                            @click="toggleFilterDropdown"
+                            class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium focus:outline-none rounded-lg border"
+                            :class="hoverClasses"
+                            id="filterDropdownButton"
+                            >
+                            <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path
+                                fill-rule="evenodd"
+                                d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+                                clip-rule="evenodd"
+                                />
+                            </svg>
+                            Filter
+                            <svg class="-mr-1 ml-1.5 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path
+                                clip-rule="evenodd"
+                                fill-rule="evenodd"
+                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                />
+                            </svg>
                             </button>
-                            <div id="filterDropdown"
-                                class="z-10 hidden w-48 p-3 rounded-lg shadow">
-                                <h6 class="mb-3 text-sm font-medium">Choose brand</h6>
-                                <ul class="space-y-2 text-sm" aria-labelledby="filterDropdownButton">
-                                    <li class="flex items-center">
-                                        <input id="apple" type="checkbox" value=""
-                                            class="w-4 h-4">
-                                        <label for="apple"
-                                            class="ml-2 text-sm font-medium">Apple
-                                            (56)</label>
-                                    </li>
-                                    <li class="flex items-center">
-                                        <input id="fitbit" type="checkbox" value=""
-                                            class="w-4 h-4">
-                                        <label for="fitbit"
-                                            class="ml-2 text-sm font-medium">Microsoft
-                                            (16)</label>
-                                    </li>
-                                    <li class="flex items-center">
-                                        <input id="razor" type="checkbox" value=""
-                                            class="w-4 h-4">
-                                        <label for="razor"
-                                            class="ml-2 text-sm font-medium">Razor
-                                            (49)</label>
-                                    </li>
-                                    <li class="flex items-center">
-                                        <input id="nikon" type="checkbox" value=""
-                                            class="w-4 h-4">
-                                        <label for="nikon"
-                                            class="ml-2 text-sm font-medium">Nikon
-                                            (12)</label>
-                                    </li>
-                                    <li class="flex items-center">
-                                        <input id="benq" type="checkbox" value=""
-                                            class="w-4 h-4">
-                                        <label for="benq"
-                                            class="ml-2 text-sm font-medium">BenQ
-                                            (74)</label>
-                                    </li>
-                                </ul>
+
+                            <!-- Filter Dropdown Menu -->
+                            <div
+                            id="filterDropdown"
+                            v-show="isFilterDropdownOpen"
+                            class="absolute top-full left-0 z-10 w-48 p-3 bg-white rounded-lg shadow"
+                            >
+                            <h6 class="mb-3 text-sm font-medium">Choose brand</h6>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-center">
+                                <input id="apple" type="checkbox" class="w-4 h-4" />
+                                <label for="apple" class="ml-2 text-sm font-medium">Apple (56)</label>
+                                </li>
+                                <li class="flex items-center">
+                                <input id="fitbit" type="checkbox" class="w-4 h-4" />
+                                <label for="fitbit" class="ml-2 text-sm font-medium">Microsoft (16)</label>
+                                </li>
+                                <li class="flex items-center">
+                                <input id="razor" type="checkbox" class="w-4 h-4" />
+                                <label for="razor" class="ml-2 text-sm font-medium">Razor (49)</label>
+                                </li>
+                                <li class="flex items-center">
+                                <input id="nikon" type="checkbox" class="w-4 h-4" />
+                                <label for="nikon" class="ml-2 text-sm font-medium">Nikon (12)</label>
+                                </li>
+                                <li class="flex items-center">
+                                <input id="benq" type="checkbox" class="w-4 h-4" />
+                                <label for="benq" class="ml-2 text-sm font-medium">BenQ (74)</label>
+                                </li>
+                            </ul>
                             </div>
                         </div>
                     </div>
