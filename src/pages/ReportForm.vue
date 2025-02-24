@@ -195,11 +195,28 @@ watchEffect(() => {
     data.value.Longitude = coords.value.longitude.toFixed(6);
   }
 });
+
+// Back Button
+function goBack() {
+  window.history.back();
+}
 </script>
 
 <template>
     <div style="min-height: 100vh;" >
+        <!-- Go Back Button -->
+          <div class="mt-6 px-2 flex justify-end">
+            <Button type="button" name="Back" @click="goBack"
+              class="px-3 py-1 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200 flex items-center">
+              <span class="material-icons mr-2">
+                arrow_back
+              </span>
+              Back
+            </Button>
+          </div>
+
         <main class="flex-1 my-2 px-2">
+
             <form @submit.prevent="submitForm" class="space-y-6 mx-auto max-w-6xl p-4">
                 <div class="p-6 rounded-lg shadow-lg flex" :class="themeClasses">
                     <div class="w-1/2 pr-4">
@@ -260,6 +277,7 @@ watchEffect(() => {
 
                     <div class="w-px bg-gray-300 mx-4"></div>
 
+                    <!-- right side -->
                     <div class="w-1/2 pl-4">
                         <h2 class="text-2xl font-bold mb-6" :class="themeClasses">Place Information</h2>
                         <div class="space-y-4">
@@ -276,6 +294,7 @@ watchEffect(() => {
                                     <input id="details" v-model="data.details" :class="dropClasses" placeholder="Enter location details/landmarks" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
                                 </div>
                             </div>
+                            
                             <div class="form-group">
                                 <div id="map" class="mb-4 h-64"></div>
                             </div>
@@ -289,15 +308,14 @@ watchEffect(() => {
                                     <input id="latitude" v-model="data.Latitude" :class="dropClasses" placeholder="Enter Latitude" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
                                 </div>
                             </div>
+                            <div class="flex justify-end space-x-4 mt-8">
+                              <PrimaryButton type="button" name="Clear" @click="clearForm"
+                              class="px-6 py-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200" />
+                              <PrimaryButton type="submit" name="Add Report"
+                              class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200" />
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="flex justify-end space-x-4 mt-8">
-                    <PrimaryButton type="button" name="Clear" @click="clearForm"
-                    class="px-6 py-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200" />
-                    <PrimaryButton type="submit" name="Add Report"
-                    class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200" />
                 </div>
             </form>
         </main>
@@ -306,7 +324,7 @@ watchEffect(() => {
 
 <style scoped>
 #map {
-  height: 50vh;
+  height: 35vh;
   width: 100%;
 }
 </style>
