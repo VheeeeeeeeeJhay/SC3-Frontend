@@ -13,7 +13,6 @@ const toggleDropdown = () => {
     dropdownOpen.value = !dropdownOpen.value;
 };
 
-
 const userStore = useUserStore();
 const user = computed(() => userStore.user);
 const route = useRoute();

@@ -7,6 +7,9 @@ import { useGeolocation } from '@vueuse/core';
 import { userMarker } from '../../stores/mapStore.js';
 import leaflet from 'leaflet';
 import  useUserStore  from '../../stores/user.js';
+import router from '../../router.js';
+import Modal from '../../components/Modal.vue';
+import FormInput from '../../components/FormInput.vue';
 
 // Get Auth User Information
 const userStore = useUserStore();
@@ -196,6 +199,14 @@ watchEffect(() => {
   }
 });
 
+const isModalOpen = ref(false)
+
+const openModal = () => {
+
+   isModalOpen.value = true;
+   console.log("🚀 ~ openModal ~ isModalOpen:", isModalOpen.value)
+};
+
 // Back Button
 function goBack() {
   window.history.back();
@@ -203,6 +214,24 @@ function goBack() {
 </script>
 
 <template>
+<li class="block hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+    <button @click.stop="openModal()" class="w-full text-start px-4 py-2 ">
+      Delete
+    </button>
+
+    <!-- Use the modal component and bind the v-model -->
+    <Modal v-if="isModalOpen" v-model="isModalOpen" @click.stop >
+      <template #contents>
+
+        <div class="p-6 rounded-lg shadow-lg bg-red-500 h-96 w-96">
+          hiii
+        </div>
+        <FormInput />
+      </template>
+    </Modal>
+</li>
+
+
     <div style="min-height: 100vh;" >
         <!-- Go Back Button -->
           <div class="mt-6 px-2 flex justify-end">
