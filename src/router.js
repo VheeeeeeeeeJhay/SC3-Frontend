@@ -7,12 +7,13 @@ import NotFound from "./pages/NotFound.vue";
 import useUserStore from "./stores/user.js";
 import Dashboard from "./pages/Dashboard.vue";
 import Map from "./pages/Map.vue";
-import ReportForm from "./pages/ReportForm.vue";
+import ReportForm from "./pages/report/ReportForm.vue";
 import Barangay from "./pages/barangay/Barangay.vue";
 import EditBarangay from "./pages/barangay/EditBarangay.vue";
 import Incident from "./pages/incident/Incident.vue";
 import ReportTable from "./pages/report/ReportsTable.vue";
 import ReportViewDetails from "./pages/report/ReportViewDetails.vue";
+import EditReports from "./pages/report/EditReport.vue";
 
 const routes = [
   {
@@ -24,8 +25,10 @@ const routes = [
       {path: '/map', name: 'Map', component: Map},
 
       {path: '/reportform', name: 'ReportForm', component: ReportForm},
+      {path: '/report-display', name: 'ReportViewDetails', component: ReportViewDetails },
       {path: '/report-table', name: 'ReportTable', component: ReportTable},
-      { path: '/report-view/:id', name: 'ReportViewDetails', component: ReportViewDetails },
+      {path: '/report-view/:id', name: 'ReportViewDetails', component: ReportViewDetails },
+      {path: '/report-edit/:id', name: 'EditReport', component: EditReports },
 
       {path: '/barangay', name: 'Barangay', component: Barangay},
       {path: '/barangay-edit/:id', name: 'EditBarangay', component: EditBarangay},
