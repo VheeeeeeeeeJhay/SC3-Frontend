@@ -79,6 +79,31 @@ const toggleDropdown = (transactionId) => {
 const filterDropdown = ref(false);
 
 
+// -----------------------
+const isActionsDropdownOpen = ref(false);
+const isFilterDropdownOpen = ref(false);
+
+const toggleActionsDropdown = () => {
+  isActionsDropdownOpen.value = !isActionsDropdownOpen.value;
+};
+
+const toggleFilterDropdown = () => {
+  isFilterDropdownOpen.value = !isFilterDropdownOpen.value;
+};
+
+const closeDropdowns = (event) => {
+  if (!event.target.closest("#actionsDropdownButton") && !event.target.closest("#actionsDropdown")) {
+    isActionsDropdownOpen.value = false;
+  }
+  if (!event.target.closest("#filterDropdownButton") && !event.target.closest("#filterDropdown")) {
+    isFilterDropdownOpen.value = false;
+  }
+};
+
+document.addEventListener("click", closeDropdowns);
+
+
+// Passed To View
 
 // Delete A Report
 const errors = ref('');
