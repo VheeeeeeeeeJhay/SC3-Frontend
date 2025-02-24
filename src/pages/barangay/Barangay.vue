@@ -63,10 +63,19 @@ const formSubmit = (barangay_Id) => {
         errors.value = error.response?.data?.errors || 'Failed to delete barangay.';
     });
 };
+
+// For Modal
+const isModalOpen = ref(false)
+
+const openModal = () => {
+
+   isModalOpen.value = true;
+   console.log("🚀 ~ openModal ~ isModalOpen:", isModalOpen.value)
+};
 </script>
 
 <template>
-  <div v-if="!formVisibility">
+  <!-- <div v-if="!formVisibility">
     <PrimaryButton name="Add New Barangay" @click.prevent="openForm"
       class="bg-white text-green-700 border border-2 border-green-700 font-bold hover:bg-green-700 hover:text-white hover:shadow-md" />
   </div>
@@ -75,12 +84,23 @@ const formSubmit = (barangay_Id) => {
       class="bg-red-500 hover:bg-red-600 hover:shadow-md" />
   </div>
 
-  <Modal />
-
   <div v-if="formVisibility">
     <AddBarangay />
   </div>
-  <div v-else>
+  <div v-else> -->
+    <div>
+      <PrimaryButton @click.stop="openModal()" class="text-start px-4 py-2 border border-2 border-green-700 font-bold hover:bg-green-700 hover:text-white hover:shadow-md text-green-700" name="Add a Barangay" />
+      <!-- Use the modal component and bind the v-model -->
+      <Modal v-if="isModalOpen" v-model="isModalOpen" @click.stop >
+        <template #contents>
+          <div class="p-6 rounded-lg shadow-lg h-full w-full">
+            <AddBarangay />
+          </div>
+          <FormInput />
+        </template>
+      </Modal>
+    </div>
+
     <div v-if="errorMessage">
       <p class="text-red-500">{{ errorMessage }}</p>
     </div>
@@ -124,7 +144,7 @@ const formSubmit = (barangay_Id) => {
       <div v-else>
           <p>No Barangays found.</p>
       </div>
-    </div>
+    <!-- </div> -->
     
   </div>
 </template>
