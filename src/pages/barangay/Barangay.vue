@@ -1,6 +1,5 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { FwbA, FwbTable, FwbTableBody, FwbTableCell, FwbTableHead, FwbTableHeadCell, FwbTableRow } from 'flowbite-vue';
 import PrimaryButton from '../../components/PrimaryButton.vue';
 import AddBarangay from './AddBarangay.vue';
 import EditBarangay from './EditBarangay.vue';
@@ -15,7 +14,6 @@ const themeClasses = computed(() => {
     ? "bg-slate-800 border border-black text-white hover:border-gray-600 focus:ring-2 focus:ring-slate-500 focus:outline-none"
     : "bg-sky-50 border border-gray-200 text-sky-900 hover:border-gray-300 focus:ring-2 focus:ring-sky-400 focus:outline-none";
 });
-
 // Dropdown base styles
 const dropClasses = computed(() => {
   return themeStore.isDarkMode 
@@ -29,21 +27,40 @@ const hoverClasses = computed(() => {
     ? "hover:bg-slate-700 hover:border-black"
     : "hover:bg-sky-100 hover:border-black";
 });
-const router = useRouter();
-const formVisibility = ref(false);
+// const router = useRouter();
+// const formVisibility = ref(false);
 const barangays = ref([]);
 const errorMessage = ref('');
 const errors = ref('');
 const isLoading = ref(false);
 const selectedBarangay = ref(null);
 
-const openForm = () => {
-  formVisibility.value = true;
-};
+// const openForm = () => {
+//   formVisibility.value = true;
+// };
 
-const closeForm = () => {
-  formVisibility.value = false;
-};
+// const closeForm = () => {
+//   formVisibility.value = false;
+// };
+
+const selectedClassifications = ref([]);
+
+// Computed property for dynamic search and filtering
+const filteredReports = computed(() => {
+  return reports.value.filter(report => {
+    const matchesSearch = searchQuery.value
+      ? report.source.sources.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        report.assistance.assistance.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        report.incident.type.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        report.actions.actions.toLowerCase().includes(searchQuery.value.toLowerCase())
+      : true;
+
+    const matchesClassification = selectedClassifications.value.length === 0 || 
+      selectedClassifications.value.includes(report.assistance_id);
+
+    return matchesSearch && matchesClassification;
+  });
+});
 
 onMounted(() => {
   isLoading.value = true;
@@ -65,6 +82,16 @@ onMounted(() => {
       isLoading.value = false;
       console.error('Error fetching data:', error);
       errorMessage.value = 'Failed to load barangays. Please try again later.';
+  });
+
+  // ------------------------------------------
+  document.addEventListener("click", (event) => {
+        if (
+            openDropdownId.value !== null &&
+            !dropdownRefs.value[openDropdownId.value]?.contains(event.target)
+        ) {
+      closeDropdown();
+    }
   });
 });
 
@@ -104,22 +131,11 @@ const openEditModal = (barangay) => {
    console.log("🚀 ~ openModal ~ isEditModalOpen:", isEditModalOpen.value)
 };
 
+
+
 </script>
 
 <template>
-  <!-- <div v-if="!formVisibility">
-    <PrimaryButton name="Add New Barangay" @click.prevent="openForm"
-      class="bg-white text-green-700 border border-2 border-green-700 font-bold hover:bg-green-700 hover:text-white hover:shadow-md" />
-  </div>
-  <div v-else="formVisibility">
-    <PrimaryButton name="Back to DataTable" @click.prevent="closeForm"
-      class="bg-red-500 hover:bg-red-600 hover:shadow-md" />
-  </div>
-
-  <div v-if="formVisibility">
-    <AddBarangay />
-  </div>
-  <div v-else> -->
     <div>
       <PrimaryButton @click.stop="openModal()" class="text-start px-4 py-2 border border-2 border-green-700 font-bold hover:bg-green-700 hover:text-white hover:shadow-md text-green-700" name="Add a Barangay" />
       <!-- Use the modal component and bind the v-model -->
