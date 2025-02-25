@@ -28,18 +28,26 @@ const hoverClasses = computed(() => {
 
 const reports = ref([]);
 const classifications = ref([]);
-
+const searchQuery = ref("");
 const isLoading = ref(false);
 
 const selectedClassifications = ref([]);
 
+// Computed property for dynamic search and filtering
 const filteredReports = computed(() => {
-  if (selectedClassifications.value.length === 0) {
-    return reports.value; // Return all reports if no classification is selected
-  }
-  return reports.value.filter(report => 
-    selectedClassifications.value.includes(report.assistance_id)
-  );
+  return reports.value.filter(report => {
+    const matchesSearch = searchQuery.value
+      ? report.source.sources.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        report.assistance.assistance.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        report.incident.type.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        report.actions.actions.toLowerCase().includes(searchQuery.value.toLowerCase())
+      : true;
+
+    const matchesClassification = selectedClassifications.value.length === 0 || 
+      selectedClassifications.value.includes(report.assistance_id);
+
+    return matchesSearch && matchesClassification;
+  });
 });
 
 onMounted(() => {
@@ -112,8 +120,17 @@ const closeDropdowns = (event) => {
 
 document.addEventListener("click", closeDropdowns);
 
+// Pagination
+const currentPage = ref(1);
+const itemsPerPage = ref(10); // Number of reports per page
+const totalItems = computed(() => reports.value.length); // Total number of reports
+const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage.value)); // Calculate total pages
 
-// Passed To View
+const paginatedReports = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredReports.value.slice(start, end);
+});
 
 // Delete A Report
 const errors = ref('');
@@ -149,16 +166,18 @@ const formSubmit = (report_Id) => {
                             <label for="simple-search" class="sr-only">Search</label>
                             <div class="relative w-full">
                                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                    <svg aria-hidden="true" class="w-5 h-5"
-                                        fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd"
-                                            d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                                            clip-rule="evenodd" />
-                                    </svg>
+                                    <span class="material-icons">
+                                        search
+                                    </span>
                                 </div>
-                                <input type="text" id="simple-search"
-                                    class="border text-sm rounded-lg  block w-full pl-10 p-2 "
-                                    placeholder="Search" required="">
+                                <input 
+                                v-model="searchQuery"
+                                type="text" 
+                                id="simple-search"
+                                class="border text-sm rounded-lg block w-full pl-10 p-2"
+                                placeholder="Search..."
+                                />
+
                             </div>
                         </form>
                     </div>
@@ -265,12 +284,6 @@ const formSubmit = (report_Id) => {
                     </div>
                     <table v-else class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                            <!-- <tr v-for="(value, key) in reports[0]" :key="key">
-                                <th scope="col" class="px-4 py-3">{{ key }}</th>
-                                <th scope="col" class="px-4 py-3">
-                                    <span class="sr-only">Actions</span>
-                                </th>
-                            </tr> -->
                             <tr>
                                 <th scope="col" class="px-4 py-3">ID</th>
                                 <th scope="col" class="px-4 py-3">Source</th>
@@ -283,11 +296,8 @@ const formSubmit = (report_Id) => {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="border-b dark:border-gray-700" v-for="report in filteredReports" :key="report.id">
-                                <th scope="row"
-                                    class="px-4 py-3 font-medium whitespace-nowrap">
-                                    {{ report.id }}
-                                </th>
+                            <tr v-for="report in paginatedReports" :key="report.id">
+                                <td class="px-4 py-3">{{ report.id }}</td>
                                 <td class="px-4 py-3">{{ report.source.sources }}</td>
                                 <td class="px-4 py-3">{{ report.assistance.assistance }}</td>
                                 <td class="px-4 py-3">{{ report.incident.type }}</td>
@@ -313,7 +323,7 @@ const formSubmit = (report_Id) => {
                                                     class="block px-4 py-2" :class="hoverClasses">View Details</RouterLink>
                                             </li>
                                             <li>
-                                                <RouterLink 
+                                                <RouterLink :to="{ name: 'EditReport', params: { id: report.id } }"
                                                     class="block px-4 py-2 " :class="hoverClasses">Edit Report</RouterLink>
                                             </li>
                                             <li class="block px-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
@@ -326,58 +336,58 @@ const formSubmit = (report_Id) => {
                         </tbody>
                     </table>
                 </div>
-                <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4"
-                    aria-label="Table navigation">
+                <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">
                     <span class="text-sm font-normal">
                         Showing
-                        <span class="font-semibold">1-10</span>
+                        <span class="font-semibold">{{ (currentPage - 1) * itemsPerPage + 1 }} - 
+                        {{ Math.min(currentPage * itemsPerPage, totalItems) }}</span>
                         of
-                        <span class="font-semibold">1000</span>
+                        <span class="font-semibold">{{ totalItems }}</span>
                     </span>
+                    
                     <ul class="inline-flex items-stretch -space-x-px">
+                        <!-- Previous Page -->
                         <li>
-                            <a href="#"
-                                class="flex items-center justify-center h-full py-1.5 px-3 ml-0 rounded-l-lg border" :class="hoverClasses">
+                            <button 
+                                @click="currentPage = Math.max(1, currentPage - 1)" 
+                                :disabled="currentPage === 1"
+                                class="flex items-center justify-center h-full py-1.5 px-3 ml-0 rounded-l-lg border"
+                                :class="hoverClasses">
                                 <span class="sr-only">Previous</span>
-                                <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20"
+                                <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path fill-rule="evenodd"
                                         d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
                                         clip-rule="evenodd" />
                                 </svg>
-                            </a>
+                            </button>
                         </li>
-                        <li>
-                            <a href="#"
-                                class="flex items-center justify-center text-sm py-2 px-3 leading-tight border" :class="hoverClasses">1</a>
+
+                        <!-- Page Numbers -->
+                        <li v-for="page in totalPages" :key="page">
+                            <button 
+                                @click="currentPage = page" 
+                                :class="[hoverClasses, { 'bg-blue-500 text-white': page === currentPage }]"
+                                class="flex items-center justify-center text-sm py-2 px-3 leading-tight border">
+                                {{ page }}
+                            </button>
                         </li>
+
+                        <!-- Next Page -->
                         <li>
-                            <a href="#"
-                                class="flex items-center justify-center text-sm py-2 px-3 leading-tight border" :class="hoverClasses">2</a>
-                        </li>
-                        <li>
-                            <a href="#" aria-current="page"
-                                class="flex items-center justify-center text-sm z-10 py-2 px-3 leading-tight border" :class="hoverClasses">3</a>
-                        </li>
-                        <li>
-                            <a href="#"
-                                class="flex items-center justify-center text-sm py-2 px-3 leading-tight  border " :class="hoverClasses">...</a>
-                        </li>
-                        <li>
-                            <a href="#"
-                                class="flex items-center justify-center text-sm py-2 px-3 leading-tight  border " :class="hoverClasses">100</a>
-                        </li>
-                        <li>
-                            <a href="#"
-                                class="flex items-center justify-center h-full py-1.5 px-3 leading-tight rounded-r-lg border" :class="hoverClasses">
+                            <button 
+                                @click="currentPage = Math.min(totalPages, currentPage + 1)" 
+                                :disabled="currentPage === totalPages"
+                                class="flex items-center justify-center h-full py-1.5 px-3 leading-tight rounded-r-lg border"
+                                :class="hoverClasses">
                                 <span class="sr-only">Next</span>
-                                <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20"
+                                <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path fill-rule="evenodd"
                                         d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
                                         clip-rule="evenodd" />
                                 </svg>
-                            </a>
+                            </button>
                         </li>
                     </ul>
                 </nav>

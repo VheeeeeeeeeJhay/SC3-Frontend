@@ -36,6 +36,7 @@ const routes = [
       {path: '/barangay-delete/:id', name: 'DeleteBarangay', component: Barangay},
 
       {path: '/incident', name: 'Incident', component: Incident},
+      {path: '/incident-display', name: 'IncidentDisplay', component: Incident},
     ],
     beforeEnter: async (to, from, next) => {
       try {
