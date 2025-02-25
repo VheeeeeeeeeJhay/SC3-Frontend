@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import axiosClient from '../../axios.js';
 import { RouterLink } from 'vue-router';
 import PrimaryButton from '../../components/PrimaryButton.vue';
@@ -122,14 +122,43 @@ document.addEventListener("click", closeDropdowns);
 
 // Pagination
 const currentPage = ref(1);
-const itemsPerPage = ref(10); // Number of reports per page
-const totalItems = computed(() => reports.value.length); // Total number of reports
-const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage.value)); // Calculate total pages
+const itemsPerPage = ref(10);
 
+// Total pages based on filtered results
+const totalPages = computed(() => {
+  return Math.ceil(filteredReports.value.length / itemsPerPage.value);
+});
+
+// Get paginated reports
 const paginatedReports = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value;
   const end = start + itemsPerPage.value;
+  
   return filteredReports.value.slice(start, end);
+});
+
+// Pagination controls
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+  }
+};
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+  }
+};
+
+const goToPage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+  }
+};
+
+// Reset to first page when searching
+watch(searchQuery, () => {
+  currentPage.value = 1;
 });
 
 // Delete A Report
@@ -296,8 +325,10 @@ const formSubmit = (report_Id) => {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="report in paginatedReports" :key="report.id">
-                                <td class="px-4 py-3">{{ report.id }}</td>
+                            <tr class="border-b dark:border-gray-700" v-for="report in paginatedReports" :key="report.id">
+                                <th scope="row" class="px-4 py-3 font-medium whitespace-nowrap">
+                                    {{ report.id }}
+                                </th>
                                 <td class="px-4 py-3">{{ report.source.sources }}</td>
                                 <td class="px-4 py-3">{{ report.assistance.assistance }}</td>
                                 <td class="px-4 py-3">{{ report.incident.type }}</td>
@@ -336,61 +367,37 @@ const formSubmit = (report_Id) => {
                         </tbody>
                     </table>
                 </div>
-                <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">
+                <nav class="flex justify-between items-center p-4" aria-label="Table navigation">
                     <span class="text-sm font-normal">
                         Showing
-                        <span class="font-semibold">{{ (currentPage - 1) * itemsPerPage + 1 }} - 
-                        {{ Math.min(currentPage * itemsPerPage, totalItems) }}</span>
+                        <span class="font-semibold">{{ filteredReports.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}</span>
+                        to
+                        <span class="font-semibold">{{ Math.min(currentPage * itemsPerPage, filteredReports.length) }}</span>
                         of
-                        <span class="font-semibold">{{ totalItems }}</span>
+                        <span class="font-semibold">{{ filteredReports.length }}</span>
                     </span>
-                    
-                    <ul class="inline-flex items-stretch -space-x-px">
-                        <!-- Previous Page -->
+                    <ul class="inline-flex items-center">
                         <li>
-                            <button 
-                                @click="currentPage = Math.max(1, currentPage - 1)" 
-                                :disabled="currentPage === 1"
-                                class="flex items-center justify-center h-full py-1.5 px-3 ml-0 rounded-l-lg border"
-                                :class="hoverClasses">
-                                <span class="sr-only">Previous</span>
-                                <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path fill-rule="evenodd"
-                                        d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                                        clip-rule="evenodd" />
-                                </svg>
+                            <button @click="prevPage" :disabled="currentPage === 1"
+                                class="px-3 py-1 rounded-l-lg border" :class="hoverClasses">
+                                Previous
                             </button>
                         </li>
-
-                        <!-- Page Numbers -->
                         <li v-for="page in totalPages" :key="page">
-                            <button 
-                                @click="currentPage = page" 
-                                :class="[hoverClasses, { 'bg-blue-500 text-white': page === currentPage }]"
-                                class="flex items-center justify-center text-sm py-2 px-3 leading-tight border">
+                            <button @click="goToPage(page)"
+                                :class="[currentPage === page ? 'bg-blue-500 text-white' : hoverClasses, 'px-3 py-1 border']">
                                 {{ page }}
                             </button>
                         </li>
-
-                        <!-- Next Page -->
                         <li>
-                            <button 
-                                @click="currentPage = Math.min(totalPages, currentPage + 1)" 
-                                :disabled="currentPage === totalPages"
-                                class="flex items-center justify-center h-full py-1.5 px-3 leading-tight rounded-r-lg border"
-                                :class="hoverClasses">
-                                <span class="sr-only">Next</span>
-                                <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path fill-rule="evenodd"
-                                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                        clip-rule="evenodd" />
-                                </svg>
+                            <button @click="nextPage" :disabled="currentPage === totalPages"
+                                class="px-3 py-1 rounded-r-lg border" :class="hoverClasses">
+                                Next
                             </button>
                         </li>
                     </ul>
                 </nav>
+
             </div>
         </div>
     </section>
