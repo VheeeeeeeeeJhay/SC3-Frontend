@@ -25,6 +25,28 @@ const hoverClasses = computed(() => {
     ? "hover:bg-slate-700 hover:border-black"
     : "hover:bg-sky-100 hover:border-black";
 });
+import { useThemeStore } from '../../stores/themeStore';
+// For dark mode
+const themeStore = useThemeStore();
+const themeClasses = computed(() => {
+  return themeStore.isDarkMode 
+    ? "bg-slate-800 border border-black text-white hover:border-gray-600 focus:ring-2 focus:ring-slate-500 focus:outline-none"
+    : "bg-sky-50 border border-gray-200 text-sky-900 hover:border-gray-300 focus:ring-2 focus:ring-sky-400 focus:outline-none";
+});
+
+// Dropdown base styles
+const dropClasses = computed(() => {
+  return themeStore.isDarkMode 
+    ? "bg-slate-600 border border-black text-white focus:ring-2 focus:ring-slate-400 focus:outline-none"
+    : "bg-white border border-gray-200 text-sky-900 focus:ring-2 focus:ring-sky-300 focus:outline-none";
+});
+
+// Hover styles (separate for reusability)
+const hoverClasses = computed(() => {
+  return themeStore.isDarkMode 
+    ? "hover:bg-slate-700 hover:border-black"
+    : "hover:bg-sky-100 hover:border-black";
+});
 
 const reports = ref([]);
 const classifications = ref([]);

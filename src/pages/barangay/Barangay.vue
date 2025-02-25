@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue';
 import { FwbA, FwbTable, FwbTableBody, FwbTableCell, FwbTableHead, FwbTableHeadCell, FwbTableRow } from 'flowbite-vue';
 import PrimaryButton from '../../components/PrimaryButton.vue';
 import AddBarangay from './AddBarangay.vue';
+import EditBarangay from './EditBarangay.vue';
 import axiosClient from '../../axios.js';
 import Modal from '../../components/Modal.vue';
 import { useRouter } from 'vue-router';
@@ -36,14 +37,17 @@ const barangays = ref([]);
 const errorMessage = ref('');
 const errors = ref('');
 const isLoading = ref(false);
+const selectedBarangay = ref(null);
 
-const openForm = () => {
-  formVisibility.value = true;
-};
 
-const closeForm = () => {
-  formVisibility.value = false;
-};
+// const openForm = () => {
+//   formVisibility.value = true;
+// };
+
+// const closeForm = () => {
+//   formVisibility.value = false;
+// };
+
 
 onMounted(() => {
   isLoading.value = true;
@@ -54,6 +58,7 @@ onMounted(() => {
   })
   .then((res) => {
       // console.log(res);
+      console.log(res);
       // barangays.value = res.data;
       // isLoading.value = false;
       setTimeout(() => {
@@ -66,7 +71,48 @@ onMounted(() => {
       console.error('Error fetching data:', error);
       errorMessage.value = 'Failed to load barangays. Please try again later.';
   });
+
+  // ------------------------------------------
+  document.addEventListener("click", (event) => {
+        if (
+            openDropdownId.value !== null &&
+            !dropdownRefs.value[openDropdownId.value]?.contains(event.target)
+        ) {
+      closeDropdown();
+    }
+  });
 });
+
+const classifications = ref([]);
+const searchQuery = ref("");
+//search query
+const selectedClassifications = ref([]);
+
+// Computed property for dynamic search and filtering
+const filteredBarangays = computed(() => {
+  return barangays.value.filter(barangay => {
+    const barangayName = barangay.name?.toLowerCase() || "";
+    const barangayId = String(barangay.id)?.toLowerCase() || "";
+    const barangayLat = String(barangay.latitude)?.toLowerCase() || "";
+    const barangayLong = String(barangay.longitude)?.toLowerCase() || "";
+    const query = searchQuery.value.toLowerCase();
+
+    // Match search query
+    const matchesSearch = query
+      ? barangayId.includes(query) ||
+        barangayName.includes(query) ||
+        barangayLat.includes(query) ||
+        barangayLong.includes(query)
+      : true;
+
+    // const matchesClassification = selectedClassifications.value.length === 0 || 
+    //   selectedClassifications.value.includes(barangay.assistance_id);
+
+    // return matchesSearch && matchesClassification;
+    return matchesSearch;
+  });
+});
+
 
 // Pass The ID To Delete
 const formSubmit = (barangay_Id) => {
@@ -89,41 +135,69 @@ const formSubmit = (barangay_Id) => {
 
 // For Modal
 const isModalOpen = ref(false)
-
 const openModal = () => {
-
    isModalOpen.value = true;
    console.log("🚀 ~ openModal ~ isModalOpen:", isModalOpen.value)
 };
+
+const isEditModalOpen = ref(false)
+const openEditModal = (barangay) => {
+  selectedBarangay.value = barangay; // Store barangay details
+  isEditModalOpen.value = true;
+   console.log("🚀 ~ openModal ~ isEditModalOpen:", isEditModalOpen.value)
+};
+
+//for dropdown
+const openDropdownId = ref(null);
+const dropdownRefs = ref([]);
+const closeDropdown = () => {
+    openDropdownId.value = null;
+};
+const toggleDropdown = (transactionId) => {
+    openDropdownId.value = openDropdownId.value === transactionId ? null : transactionId;
+};
+
+
+const filterDropdown = ref(false);
+
+
+// -----------------------
+const isActionsDropdownOpen = ref(false);
+const isFilterDropdownOpen = ref(false);
+
+const toggleActionsDropdown = () => {
+  isActionsDropdownOpen.value = !isActionsDropdownOpen.value;
+};
+
+const toggleFilterDropdown = () => {
+  isFilterDropdownOpen.value = !isFilterDropdownOpen.value;
+};
+
+const closeDropdowns = (event) => {
+  if (!event.target.closest("#actionsDropdownButton") && !event.target.closest("#actionsDropdown")) {
+    isActionsDropdownOpen.value = false;
+  }
+  if (!event.target.closest("#filterDropdownButton") && !event.target.closest("#filterDropdown")) {
+    isFilterDropdownOpen.value = false;
+  }
+};
+document.addEventListener("click", closeDropdowns);
+
+
+// Pagination
+const currentPage = ref(1);
+const itemsPerPage = ref(10); // Number of reports per page
+const totalItems = computed(() => barangays.value.length); // Total number of reports
+const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage.value)); // Calculate total pages
+
+const paginatedBarangays = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredBarangays.value.slice(start, end);
+});
 </script>
 
 <template>
-  <!-- <div v-if="!formVisibility">
-    <PrimaryButton name="Add New Barangay" @click.prevent="openForm"
-      class="bg-white text-green-700 border border-2 border-green-700 font-bold hover:bg-green-700 hover:text-white hover:shadow-md" />
-  </div>
-  <div v-else="formVisibility">
-    <PrimaryButton name="Back to DataTable" @click.prevent="closeForm"
-      class="bg-red-500 hover:bg-red-600 hover:shadow-md" />
-  </div>
-
-  <div v-if="formVisibility">
-    <AddBarangay />
-  </div>
-  <div v-else> -->
-    <div>
-      <PrimaryButton @click.stop="openModal()" class="text-start px-4 py-2 border border-2 border-green-700 font-bold hover:bg-green-700 hover:text-white hover:shadow-md text-green-700" name="Add a Barangay" />
-      <!-- Use the modal component and bind the v-model -->
-      <Modal v-if="isModalOpen" v-model="isModalOpen" @click.stop >
-        <template #contents>
-          <div class="p-6 rounded-lg shadow-lg h-full w-full">
-            <AddBarangay />
-          </div>
-          <FormInput />
-        </template>
-      </Modal>
-    </div>
-
     <div v-if="errorMessage">
       <p class="text-red-500">{{ errorMessage }}</p>
     </div>
@@ -138,36 +212,210 @@ const openModal = () => {
     
 
     <div v-else>
-      <div v-if="barangays.length > 0">
-          <fwb-table hoverable>
-              <fwb-table-head>
-                  <fwb-table-head-cell class="text-center" v-for="(value, key) in barangays[0]" :key="key">
-                      {{ key }}
-                  </fwb-table-head-cell>
-                  <fwb-table-head-cell class="text-center">Action</fwb-table-head-cell>
-              </fwb-table-head>
-              <fwb-table-body>
-                  <fwb-table-row v-for="barangay in barangays" :key="barangay.id" class="text-center">
-                      <fwb-table-cell>{{ barangay.id }}</fwb-table-cell>
-                      <fwb-table-cell>{{ barangay.name }}</fwb-table-cell>
-                      <fwb-table-cell>{{ barangay.longitude }}</fwb-table-cell>
-                      <fwb-table-cell>{{ barangay.latitude }}</fwb-table-cell>
-                      <fwb-table-cell class="justify-center flex">
-                          <RouterLink class="p-2" :to="{ name: 'EditBarangay', params: { id: barangay.id } }">
-                              <PrimaryButton name="Edit" class="bg-blue-500 hover:bg-blue-600 hover:shadow-md text-white" />
-                          </RouterLink>
-                          <div class="p-2">
-                              <PrimaryButton @click.prevent="formSubmit(barangay.id)" name="Delete" class="bg-red-500 hover:bg-red-600 hover:shadow-md text-white" />
+      <div v-if="barangays.length > 0" >
+          <section class="w-full">
+          <div class="mt-6 px-4 w-full" >
+              <!-- Start coding here -->
+              <div class="relative shadow-md sm:rounded-lg overflow-hidden" :class="themeClasses">
+                  <div
+                      class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
+                      <div class="w-full md:w-1/2">
+                          <form class="flex items-center">
+                              <label for="simple-search" class="sr-only">Search</label>
+                              <div class="relative w-full">
+                                  <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                      <span class="material-icons">
+                                          search
+                                      </span>
+                                  </div>
+                                  <input 
+                                  v-model="searchQuery"
+                                  type="text" 
+                                  id="simple-search"
+                                  class="border text-sm rounded-lg block w-full pl-10 p-2"
+                                  placeholder="Search..."
+                                  />
+
+                              </div>
+                          </form>
+                      </div>
+                      <div
+                          class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0" >
+                          
+                              <button @click.stop="openModal()" type="button"
+                                  class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium focus:outline-none border rounded-lg" :class="hoverClasses">
+                                  <span class="material-icons">
+                                      add
+                                  </span>
+                                  Add Barangay
+                              </button>
+                              <Modal v-if="isModalOpen" v-model="isModalOpen" @click.stop >
+                                <template #contents>
+                                  <div class="p-6">
+                                    <AddBarangay />
+                                  </div>
+                                  <!-- <FormInput /> -->
+                                </template>
+                              </Modal>
+                          
+                          <div class="flex items-center space-x-3 w-full md:w-auto relative">
+                              <!-- Filter Dropdown Button -->
+                              <!-- <button
+                              @click="toggleFilterDropdown"
+                              class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium focus:outline-none rounded-lg border"
+                              :class="hoverClasses"
+                              id="filterDropdownButton"
+                              >
+                              <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                  <path
+                                  fill-rule="evenodd"
+                                  d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+                                  clip-rule="evenodd"
+                                  />
+                              </svg>
+                              Filter
+                              <svg class="-mr-1 ml-1.5 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                  <path
+                                  clip-rule="evenodd"
+                                  fill-rule="evenodd"
+                                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                  />
+                              </svg>
+                              </button> -->
+
+                              <!-- Filter Dropdown Menu -->
+                              <div
+                              id="filterDropdown"
+                              v-show="isFilterDropdownOpen"
+                              class="absolute top-full left-0 z-10 w-48 p-3 bg-white rounded-lg shadow"
+                              >
+                              <h6 class="mb-3 text-sm font-medium">Choose Classification</h6>
+                                  <ul class="space-y-2 text-sm">
+                                      <li v-for="classification in classifications" :key="classification.id" class="flex items-center">
+                                          <input
+                                            type="checkbox"
+                                            :id="classification.id"
+                                            :value="classification.id"
+                                            v-model="selectedClassifications"
+                                            class="w-4 h-4"
+                                          />
+                                          <label :for="classification.id" class="ml-2 text-sm font-medium">{{ classification.assistance }}</label>
+                                      </li>
+                                  </ul>
+                              </div>
                           </div>
-                      </fwb-table-cell>
-                  </fwb-table-row>
-              </fwb-table-body>
-          </fwb-table>
+                      </div>
+                  </div>
+                  <div class="">
+                      <!-- render loading animation before displaying datatable -->
+                      <div v-if="isLoading" class="flex justify-center">
+                          <div role="status">
+                              <svg aria-hidden="true" class="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg>
+                              <span class="sr-only">Loading...</span>
+                          </div>
+                      </div>
+                      <table v-else class="w-full text-sm text-left">
+                          <thead class="text-xs uppercase bg-teal-400">
+                              <tr>
+                                  <th scope="col" class="px-4 py-3">Barangay ID</th>
+                                  <th scope="col" class="px-4 py-3">Barangay Name</th>
+                                  <th scope="col" class="px-4 py-3">Barangay Longitude</th>
+                                  <th scope="col" class="px-4 py-3">Barangay Latitude</th>
+                                  <th scope="col" class="px-4 py-3">Actions</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              <tr v-for="barangay in paginatedBarangays" :key="barangay.id">
+                                  <td class="px-4 py-3">{{ barangay.id }}</td>
+                                  <td class="px-4 py-3">{{ barangay.name }}</td>
+                                  <td class="px-4 py-3">{{ barangay.longitude }}</td>
+                                  <td class="px-4 py-3">{{ barangay.latitude }}</td>
+                                  <td class="px-4 py-3">
+                                    <div class="p-2 space-x-2">
+                                      <PrimaryButton @click.stop="openEditModal(barangay)" name="Edit" class="bg-blue-500 hover:bg-blue-600 hover:shadow-md text-white" />
+                                      <PrimaryButton @click.prevent="formSubmit(barangay.id)" name="Delete" class="bg-red-500 hover:bg-red-600 hover:shadow-md text-white" />
+                                    </div>
+                                  </td>
+                              </tr>
+                          </tbody>
+                      </table>
+                  </div>
+                  <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">
+                      <span class="text-sm font-normal">
+                          Showing
+                          <span class="font-semibold">{{ (currentPage - 1) * itemsPerPage + 1 }} - 
+                          {{ Math.min(currentPage * itemsPerPage, totalItems) }}</span>
+                          of
+                          <span class="font-semibold">{{ totalItems }}</span>
+                      </span>
+                      
+                      <ul class="inline-flex items-stretch -space-x-px">
+                          <!-- Previous Page -->
+                          <li>
+                              <button 
+                                  @click="currentPage = Math.max(1, currentPage - 1)" 
+                                  :disabled="currentPage === 1"
+                                  class="flex items-center justify-center h-full py-1.5 px-3 ml-0 rounded-l-lg border"
+                                  :class="hoverClasses">
+                                  <span class="sr-only">Previous</span>
+                                  <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
+                                      xmlns="http://www.w3.org/2000/svg">
+                                      <path fill-rule="evenodd"
+                                          d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                                          clip-rule="evenodd" />
+                                  </svg>
+                              </button>
+                          </li>
+
+                          <!-- Page Numbers -->
+                          <li v-for="page in totalPages" :key="page">
+                              <button 
+                                  @click="currentPage = page" 
+                                  :class="[hoverClasses, { 'bg-blue-500 text-white': page === currentPage }]"
+                                  class="flex items-center justify-center text-sm py-2 px-3 leading-tight border">
+                                  {{ page }}
+                              </button>
+                          </li>
+
+                          <!-- Next Page -->
+                          <li>
+                              <button 
+                                  @click="currentPage = Math.min(totalPages, currentPage + 1)" 
+                                  :disabled="currentPage === totalPages"
+                                  class="flex items-center justify-center h-full py-1.5 px-3 leading-tight rounded-r-lg border"
+                                  :class="hoverClasses">
+                                  <span class="sr-only">Next</span>
+                                  <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
+                                      xmlns="http://www.w3.org/2000/svg">
+                                      <path fill-rule="evenodd"
+                                          d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                          clip-rule="evenodd" />
+                                  </svg>
+                              </button>
+                          </li>
+                      </ul>
+                  </nav>
+              </div>
+          </div>
+              <!-- Edit Barangay Modal -->
+            <div>
+              <!-- Use the modal component and bind the v-model -->
+              <Modal v-if="isEditModalOpen" v-model="isEditModalOpen" @click.stop >
+                <template #contents>
+                  <div class="p-6">
+                    <EditBarangay v-if="selectedBarangay" :barangay="selectedBarangay" />
+                  </div>
+                  <!-- <FormInput /> -->
+                </template>
+              </Modal>
+            </div>
+          </section>
+
+
       </div>
       <div v-else>
           <p>No Barangays found.</p>
       </div>
-    <!-- </div> -->
     
   </div>
 </template>
