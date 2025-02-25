@@ -28,9 +28,11 @@ const data = ref({
 
 const errorMessage = ref(''); // Define errorMessage
 const isLoading = ref(false); // Define loading state
+let map = null;
+let marker = null; 
 
 onMounted(() => {
-    isLoading.value = true; // Set loading to true
+    // isLoading.value = true; // Set loading to true
     axiosClient.get(`/api/911/report-edit/${report_Id}`, {
         headers: {
             'x-api-key': '$m@rtC!ty'
@@ -39,82 +41,55 @@ onMounted(() => {
     .then((res) => {
         console.log(res);
         data.value = res.data;
+        // Initialize the map AFTER data is received
+        initMap();
     })
     .catch((error) => {
         console.error('Error fetching data:', error);
         errorMessage.value = 'Failed to load data. Please try again later.';
-    })
-    .finally(() => {
-        isLoading.value = false; // Set loading to false after fetching
     });
+    // .finally(() => {
+    //     isLoading.value = false; // Set loading to false after fetching
+    // });
 });
 
 
 //Map scripts
-const { coords } = useGeolocation();
-
-const latitude = ref(0);
-const longitude = ref(0);
-let map = leaflet.Map;
-
-onMounted(() => {
-  map = leaflet
-    .map('map')
-    .setView([userMarker.value.latitude, userMarker.value.longitude], 13);
-
-  leaflet
-    .tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      keepBuffer: 2,
-      attribution:
-        '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    })
-    .addTo(map);
-
-  const bounds = leaflet.latLngBounds(
-    [16.350, 120.520], // Southwest (bottom-left)
-    [16.480, 120.660]  // Northeast (top-right) 
-  );
-  map.setMaxBounds(bounds);
-  map.setMinZoom(12);
-
-  let singleMarker = null;
-
-  map.addEventListener("click", (e) => {
-    const { lat: newLat, lng: newLng } = e.latlng;
-
-    if (bounds.contains([newLat, newLng])) {
-      if (singleMarker) {
-        map.removeLayer(singleMarker);
-      }
-
-      // Add a new marker
-      singleMarker = leaflet
-        .marker([newLat, newLng])
-        .addTo(map)
-        .bindPopup(
-          `Selected Marker at (<strong>${newLat.toFixed(5)}, ${newLng.toFixed(5)}</strong>)`
-        )
-        .openPopup();
-
-      // Update the stored user marker
-      userMarker.value.latitude = newLat;
-      userMarker.value.longitude = newLng;
-      // Update form inputs
-      data.value.latitude = newLat.toFixed(6);
-      data.value.longitude = newLng.toFixed(6);
-
-    } else {
-      alert("You cannot place markers outside Baguio City.");
+// Initialize Map
+const initMap = () => {
+    if (!data.value.latitude || !data.value.longitude) {
+        console.error("Latitude or Longitude is missing");
+        return;
     }
-  });
-});
 
+    if (map) return; // Prevent reinitialization
+
+    map = leaflet.map('map').setView([data.value.latitude, data.value.longitude], 13);
+
+    leaflet.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    // Set map boundaries
+    const bounds = leaflet.latLngBounds(
+        [16.350, 120.520], // Southwest
+        [16.480, 120.660]  // Northeast
+    );
+    map.setMaxBounds(bounds);
+    map.setMinZoom(12);
+
+    // Place initial marker
+    marker = leaflet.marker([data.value.latitude, data.value.longitude]).addTo(map)
+        .bindPopup(`Original Marker: (${data.value.latitude}, ${data.value.longitude})`)
+        .openPopup();
+};
+
+// Watch geolocation changes but don't override original marker
 watchEffect(() => {
-  if (coords.value.latitude && coords.value.longitude) {
-    data.value.latitude = coords.value.latitude.toFixed(6);
-    data.value.longitude = coords.value.longitude.toFixed(6);
-  }
+    if (data.value.latitude && data.value.longitude) {
+        console.log("Updated Coordinates:", data.value.latitude, data.value.longitude);
+    }
 });
 </script>
 
@@ -187,3 +162,11 @@ watchEffect(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+#map {
+  height: 50vh;
+  width: 100%;
+  border: 1px solid #ccc;
+}
+</style>
