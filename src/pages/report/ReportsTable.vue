@@ -51,25 +51,24 @@ const filteredReports = computed(() => {
 });
 
 onMounted(() => {
-isLoading.value = true;
-axiosClient.get('/api/911/report-display', {
-    headers: {
-        'x-api-key': '$m@rtC!ty'
-    }
-})
-.then((res) => {
-    setTimeout(() => {
-        reports.value = res.data[0]; // Assuming reports are in the first index
-        classifications.value = res.data[1]; // Assuming classifications are in the second index
+    isLoading.value = true;
+    axiosClient.get('/api/911/report-display', {
+        headers: {
+            'x-api-key': '$m@rtC!ty'
+        }
+    })
+    .then((res) => {
+        setTimeout(() => {
+            reports.value = res.data[0]; // Assuming reports are in the first index
+            classifications.value = res.data[1]; // Assuming classifications are in the second index
+            isLoading.value = false;
+        }, 1500);
+    })
+    .catch((error) => {
+        console.error('Error fetching data:', error);
+        errorMessage.value = 'Failed to load barangays. Please try again later.';
         isLoading.value = false;
-    }, 1500);
-})
-.catch((error) => {
-    console.error('Error fetching data:', error);
-    errorMessage.value = 'Failed to load barangays. Please try again later.';
-    isLoading.value = false;
-});
-
+    });
 
 // ------------------------------------------
     document.addEventListener("click", (event) => {
@@ -385,7 +384,7 @@ const formSubmit = (report_Id) => {
                         </li>
                         <li v-for="page in totalPages" :key="page">
                             <button @click="goToPage(page)"
-                                :class="[currentPage === page ? 'bg-blue-500 text-white' : hoverClasses, 'px-3 py-1 border']">
+                                :class="[currentPage === page ? 'bg-green-700 text-white border border-green-700' : hoverClasses, 'px-3 py-1 border']">
                                 {{ page }}
                             </button>
                         </li>

@@ -13,8 +13,6 @@ const themeClasses = computed(() => {
   return themeStore.isDarkMode ? "bg-slate-800 border-black text-white" : "bg-sky-50 border-gray-200 text-sky-900"
 })
 
-
-
 const incidents = [
   { name: 'Brawl', value: 'brawl' },
   { name: 'Assault', value: 'assault' },
