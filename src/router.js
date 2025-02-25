@@ -21,6 +21,7 @@ const routes = [
     component: DefaultLayout,
     children: [
       {path: '/', name: 'Dashboard', component: Dashboard},
+      // {path: '/dashboard', name: 'Dashboard', component: Dashboard},
 
       {path: '/map', name: 'Map', component: Map},
 

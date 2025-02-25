@@ -8,8 +8,10 @@ const themeStore = useThemeStore();
 const themeClasses = computed(() => {
   return themeStore.isDarkMode ? "bg-slate-800 border-black text-white" : "bg-sky-50 border-gray-200 text-sky-900"
 })
+
+
 const props = defineProps({
-    dateRange: Object // Expecting { start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' }
+  dateRange: Object // Expecting { start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' }
 });
 
 const selectedCaseFilter = ref("");
@@ -18,26 +20,39 @@ const data = ref({
   incidentType: '',
   incident: '',
 });
+
+const errorMessage = ref('');
 // Store Fetch Data From Backend In An Array
 const incidents = ref([]);
 const assistance = ref([]);
+const report = ref([]);
 
 onMounted(() => {
-  axiosClient.get('/api/911/report', {
-      headers: {
-          'x-api-key': '$m@rtC!ty'
-      }
+  axiosClient.get('/api/911/dashboard', {
+    headers: {
+      'x-api-key': '$m@rtC!ty'
+    }
   })
-  .then((res) => {
+    .then((res) => {
       console.log(res);
       incidents.value = res.data.incidents;
       assistance.value = res.data.assistance;
-      updateChart();
-  })
-  .catch((error) => {
+      report.value = res.data.report;
+      // Count occurrences of each incident_id in report
+      const incidentCounts = report.value.reduce((acc, reportItem) => {
+        const incidentId = reportItem.incident_id;
+        acc[incidentId] = (acc[incidentId] || 0) + 1;
+        return acc;
+      }, {});
+
+      console.log(incidentCounts, "Incident ID Counts in Reports");
+
+      updateChart(); // Update the chart after fetching data
+    })
+    .catch((error) => {
       console.error('Error fetching data:', error);
       errorMessage.value = 'Failed to load data. Please try again later.';
-  });
+    });
 });
 
 // Filter The Incident/Case Base On The Assistance Type
@@ -91,38 +106,73 @@ let chart = null;
 
 
 // Function to update the chart with backend data
+// const updateChart = () => {
+
+//   if (data.value.incidentType) {
+//     const filteredData = filteredIncidents.value;
+//     console.log(filteredIncidents.value, 'hellorerewrwer');
+
+//     // Assign a default count of 4 for now
+//     const incidentCounts = filteredData.map(() => 4);
+//     const incidentLabels = filteredData.map(incident => incident.type);
+
+//     // Update chart data
+//     options.value.series = incidentCounts;
+//     options.value.labels = incidentLabels;
+//     console.log(incidentLabels, 'hello123');
+
+//     emit('periodChange', props.dateRange);
+//     emit('periodChange', props.dateRange);
+
+//     if (chart) {
+//       chart.updateOptions(options.value);
+//     }
+//   }
+// };
 const updateChart = () => {
-    if (data.value.incidentType) {
-        const filteredData = filteredIncidents.value;
+  console.log(assistance.value);
+  console.log(incidents.value);
+  
+  // Count occurrences of each incident_id in report
+  const incidentCounts = report.value.reduce((acc, reportItem) => {
+    const incidentId = reportItem.incident_id;
+    acc[incidentId] = (acc[incidentId] || 0) + 1;
+    return acc;
+  }, {});
+  
+  console.log(incidentCounts, "Incident ID Counts in Reports");
 
-        // Assign a default count of 4 for now
-        const incidentCounts = filteredData.map(() => 4);
-        const incidentLabels = filteredData.map(incident => incident.type);
+  if (data.value.incidentType) {
+    const filteredData = filteredIncidents.value;
 
-        // Update chart data
-        options.value.series = incidentCounts;
-        options.value.labels = incidentLabels;
+    // Use incidentCounts to prepare counts for the chart
+    const incidentCountsArray = filteredData.map(incident => incidentCounts[incident.id] || 0); // Adjust 'incident.id' based on your data structure
+    const incidentLabels = filteredData.map(incident => incident.type);
 
-        emit('periodChange', props.dateRange);
+    // Update chart data
+    options.value.series = incidentCountsArray;
+    options.value.labels = incidentLabels;
 
-        if (chart) {
-            chart.updateOptions(options.value);
-        }
+    emit('periodChange', props.dateRange);
+
+    if (chart) {
+      chart.updateOptions(options.value);
     }
+  }
 };
 
 watch(() => props.dateRange, updateChart, { deep: true });
 watch(() => data.value.incidentType, updateChart);
 
 onMounted(() => {
-    if (pieChart.value) {
-        chart = new ApexCharts(pieChart.value, options.value);
-        chart.render();
-    }
+  if (pieChart.value) {
+    chart = new ApexCharts(pieChart.value, options.value);
+    chart.render();
+  }
 });
 
 onUnmounted(() => {
-    if (chart) chart.destroy();
+  if (chart) chart.destroy();
 });
 </script>
 
@@ -130,12 +180,14 @@ onUnmounted(() => {
   <div class="w-full p-4" :class="themeClasses">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-semibold">Number of Cases</h2>
-      <select id="incidentType" v-model="data.incidentType" class="px-1 py-0.5 text-xxs bg-white text-gray-800 border border-gray-300 rounded hover:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 w-32">
+      <select id="incidentType" v-model="data.incidentType"
+        class="px-1 py-0.5 text-xxs bg-white text-gray-800 border border-gray-300 rounded hover:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 w-32">
         <option disabled value="">Select classification</option>
-        <option v-for="assistance in assistance" :key="assistance.id" :value="assistance.id">{{ assistance.assistance }}</option>
-      </select> 
+        <option v-for="assistance in assistance" :key="assistance.id" :value="assistance.id">{{ assistance.assistance }}
+        </option>
+      </select>
     </div>
-    
+
     <div ref="pieChart" class="h-32"></div>
   </div>
 </template>

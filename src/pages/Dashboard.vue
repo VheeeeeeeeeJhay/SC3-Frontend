@@ -14,15 +14,38 @@ const themeClasses = computed(() => {
 })
 
 
+// /👾👾👾👾👾👾👾👾/ //
+// Fetch Data From Backend //
 
-const incidents = [
-  { name: 'Brawl', value: 'brawl' },
-  { name: 'Assault', value: 'assault' },
-  { name: 'Vandalism', value: 'vandalism' },
-  { name: 'Traffic Violation', value: 'traffic' },
-  { name: 'Suspicious Activity', value: 'suspicious' },
-  { name: 'Other', value: 'other' }
-];
+const incidents = ref([]);
+onMounted(() => {
+  axiosClient.get('/api/911/dashboard', {
+      headers: {
+          'x-api-key': '$m@rtC!ty'
+      }
+  })
+  .then((res) => {
+      setTimeout(() => {
+          incidents.value = res.data;
+      }, 1500);
+  })
+  .catch((error) => {
+      console.error('Error fetching data:', error);
+      // errorMessage.value = 'Failed to load incidents. Please try again later.';
+  });
+});
+
+// /👾👾👾👾👾👾👾👾/ //
+
+
+// const incidents = [
+//   { name: 'Brawl', value: 'brawl' },
+//   { name: 'Assault', value: 'assault' },
+//   { name: 'Vandalism', value: 'vandalism' },
+//   { name: 'Traffic Violation', value: 'traffic' },
+//   { name: 'Suspicious Activity', value: 'suspicious' },
+//   { name: 'Other', value: 'other' }
+// ];
 
 const dateFilters = [
   { name: 'Today', value: 'today' },
@@ -38,7 +61,6 @@ const months = [
   'January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'
 ];
-
 
 
 const formatDate = (date) => date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
