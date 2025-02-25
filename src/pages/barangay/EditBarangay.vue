@@ -1,14 +1,26 @@
 <script setup>
 import FormInput from '../../components/FormInput.vue';
 import axiosClient from '../../axios';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router'; // Import useRouter
 import PrimaryButton from '../../components/PrimaryButton.vue';
+import { useThemeStore } from '../../stores/themeStore';
+// For dark mode
+const themeStore = useThemeStore();
+const themeClasses = computed(() => {
+  return themeStore.isDarkMode 
+    ? "bg-slate-800 border border-black text-white hover:border-gray-600 focus:ring-2 focus:ring-slate-500 focus:outline-none"
+    : "bg-sky-50 border border-gray-200 text-sky-900 hover:border-gray-300 focus:ring-2 focus:ring-sky-400 focus:outline-none";
+});
 
 const route = useRoute();
 const router = useRouter(); // Initialize router
 const barangay_Id = route.params.id; // Get the barangay ID from route params
 
+// ✅ Define props correctly
+const props = defineProps({
+  barangay: Object
+});
 const data = ref({
     name: '',
     longitude: '',
@@ -41,6 +53,16 @@ const errors = ref('');
 
 console.log(data.value);
 
+watch(
+  () => props.barangay,
+  (newBarangay) => {
+    if (newBarangay) {
+      data.value = { ...newBarangay }; // ✅ Copy data correctly
+    }
+  },
+  { immediate: true } // ✅ Run immediately when component is mounted
+);
+
 function formSubmit() {
     console.log(data.value);
     // const formData = new FormData();
@@ -48,13 +70,14 @@ function formSubmit() {
     // formData.append('longitude', data.value.longitude);
     // formData.append('latitude', data.value.latitude);
     // errors.value = '';
-    axiosClient.put(`/api/911/barangay-update/${barangay_Id}`, data.value, {
+    axiosClient.put(`/api/911/barangay-update/${data.value.id}`, data.value, {
         headers: {
             'x-api-key': '$m@rtC!ty'
         }
     })
     .then(response => {
         router.push({ name: 'Barangay' });
+        console.log('Barangay updated ba');
     })
     .catch(error => {
         console.log(error.response.data.data);
@@ -71,27 +94,26 @@ function formSubmit() {
         </div>
     </div>
     <div v-else>
-        <div class="mt-10 bg-white">
-            <form @submit.prevent="formSubmit">
-                <FormInput 
-                        name="name" 
-                        class="px-4 py-2 border rounded-md mr-2 text-white bg-gray-600" 
-                        v-model="data.name"
-                    />
-                    <FormInput 
-                        name="longitude" 
-                        class="px-4 py-2 border rounded-md mr-2 text-white bg-gray-600" 
-                        v-model="data.longitude"
-                        type="number"
-                    />
-                    <FormInput 
-                        name="latitude" 
-                        class="px-4 py-2 border rounded-md mr-2 text-white bg-gray-600" 
-                        v-model="data.latitude"
-                        type="number"
-                    />
-                    <PrimaryButton type="submit" name="Update Barangay" class="text-white bg-green-500 hover:bg-green-600 hover:shadow-md" />
+        <div>
+            <form @submit.prevent="formSubmit" class="space-y-4" :themeClasses>
+                <div class="space-y-1">
+                    <label for="name" class="block text-sm font-medium">Barangay Name</label>
+                    <FormInput name="name" class="px-4 py-2 border rounded-md w-full" v-model="data.name"/>
+                </div>
+
+                <div class="space-y-1">
+                    <label for="longitude" class="block text-sm font-medium">Longitude</label>
+                    <FormInput name="longitude" class="px-4 py-2 border rounded-md w-full" v-model="data.longitude" type="number"/>
+                </div>
+
+                <div class="space-y-1">
+                    <label for="latitude" class="block text-sm font-medium">Latitude</label>
+                    <FormInput name="latitude" class="px-4 py-2 border rounded-md w-full" v-model="data.latitude" type="number"/>         
+                </div> 
+
+               <PrimaryButton type="submit" name="Update Barangay" class="text-white bg-green-600 hover:bg-green-700 w-full" />
             </form>
+
             <div v-if="errors" class="text-red-500 mt-2">
                 <p v-for="(error, index) in errors" :key="index">{{ error }}</p>
             </div>

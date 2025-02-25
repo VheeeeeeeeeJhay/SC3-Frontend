@@ -1,6 +1,14 @@
 <script setup>
-import { ref, onMounted, onUnmounted, defineEmits, defineProps } from 'vue'
+import { ref, onMounted, onUnmounted, defineEmits, defineProps, computed } from 'vue'
 // import { MdDeleteForever } from '@kalimahapps/vue-icons';
+import { useThemeStore } from '../stores/themeStore';
+// For dark mode
+const themeStore = useThemeStore();
+const themeClasses = computed(() => {
+  return themeStore.isDarkMode 
+    ? "bg-slate-800 border border-black text-white hover:border-gray-600 focus:ring-2 focus:ring-slate-500 focus:outline-none"
+    : "bg-sky-50 border border-gray-200 text-sky-900 hover:border-gray-300 focus:ring-2 focus:ring-sky-400 focus:outline-none";
+});
 
 const props = defineProps({
   modelValue: Boolean, // v-model binding for modal open state
@@ -39,19 +47,24 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div v-if="modelValue" class="fixed left-0 top-0 flex h-full w-full items-center justify-center bg-dark/90 px-4 py-5 z-50 bg-slate-900/90">
-    
-    <div ref="modalContainer"
-      class="w-full max-w-[570px] rounded-[20px] bg-white px-8 py-4 text-center dark:bg-dark-2 border dark:bg-gray-700">
-      <div>
-        <div class="flex justify-end items-center py-3 text-white hover:text-red-500" @click="closeModal">
-            <span class="material-icons" >
-                close
-            </span>
+  
+  <div v-if="modelValue" class="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+      
+      <!-- Modal Container (No shadow) -->
+      <div ref="modalContainer" class="w-full max-w-md rounded-lg p-6 border dark:border-gray-700 transition-all" :class="themeClasses">
+        
+        <!-- Header -->
+        <div class="flex justify-between items-center pb-4 border-b dark:border-gray-600">
+          <h2 class="text-lg font-semibold">
+            Confirm Action // Modal Message
+          </h2>
+          <button @click="closeModal" class="text-gray-500 hover:text-red-500">
+            <span class="material-icons">close</span>
+          </button>
         </div>
-      </div>
-      <hr class="text-white"/>
-      <slot name="contents"></slot>
+
+        <!-- Content Slot -->
+        <slot name="contents"></slot>
       
       <!-- <div class="-mx-3 flex flex-wrap">
         <div class="w-1/2 px-3">

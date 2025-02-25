@@ -1,18 +1,41 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { FwbA, FwbTable, FwbTableBody, FwbTableCell, FwbTableHead, FwbTableHeadCell, FwbTableRow } from 'flowbite-vue';
 import PrimaryButton from '../../components/PrimaryButton.vue';
 import AddBarangay from './AddBarangay.vue';
+import EditBarangay from './EditBarangay.vue';
 import axiosClient from '../../axios.js';
 import Modal from '../../components/Modal.vue';
 import { useRouter } from 'vue-router';
+import { useThemeStore } from '../../stores/themeStore';
+// For dark mode
+const themeStore = useThemeStore();
+const themeClasses = computed(() => {
+  return themeStore.isDarkMode 
+    ? "bg-slate-800 border border-black text-white hover:border-gray-600 focus:ring-2 focus:ring-slate-500 focus:outline-none"
+    : "bg-sky-50 border border-gray-200 text-sky-900 hover:border-gray-300 focus:ring-2 focus:ring-sky-400 focus:outline-none";
+});
 
+// Dropdown base styles
+const dropClasses = computed(() => {
+  return themeStore.isDarkMode 
+    ? "bg-slate-600 border border-black text-white focus:ring-2 focus:ring-slate-400 focus:outline-none"
+    : "bg-white border border-gray-200 text-sky-900 focus:ring-2 focus:ring-sky-300 focus:outline-none";
+});
+
+// Hover styles (separate for reusability)
+const hoverClasses = computed(() => {
+  return themeStore.isDarkMode 
+    ? "hover:bg-slate-700 hover:border-black"
+    : "hover:bg-sky-100 hover:border-black";
+});
 const router = useRouter();
 const formVisibility = ref(false);
 const barangays = ref([]);
 const errorMessage = ref('');
 const errors = ref('');
 const isLoading = ref(false);
+const selectedBarangay = ref(null);
 
 const openForm = () => {
   formVisibility.value = true;
@@ -72,6 +95,15 @@ const openModal = () => {
    isModalOpen.value = true;
    console.log("🚀 ~ openModal ~ isModalOpen:", isModalOpen.value)
 };
+
+const isEditModalOpen = ref(false)
+
+const openEditModal = (barangay) => {
+  selectedBarangay.value = barangay; // Store barangay details
+  isEditModalOpen.value = true;
+   console.log("🚀 ~ openModal ~ isEditModalOpen:", isEditModalOpen.value)
+};
+
 </script>
 
 <template>
@@ -93,7 +125,7 @@ const openModal = () => {
       <!-- Use the modal component and bind the v-model -->
       <Modal v-if="isModalOpen" v-model="isModalOpen" @click.stop >
         <template #contents>
-          <div class="p-6 rounded-lg shadow-lg h-full w-full">
+          <div class="p-6">
             <AddBarangay />
           </div>
           <FormInput />
@@ -115,8 +147,8 @@ const openModal = () => {
     
 
     <div v-else>
-      <div v-if="barangays.length > 0">
-          <fwb-table hoverable>
+      <div v-if="barangays.length > 0" >
+          <fwb-table hoverable >
               <fwb-table-head>
                   <fwb-table-head-cell class="text-center" v-for="(value, key) in barangays[0]" :key="key">
                       {{ key }}
@@ -125,17 +157,15 @@ const openModal = () => {
               </fwb-table-head>
               <fwb-table-body>
                   <fwb-table-row v-for="barangay in barangays" :key="barangay.id" class="text-center">
-                      <fwb-table-cell>{{ barangay.id }}</fwb-table-cell>
-                      <fwb-table-cell>{{ barangay.name }}</fwb-table-cell>
-                      <fwb-table-cell>{{ barangay.longitude }}</fwb-table-cell>
-                      <fwb-table-cell>{{ barangay.latitude }}</fwb-table-cell>
+                      <fwb-table-cell :class="themeClasses">{{ barangay.id }}</fwb-table-cell>
+                      <fwb-table-cell :class="themeClasses">{{ barangay.name }}</fwb-table-cell>
+                      <fwb-table-cell :class="themeClasses">{{ barangay.longitude }}</fwb-table-cell>
+                      <fwb-table-cell :class="themeClasses">{{ barangay.latitude }}</fwb-table-cell>
                       <fwb-table-cell class="justify-center flex">
-                          <RouterLink class="p-2" :to="{ name: 'EditBarangay', params: { id: barangay.id } }">
-                              <PrimaryButton name="Edit" class="bg-blue-500 hover:bg-blue-600 hover:shadow-md text-white" />
-                          </RouterLink>
-                          <div class="p-2">
-                              <PrimaryButton @click.prevent="formSubmit(barangay.id)" name="Delete" class="bg-red-500 hover:bg-red-600 hover:shadow-md text-white" />
-                          </div>
+                        <div class="p-2 space-x-2">
+                            <PrimaryButton @click.stop="openEditModal(barangay)" name="Edit" class="bg-blue-500 hover:bg-blue-600 hover:shadow-md text-white" />
+                            <PrimaryButton @click.prevent="formSubmit(barangay.id)" name="Delete" class="bg-red-500 hover:bg-red-600 hover:shadow-md text-white" />
+                        </div>
                       </fwb-table-cell>
                   </fwb-table-row>
               </fwb-table-body>
@@ -144,6 +174,19 @@ const openModal = () => {
       <div v-else>
           <p>No Barangays found.</p>
       </div>
+
+      <!-- Edit Barangay Modal -->
+      <div>
+      <!-- Use the modal component and bind the v-model -->
+      <Modal v-if="isEditModalOpen" v-model="isEditModalOpen" @click.stop >
+        <template #contents>
+          <div class="p-6">
+            <EditBarangay v-if="selectedBarangay" :barangay="selectedBarangay" />
+          </div>
+          <FormInput />
+        </template>
+      </Modal>
+    </div>
     <!-- </div> -->
     
   </div>
