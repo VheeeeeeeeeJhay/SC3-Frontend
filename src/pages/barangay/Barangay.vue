@@ -5,45 +5,26 @@ import AddBarangay from './AddBarangay.vue';
 import EditBarangay from './EditBarangay.vue';
 import axiosClient from '../../axios.js';
 import Modal from '../../components/Modal.vue';
-import { useRouter } from 'vue-router';
 import { useThemeStore } from '../../stores/themeStore';
+
 // For dark mode
 const themeStore = useThemeStore();
 const themeClasses = computed(() => {
   return themeStore.isDarkMode 
-    ? "bg-slate-800 border border-black text-white hover:border-gray-600 focus:ring-2 focus:ring-slate-500 focus:outline-none"
-    : "bg-sky-50 border border-gray-200 text-sky-900 hover:border-gray-300 focus:ring-2 focus:ring-sky-400 focus:outline-none";
+    ? "bg-slate-800 border border-black text-white  "
+    : "bg-sky-50 border border-gray-200 text-sky-900 ";
 });
-// Dropdown base styles
-const dropClasses = computed(() => {
-  return themeStore.isDarkMode 
-    ? "bg-slate-600 border border-black text-white focus:ring-2 focus:ring-slate-400 focus:outline-none"
-    : "bg-white border border-gray-200 text-sky-900 focus:ring-2 focus:ring-sky-300 focus:outline-none";
-});
-
 // Hover styles (separate for reusability)
 const hoverClasses = computed(() => {
   return themeStore.isDarkMode 
-    ? "hover:bg-slate-700 hover:border-black"
-    : "hover:bg-sky-100 hover:border-black";
+  ? "border border-black hover:bg-slate-700 hover:border-gray-600 focus:ring-2 focus:ring-slate-500 focus:outline-none" 
+  : "border border-gray-700 hover:bg-sky-100 hover:border-gray-500 focus:ring-2 focus:ring-sky-400 focus:outline-none";
 });
-// const router = useRouter();
-// const formVisibility = ref(false);
 const barangays = ref([]);
 const errorMessage = ref('');
 const errors = ref('');
 const isLoading = ref(false);
 const selectedBarangay = ref(null);
-
-
-// const openForm = () => {
-//   formVisibility.value = true;
-// };
-
-// const closeForm = () => {
-//   formVisibility.value = false;
-// };
-
 
 onMounted(() => {
   isLoading.value = true;
@@ -230,7 +211,7 @@ const paginatedBarangays = computed(() => {
                                   type="text" 
                                   id="simple-search"
                                   class="border text-sm rounded-lg block w-full pl-10 p-2"
-                                  :class="themeClasses"
+                                  :class="hoverClasses"
                                   placeholder="Search..."
                                   />
 
@@ -313,7 +294,7 @@ const paginatedBarangays = computed(() => {
                           </div>
                       </div>
                       <table v-else class="w-full text-sm text-left">
-                          <thead class="text-xs uppercase bg-teal-400">
+                          <thead class="text-xs uppercase" :class="themeStore.isDarkMode ? 'bg-slate-700' : 'bg-teal-300'">
                               <tr>
                                   <th scope="col" class="px-4 py-3">Barangay ID</th>
                                   <th scope="col" class="px-4 py-3">Barangay Name</th>
@@ -369,7 +350,7 @@ const paginatedBarangays = computed(() => {
                           <li v-for="page in totalPages" :key="page">
                               <button 
                                   @click="currentPage = page" 
-                                  :class="[hoverClasses, { 'bg-blue-500 text-white': page === currentPage }]"
+                                  :class="[hoverClasses, { [hoverClasses]: page === currentPage }]"
                                   class="flex items-center justify-center text-sm py-2 px-3 leading-tight border">
                                   {{ page }}
                               </button>
