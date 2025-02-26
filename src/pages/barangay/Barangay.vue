@@ -194,6 +194,7 @@ const paginatedBarangays = computed(() => {
 </script>
 
 <template>
+  <div class="min-h-screen">
     <div v-if="errorMessage">
       <p class="text-red-500">{{ errorMessage }}</p>
     </div>
@@ -229,6 +230,7 @@ const paginatedBarangays = computed(() => {
                                   type="text" 
                                   id="simple-search"
                                   class="border text-sm rounded-lg block w-full pl-10 p-2"
+                                  :class="themeClasses"
                                   placeholder="Search..."
                                   />
 
@@ -414,4 +416,6 @@ const paginatedBarangays = computed(() => {
       </div>
     
   </div>
+
+</div>
 </template>

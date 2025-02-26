@@ -155,7 +155,7 @@ const formSubmit = (report_Id) => {
 </script>
 
 <template>
-    <section class="w-full">
+    <section class="w-full min-h-screen">
         <div class="mt-6 px-4 w-full" >
             <!-- Start coding here -->
             <div class="relative shadow-md sm:rounded-lg overflow-hidden" :class="themeClasses">
