@@ -5,6 +5,9 @@ import PrimaryButton from '../components/PrimaryButton.vue';
 import axiosClient from '../axios.js';
 import { RouterLink } from 'vue-router';
 
+//Import API key
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 // For dark mode
 const themeStore = useThemeStore();
 const themeClasses = computed(() => {
@@ -110,7 +113,7 @@ const formSubmit = (report_Id) => {
     errors.value = ''; // 🔹 Reset errors before making a request
     axiosClient.delete(`/api/911/report-delete/${report_Id}`, {
         headers: {
-            'x-api-key': '$m@rtC!ty'
+            'x-api-key': API_KEY
         }
     })
     .then(() => {

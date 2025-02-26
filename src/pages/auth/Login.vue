@@ -6,7 +6,8 @@ import { ref } from "vue";
 import router from "../../router.js";
 import logo from '../../assets/baguio-logo.png';
 
-
+//Import API key
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 const data = ref({
   email: '',
@@ -18,7 +19,7 @@ function submit() {
   axiosClient.get('/sanctum/csrf-cookie').then(response => {
     axiosClient.post("/login", data.value, {
       headers: {
-        'x-api-key':'$m@rtC!ty'
+        'x-api-key': API_KEY
       }
       })
       .then(response => {

@@ -9,6 +9,10 @@ import Modal from '../../components/Modal.vue';
 import { useRouter } from 'vue-router';
 import { useThemeStore } from '../../stores/themeStore';
 
+
+//Import API key
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 // For dark mode
 const themeStore = useThemeStore();
 const themeClasses = computed(() => {
@@ -48,12 +52,10 @@ const selectedBarangay = ref(null);
 //   formVisibility.value = false;
 // };
 
-
-onMounted(() => {
-  isLoading.value = true;
+const fetchData = () => {
   axiosClient.get('/api/911/barangay', {
       headers: {
-          'x-api-key': '$m@rtC!ty'
+          'x-api-key': API_KEY
       }
   })
   .then((res) => {
@@ -71,6 +73,12 @@ onMounted(() => {
       console.error('Error fetching data:', error);
       errorMessage.value = 'Failed to load barangays. Please try again later.';
   });
+}
+
+
+onMounted(() => {
+  isLoading.value = true;
+  fetchData();
 
   // ------------------------------------------
   document.addEventListener("click", (event) => {
@@ -119,12 +127,13 @@ const formSubmit = (barangay_Id) => {
     errors.value = ''; // 🔹 Reset errors before making a request
     axiosClient.delete(`/api/911/barangay-delete/${barangay_Id}`, {
         headers: {
-            'x-api-key': '$m@rtC!ty'
+            'x-api-key': API_KEY
         }
     })
     .then(() => {
         // Remove the deleted barangay from the list without refreshing the page
-        barangays.value = barangays.value.filter(b => b.id !== barangay_Id);
+        // barangays.value = barangays.value.filter(b => b.id !== barangay_Id);
+        fetchData();
         console.log('Barangay deleted successfully');
     })
     .catch(error => {
@@ -141,10 +150,11 @@ const openModal = () => {
 };
 
 const isEditModalOpen = ref(false)
-const openEditModal = (barangay) => {
-  selectedBarangay.value = barangay; // Store barangay details
+const openEditModal = (barangay_data) => {
+  selectedBarangay.value = barangay_data; // Store barangay details
+  console.log(selectedBarangay.value);
   isEditModalOpen.value = true;
-   console.log("🚀 ~ openModal ~ isEditModalOpen:", isEditModalOpen.value)
+   console.log("🚀 ~ openEditModal ~ isEditModalOpen:", isEditModalOpen.value)
 };
 
 //for dropdown
@@ -249,7 +259,7 @@ const paginatedBarangays = computed(() => {
                                   </span>
                                   Add Barangay
                               </button>
-                              <Modal v-if="isModalOpen" v-model="isModalOpen" @click.stop >
+                              <Modal v-if="isModalOpen"  v-model="isModalOpen" @click.stop >
                                 <template #contents>
                                   <div class="p-6">
                                     <AddBarangay />
@@ -332,6 +342,21 @@ const paginatedBarangays = computed(() => {
                                   <td class="px-4 py-3">{{ barangay.latitude }}</td>
                                   <td class="px-4 py-3">
                                     <div class="p-2 space-x-2">
+                                      <!-- <button @click.stop="openModal()" type="button"
+                                        class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium focus:outline-none border rounded-lg" :class="hoverClasses">
+                                        <span class="material-icons">
+                                            add
+                                        </span>
+                                        Add Barangay
+                                      </button> -->
+                                      <Modal v-if="isEditModalOpen" v-model="isEditModalOpen" @click.stop >
+                                        <template #contents>
+                                          <div class="p-6">
+                                            <EditBarangay v-if="selectedBarangay" :barangay_data="selectedBarangay" />
+                                          </div>
+                                          <!-- <FormInput /> -->
+                                        </template>
+                                      </Modal>
                                       <PrimaryButton @click.stop="openEditModal(barangay)" name="Edit" class="bg-blue-500 hover:bg-blue-600 hover:shadow-md text-white" />
                                       <PrimaryButton @click.prevent="formSubmit(barangay.id)" name="Delete" class="bg-red-500 hover:bg-red-600 hover:shadow-md text-white" />
                                     </div>
@@ -413,8 +438,23 @@ const paginatedBarangays = computed(() => {
 
 
       </div>
-      <div v-else>
+      <div v-else class="mt-[30px]">
           <p>No Barangays found.</p>
+          <button @click.stop="openModal()" type="button"
+                                  class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium focus:outline-none border rounded-lg" :class="hoverClasses">
+                                  <span class="material-icons">
+                                      add
+                                  </span>
+                                  Add Barangay
+                              </button>
+                              <Modal v-if="isModalOpen"  v-model="isModalOpen" @click.stop >
+                                <template #contents>
+                                  <div class="p-6">
+                                    <AddBarangay />
+                                  </div>
+                                  <!-- <FormInput /> -->
+                                </template>
+                              </Modal>
       </div>
     
   </div>

@@ -11,6 +11,9 @@ import router from '../../router.js';
 import Modal from '../../components/Modal.vue';
 import FormInput from '../../components/FormInput.vue';
 
+//Import API key
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 // Get Auth User Information
 const userStore = useUserStore();
 const user = computed(() => userStore.user);
@@ -74,7 +77,7 @@ const errorMessage = ref('');
 onMounted(() => {
   axiosClient.get('/api/911/report', {
     headers: {
-      'x-api-key': '$m@rtC!ty'
+      'x-api-key': API_KEY
     }
   })
     .then((res) => {
@@ -107,7 +110,7 @@ const submitForm = () => {
   console.log(formData)
   axiosClient.post('/api/911/report', formData, {
     headers: {
-      'x-api-key': '$m@rtC!ty'
+      'x-api-key': API_KEY
     }
   })
     .then(response => {

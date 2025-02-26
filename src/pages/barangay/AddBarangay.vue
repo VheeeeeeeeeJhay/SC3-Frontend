@@ -5,6 +5,10 @@ import router from '../../router.js';
 import axiosClient from '../../axios.js';
 import FormInput from '../../components/FormInput.vue';
 import { useThemeStore } from '../../stores/themeStore';
+
+//Import API key
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 // For dark mode
 const themeStore = useThemeStore();
 const themeClasses = computed(() => {
@@ -26,6 +30,32 @@ const errors = ref({
   latitude: [],
 });
 
+
+const fetchData = () => {
+  axiosClient.get('/api/911/barangay', {
+      headers: {
+          'x-api-key': API_KEY
+      }
+  })
+  .then((res) => {
+      // console.log(res);
+      console.log(res);
+      // barangays.value = res.data;
+      // isLoading.value = false;
+      setTimeout(() => {
+          barangays.value = res.data;
+          isLoading.value = false; // Stop loading after delay
+      }, 1500);
+  })
+  .catch((error) => {
+      isLoading.value = false;
+      console.error('Error fetching data:', error);
+      errorMessage.value = 'Failed to load barangays. Please try again later.';
+  });
+}
+
+
+
 function formSubmit() {
   console.log(data.value)
   const formData = new FormData()
@@ -35,19 +65,21 @@ function formSubmit() {
   errors.value = '';
   axiosClient.post("/api/911/barangay", formData, {
     headers: {
-      'x-api-key':'$m@rtC!ty'
+      'x-api-key': API_KEY
     }
     })
     .then(response => {
       data.value.name = '';
       data.value.longitude = '';
       data.value.latitude = '';
+      fetchData();
       router.push({ name: 'Barangay' })
     })
     .catch(error => {
       console.log(error.response.data)
       errors.value = error.response.data.errors;
     })
+    //// add the error messages from the response to the errors.value variable
 }
 </script>
 

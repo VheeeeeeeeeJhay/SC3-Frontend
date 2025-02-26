@@ -7,6 +7,9 @@ import { useGeolocation } from '@vueuse/core';
 import { userMarker } from '../../stores/mapStore.js';
 import leaflet from 'leaflet';
 
+//Import API key
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 const route = useRoute();
 const router = useRouter();
 const report_Id = route.params.id;
@@ -32,7 +35,7 @@ let marker = null; // Store the marker reference
 onMounted(() => {
     axiosClient.get(`/api/911/report-view/${report_Id}`, {
         headers: {
-            'x-api-key': '$m@rtC!ty'
+            'x-api-key': API_KEY
         }
     })
     .then((res) => {

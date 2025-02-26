@@ -4,6 +4,10 @@ import axiosClient from '../../axios.js';
 import { RouterLink } from 'vue-router';
 import PrimaryButton from '../../components/PrimaryButton.vue';
 import { useThemeStore } from '../../stores/themeStore';
+
+//Import API key
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 // For dark mode
 const themeStore = useThemeStore();
 const themeClasses = computed(() => {
@@ -25,82 +29,104 @@ const hoverClasses = computed(() => {
     ? "hover:bg-slate-700 hover:border-black"
     : "hover:bg-sky-100 hover:border-black";
 });
-import { useThemeStore } from '../../stores/themeStore';
-// For dark mode
-const themeStore = useThemeStore();
-const themeClasses = computed(() => {
-  return themeStore.isDarkMode 
-    ? "bg-slate-800 border border-black text-white hover:border-gray-600 focus:ring-2 focus:ring-slate-500 focus:outline-none"
-    : "bg-sky-50 border border-gray-200 text-sky-900 hover:border-gray-300 focus:ring-2 focus:ring-sky-400 focus:outline-none";
-});
 
-// Dropdown base styles
-const dropClasses = computed(() => {
-  return themeStore.isDarkMode 
-    ? "bg-slate-600 border border-black text-white focus:ring-2 focus:ring-slate-400 focus:outline-none"
-    : "bg-white border border-gray-200 text-sky-900 focus:ring-2 focus:ring-sky-300 focus:outline-none";
-});
-
-// Hover styles (separate for reusability)
-const hoverClasses = computed(() => {
-  return themeStore.isDarkMode 
-    ? "hover:bg-slate-700 hover:border-black"
-    : "hover:bg-sky-100 hover:border-black";
-});
-
+// ==================== Holds Data =========================
+const errors = ref('');
 const reports = ref([]);
 const classifications = ref([]);
 const searchQuery = ref("");
 const isLoading = ref(false);
-
 const selectedClassifications = ref([]);
+
+// Computed property for assigning aliases to reports columns
+const reportsWithAliases = computed(() => {
+    return reports.value.map(report => ({
+        id: report.id,
+        source_name: report.source?.sources || "",
+        assistance_type: report.assistance?.assistance || "",
+        incident_type: report.incident?.type || "",
+        action_taken: report.actions?.actions || "",
+        barangay_name: report.barangay?.name || "",
+        originalReport: report, // Keep reference to the original data
+    }));
+});
 
 // Computed property for dynamic search and filtering
 const filteredReports = computed(() => {
-  return reports.value.filter(report => {
-    const matchesSearch = searchQuery.value
-      ? report.source.sources.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        report.assistance.assistance.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        report.incident.type.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        report.actions.actions.toLowerCase().includes(searchQuery.value.toLowerCase())
-      : true;
+    const query = searchQuery.value ? searchQuery.value.toLowerCase() : "";
 
-    const matchesClassification = selectedClassifications.value.length === 0 || 
-      selectedClassifications.value.includes(report.assistance_id);
+    return reportsWithAliases.value.filter(report => {
+        const matchesSearch =
+            !query ||
+            report.source_name.toLowerCase().includes(query) ||
+            report.assistance_type.toLowerCase().includes(query) ||
+            report.incident_type.toLowerCase().includes(query) ||
+            report.action_taken.toLowerCase().includes(query) ||
+            report.barangay_name.toLowerCase().includes(query);
 
-    return matchesSearch && matchesClassification;
-  });
+        const matchesClassification =
+            selectedClassifications.value.length === 0 || 
+            selectedClassifications.value.includes(report.originalReport.assistance_id);
+
+        return matchesSearch && matchesClassification;
+    });
 });
 
-onMounted(() => {
-    isLoading.value = true;
+// Fetch Data
+const fetchData = () => {
     axiosClient.get('/api/911/report-display', {
         headers: {
-            'x-api-key': '$m@rtC!ty'
+            "x-api-key": API_KEY,
         }
     })
     .then((res) => {
+        console.log(res)
         setTimeout(() => {
             reports.value = res.data[0]; // Assuming reports are in the first index
             classifications.value = res.data[1]; // Assuming classifications are in the second index
             isLoading.value = false;
-        }, 1500);
+        });
     })
     .catch((error) => {
         console.error('Error fetching data:', error);
         errorMessage.value = 'Failed to load barangays. Please try again later.';
         isLoading.value = false;
     });
+}
 
-// ------------------------------------------
+// =============================================================================== Delete A Report
+const formSubmit = (report_Id) => {
+    errors.value = ''; // 🔹 Reset errors before making a request
+    axiosClient.delete(`/api/911/report-delete/${report_Id}`, {
+        headers: {
+            "x-api-key": API_KEY,
+        }
+    })
+    .then(() => {
+        // Remove the deleted barangay from the list without refreshing the page
+        fetchData();
+        console.log('Report deleted successfully');
+    })
+    .catch(error => {
+        console.error('Error deleting report:', error.response?.data);
+        errors.value = error.response?.data?.errors || 'Failed to delete report.';
+    });
+};
+
+onMounted(() => {
+    isLoading.value = true;
+    fetchData();
+
+    // ------------------------------------------
     document.addEventListener("click", (event) => {
         if (
             openDropdownId.value !== null &&
             !dropdownRefs.value[openDropdownId.value]?.contains(event.target)
         ) {
-      closeDropdown();
-    }
-  });
+        closeDropdown();
+        }
+    });
+
 });
 
 // -----------------------
@@ -114,9 +140,7 @@ const toggleDropdown = (transactionId) => {
     openDropdownId.value = openDropdownId.value === transactionId ? null : transactionId;
 };
 
-
 const filterDropdown = ref(false);
-
 
 // -----------------------
 const isActionsDropdownOpen = ref(false);
@@ -181,27 +205,6 @@ const goToPage = (page) => {
 watch(searchQuery, () => {
   currentPage.value = 1;
 });
-
-// Delete A Report
-const errors = ref('');
-
-const formSubmit = (report_Id) => {
-    errors.value = ''; // 🔹 Reset errors before making a request
-    axiosClient.delete(`/api/911/report-delete/${report_Id}`, {
-        headers: {
-            'x-api-key': '$m@rtC!ty'
-        }
-    })
-    .then(() => {
-        // Remove the deleted barangay from the list without refreshing the page
-        reports.value = reports.value.filter(b => b.id !== report_Id);
-        console.log('Report deleted successfully');
-    })
-    .catch(error => {
-        console.error('Error deleting report:', error.response?.data);
-        errors.value = error.response?.data?.errors || 'Failed to delete report.';
-    });
-};
 </script>
 
 <template>
@@ -350,10 +353,10 @@ const formSubmit = (report_Id) => {
                                 <th scope="row" class="px-4 py-3 font-medium whitespace-nowrap">
                                     {{ report.id }}
                                 </th>
-                                <td class="px-4 py-3">{{ report.source.sources }}</td>
-                                <td class="px-4 py-3">{{ report.assistance.assistance }}</td>
-                                <td class="px-4 py-3">{{ report.incident.type }}</td>
-                                <td class="px-4 py-3">{{ report.actions.actions }}</td>
+                                <td class="px-4 py-3">{{ report.source_name }}</td>
+                                <td class="px-4 py-3">{{ report.assistance_type }}</td>
+                                <td class="px-4 py-3">{{ report.incident_type }}</td>
+                                <td class="px-4 py-3">{{ report.action_taken }}</td>
                                 <td class="px-4 py-3 flex items-center justify-end relative">
                                     <!-- Dropdown Button -->
                                     <button @click.stop="toggleDropdown(report.id)"

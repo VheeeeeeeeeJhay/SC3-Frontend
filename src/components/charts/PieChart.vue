@@ -4,6 +4,9 @@ import axiosClient from "../../axios.js";
 import ApexCharts from 'apexcharts';
 import { useThemeStore } from '../../stores/themeStore';
 
+//Import API key
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 const themeStore = useThemeStore();
 const themeClasses = computed(() => {
   return themeStore.isDarkMode ? "bg-slate-800 border-black text-white" : "bg-sky-50 border-gray-200 text-sky-900"
@@ -30,7 +33,7 @@ const report = ref([]);
 onMounted(() => {
   axiosClient.get('/api/911/dashboard', {
     headers: {
-      'x-api-key': '$m@rtC!ty'
+      'x-api-key': API_KEY
     }
   })
     .then((res) => {

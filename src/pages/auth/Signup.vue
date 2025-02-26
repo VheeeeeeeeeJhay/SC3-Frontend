@@ -6,6 +6,9 @@ import axiosClient from "../../axios.js";
 import router from "../../router.js";
 import logo from "../../assets/baguio-logo.png";
 
+//Import API key
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 const data = ref({
   firstName: '',
   middleName: '',
@@ -28,7 +31,7 @@ function submit() {
   axiosClient.get('/sanctum/csrf-cookie').then(response => {
     axiosClient.post("/register", data.value, {
       headers: {
-        'x-api-key':'$m@rtC!ty'
+        'x-api-key': API_KEY
       }
       })
       .then(response => {

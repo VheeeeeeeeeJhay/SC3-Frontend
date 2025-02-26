@@ -3,6 +3,9 @@ import { ref, onMounted } from 'vue';
 import Table from '../../components/Table.vue';
 import axiosClient from '../../axios.js';
 
+//Import API key
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 const reports = ref([]);
 const classifications = ref([]);
 const isLoading = ref(false);
@@ -13,7 +16,7 @@ onMounted(() => {
     isLoading.value = true;
     axiosClient.get('/api/911/incident-display', {
         headers: {
-            'x-api-key': '$m@rtC!ty'
+            'x-api-key': API_KEY
         }
     })
     .then((res) => {
