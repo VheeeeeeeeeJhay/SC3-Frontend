@@ -48,27 +48,6 @@ const filteredReports = computed(() => {
     return matchesSearch && matchesClassification;
   });
 });
-const searchQuery = ref("");
-const isLoading = ref(false);
-
-const selectedClassifications = ref([]);
-
-// Computed property for dynamic search and filtering
-const filteredReports = computed(() => {
-  return reports.value.filter(report => {
-    const matchesSearch = searchQuery.value
-      ? report.source.sources.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        report.assistance.assistance.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        report.incident.type.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        report.actions.actions.toLowerCase().includes(searchQuery.value.toLowerCase())
-      : true;
-
-    const matchesClassification = selectedClassifications.value.length === 0 || 
-      selectedClassifications.value.includes(report.assistance_id);
-
-    return matchesSearch && matchesClassification;
-  });
-});
 
 onMounted(() => {
     isLoading.value = true;
@@ -218,9 +197,6 @@ const formSubmit = (report_Id) => {
                                     <span class="material-icons">
                                         search
                                     </span>
-                                    <span class="material-icons">
-                                        search
-                                    </span>
                                 </div>
                                 <input 
                                 v-model="searchQuery"
@@ -230,7 +206,6 @@ const formSubmit = (report_Id) => {
                                 :class="hoverClasses"
                                 placeholder="Search..."
                                 />
-
                             </div>
                         </form>
                     </div>
@@ -407,10 +382,13 @@ const formSubmit = (report_Id) => {
                             </button>
                         </li>
                         <li v-for="page in totalPages" :key="page">
-                            <button @click="goToPage(page)"
-                                :class="[currentPage === page ? 'bg-green-700 text-white border border-green-700' : hoverClasses, 'px-3 py-1 border']">
+                            <button 
+                                @click="goToPage(page)" 
+                                :class="['px-3 py-1 border', currentPage === page ? 'bg-teal-500 text-white border-black' : hoverClasses]">
                                 {{ page }}
                             </button>
+
+
                         </li>
                         <li>
                             <button @click="nextPage" :disabled="currentPage === totalPages"
