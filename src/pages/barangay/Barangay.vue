@@ -11,9 +11,10 @@ import { useThemeStore } from '../../stores/themeStore';
 const themeStore = useThemeStore();
 const themeClasses = computed(() => {
   return themeStore.isDarkMode 
-    ? "bg-slate-800 border border-black text-white  "
-    : "bg-sky-50 border border-gray-200 text-sky-900 ";
+    ? "bg-slate-800 border border-gray-600 text-gray-200"
+    : "bg-sky-50 border border-gray-200 text-gray-800 shadow-sm";
 });
+
 // Hover styles (separate for reusability)
 const hoverClasses = computed(() => {
   return themeStore.isDarkMode 
@@ -293,31 +294,42 @@ const paginatedBarangays = computed(() => {
                               <span class="sr-only">Loading...</span>
                           </div>
                       </div>
-                      <table v-else class="w-full text-sm text-left">
-                          <thead class="text-xs uppercase" :class="themeStore.isDarkMode ? 'bg-slate-700' : 'bg-teal-300'">
-                              <tr>
-                                  <th scope="col" class="px-4 py-3">Barangay ID</th>
-                                  <th scope="col" class="px-4 py-3">Barangay Name</th>
-                                  <th scope="col" class="px-4 py-3">Barangay Longitude</th>
-                                  <th scope="col" class="px-4 py-3">Barangay Latitude</th>
-                                  <th scope="col" class="px-4 py-3">Actions</th>
-                              </tr>
-                          </thead>
-                          <tbody>
-                              <tr v-for="barangay in paginatedBarangays" :key="barangay.id">
-                                  <td class="px-4 py-3">{{ barangay.id }}</td>
-                                  <td class="px-4 py-3">{{ barangay.name }}</td>
-                                  <td class="px-4 py-3">{{ barangay.longitude }}</td>
-                                  <td class="px-4 py-3">{{ barangay.latitude }}</td>
-                                  <td class="px-4 py-3">
-                                    <div class="p-2 space-x-2">
-                                      <PrimaryButton @click.stop="openEditModal(barangay)" name="Edit" class="bg-blue-500 hover:bg-blue-600 hover:shadow-md text-white" />
-                                      <PrimaryButton @click.prevent="formSubmit(barangay.id)" name="Delete" class="bg-red-500 hover:bg-red-600 hover:shadow-md text-white" />
-                                    </div>
-                                  </td>
-                              </tr>
-                          </tbody>
+                      <table v-else class="w-full text-sm text-left border border-gray-600 divide-y divide-gray-600"
+                        :class="themeStore.isDarkMode ? 'text-gray-300' : 'text-gray-800'">
+                        
+                        <thead class="text-xs uppercase"
+                          :class="themeStore.isDarkMode ? 'bg-slate-900 text-gray-300' : 'bg-teal-300 text-gray-800'">
+                          <tr>
+                            <th scope="col" class="px-4 py-3">Barangay ID</th>
+                            <th scope="col" class="px-4 py-3">Barangay Name</th>
+                            <th scope="col" class="px-4 py-3">Barangay Longitude</th>
+                            <th scope="col" class="px-4 py-3">Barangay Latitude</th>
+                            <th scope="col" class="px-4 py-3">Actions</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          <tr v-for="barangay in paginatedBarangays" :key="barangay.id"
+                            :class="themeStore.isDarkMode ? 'bg-slate-800 hover:bg-slate-700' : 'bg-sky-50 hover:bg-gray-100'">
+                            
+                            <td class="px-4 py-3 border border-gray-600">{{ barangay.id }}</td>
+                            <td class="px-4 py-3 border border-gray-600">{{ barangay.name }}</td>
+                            <td class="px-4 py-3 border border-gray-600">{{ barangay.longitude }}</td>
+                            <td class="px-4 py-3 border border-gray-600">{{ barangay.latitude }}</td>
+                            
+                            <td class="px-4 py-3 border border-gray-600">
+                              <div class="p-2 space-x-2">
+                                <PrimaryButton @click.stop="openEditModal(barangay)" name="Edit"
+                                  class="bg-blue-500 hover:bg-blue-600 text-gray-100 shadow-md" />
+                                <PrimaryButton @click.prevent="formSubmit(barangay.id)" name="Delete"
+                                  class="bg-red-500 hover:bg-red-600 text-gray-100 shadow-md" />
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+
                       </table>
+
                   </div>
                   <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">
                       <span class="text-sm font-normal">
@@ -389,7 +401,6 @@ const paginatedBarangays = computed(() => {
               </Modal>
             </div>
           </section>
-
 
       </div>
       <div v-else>
