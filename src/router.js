@@ -33,7 +33,7 @@ const routes = [
 
       {path: '/barangay', name: 'Barangay', component: Barangay},
       // {path: '/barangay-edit/:id', name: 'EditBarangay', component: EditBarangay},
-      {path: '/barangay-update/:id', name: 'UpdateBarangay', component: Barangay},
+      {path: '/barangay/:id', name: 'EditBarangay', component: EditBarangay},
       {path: '/barangay-delete/:id', name: 'DeleteBarangay', component: Barangay},
 
       {path: '/incident', name: 'Incident', component: Incident},

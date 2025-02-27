@@ -31,17 +31,14 @@ const errors = ref({
 });
 
 
-const fetchData = () => {
-  axiosClient.get('/api/911/barangay', {
+const fetchData = async () => {
+  await axiosClient.get('/api/911/barangay', {
       headers: {
           'x-api-key': API_KEY
       }
   })
   .then((res) => {
-      // console.log(res);
       console.log(res);
-      // barangays.value = res.data;
-      // isLoading.value = false;
       setTimeout(() => {
           barangays.value = res.data;
           isLoading.value = false; // Stop loading after delay
@@ -53,8 +50,6 @@ const fetchData = () => {
       errorMessage.value = 'Failed to load barangays. Please try again later.';
   });
 }
-
-
 
 function formSubmit() {
   console.log(data.value)

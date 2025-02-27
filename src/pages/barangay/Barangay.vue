@@ -6,6 +6,7 @@ import AddBarangay from './AddBarangay.vue';
 import EditBarangay from './EditBarangay.vue';
 import axiosClient from '../../axios.js';
 import Modal from '../../components/Modal.vue';
+import AddModal from '../../components/modals/AddModal.vue';
 import { useRouter } from 'vue-router';
 import { useThemeStore } from '../../stores/themeStore';
 
@@ -259,14 +260,14 @@ const paginatedBarangays = computed(() => {
                                   </span>
                                   Add Barangay
                               </button>
-                              <Modal v-if="isModalOpen"  v-model="isModalOpen" @click.stop >
+                              <AddModal v-if="isModalOpen"  v-model="isModalOpen" @click.stop >
                                 <template #contents>
                                   <div class="p-6">
                                     <AddBarangay />
                                   </div>
                                   <!-- <FormInput /> -->
                                 </template>
-                              </Modal>
+                              </AddModal>
                           
                           <div class="flex items-center space-x-3 w-full md:w-auto relative">
                               <!-- Filter Dropdown Button -->

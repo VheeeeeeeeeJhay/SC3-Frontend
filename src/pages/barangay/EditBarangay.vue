@@ -19,55 +19,109 @@ const themeClasses = computed(() => {
 });
 
 
-// ✅ Define props correctly
+// // ✅ Define props correctly
+// const props = defineProps({
+//   barangay_data: Object
+// });
 const props = defineProps({
-  barangay_data: Object
+  barangay_data: {
+    type: Object,
+    required: true
+  }
+});
+
+// const barangay = reactive({ ...props.barangay_data }); // Creates a reactive copy
+// console.log(barangay.id); // You can access barangay.id
+
+
+
+const barangay_Id = ref(props.barangay_data.id);
+// const names = ref(props.barangay_data?.name);
+// const longitudes = ref(props.barangay_data?.longitude);
+// const latitudes = ref(props.barangay_data?.latitude);
+
+// const names = ref(props.barangay_data?.name);
+// const longitudes = ref(props.barangay_data?.longitude);
+// const latitudes = ref(props.barangay_data?.latitude);
+
+const names = ref(props.barangay_data.name);
+const longitudes = ref(props.barangay_data.longitude);
+const latitudes = ref(props.barangay_data.latitude);
+
+// watch(() => props.barangay_data.name, (newName) => {
+//     names.value = newName;
+// });
+
+// watch(() => props.barangay_data.longitude, (newLongitude) => {
+//     longitudes.value = newLongitude;
+// });
+
+// watch(() => props.barangay_data.latitude, (newLatitude) => {
+//     latitudes.value = newLatitude;
+// });
+watch(() => names.value, (newName) => {
+    names.value = newName;
+});
+
+watch(() => longitudes.value, (newLongitude) => {
+    longitudes.value = newLongitude;
+});
+
+watch(() => latitudes.value, (newLatitude) => {
+    latitudes.value = newLatitude;
 });
 
 
-// const barangay = reactive({ ...props.barangay_data });
-barangay.name = ref(props.barangay_data.name || '');
-barangay.longitude = ref(props.barangay_data.longitude || '');
-barangay.latitude = ref(props.barangay_data.latitude || '');
-
-
-// onMounted(() => {
-//     // isLoading.value = true;
-//     barangay.name = props.barangay_data.name || '';
-//     barangay.longitude = props.barangay_data.longitude || '';
-//     barangay.latitude = props.barangay_data.latitude || '';
-//     // fetchData();
-// });
 
 const errors = ref('');
 
-function formSubmit(barangay_Id) {
-    // console.log(name);
-    // console.log(longitude);
-    // console.log(latitude);
-    // console.log(props.barangay_data.name);
-    // console.log(props.barangay_data.longitude);
-    // console.log(props.barangay_data.latitude);
-    console.log(barangay.name);
+// function formSubmit() {
+//     // console.log(props.barangay_data.id);
+//     console.log(barangay_Id.value);
+//     console.log(names.value);
+//     console.log(longitudes.value);
+//     console.log(latitudes.value);
+//     const formData = new FormData();
+//     formData.append('name', names.value);
+//     formData.append('longitude', longitudes.value);
+//     formData.append('latitude', latitudes.value);
+//     errors.value = '';
+//     console.log(formData);
+//     axiosClient.put(`/api/911/barangay/${barangay_Id.value}`, formData, {
+//         headers: {
+//             'x-api-key': API_KEY
+//         }
+//     })
+//     .then(response => {
+//         // fetchData();
+//         router.push({ name: 'Barangay' });
+//         console.log('Barangay updated successfully');
+//     })
+//     // .catch(error => {
+//     //     // console.log(error.response.data.b);
+//     //     errors.value = error.response.data.errors;
+//     // });
+// }
+function formSubmit(ID) {
     const formData = new FormData();
-    formData.append('name', barangay.name);
-    formData.append('longitude', barangay.longitude);
-    formData.append('latitude', barangay.latitude);
+    formData.append('name', names.value);
+    formData.append('longitude', longitudes.value);
+    formData.append('latitude', latitudes.value);
     errors.value = '';
-    axiosClient.put(`/api/911/barangay-update/${barangay_Id}`, formData, {
+    
+    axiosClient.put(`/api/911/barangay/${ID}`, formData, {
         headers: {
             'x-api-key': API_KEY
         }
     })
     .then(response => {
-        // fetchData();
         router.push({ name: 'Barangay' });
         console.log('Barangay updated successfully');
     })
-    // .catch(error => {
-    //     // console.log(error.response.data.b);
-    //     errors.value = error.response.data.errors;
-    // });
+    .catch(error => {
+        // console.error('Update error:', error);
+        errors.value = error.response?.data?.errors || {'error': ['An error occurred during update']};
+    });
 }
 </script>
 
@@ -80,21 +134,23 @@ function formSubmit(barangay_Id) {
     <!-- </div>
     <div v-else> -->
         <div>
-            <form @submit.prevent="formSubmit(props.barangay_data.id)" class="space-y-4" :themeClasses>
+            <div>{{ names }}</div><div>{{ longitudes }}</div><div>{{ latitudes }}</div>
+            <form @submit.prevent="formSubmit(barangay_Id)" class="space-y-4" :themeClasses>
                 <div>{{ props.barangay_data }}</div>
+
                 <div class="space-y-1">
                     <label for="name" class="block text-sm font-medium">Barangay Name</label>
-                    <FormInput name="name" class="px-4 py-2 border rounded-md w-full" v-model="props.barangay_data.name"/>
+                    <FormInput name="name" class="px-4 py-2 border rounded-md w-full" v-model="names"/>
                 </div>
 
                 <div class="space-y-1">
                     <label for="longitude" class="block text-sm font-medium">Longitude</label>
-                    <FormInput name="longitude" class="px-4 py-2 border rounded-md w-full" v-model="props.barangay_data.longitude" type="number"/>
+                    <FormInput name="longitude" class="px-4 py-2 border rounded-md w-full" v-model="longitudes" type="number"/>
                 </div>
 
                 <div class="space-y-1">
                     <label for="latitude" class="block text-sm font-medium">Latitude</label>
-                    <FormInput name="latitude" class="px-4 py-2 border rounded-md w-full" v-model="props.barangay_data.latitude" type="number"/>         
+                    <FormInput name="latitude" class="px-4 py-2 border rounded-md w-full" v-model="latitudes" type="number"/>         
                 </div> 
 
                 <PrimaryButton type="submit" name="Update Barangay" class="text-white bg-green-600 hover:bg-green-700 w-full" />
@@ -103,20 +159,6 @@ function formSubmit(barangay_Id) {
             <div v-if="errors" class="text-red-500 mt-2">
                 <p v-for="(error, index) in errors" :key="index">{{ error }}</p>
             </div>
-
-            <!-- <div>{{ barangay }}</div>
-            <form @submit.prevent="submitForm(barangay.id)">
-                <label>Barangay Name</label>
-                <input v-model="barangay.name" type="text" />
-
-                <label>Longitude</label>
-                <input v-model="barangay.longitude" type="number" />
-
-                <label>Latitude</label>
-                <input v-model="barangay.latitude" type="number" />
-
-                <button type="submit">Update</button>
-            </form> -->
         </div>
     <!-- </div> -->
 </template>
