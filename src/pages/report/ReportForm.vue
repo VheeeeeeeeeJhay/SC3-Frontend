@@ -161,8 +161,17 @@ onMounted(() => {
   map.setMaxBounds(bounds);
   map.setMinZoom(12);
 
-  let singleMarker = null;
+// Add Default Marker at Baguio
+  let singleMarker = leaflet
+    .marker([latitude.value, longitude.value])
+    .addTo(map)
+    .bindPopup(
+      `Default Location: <strong>Baguio City</strong> (${latitude.value}, ${longitude.value})`
+    )
+    .openPopup();
 
+
+//User Click on Map
   map.addEventListener("click", (e) => {
     const { lat: newLat, lng: newLng } = e.latlng;
 
@@ -194,9 +203,29 @@ onMounted(() => {
 });
 
 watchEffect(() => {
-  if (coords.value.latitude && coords.value.longitude) {
-    data.value.Latitude = coords.value.latitude.toFixed(6);
-    data.value.Longitude = coords.value.longitude.toFixed(6);
+  if (
+    coords.value.latitude &&
+    coords.value.longitude &&
+    isFinite(coords.value.latitude) &&
+    isFinite(coords.value.longitude)
+  ) {
+    // Only update latitude and longitude if they haven't been set yet
+    if (latitude.value === 0 && longitude.value === 0) {
+      latitude.value = coords.value.latitude;
+      longitude.value = coords.value.longitude;
+    }
+  } else {
+    // If location is denied or invalid, but user hasn't selected a marker, default to Baguio
+    if (latitude.value === 0 && longitude.value === 0) {
+      latitude.value = 16.404;
+      longitude.value = 120.599;
+    }
+  }
+
+  // Update form inputs ONLY if the user hasn't manually selected a location
+  if (!userMarker.value.latitude || !userMarker.value.longitude) {
+    data.value.Latitude = latitude.value.toFixed(6);
+    data.value.Longitude = longitude.value.toFixed(6);
   }
 });
 
