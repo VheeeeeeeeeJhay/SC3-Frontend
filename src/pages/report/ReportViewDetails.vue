@@ -1,11 +1,24 @@
 <script setup>
 import axiosClient from '../../axios';
-import { onMounted, ref, watchEffect } from 'vue';
+import { onMounted, ref, watchEffect, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import PrimaryButton from '../../components/PrimaryButton.vue';
-import { useGeolocation } from '@vueuse/core';
-import { userMarker } from '../../stores/mapStore.js';
 import leaflet from 'leaflet';
+
+import { useThemeStore } from '../../stores/themeStore';
+// For dark mode
+const themeStore = useThemeStore();
+const themeClasses = computed(() => {
+  return themeStore.isDarkMode 
+    ? "bg-slate-800 border border-black text-white  "
+    : "bg-sky-50 border border-gray-200 text-gray-800 shadow-sm ";
+});
+// Hover styles (separate for reusability)
+const hoverClasses = computed(() => {
+  return themeStore.isDarkMode 
+  ? "border border-black hover:bg-slate-700 hover:border-gray-600 focus:ring-2 focus:ring-slate-500 focus:outline-none" 
+  : "border border-gray-700 hover:bg-sky-100 hover:border-gray-500 focus:ring-2 focus:ring-sky-400 focus:outline-none";
+});
 
 const route = useRoute();
 const router = useRouter();
@@ -38,7 +51,6 @@ onMounted(() => {
     .then((res) => {
         console.log(res);
         data.value = res.data;
-
         // Initialize the map AFTER data is received
         initMap();
     })
@@ -85,31 +97,57 @@ watchEffect(() => {
 });
 </script>
 
-<template> 
-<PrimaryButton name="Back to DataTable" @click.prevent="router.back()" class="bg-green-500 hover:bg-green-600 hover:shadow-md" />
-  <div>
-     <div><strong>Name:</strong> {{ data.name }}</div>
-     <div><strong>Source:</strong> {{ data.source?.sources }}</div>
-     <div><strong>Incident Type:</strong> {{ data.assistance?.assistance }}</div>
-     <div><strong>Incident:</strong> {{ data.incident?.type }}</div>
-     <div><strong>Action:</strong> {{ data.actions?.actions }}</div>
-     <div><strong>Received Date:</strong> {{ data.date_received }}</div>
-     <div><strong>Arrival Time:</strong> {{ data.arrival_on_site }}</div>
-     <div><strong>Incident Time:</strong> {{ data.time }}</div>
-     <div><strong>Barangay:</strong> {{ data.barangay?.name }}</div>
-     <div><strong>Details:</strong> {{ data.landmark }}</div>
-     <div><strong>Longitude:</strong> {{ data.longitude }}</div>
-     <div><strong>Latitude:</strong> {{ data.latitude }}</div>
-      <div class="form-group md:col-span-2">
-        <div id="map" class="mb-4"></div>
+<template>
+  <div class="min-h-screen">
+    <!-- Go Back Button -->
+    <div class="mt-6 px-2 flex justify-end">
+      <Button type="button" name="Back" @click.prevent="router.back()"
+        class="px-3 py-1 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200 flex items-center">
+        <span class="material-icons mr-2"> arrow_back </span>
+        Back
+      </Button>
+    </div>
+  
+    <!-- Content Wrapper -->
+    <div class="container mx-auto mt-6 p-4  shadow-md rounded-lg" :class="themeClasses">
+      <div class="flex flex-col md:flex-row">
+        <!-- Left Side: Text Information -->
+        <div class="w-full md:w-1/2 p-6 rounded-lg">
+        <h2 class="text-lg font-semibold mb-4">Incident Details</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
+                <div><span class="font-semibold">Name:</span> {{ data.name }}</div>
+                <div><span class="font-semibold">Source:</span> {{ data.source?.sources }}</div>
+                <div><span class="font-semibold">Incident Type:</span> {{ data.assistance?.assistance }}</div>
+                <div><span class="font-semibold">Incident:</span> {{ data.incident?.type }}</div>
+                <div><span class="font-semibold">Action:</span> {{ data.actions?.actions }}</div>
+                <div><span class="font-semibold">Received Date:</span> {{ data.date_received }}</div>
+                <div><span class="font-semibold">Arrival Time:</span> {{ data.arrival_on_site }}</div>
+                <div><span class="font-semibold">Incident Time:</span> {{ data.time }}</div>
+                <div><span class="font-semibold">Barangay:</span> {{ data.barangay?.name }}</div>
+                <div><span class="font-semibold">Details:</span> {{ data.landmark }}</div>
+                <div><span class="font-semibold">Longitude:</span> {{ data.longitude }}</div>
+                <div><span class="font-semibold">Latitude:</span> {{ data.latitude }}</div>
+            </div>
         </div>
-  </div>
-</template>
 
-<style scoped>
-#map {
-  height: 50vh;
-  width: 100%;
-  border: 1px solid #ccc;
-}
-</style>
+  
+        <!-- Right Side: Map -->
+        <div class="w-full md:w-1/2 flex justify-center items-center mt-6 md:mt-0">
+          <div id="map" class="rounded-lg shadow-md"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  </template>
+  
+  <style scoped>
+  #map {
+    height: 50vh;
+    width: 100%;
+    max-width: 500px;
+    border: 1px solid #ccc;
+  }
+  </style>
+  
+

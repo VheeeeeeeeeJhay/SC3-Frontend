@@ -8,26 +8,46 @@ import { useThemeStore } from '../../stores/themeStore';
 const themeStore = useThemeStore();
 const themeClasses = computed(() => {
   return themeStore.isDarkMode 
-    ? "bg-slate-800 border border-black text-white hover:border-gray-600 focus:ring-2 focus:ring-slate-500 focus:outline-none"
-    : "bg-sky-50 border border-gray-200 text-sky-900 hover:border-gray-300 focus:ring-2 focus:ring-sky-400 focus:outline-none";
+    ? "bg-slate-800 border border-black text-white  "
+    : "bg-sky-50 border border-gray-200 text-gray-800 shadow-sm ";
 });
-
-// Dropdown base styles
-const dropClasses = computed(() => {
-  return themeStore.isDarkMode 
-    ? "bg-slate-600 border border-black text-white focus:ring-2 focus:ring-slate-400 focus:outline-none"
-    : "bg-white border border-gray-200 text-sky-900 focus:ring-2 focus:ring-sky-300 focus:outline-none";
-});
-
 // Hover styles (separate for reusability)
 const hoverClasses = computed(() => {
   return themeStore.isDarkMode 
-    ? "hover:bg-slate-700 hover:border-black"
-    : "hover:bg-sky-100 hover:border-black";
+  ? "border border-black hover:bg-slate-700 hover:border-gray-600 focus:ring-2 focus:ring-slate-500 focus:outline-none" 
+  : "border border-gray-700 hover:bg-sky-100 hover:border-gray-500 focus:ring-2 focus:ring-sky-400 focus:outline-none";
 });
+
+// Dropdown base styles
+const dropMenuClasses = computed(() => {
+  return themeStore.isDarkMode 
+    ? "hover:bg-slate-600" : "hover:bg-sky-100"
+});
+
 
 const reports = ref([]);
 const classifications = ref([]);
+const searchQuery = ref("");
+const isLoading = ref(false);
+
+const selectedClassifications = ref([]);
+
+// Computed property for dynamic search and filtering
+const filteredReports = computed(() => {
+  return reports.value.filter(report => {
+    const matchesSearch = searchQuery.value
+      ? report.source.sources.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        report.assistance.assistance.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        report.incident.type.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        report.actions.actions.toLowerCase().includes(searchQuery.value.toLowerCase())
+      : true;
+
+    const matchesClassification = selectedClassifications.value.length === 0 || 
+      selectedClassifications.value.includes(report.assistance_id);
+
+    return matchesSearch && matchesClassification;
+  });
+});
 const searchQuery = ref("");
 const isLoading = ref(false);
 
@@ -69,6 +89,7 @@ onMounted(() => {
         errorMessage.value = 'Failed to load barangays. Please try again later.';
         isLoading.value = false;
     });
+
 
 // ------------------------------------------
     document.addEventListener("click", (event) => {
@@ -183,10 +204,10 @@ const formSubmit = (report_Id) => {
 </script>
 
 <template>
-    <section class="w-full">
+    <section class="w-full min-h-screen">
         <div class="mt-6 px-4 w-full" >
             <!-- Start coding here -->
-            <div class="relative shadow-md sm:rounded-lg overflow-hidden" :class="themeClasses">
+            <div class="relative shadow-md sm:rounded-lg" :class="themeClasses">
                 <div
                     class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
                     <div class="w-full md:w-1/2">
@@ -197,12 +218,16 @@ const formSubmit = (report_Id) => {
                                     <span class="material-icons">
                                         search
                                     </span>
+                                    <span class="material-icons">
+                                        search
+                                    </span>
                                 </div>
                                 <input 
                                 v-model="searchQuery"
                                 type="text" 
                                 id="simple-search"
                                 class="border text-sm rounded-lg block w-full pl-10 p-2"
+                                :class="hoverClasses"
                                 placeholder="Search..."
                                 />
 
@@ -211,7 +236,7 @@ const formSubmit = (report_Id) => {
                     </div>
                     <div
                         class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0" >
-                        <RouterLink :to="{ name: 'ReportForm'}" class="border rounded">
+                        <RouterLink :to="{ name: 'ReportForm'}">
                             <button type="button"
                                 class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-1" :class="hoverClasses">
                                 <span class="material-icons">
@@ -283,7 +308,8 @@ const formSubmit = (report_Id) => {
                             <div
                             id="filterDropdown"
                             v-show="isFilterDropdownOpen"
-                            class="absolute top-full left-0 z-10 w-48 p-3 bg-white rounded-lg shadow"
+                            class="absolute top-full left-0 z-10 w-48 p-3 rounded-lg shadow"
+                            :class="themeStore.isDarkMode ? 'bg-slate-700' : 'bg-white'"
                             >
                             <h6 class="mb-3 text-sm font-medium">Choose Classification</h6>
                                 <ul class="space-y-2 text-sm">
@@ -310,29 +336,25 @@ const formSubmit = (report_Id) => {
                             <span class="sr-only">Loading...</span>
                         </div>
                     </div>
-                    <table v-else class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <table v-else class="w-full text-sm text-left">
+                        <thead class="text-xs uppercase" :class="themeStore.isDarkMode ? 'bg-slate-700' : 'bg-teal-300'">
                             <tr>
                                 <th scope="col" class="px-4 py-3">ID</th>
                                 <th scope="col" class="px-4 py-3">Source</th>
                                 <th scope="col" class="px-4 py-3">Case Classification</th>
                                 <th scope="col" class="px-4 py-3">Incident/Case</th>
                                 <th scope="col" class="px-4 py-3">Assistance</th>
-                                <th scope="col" class="px-4 py-3">
-                                    <span class="sr-only">Actions</span>
-                                </th>
+                                <th scope="col" class="px-4 py-3">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="border-b dark:border-gray-700" v-for="report in paginatedReports" :key="report.id">
-                                <th scope="row" class="px-4 py-3 font-medium whitespace-nowrap">
-                                    {{ report.id }}
-                                </th>
+                            <tr v-for="report in paginatedReports" :key="report.id">
+                                <td class="px-4 py-3">{{ report.id }}</td>
                                 <td class="px-4 py-3">{{ report.source.sources }}</td>
                                 <td class="px-4 py-3">{{ report.assistance.assistance }}</td>
                                 <td class="px-4 py-3">{{ report.incident.type }}</td>
                                 <td class="px-4 py-3">{{ report.actions.actions }}</td>
-                                <td class="px-4 py-3 flex items-center justify-end relative">
+                                <td class="px-4 py-3 flex items-center relative">
                                     <!-- Dropdown Button -->
                                     <button @click.stop="toggleDropdown(report.id)"
                                         class="inline-flex items-center p-0.5 text-sm font-medium rounded-lg"
@@ -345,18 +367,18 @@ const formSubmit = (report_Id) => {
                                     </button>
 
                                     <!-- Dropdown Menu -->
-                                    <div v-if="openDropdownId === report.id" ref="dropdownRefs" :class="dropClasses"
-                                        class="absolute z-[10] divide-gray-100 rounded-lg shadow-sm w-44 right-10 = mt-2">
+                                    <div v-if="openDropdownId === report.id" ref="dropdownRefs" :class="themeStore.isDarkMode ? 'bg-slate-700' : 'bg-white'"
+                                        class="absolute z-[10] w-44 mt-2 top-full left-0 shadow-sm border rounded-md">
                                         <ul class="py-2 text-sm">
                                             <li>
                                                 <RouterLink :to="{ name: 'ReportViewDetails', params: { id: report.id } }"
-                                                    class="block px-4 py-2" :class="hoverClasses">View Details</RouterLink>
+                                                    class="block px-4 py-2" :class="dropMenuClasses">View Details</RouterLink>
                                             </li>
                                             <li>
                                                 <RouterLink :to="{ name: 'EditReport', params: { id: report.id } }"
-                                                    class="block px-4 py-2 " :class="hoverClasses">Edit Report</RouterLink>
+                                                    class="block px-4 py-2 " :class="dropMenuClasses">Edit Report</RouterLink>
                                             </li>
-                                            <li class="block px-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                                            <li class="block px-2" :class="dropMenuClasses">
                                                 <PrimaryButton @click="formSubmit(report.id)" name="Delete Report" />
                                             </li>
                                         </ul>
@@ -366,7 +388,7 @@ const formSubmit = (report_Id) => {
                         </tbody>
                     </table>
                 </div>
-                <nav class="flex justify-between items-center p-4" aria-label="Table navigation">
+                <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">
                     <span class="text-sm font-normal">
                         Showing
                         <span class="font-semibold">{{ filteredReports.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}</span>
@@ -375,7 +397,9 @@ const formSubmit = (report_Id) => {
                         of
                         <span class="font-semibold">{{ filteredReports.length }}</span>
                     </span>
-                    <ul class="inline-flex items-center">
+                    
+                    <ul class="inline-flex items-stretch -space-x-px">
+                        <!-- Previous Page -->
                         <li>
                             <button @click="prevPage" :disabled="currentPage === 1"
                                 class="px-3 py-1 rounded-l-lg border" :class="hoverClasses">

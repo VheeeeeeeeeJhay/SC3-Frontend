@@ -5,7 +5,7 @@ import { useThemeStore } from '../../stores/themeStore';
 
 const themeStore = useThemeStore();
 const themeClasses = computed(() => {
-  return themeStore.isDarkMode ? "bg-slate-800 border-black text-white" : "bg-sky-50 border-gray-200 text-sky-900"
+  return themeStore.isDarkMode ? "bg-slate-800 border-black text-white" : "bg-sky-50 border-gray-200 text-gray-800"
 })
 const selectedDateFilter = ref('');
 const dateFilters = ref([

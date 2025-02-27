@@ -77,11 +77,13 @@ watchEffect(() => {
 
 <template>
   
-<br>
-
+  <br>
+  <div class="min-h-screen">
     <div id="map"></div>
-
-    <div class="text-white text-lg"><p>hello</p> {{ latitude }} {{ longitude }}</div>
+    
+      <div class="text-white text-lg"><p>hello</p> {{ latitude }} {{ longitude }}</div>
+  </div>
+    
     
 </template>
 
