@@ -103,7 +103,9 @@ watchEffect(() => {
      <div><strong>Details:</strong> {{ data.landmark }}</div>
      <div><strong>Longitude:</strong> {{ data.longitude }}</div>
      <div><strong>Latitude:</strong> {{ data.latitude }}</div>
-     <div id="map" class="mb-4"></div>
+      <div class="form-group md:col-span-2">
+        <div id="map" class="mb-4"></div>
+        </div>
   </div>
 </template>
 
