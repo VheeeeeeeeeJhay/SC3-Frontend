@@ -222,7 +222,7 @@ const paginatedBarangays = computed(() => {
                                   </span>
                                   Add Barangay
                               </button>
-                              <Modal v-if="isModalOpen" v-model="isModalOpen" @click.stop >
+                              <Modal v-if="isModalOpen" v-model="isModalOpen" @click.stop :modal-title="'Add Barangay'">
                                 <template #contents>
                                   <div class="p-6">
                                     <AddBarangay />

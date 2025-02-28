@@ -70,25 +70,30 @@ const barangays = ref([]);
 
 const errorMessage = ref('');
 
-
-onMounted(() => {
+const fetchData = async () => {
   axiosClient.get('/api/911/report', {
     headers: {
       'x-api-key': import.meta.env.VITE_API_KEY
     }
   })
-    .then((res) => {
-      sources.value = res.data.sources;
-      actions.value = res.data.actions;
-      incidents.value = res.data.incidents;
-      assistance.value = res.data.assistance;
-      barangays.value = res.data.barangays;
-    })
-    .catch((error) => {
-      console.error('Error fetching data:', error);
-      errorMessage.value = 'Failed to load data. Please try again later.';
-    });
+  .then((res) => {
+    sources.value = res.data.sources;
+    actions.value = res.data.actions;
+    incidents.value = res.data.incidents;
+    assistance.value = res.data.assistance;
+    barangays.value = res.data.barangays;
+  })
+  .catch((error) => {
+    console.error('Error fetching data:', error);
+    errorMessage.value = 'Failed to load data. Please try again later.';
+  });
+}
+
+
+onMounted(() => {
+  fetchData();
 });
+
 
 const submitForm = () => {
   const formData = new FormData();
@@ -107,18 +112,19 @@ const submitForm = () => {
   console.log(formData)
   axiosClient.post('/api/911/report', formData, {
     headers: {
-      'x-api-key': '$m@rtC!ty'
+      'x-api-key': import.meta.env.VITE_API_KEY
     }
   })
     .then(response => {
+      alert(response.data.message);
       console.log('Form submitted successfully:', response.data);
       clearForm();
+      goBack();
     })
     .catch(error => {
       console.log('Error:', error.response.data);
     })
 };
-
 
 
 // Filter The Incident/Case Base On The Assistance Type

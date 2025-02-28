@@ -5,6 +5,7 @@ import { RouterLink } from 'vue-router';
 import PrimaryButton from '../../components/PrimaryButton.vue';
 import { useThemeStore } from '../../stores/themeStore';
 import Loader1 from '../../components/Loader1.vue';
+import Toast from '../../components/Toast.vue';
 
 // For dark mode
 const themeStore = useThemeStore();
@@ -26,6 +27,8 @@ const dropMenuClasses = computed(() => {
     ? "hover:bg-slate-600" : "hover:bg-sky-100"
 });
 
+
+const FlashMessage = ref('');
 
 const reports = ref([]);
 const classifications = ref([]);
@@ -368,4 +371,5 @@ const formSubmit = (report_Id) => {
             </div>
         </div>
     </section>
+    <Toast icon="'bar'" classes="bg-red-900" message="FlashMessage" />
 </template>
