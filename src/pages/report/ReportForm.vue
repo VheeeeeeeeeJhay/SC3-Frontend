@@ -18,7 +18,7 @@ const user = computed(() => userStore.user);
 // For dark mode
 const themeStore = useThemeStore();
 const themeClasses = computed(() => {
-  return themeStore.isDarkMode ? "bg-slate-800 border-black text-white" : "bg-sky-50 border-gray-200 text-gray-800"
+  return themeStore.isDarkMode ? "bg-slate-700 border-black text-white" : "bg-sky-100 border-gray-200 text-gray-800"
 })
 const dropClasses = computed(() => {
   return themeStore.isDarkMode ? "bg-slate-600 border-black text-white" : "bg-white border-gray-200 text-gray-800"
@@ -27,17 +27,17 @@ const dropClasses = computed(() => {
 // Clearing Form Data
 const clearForm = () => {
   data.value = {
-    source: '',
-    incidentType: '',
-    incident: '',
-    actionType: '',
-    receivedDate: '',
-    arrivalTime: '',
-    incidentTime: '',
-    barangay: '',
-    details: '',
-    Longitude: '',
-    Latitude: '',
+    source_id: '',
+    assistance_id: '',
+    incident_id: '',
+    actions_id: '',
+    date_received: '',
+    arrival_on_site: '',
+    time: '',
+    barangay_id: '',
+    landmark: '',
+    longitude: '',
+    latitude: '',
   }
 };
 
@@ -47,18 +47,18 @@ const fullName = computed(() => {
 })
 
 const data = ref({
-  firstName: fullName.value,
-  source: '',
-  incidentType: '',
-  incident: '',
-  actionType: '',
-  receivedDate: '',
-  arrivalTime: '',
-  incidentTime: '',
-  barangay: '',
-  details: '',
-  Longitude: '',
-  Latitude: '',
+  time: '',
+  date_received: '',
+  arrival_on_site: '',
+  name: fullName.value,
+  landmark: '',
+  longitude: '',
+  latitude: '',
+  source_id: '',
+  assistance_id: '',
+  incident_id: '',
+  actions_id: '',
+  barangay_id: '',
 });
 
 // Store Fetch Data From Backend In An Array
@@ -92,18 +92,18 @@ onMounted(() => {
 
 const submitForm = () => {
   const formData = new FormData();
-  formData.append('source_id', data.value.source)
-  formData.append('time', data.value.incidentTime)
-  formData.append('incident_id', data.value.incident)
-  formData.append('date_received', data.value.receivedDate)
-  formData.append('arrival_on_site', data.value.arrivalTime)
-  formData.append('name', data.value.firstName)
-  formData.append('landmark', data.value.details)
-  formData.append('barangay_id', data.value.barangay)
-  formData.append('actions_id', data.value.actionType)
-  formData.append('assistance_id', data.value.incidentType)
-  formData.append('longitude', data.value.Longitude)
-  formData.append('latitude', data.value.Latitude)
+  formData.append('source_id', data.value.source_id)
+  formData.append('time', data.value.time)
+  formData.append('incident_id', data.value.incident_id)
+  formData.append('date_received', data.value.date_received)
+  formData.append('arrival_on_site', data.value.arrival_on_site)
+  formData.append('name', data.value.name)
+  formData.append('landmark', data.value.landmark)
+  formData.append('barangay_id', data.value.barangay_id)
+  formData.append('actions_id', data.value.actions_id)
+  formData.append('assistance_id', data.value.assistance_id)
+  formData.append('longitude', data.value.longitude)
+  formData.append('latitude', data.value.latitude)
   console.log(formData)
   axiosClient.post('/api/911/report', formData, {
     headers: {
@@ -123,13 +123,13 @@ const submitForm = () => {
 
 // Filter The Incident/Case Base On The Assistance Type
 const filteredIncidents = computed(() => {
-  return data.value.incidentType
-    ? incidents.value.filter(incident => incident.assistance_id === data.value.incidentType)
+  return data.value.assistance_id
+    ? incidents.value.filter(incident_id => incident_id.assistance_id === data.value.assistance_id)
     : [];
 });
 
-watch(() => data.value.incidentType, () => {
-  data.value.incident = ''; // Reset the incident dropdown
+watch(() => data.value.assistance_id, () => {
+  data.value.incident_id = ''; // Reset the incident dropdown
 });
 
 
@@ -139,6 +139,7 @@ const { coords } = useGeolocation();
 const latitude = ref(0);
 const longitude = ref(0);
 let map = leaflet.Map;
+let marker;
 
 onMounted(() => {
   map = leaflet
@@ -171,35 +172,35 @@ onMounted(() => {
     .openPopup();
 
 
-//User Click on Map
-  map.addEventListener("click", (e) => {
-    const { lat: newLat, lng: newLng } = e.latlng;
+// //User Click on Map
+//   map.addEventListener("click", (e) => {
+//     const { lat: newLat, lng: newLng } = e.latlng;
 
-    if (bounds.contains([newLat, newLng])) {
-      if (singleMarker) {
-        map.removeLayer(singleMarker);
-      }
+//     if (bounds.contains([newLat, newLng])) {
+//       if (singleMarker) {
+//         map.removeLayer(singleMarker);
+//       }
 
-      // Add a new marker
-      singleMarker = leaflet
-        .marker([newLat, newLng])
-        .addTo(map)
-        .bindPopup(
-          `Selected Marker at (<strong>${newLat.toFixed(5)}, ${newLng.toFixed(5)}</strong>)`
-        )
-        .openPopup();
+//       // Add a new marker
+//       singleMarker = leaflet
+//         .marker([newLat, newLng])
+//         .addTo(map)
+//         .bindPopup(
+//           `Selected Marker at (<strong>${newLat.toFixed(5)}, ${newLng.toFixed(5)}</strong>)`
+//         )
+//         .openPopup();
 
-      // Update the stored user marker
-      userMarker.value.latitude = newLat;
-      userMarker.value.longitude = newLng;
-      // Update form inputs
-      data.value.Latitude = newLat.toFixed(6);
-      data.value.Longitude = newLng.toFixed(6);
+//       // Update the stored user marker
+//       userMarker.value.latitude = newLat;
+//       userMarker.value.longitude = newLng;
+//       // Update form inputs
+//       data.value.latitude = newLat.toFixed(6);
+//       data.value.longitude = newLng.toFixed(6);
 
-    } else {
-      alert("You cannot place markers outside Baguio City.");
-    }
-  });
+//     } else {
+//       alert("You cannot place markers outside Baguio City.");
+//     }
+//   });
 });
 
 watchEffect(() => {
@@ -224,23 +225,45 @@ watchEffect(() => {
 
   // Update form inputs ONLY if the user hasn't manually selected a location
   if (!userMarker.value.latitude || !userMarker.value.longitude) {
-    data.value.Latitude = latitude.value.toFixed(6);
-    data.value.Longitude = longitude.value.toFixed(6);
+    data.value.latitude = latitude.value.toFixed(6);
+    data.value.longitude = longitude.value.toFixed(6);
   }
 });
 
+watch(() => data.value.barangay_id, (newBarangayId) => {
+  const selectedBarangay = barangays.value.find(b => b.id === newBarangayId);
+  
+  if (selectedBarangay) {
+    data.value.longitude = selectedBarangay.longitude || '';
+    data.value.latitude = selectedBarangay.latitude || '';
+  } else {
+    data.value.longitude = '';
+    data.value.latitude = '';
+  }
+  
+  // Update marker on the map
+  if (marker) {
+      marker.setLatLng([selectedBarangay.latitude, selectedBarangay.longitude]);
+      marker.bindPopup(`${selectedBarangay.name} (${selectedBarangay.latitude}, ${selectedBarangay.longitude})`).openPopup();
+    } else {
+      // If marker doesn't exist yet, create a new one
+      marker = leaflet.marker([selectedBarangay.latitude, selectedBarangay.longitude])
+        .addTo(map)
+        .bindPopup(`Barangay: ${selectedBarangay.name} (${selectedBarangay.latitude}, ${selectedBarangay.longitude})`)
+        .openPopup();
+    }
 
-// Back Button
-function goBack() {
-  window.history.back();
-}
+    // Center the map on the new location
+    map.setView([selectedBarangay.latitude, selectedBarangay.longitude], 15);
+
+});
 </script>
 
 <template>
     <div style="min-height: 100vh;" >
         <!-- Go Back Button -->
           <div class="mt-6 px-2 flex justify-end">
-            <Button type="button" name="Back" @click="goBack"
+            <Button type="button" name="Back" @click.prevent="router.back()"
               class="px-3 py-1 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200 flex items-center">
               <span class="material-icons mr-2">
                 arrow_back
@@ -257,8 +280,8 @@ function goBack() {
                         <h2 class="text-2xl font-bold mb-6" :class="themeClasses">Source Information</h2>
                         <div class="grid grid-cols-2 gap-4 mb-8">
                             <div class="form-group">
-                                <label for="source" class="block text-sm font-medium mb-2" :class="themeClasses">Source of Report</label>
-                                <select id="source" v-model="data.source" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
+                                <label for="source_id" class="block text-sm font-medium mb-2" :class="themeClasses">Source of Report</label>
+                                <select id="source_id" v-model="data.source_id" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
                                     <option disabled value="">Select source</option>
                                     <option v-for="source in sources" :key="source.id" :value="source.id">
                                         {{ source.sources || "No Source Available"}}
@@ -266,26 +289,26 @@ function goBack() {
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="incidentType" class="block text-sm font-medium mb-2" :class="themeClasses">Case Classification</label>
-                                <select id="incidentType" v-model="data.incidentType" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
+                                <label for="assistance_id" class="block text-sm font-medium mb-2" :class="themeClasses">Case Classification</label>
+                                <select id="assistance_id" v-model="data.assistance_id" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
                                     <option disabled value="">Select classification</option>
                                     <option v-for="assistance in assistance" :key="assistance.id" :value="assistance.id">{{ assistance.assistance }}</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="incident" class="block text-sm font-medium mb-2" :class="themeClasses">Incident/Case</label>
-                                <select id="incident" v-model="data.incident" :class="dropClasses"
+                                <label for="incident_id" class="block text-sm font-medium mb-2" :class="themeClasses">Incident/Case</label>
+                                <select id="incident_id" v-model="data.incident_id" :class="dropClasses"
                                     class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200"
-                                    :disabled="!data.incidentType || filteredIncidents.length === 0">
+                                    :disabled="!data.assistance_id || filteredIncidents.length === 0">
                                     <option disabled value="">Select incident</option>
-                                    <option v-for="incident in filteredIncidents" :key="incident.id" :value="incident.id">
-                                    {{ incident.type }}
+                                    <option v-for="incident_id in filteredIncidents" :key="incident_id.id" :value="incident_id.id">
+                                    {{ incident_id.type }}
                                     </option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="actionType" class="block text-sm font-medium mb-2" :class="themeClasses">Type of Action</label>
-                                <select id="actionType" v-model="data.actionType" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
+                                <label for="actions_id" class="block text-sm font-medium mb-2" :class="themeClasses">Type of Action</label>
+                                <select id="actions_id" v-model="data.actions_id" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
                                     <option disabled value="">Select action</option>
                                     <option v-for="action in actions" :key="action.id" :value="action.id">{{ action.actions }}</option>
                                 </select>
@@ -295,16 +318,16 @@ function goBack() {
                         <h2 class="text-2xl font-bold mb-6 mt-12" :class="themeClasses">Time Information</h2>
                         <div class="space-y-4">
                             <div class="form-group">
-                                <label for="receivedDate" class="block text-sm font-medium mb-2" :class="themeClasses">Date Received</label>
-                                <input type="date" id="receivedDate" v-model="data.receivedDate" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
+                                <label for="date_received" class="block text-sm font-medium mb-2" :class="themeClasses">Date Received</label>
+                                <input type="date" id="date_received" v-model="data.date_received" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
                             </div>
                             <div class="form-group">
                                 <label for="arrivalDate" class="block text-sm font-medium mb-2" :class="themeClasses">Time of Arrival on Site</label>
-                                <input type="time" id="arrivalDate" v-model="data.arrivalTime" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
+                                <input type="time" id="arrivalDate" v-model="data.arrival_on_site" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
                             </div>
                             <div class="form-group">
-                                <label for="incidentTime" class="block text-sm font-medium mb-2" :class="themeClasses">Time of Incident</label>
-                                <input type="time" id="incidentTime" v-model="data.incidentTime" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
+                                <label for="time" class="block text-sm font-medium mb-2" :class="themeClasses">Time of Incident</label>
+                                <input type="time" id="time" v-model="data.time" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
                             </div>
                         </div>
                     </div>
@@ -318,14 +341,14 @@ function goBack() {
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="form-group">
                                     <label for="place" class="block text-sm font-medium mb-2" :class="themeClasses">Place of Incident</label>
-                                    <select id="place" v-model="data.barangay" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
+                                    <select id="place" v-model="data.barangay_id" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
                                         <option disabled value="">Select Barangay (128)</option>
                                         <option v-for="barangay in barangays" :key="barangay.id" :value="barangay.id">{{ barangay.name }}</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label for="details" class="block text-sm font-medium mb-2" :class="themeClasses">Location Details</label>
-                                    <input id="details" v-model="data.details" :class="dropClasses" placeholder="Enter location details/landmarks" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
+                                    <label for="landmark" class="block text-sm font-medium mb-2" :class="themeClasses">Location landmark</label>
+                                    <input id="landmark" v-model="data.landmark" :class="dropClasses" placeholder="Enter nearby landmarks" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
                                 </div>
                             </div>
                             
@@ -333,14 +356,14 @@ function goBack() {
                                 <div id="map" class="mb-4 h-64"></div>
                             </div>
                             <div class="grid grid-cols-2 gap-4">
+                              <div class="form-group">
+                                    <label for="latitude" class="block text-sm font-medium mb-2" :class="themeClasses">Latitude</label>
+                                    <input disabled id="latitude" v-model="data.latitude" :class="dropClasses" placeholder="Enter latitude" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
+                                </div>
                                 <div class="form-group">
                                     <label for="longitude" class="block text-sm font-medium mb-2" :class="themeClasses">Longitude</label>
-                                    <input id="longitude" v-model="data.Longitude" :class="dropClasses" placeholder="Enter Longitude" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="latitude" class="block text-sm font-medium mb-2" :class="themeClasses">Latitude</label>
-                                    <input id="latitude" v-model="data.Latitude" :class="dropClasses" placeholder="Enter Latitude" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
-                                </div>
+                                    <input disabled id="longitude" v-model="data.longitude" :class="dropClasses" placeholder="Enter longitude" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
+                                </div>   
                             </div>
                             <div class="flex justify-end space-x-4 mt-8">
                               <PrimaryButton type="button" name="Clear" @click="clearForm"
