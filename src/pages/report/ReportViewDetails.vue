@@ -45,7 +45,7 @@ let marker = null; // Store the marker reference
 onMounted(() => {
     axiosClient.get(`/api/911/report-view/${report_Id}`, {
         headers: {
-            'x-api-key': '$m@rtC!ty'
+            'x-api-key': import.meta.env.VITE_API_KEY
         }
     })
     .then((res) => {

@@ -33,7 +33,7 @@ onMounted(() => {
     isLoading.value = true;
     axiosClient.get(`/api/911/barangay-edit/${barangay_Id}`, {
         headers: {
-            'x-api-key': '$m@rtC!ty'
+            'x-api-key': import.meta.env.VITE_API_KEY
         }
     })
     .then((res) => {
@@ -72,7 +72,7 @@ function formSubmit() {
     // errors.value = '';
     axiosClient.put(`/api/911/barangay-update/${data.value.id}`, data.value, {
         headers: {
-            'x-api-key': '$m@rtC!ty'
+            'x-api-key': import.meta.env.VITE_API_KEY
         }
     })
     .then(response => {

@@ -35,7 +35,7 @@ onMounted(() => {
     // isLoading.value = true; // Set loading to true
     axiosClient.get(`/api/911/report-edit/${report_Id}`, {
         headers: {
-            'x-api-key': '$m@rtC!ty'
+            'x-api-key': import.meta.env.VITE_API_KEY
         }
     })
     .then((res) => {

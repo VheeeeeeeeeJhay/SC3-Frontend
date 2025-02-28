@@ -74,7 +74,7 @@ const errorMessage = ref('');
 onMounted(() => {
   axiosClient.get('/api/911/report', {
     headers: {
-      'x-api-key': '$m@rtC!ty'
+      'x-api-key': import.meta.env.VITE_API_KEY
     }
   })
     .then((res) => {

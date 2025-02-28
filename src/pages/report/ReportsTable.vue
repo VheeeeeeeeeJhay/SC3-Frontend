@@ -53,7 +53,7 @@ onMounted(() => {
     isLoading.value = true;
     axiosClient.get('/api/911/report-display', {
         headers: {
-            'x-api-key': '$m@rtC!ty'
+            'x-api-key': import.meta.env.VITE_API_KEY
         }
     })
     .then((res) => {
@@ -167,7 +167,7 @@ const formSubmit = (report_Id) => {
     errors.value = ''; // 🔹 Reset errors before making a request
     axiosClient.delete(`/api/911/report-delete/${report_Id}`, {
         headers: {
-            'x-api-key': '$m@rtC!ty'
+            'x-api-key': import.meta.env.VITE_API_KEY
         }
     })
     .then(() => {

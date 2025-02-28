@@ -35,7 +35,7 @@ function formSubmit() {
   errors.value = '';
   axiosClient.post("/api/911/barangay", formData, {
     headers: {
-      'x-api-key':'$m@rtC!ty'
+      'x-api-key': import.meta.env.VITE_API_KEY
     }
     })
     .then(response => {
