@@ -24,18 +24,20 @@ const themeClasses = computed(() => {
 //   barangay_data: Object
 // });
 const props = defineProps({
-  barangay_data: {
-    type: Object,
-    required: true
-  }
+    barangay_data: Object
 });
+const emit = defineEmits(['updateValue']);
+
+const updateValue = (event) => {
+  emit('updateValue', event.target.value);
+};
 
 // const barangay = reactive({ ...props.barangay_data }); // Creates a reactive copy
 // console.log(barangay.id); // You can access barangay.id
 
 
 
-const barangay_Id = ref(props.barangay_data.id);
+// const barangay_Id = ref(props.barangay_data.id);
 // const names = ref(props.barangay_data?.name);
 // const longitudes = ref(props.barangay_data?.longitude);
 // const latitudes = ref(props.barangay_data?.latitude);
@@ -44,9 +46,9 @@ const barangay_Id = ref(props.barangay_data.id);
 // const longitudes = ref(props.barangay_data?.longitude);
 // const latitudes = ref(props.barangay_data?.latitude);
 
-const names = ref(props.barangay_data.name);
-const longitudes = ref(props.barangay_data.longitude);
-const latitudes = ref(props.barangay_data.latitude);
+// const names = ref(props.barangay_data.name);
+// const longitudes = ref(props.barangay_data.longitude);
+// const latitudes = ref(props.barangay_data.latitude);
 
 // watch(() => props.barangay_data.name, (newName) => {
 //     names.value = newName;
@@ -59,49 +61,22 @@ const latitudes = ref(props.barangay_data.latitude);
 // watch(() => props.barangay_data.latitude, (newLatitude) => {
 //     latitudes.value = newLatitude;
 // });
-watch(() => names.value, (newName) => {
-    names.value = newName;
-});
+// watch(() => names.value, (newName) => {
+//     names.value = newName;
+// });
 
-watch(() => longitudes.value, (newLongitude) => {
-    longitudes.value = newLongitude;
-});
+// watch(() => longitudes.value, (newLongitude) => {
+//     longitudes.value = newLongitude;
+// });
 
-watch(() => latitudes.value, (newLatitude) => {
-    latitudes.value = newLatitude;
-});
-
+// watch(() => latitudes.value, (newLatitude) => {
+//     latitudes.value = newLatitude;
+// });
 
 
 const errors = ref('');
 
-// function formSubmit() {
-//     // console.log(props.barangay_data.id);
-//     console.log(barangay_Id.value);
-//     console.log(names.value);
-//     console.log(longitudes.value);
-//     console.log(latitudes.value);
-//     const formData = new FormData();
-//     formData.append('name', names.value);
-//     formData.append('longitude', longitudes.value);
-//     formData.append('latitude', latitudes.value);
-//     errors.value = '';
-//     console.log(formData);
-//     axiosClient.put(`/api/911/barangay/${barangay_Id.value}`, formData, {
-//         headers: {
-//             'x-api-key': API_KEY
-//         }
-//     })
-//     .then(response => {
-//         // fetchData();
-//         router.push({ name: 'Barangay' });
-//         console.log('Barangay updated successfully');
-//     })
-//     // .catch(error => {
-//     //     // console.log(error.response.data.b);
-//     //     errors.value = error.response.data.errors;
-//     // });
-// }
+
 function formSubmit(ID) {
     const formData = new FormData();
     formData.append('name', names.value);
@@ -140,17 +115,17 @@ function formSubmit(ID) {
 
                 <div class="space-y-1">
                     <label for="name" class="block text-sm font-medium">Barangay Name</label>
-                    <FormInput name="name" class="px-4 py-2 border rounded-md w-full" v-model="names"/>
+                    <FormInput name="name" class="px-4 py-2 border rounded-md w-full" :value="props.barangay_data.name" v-model="names"/>
                 </div>
 
                 <div class="space-y-1">
                     <label for="longitude" class="block text-sm font-medium">Longitude</label>
-                    <FormInput name="longitude" class="px-4 py-2 border rounded-md w-full" v-model="longitudes" type="number"/>
+                    <FormInput name="longitude" class="px-4 py-2 border rounded-md w-full" :value="props.barangay_data.longitude" v-model="longitudes" type="number"/>
                 </div>
 
                 <div class="space-y-1">
                     <label for="latitude" class="block text-sm font-medium">Latitude</label>
-                    <FormInput name="latitude" class="px-4 py-2 border rounded-md w-full" v-model="latitudes" type="number"/>         
+                    <FormInput name="latitude" class="px-4 py-2 border rounded-md w-full" :value="props.barangay_data.latitude" v-model="latitudes" type="number"/>         
                 </div> 
 
                 <PrimaryButton type="submit" name="Update Barangay" class="text-white bg-green-600 hover:bg-green-700 w-full" />

@@ -1,5 +1,5 @@
 <script setup>
-import axiosClient from '../../axios';
+import axiosClient from '../../axios.js';
 import { onMounted, ref, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import PrimaryButton from '../../components/PrimaryButton.vue';

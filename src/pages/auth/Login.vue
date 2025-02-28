@@ -5,6 +5,7 @@ import axiosClient from "../../axios.js";
 import { ref } from "vue";
 import router from "../../router.js";
 import logo from '../../assets/baguio-logo.png';
+import Toast from '../../components/Toast.vue';
 
 //Import API key
 const API_KEY = import.meta.env.VITE_API_KEY;
@@ -21,7 +22,7 @@ function submit() {
       headers: {
         'x-api-key': API_KEY
       }
-      })
+    })
       .then(response => {
         router.push({ name: 'Dashboard' })
       })
@@ -65,18 +66,18 @@ function submit() {
           </div> -->
 
           <!-- Replace IftaLabel and InputText -->
-      <div>
-          <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-          <input type="email" id="email" v-model="data.email" required
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+            <input type="email" id="email" v-model="data.email" required
               class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-      </div>
-      
-      <div>
-          <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-          <input type="password" id="password" v-model="data.password" required
+          </div>
+
+          <div>
+            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+            <input type="password" id="password" v-model="data.password" required
               class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-      </div>
-          
+          </div>
+
           <!-- <div>
             <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
             <input type="password" name="password" id="password" autocomplete="current-password" required="" v-model="data.password" class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
@@ -86,7 +87,8 @@ function submit() {
         </form>
 
         <div class="text-sm text-center mt-4">
-          <RouterLink :to="{ name: 'Signup' }" class="text-blue-600 hover:underline">Don't have an account? Sign up</RouterLink>
+          <RouterLink :to="{ name: 'Signup' }" class="text-blue-600 hover:underline">Don't have an account? Sign up
+          </RouterLink>
         </div>
 
         <div class="text-sm text-center mt-2">
@@ -94,6 +96,18 @@ function submit() {
         </div>
       </div>
     </div>
+    <!-- <Toast 
+    v-if="errorMessage" 
+    :message="errorMessage" 
+    :icon="bar" 
+    :class="bg-slate-900" 
+    /> -->
+    <Toast 
+    v-if="errorMessage" 
+    :message="errorMessage"
+    :icon="'home'"
+    :TailwindClass="'text-red-900'"
+    />
   </div>
 </template>
 

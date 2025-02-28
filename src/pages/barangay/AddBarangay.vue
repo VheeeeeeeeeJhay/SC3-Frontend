@@ -22,36 +22,43 @@ const data = ref({
   name: '',
   longitude: '',
   latitude: '',
+  barangay: '',
 })
 
 const errors = ref({
   name: [],
   longitude: [],
   latitude: [],
+  barangay: [],
 });
 
 
 const fetchData = async () => {
-  await axiosClient.get('/api/911/barangay', {
-      headers: {
-          'x-api-key': API_KEY
-      }
-  })
-  .then((res) => {
-      console.log(res);
-      setTimeout(() => {
-          barangays.value = res.data;
-          isLoading.value = false; // Stop loading after delay
-      }, 1500);
-  })
-  .catch((error) => {
-      isLoading.value = false;
-      console.error('Error fetching data:', error);
-      errorMessage.value = 'Failed to load barangays. Please try again later.';
-  });
+  try {
+    await axiosClient.get('/api/911/barangay', {
+        headers: {
+            'x-api-key': API_KEY
+        }
+    })
+    .then((res) => {
+        console.log(res);
+        setTimeout(() => {
+            barangays.value = res.data;
+            isLoading.value = false; // Stop loading after delay
+        }, 1500);
+    })
+    .catch((error) => {
+        isLoading.value = false;
+        console.error('Error fetching data:', error);
+        errorMessage.value = 'Failed to load barangays. Please try again later.';
+    });
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    errorMessage.value = 'Failed to load barangays. Please try again later.';
+  }
 }
 
-function formSubmit() {
+const formSubmit = () => {
   console.log(data.value)
   const formData = new FormData()
   formData.append('name', data.value.name)

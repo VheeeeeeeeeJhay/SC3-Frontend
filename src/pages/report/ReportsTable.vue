@@ -72,26 +72,34 @@ const filteredReports = computed(() => {
     });
 });
 
+const errorMessage = ref('');
+
 // Fetch Data
-const fetchData = () => {
-    axiosClient.get('/api/911/report-display', {
-        headers: {
-            "x-api-key": API_KEY,
-        }
-    })
-    .then((res) => {
-        console.log(res)
-        setTimeout(() => {
-            reports.value = res.data[0]; // Assuming reports are in the first index
-            classifications.value = res.data[1]; // Assuming classifications are in the second index
+const fetchData = async () => {
+    try {
+        await axiosClient.get('/api/911/report-display', {
+            headers: {
+                "x-api-key": API_KEY,
+            }
+        })
+        .then((res) => {
+            console.log(res)
+            setTimeout(() => {
+                reports.value = res.data[0]; // Assuming reports are in the first index
+                classifications.value = res.data[1]; // Assuming classifications are in the second index
+                isLoading.value = false;
+            });
+        })
+        .catch((error) => {
+            console.error('Error fetching data:', error);
+            errorMessage.value = 'Failed to load barangays. Please try again later.';
             isLoading.value = false;
         });
-    })
-    .catch((error) => {
+    } catch (error) {
         console.error('Error fetching data:', error);
         errorMessage.value = 'Failed to load barangays. Please try again later.';
         isLoading.value = false;
-    });
+    }
 }
 
 // =============================================================================== Delete A Report

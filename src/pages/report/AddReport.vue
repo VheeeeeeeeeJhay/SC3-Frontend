@@ -1,8 +1,8 @@
 <script setup>
 import { ref, computed, onMounted, watchEffect, watch } from 'vue';
-import { useThemeStore } from '../../stores/themeStore';
+import { useThemeStore } from '../../stores/themeStore.js';
 import PrimaryButton from '../../components/PrimaryButton.vue';
-import axiosClient from '../../axios';
+import axiosClient from '../../axios.js';
 import { useGeolocation } from '@vueuse/core';
 import { userMarker } from '../../stores/mapStore.js';
 import leaflet from 'leaflet';
