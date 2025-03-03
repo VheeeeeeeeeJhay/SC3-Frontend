@@ -20,24 +20,24 @@ const routes = [
     path: "/",
     component: DefaultLayout,
     children: [
-      {path: '/', name: 'Dashboard', component: Dashboard},
+      {path: '/', name: 'Dashboard', component: Dashboard, meta: { title: 'Dashboard' }},
       // {path: '/dashboard', name: 'Dashboard', component: Dashboard},
 
-      {path: '/map', name: 'Map', component: Map},
+      {path: '/map', name: 'Map', component: Map, meta: { title: 'Map' }},
 
-      {path: '/reportform', name: 'ReportForm', component: ReportForm},
-      {path: '/report-display', name: 'ReportViewDetails', component: ReportViewDetails },
-      {path: '/report-table', name: 'ReportTable', component: ReportTable},
-      {path: '/report-view/:id', name: 'ReportViewDetails', component: ReportViewDetails },
-      {path: '/report-edit/:id', name: 'EditReport', component: EditReports },
+      {path: '/reportform', name: 'ReportForm', component: ReportForm, meta: { title: 'Report Form' }},
+      {path: '/report-display', name: 'ReportViewDetails', component: ReportViewDetails, meta: { title: 'Report Display' }},
+      {path: '/report-table', name: 'ReportTable', component: ReportTable, meta: { title: 'Report Table' }},
+      {path: '/report-view/:id', name: 'ReportViewDetails', component: ReportViewDetails, meta: { title: 'Report View' }},
+      {path: '/report-edit/:id', name: 'EditReport', component: EditReports, meta: { title: 'Edit Report' }},
 
-      {path: '/barangay', name: 'Barangay', component: Barangay},
-      {path: '/barangay-edit/:id', name: 'EditBarangay', component: EditBarangay},
-      {path: '/barangay-update/:id', name: 'UpdateBarangay', component: Barangay},
-      {path: '/barangay-delete/:id', name: 'DeleteBarangay', component: Barangay},
+      {path: '/barangay', name: 'Barangay', component: Barangay, meta: { title: 'Barangay' }},
+      {path: '/barangay-edit/:id', name: 'EditBarangay', component: EditBarangay, meta: { title: 'Edit Barangay' }},
+      {path: '/barangay-update/:id', name: 'UpdateBarangay', component: Barangay, meta: { title: 'Update Barangay' }},
+      {path: '/barangay-delete/:id', name: 'DeleteBarangay', component: Barangay, meta: { title: 'Delete Barangay' }},
 
-      {path: '/incident', name: 'Incident', component: Incident},
-      {path: '/incident-display', name: 'IncidentDisplay', component: Incident},
+      {path: '/incident', name: 'Incident', component: Incident, meta: { title: 'Incident' }},
+      {path: '/incident-display', name: 'IncidentDisplay', component: Incident, meta: { title: 'Incident Display' }},
     ],
     beforeEnter: async (to, from, next) => {
       try {
@@ -53,16 +53,19 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login,
+    meta: { title: 'Login' }
   },
   {
     path: '/signup',
     name: 'Signup',
     component: Signup,
+    meta: { title: 'Signup' }
   },
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
-    component: NotFound
+    component: NotFound,
+    meta: { title: 'Not Found' }
   },
 ];
 
@@ -70,5 +73,10 @@ const router = createRouter({
   history: createWebHistory(),
   routes
 })
+
+router.beforeEach((to, from) => {
+  document.title = to.meta?.title ?? 'Default Title'
+})
+
 
 export default router

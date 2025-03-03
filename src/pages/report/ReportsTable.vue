@@ -6,29 +6,28 @@ import PrimaryButton from '../../components/PrimaryButton.vue';
 import { useThemeStore } from '../../stores/themeStore';
 import Loader1 from '../../components/Loader1.vue';
 import Toast from '../../components/Toast.vue';
+import PopupModal from '../../components/PopupModal.vue';
+import Badge from '../../components/Badge.vue';
 
 // For dark mode
 const themeStore = useThemeStore();
 const themeClasses = computed(() => {
-  return themeStore.isDarkMode 
-    ? "bg-slate-800 border border-black text-white  "
-    : "bg-sky-50 border border-gray-200 text-gray-800 shadow-sm ";
+    return themeStore.isDarkMode
+        ? "bg-slate-800 border border-black text-white  "
+        : "bg-sky-50 border border-gray-200 text-gray-800 shadow-sm ";
 });
 // Hover styles (separate for reusability)
 const hoverClasses = computed(() => {
-  return themeStore.isDarkMode 
-  ? "border border-black hover:bg-slate-700 hover:border-gray-600 focus:ring-2 focus:ring-slate-500 focus:outline-none" 
-  : "border border-gray-700 hover:bg-sky-100 hover:border-gray-500 focus:ring-2 focus:ring-sky-400 focus:outline-none";
+    return themeStore.isDarkMode
+        ? "border border-black hover:bg-slate-700 hover:border-gray-600 focus:ring-2 focus:ring-slate-500 focus:outline-none"
+        : "border border-gray-700 hover:bg-sky-100 hover:border-gray-500 focus:ring-2 focus:ring-sky-400 focus:outline-none";
 });
 
 // Dropdown base styles
 const dropMenuClasses = computed(() => {
-  return themeStore.isDarkMode 
-    ? "hover:bg-slate-600" : "hover:bg-sky-100"
+    return themeStore.isDarkMode
+        ? "hover:bg-slate-600" : "hover:bg-sky-100"
 });
-
-
-const FlashMessage = ref('');
 
 const reports = ref([]);
 const classifications = ref([]);
@@ -37,53 +36,61 @@ const isLoading = ref(false);
 
 const selectedClassifications = ref([]);
 
+
+const fetchData = async () => {
+    try {
+        isLoading.value = true;
+        await axiosClient.get('/api/911/report-display', {
+            headers: {
+                'x-api-key': import.meta.env.VITE_API_KEY
+            }
+        })
+        .then((res) => {
+            setTimeout(() => {
+                reports.value = res.data[0]; // Assuming reports are in the first index
+                classifications.value = res.data[1]; // Assuming classifications are in the second index
+                isLoading.value = false;
+            });
+        })
+        .catch((error) => {
+            console.log(error.response.data.message);
+            // console.error('Error fetching data:', error);
+            // errors.value = 'Failed to load barangays. Please try again later.';
+            isLoading.value = false;
+        });
+    } catch (error) {
+        console.log(error.response.data.message);
+    }
+};
+
 // Computed property for dynamic search and filtering
 const filteredReports = computed(() => {
-  return reports.value.filter(report => {
-    const matchesSearch = searchQuery.value
-      ? report.source.sources.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        report.assistance.assistance.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        report.incident.type.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        report.actions.actions.toLowerCase().includes(searchQuery.value.toLowerCase())
-      : true;
+    return reports.value.filter(report => {
+        const matchesSearch = searchQuery.value
+            ? report.source.sources.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+            report.assistance.assistance.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+            report.incident.type.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+            report.actions.actions.toLowerCase().includes(searchQuery.value.toLowerCase())
+            : true;
 
-    const matchesClassification = selectedClassifications.value.length === 0 || 
-      selectedClassifications.value.includes(report.assistance_id);
+        const matchesClassification = selectedClassifications.value.length === 0 ||
+            selectedClassifications.value.includes(report.assistance_id);
 
-    return matchesSearch && matchesClassification;
-  });
-});
-
-onMounted(() => {
-    isLoading.value = true;
-    axiosClient.get('/api/911/report-display', {
-        headers: {
-            'x-api-key': import.meta.env.VITE_API_KEY
-        }
-    })
-    .then((res) => {
-        setTimeout(() => {
-            reports.value = res.data[0]; // Assuming reports are in the first index
-            classifications.value = res.data[1]; // Assuming classifications are in the second index
-            isLoading.value = false;
-        }, 1500);
-    })
-    .catch((error) => {
-        console.error('Error fetching data:', error);
-        errorMessage.value = 'Failed to load barangays. Please try again later.';
-        isLoading.value = false;
+        return matchesSearch && matchesClassification;
     });
+});
+onMounted(() => {
+    fetchData();
 
-
-// ------------------------------------------
+    // ------------------------------------------
     document.addEventListener("click", (event) => {
         if (
             openDropdownId.value !== null &&
             !dropdownRefs.value[openDropdownId.value]?.contains(event.target)
         ) {
-      closeDropdown();
-    }
-  });
+            closeDropdown();
+        }
+    });
 });
 
 // -----------------------
@@ -106,20 +113,20 @@ const isActionsDropdownOpen = ref(false);
 const isFilterDropdownOpen = ref(false);
 
 const toggleActionsDropdown = () => {
-  isActionsDropdownOpen.value = !isActionsDropdownOpen.value;
+    isActionsDropdownOpen.value = !isActionsDropdownOpen.value;
 };
 
 const toggleFilterDropdown = () => {
-  isFilterDropdownOpen.value = !isFilterDropdownOpen.value;
+    isFilterDropdownOpen.value = !isFilterDropdownOpen.value;
 };
 
 const closeDropdowns = (event) => {
-  if (!event.target.closest("#actionsDropdownButton") && !event.target.closest("#actionsDropdown")) {
-    isActionsDropdownOpen.value = false;
-  }
-  if (!event.target.closest("#filterDropdownButton") && !event.target.closest("#filterDropdown")) {
-    isFilterDropdownOpen.value = false;
-  }
+    if (!event.target.closest("#actionsDropdownButton") && !event.target.closest("#actionsDropdown")) {
+        isActionsDropdownOpen.value = false;
+    }
+    if (!event.target.closest("#filterDropdownButton") && !event.target.closest("#filterDropdown")) {
+        isFilterDropdownOpen.value = false;
+    }
 };
 
 document.addEventListener("click", closeDropdowns);
@@ -130,47 +137,48 @@ const itemsPerPage = ref(10);
 
 // Total pages based on filtered results
 const totalPages = computed(() => {
-  return Math.ceil(filteredReports.value.length / itemsPerPage.value);
+    return Math.ceil(filteredReports.value.length / itemsPerPage.value);
 });
 
 // Get paginated reports
 const paginatedReports = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  
-  return filteredReports.value.slice(start, end);
+    const start = (currentPage.value - 1) * itemsPerPage.value;
+    const end = start + itemsPerPage.value;
+
+    return filteredReports.value.slice(start, end);
 });
 
 // Pagination controls
 const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-  }
+    if (currentPage.value < totalPages.value) {
+        currentPage.value++;
+    }
 };
 
 const prevPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--;
-  }
+    if (currentPage.value > 1) {
+        currentPage.value--;
+    }
 };
 
 const goToPage = (page) => {
-  if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page;
-  }
+    if (page >= 1 && page <= totalPages.value) {
+        currentPage.value = page;
+    }
 };
 
 // Reset to first page when searching
 watch(searchQuery, () => {
-  currentPage.value = 1;
+    currentPage.value = 1;
 });
 
 // Delete A Report
 const errors = ref('');
+const success = ref('');
 
-const formSubmit = (report_Id) => {
-    errors.value = ''; // 🔹 Reset errors before making a request
-    axiosClient.delete(`/api/911/report-delete/${report_Id}`, {
+const formSubmit = async (report_Id) => {
+    // errors.value = ''; // 🔹 Reset errors before making a request
+    await axiosClient.delete(`/api/911/report-delete/${report_Id}`, {
         headers: {
             'x-api-key': import.meta.env.VITE_API_KEY
         }
@@ -178,7 +186,7 @@ const formSubmit = (report_Id) => {
     .then(() => {
         // Remove the deleted barangay from the list without refreshing the page
         reports.value = reports.value.filter(b => b.id !== report_Id);
-        console.log('Report deleted successfully');
+        success.value = 'Report deleted successfully';
     })
     .catch(error => {
         console.error('Error deleting report:', error.response?.data);
@@ -189,7 +197,7 @@ const formSubmit = (report_Id) => {
 
 <template>
     <section class="w-full min-h-screen">
-        <div class="mt-6 px-4 w-full" >
+        <div class="mt-6 px-4 w-full">
             <!-- Start coding here -->
             <div class="relative shadow-md sm:rounded-lg" :class="themeClasses">
                 <div
@@ -203,72 +211,56 @@ const formSubmit = (report_Id) => {
                                         search
                                     </span>
                                 </div>
-                                <input 
-                                v-model="searchQuery"
-                                type="text" 
-                                id="simple-search"
-                                class="border text-sm rounded-lg block w-full pl-10 p-2"
-                                :class="hoverClasses"
-                                placeholder="Search..."
-                                />
+                                <input v-model="searchQuery" type="text" id="simple-search"
+                                    class="border text-sm rounded-lg block w-full pl-10 p-2" :class="hoverClasses"
+                                    placeholder="Search..." />
                             </div>
                         </form>
                     </div>
                     <div
-                        class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0" >
-                        <RouterLink :to="{ name: 'ReportForm'}">
+                        class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+                        <RouterLink :to="{ name: 'ReportForm' }">
                             <button type="button"
-                                class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-1" :class="hoverClasses">
+                                class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-1"
+                                :class="hoverClasses">
                                 <span class="material-icons">
                                     add
                                 </span>
                                 Add a New Report
                             </button>
                         </RouterLink>
-                        
+
                         <div class="flex items-center space-x-3 w-full md:w-auto relative">
                             <!-- Filter Dropdown Button -->
-                            <button
-                            @click="toggleFilterDropdown"
-                            class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium focus:outline-none rounded-lg border"
-                            :class="hoverClasses"
-                            id="filterDropdownButton"
-                            >
-                            <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                                <path
-                                fill-rule="evenodd"
-                                d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
-                                clip-rule="evenodd"
-                                />
-                            </svg>
-                            Filter
-                            <svg class="-mr-1 ml-1.5 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                <path
-                                clip-rule="evenodd"
-                                fill-rule="evenodd"
-                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                />
-                            </svg>
+                            <button @click="toggleFilterDropdown"
+                                class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium focus:outline-none rounded-lg border"
+                                :class="hoverClasses" id="filterDropdownButton">
+                                <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2"
+                                    viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                Filter
+                                <svg class="-mr-1 ml-1.5 w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                    <path clip-rule="evenodd" fill-rule="evenodd"
+                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                                </svg>
                             </button>
 
                             <!-- Filter Dropdown Menu -->
-                            <div
-                            id="filterDropdown"
-                            v-show="isFilterDropdownOpen"
-                            class="absolute top-full left-0 z-10 w-48 p-3 rounded-lg shadow"
-                            :class="themeStore.isDarkMode ? 'bg-slate-700' : 'bg-white'"
-                            >
-                            <h6 class="mb-3 text-sm font-medium">Choose Classification</h6>
+                            <div id="filterDropdown" v-show="isFilterDropdownOpen"
+                                class="absolute top-full left-0 z-10 w-48 p-3 rounded-lg shadow"
+                                :class="themeStore.isDarkMode ? 'bg-slate-700' : 'bg-white'">
+                                <h6 class="mb-3 text-sm font-medium">Choose Classification</h6>
                                 <ul class="space-y-2 text-sm">
-                                    <li v-for="classification in classifications" :key="classification.id" class="flex items-center">
-                                        <input
-                                          type="checkbox"
-                                          :id="classification.id"
-                                          :value="classification.id"
-                                          v-model="selectedClassifications"
-                                          class="w-4 h-4"
-                                        />
-                                        <label :for="classification.id" class="ml-2 text-sm font-medium">{{ classification.assistance }}</label>
+                                    <li v-for="classification in classifications" :key="classification.id"
+                                        class="flex items-center">
+                                        <input type="checkbox" :id="classification.id" :value="classification.id"
+                                            v-model="selectedClassifications" class="w-4 h-4" />
+                                        <label :for="classification.id" class="ml-2 text-sm font-medium">{{
+                                            classification.assistance }}</label>
                                     </li>
                                 </ul>
                             </div>
@@ -281,23 +273,26 @@ const formSubmit = (report_Id) => {
                         <Loader1 />
                     </div>
                     <table v-else class="w-full text-sm text-left">
-                        <thead class="text-xs uppercase" :class="themeStore.isDarkMode ? 'bg-slate-700' : 'bg-teal-300'">
+                        <thead class="text-xs uppercase"
+                            :class="themeStore.isDarkMode ? 'bg-slate-700' : 'bg-teal-300'">
                             <tr>
                                 <th scope="col" class="px-4 py-3">ID</th>
                                 <th scope="col" class="px-4 py-3">Source</th>
                                 <th scope="col" class="px-4 py-3">Case Classification</th>
                                 <th scope="col" class="px-4 py-3">Incident/Case</th>
                                 <th scope="col" class="px-4 py-3">Assistance</th>
+                                <th scope="col" class="px-4 py-3">Location</th>
                                 <th scope="col" class="px-4 py-3">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="report in paginatedReports" :key="report.id">
+                            <tr v-if="reports.length > 0" v-for="report in paginatedReports" :key="report.id">
                                 <td class="px-4 py-3">{{ report.id }}</td>
                                 <td class="px-4 py-3">{{ report.source.sources }}</td>
                                 <td class="px-4 py-3">{{ report.assistance.assistance }}</td>
                                 <td class="px-4 py-3">{{ report.incident.type }}</td>
                                 <td class="px-4 py-3">{{ report.actions.actions }}</td>
+                                <td class="px-4 py-3">{{ report.barangay.name }}</td>
                                 <td class="px-4 py-3 flex items-center relative">
                                     <!-- Dropdown Button -->
                                     <button @click.stop="toggleDropdown(report.id)"
@@ -311,37 +306,55 @@ const formSubmit = (report_Id) => {
                                     </button>
 
                                     <!-- Dropdown Menu -->
-                                    <div v-if="openDropdownId === report.id" ref="dropdownRefs" :class="themeStore.isDarkMode ? 'bg-slate-700' : 'bg-white'"
+                                    <div v-if="openDropdownId === report.id" ref="dropdownRefs"
+                                        :class="themeStore.isDarkMode ? 'bg-slate-700' : 'bg-white'"
                                         class="absolute z-[10] w-44 mt-2 top-full left-0 shadow-sm border rounded-md">
                                         <ul class="py-2 text-sm">
                                             <li>
-                                                <RouterLink :to="{ name: 'ReportViewDetails', params: { id: report.id } }"
-                                                    class="block px-4 py-2" :class="dropMenuClasses">View Details</RouterLink>
+                                                <RouterLink
+                                                    :to="{ name: 'ReportViewDetails', params: { id: report.id } }"
+                                                    class="block px-4 py-2" :class="dropMenuClasses">View Details
+                                                </RouterLink>
                                             </li>
                                             <li>
                                                 <RouterLink :to="{ name: 'EditReport', params: { id: report.id } }"
-                                                    class="block px-4 py-2 " :class="dropMenuClasses">Edit Report</RouterLink>
+                                                    class="block px-4 py-2 " :class="dropMenuClasses">Edit Report
+                                                </RouterLink>
                                             </li>
                                             <li class="block px-2" :class="dropMenuClasses">
-                                                <PrimaryButton @click="formSubmit(report.id)" name="Delete Report" />
+                                                <!-- <PopupModal Title="Delete Report" ModalButton="Delete" Icon="home" Classes="">
+                                                    <template #modalContent>
+                                                        <div class="p-6">
+                                                            <PrimaryButton @click.prevent="formSubmit(report.id)" name="Delete Report" 
+                                                            class="bg-red-500 hover:bg-red-600 text-gray-100 shadow-md"/>
+                                                        </div>
+                                                    </template>
+                                                </PopupModal> -->
+                                                <PrimaryButton @click.prevent="formSubmit(report.id)" name="Delete Report" />
                                             </li>
                                         </ul>
                                     </div>
                                 </td>
                             </tr>
+                            <tr v-else>
+                                <td colspan="5">No reports found.</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
-                <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">
+                <nav
+                    class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">
                     <span class="text-sm font-normal">
                         Showing
-                        <span class="font-semibold">{{ filteredReports.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}</span>
+                        <span class="font-semibold">{{ filteredReports.length > 0 ? (currentPage - 1) * itemsPerPage + 1
+                            : 0 }}</span>
                         to
-                        <span class="font-semibold">{{ Math.min(currentPage * itemsPerPage, filteredReports.length) }}</span>
+                        <span class="font-semibold">{{ Math.min(currentPage * itemsPerPage, filteredReports.length)
+                            }}</span>
                         of
                         <span class="font-semibold">{{ filteredReports.length }}</span>
                     </span>
-                    
+
                     <ul class="inline-flex items-stretch -space-x-px">
                         <!-- Previous Page -->
                         <li>
@@ -351,13 +364,10 @@ const formSubmit = (report_Id) => {
                             </button>
                         </li>
                         <li v-for="page in totalPages" :key="page">
-                            <button 
-                                @click="goToPage(page)" 
+                            <button @click="goToPage(page)"
                                 :class="['px-3 py-1 border', currentPage === page ? 'bg-teal-500 text-white border-black' : hoverClasses]">
                                 {{ page }}
                             </button>
-
-
                         </li>
                         <li>
                             <button @click="nextPage" :disabled="currentPage === totalPages"
@@ -371,5 +381,5 @@ const formSubmit = (report_Id) => {
             </div>
         </div>
     </section>
-    <Toast icon="'bar'" classes="bg-red-900" message="FlashMessage" />
+    <!-- <Toast icon="bar" classes="text-red-400" message="" /> -->
 </template>

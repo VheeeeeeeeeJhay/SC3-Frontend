@@ -7,9 +7,7 @@ import { useGeolocation } from '@vueuse/core';
 import { userMarker } from '../../stores/mapStore.js';
 import leaflet from 'leaflet';
 import useUserStore from '../../stores/user.js';
-import router from '../../router.js';
-import Modal from '../../components/Modal.vue';
-import FormInput from '../../components/FormInput.vue';
+import Toast from '../../components/Toast.vue';
 
 // Get Auth User Information
 const userStore = useUserStore();
@@ -68,62 +66,73 @@ const incidents = ref([]);
 const assistance = ref([]);
 const barangays = ref([]);
 
-const errorMessage = ref('');
+
 
 const fetchData = async () => {
-  axiosClient.get('/api/911/report', {
+  await axiosClient.get('/api/911/report', {
     headers: {
       'x-api-key': import.meta.env.VITE_API_KEY
     }
   })
-  .then((res) => {
-    sources.value = res.data.sources;
-    actions.value = res.data.actions;
-    incidents.value = res.data.incidents;
-    assistance.value = res.data.assistance;
-    barangays.value = res.data.barangays;
-  })
-  .catch((error) => {
-    console.error('Error fetching data:', error);
-    errorMessage.value = 'Failed to load data. Please try again later.';
-  });
+    .then((res) => {
+      sources.value = res.data.sources;
+      actions.value = res.data.actions;
+      incidents.value = res.data.incidents;
+      assistance.value = res.data.assistance;
+      barangays.value = res.data.barangays;
+    })
+    .catch((error) => {
+      console.error('Error fetching data:', error);
+      errors.value = 'Failed to load data. Please try again later.';
+    });
 }
-
 
 onMounted(() => {
   fetchData();
 });
 
-
-const submitForm = () => {
-  const formData = new FormData();
-  formData.append('source_id', data.value.source)
-  formData.append('time', data.value.incidentTime)
-  formData.append('incident_id', data.value.incident)
-  formData.append('date_received', data.value.receivedDate)
-  formData.append('arrival_on_site', data.value.arrivalTime)
-  formData.append('name', data.value.firstName)
-  formData.append('landmark', data.value.details)
-  formData.append('barangay_id', data.value.barangay)
-  formData.append('actions_id', data.value.actionType)
-  formData.append('assistance_id', data.value.incidentType)
-  formData.append('longitude', data.value.Longitude)
-  formData.append('latitude', data.value.Latitude)
-  console.log(formData)
-  axiosClient.post('/api/911/report', formData, {
-    headers: {
-      'x-api-key': import.meta.env.VITE_API_KEY
-    }
-  })
-    .then(response => {
-      alert(response.data.message);
-      console.log('Form submitted successfully:', response.data);
-      clearForm();
-      goBack();
+const errors = ref([])
+const success = ref([])
+const submitForm = async () => {
+  try {
+    const formData = new FormData();
+    formData.append('source_id', data.value.source)
+    formData.append('time', data.value.incidentTime)
+    formData.append('incident_id', data.value.incident)
+    formData.append('date_received', data.value.receivedDate)
+    formData.append('arrival_on_site', data.value.arrivalTime)
+    formData.append('name', data.value.firstName)
+    formData.append('landmark', data.value.details)
+    formData.append('barangay_id', data.value.barangay)
+    formData.append('actions_id', data.value.actionType)
+    formData.append('assistance_id', data.value.incidentType)
+    formData.append('longitude', data.value.Longitude)
+    formData.append('latitude', data.value.Latitude)
+    console.log(formData)
+    await axiosClient.post('/api/911/report', formData, {
+      headers: {
+        'x-api-key': import.meta.env.VITE_API_KEY
+      }
     })
-    .catch(error => {
-      console.log('Error:', error.response.data);
-    })
+      .then(response => {
+        console.log('Form submitted successfully:', response.data);
+        success.value = response.data.message;
+        clearForm();
+        errors.value = [];
+        console.log(success.value)
+        // goBack();
+        fetchData();
+      })
+      .catch(error => {
+        console.log('Error:', error.response.data);
+        errors.value = error.response.data.errors;
+        // errors.value = error.response.data;
+        // console.log(errors.value)
+      })
+  } catch (error) {
+    console.error(error.response.data);
+    errors.value = `An error occurred: ${error.response.data}`;
+  }
 };
 
 
@@ -167,7 +176,7 @@ onMounted(() => {
   map.setMaxBounds(bounds);
   map.setMinZoom(12);
 
-// Add Default Marker at Baguio
+  // Add Default Marker at Baguio
   let singleMarker = leaflet
     .marker([latitude.value, longitude.value])
     .addTo(map)
@@ -177,7 +186,7 @@ onMounted(() => {
     .openPopup();
 
 
-//User Click on Map
+  //User Click on Map
   map.addEventListener("click", (e) => {
     const { lat: newLat, lng: newLng } = e.latlng;
 
@@ -243,123 +252,156 @@ function goBack() {
 </script>
 
 <template>
-    <div style="min-height: 100vh;" >
-        <!-- Go Back Button -->
-          <div class="mt-6 px-2 flex justify-end">
-            <Button type="button" name="Back" @click="goBack"
-              class="px-3 py-1 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200 flex items-center">
-              <span class="material-icons mr-2">
-                arrow_back
-              </span>
-              Back
-            </Button>
+  <div style="min-height: 100vh;">
+    <!-- Go Back Button -->
+    <div class="mt-6 px-2 flex justify-end">
+      <Button type="button" name="Back" @click="goBack"
+        class="px-3 py-1 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200 flex items-center">
+        <span class="material-icons mr-2">
+          arrow_back
+        </span>
+        Back
+      </Button>
+    </div>
+
+    <main class="flex-1 my-2 px-2">
+
+      <form @submit.prevent="submitForm" class="space-y-6 mx-auto max-w-6xl p-4">
+        <div class="p-6 rounded-lg shadow-lg flex" :class="themeClasses">
+          <div class="w-1/2 pr-4">
+            <h2 class="text-2xl font-bold mb-6" :class="themeClasses">Source Information</h2>
+            <div class="grid grid-cols-2 gap-4 mb-8">
+              <div class="form-group">
+                <label for="source" class="block text-sm font-medium mb-2" :class="themeClasses">Source of
+                  Report</label>
+                <select id="source" v-model="data.source" :class="dropClasses"
+                  class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
+                  <option disabled value="">Select source</option>
+                  <option v-for="source in sources" :key="source.id" :value="source.id">
+                    {{ source.sources || "No Source Available" }}
+                  </option>
+                </select>
+                <span class="text-sm text-red-500" v-if="errors.source_id && errors.source_id.length">{{ errors.source_id[0] }}</span>
+              </div>
+              <div class="form-group">
+                <label for="incidentType" class="block text-sm font-medium mb-2" :class="themeClasses">Case
+                  Classification</label>
+                <select id="incidentType" v-model="data.incidentType" :class="dropClasses"
+                  class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
+                  <option disabled value="">Select classification</option>
+                  <option v-for="assistance in assistance" :key="assistance.id" :value="assistance.id">{{
+                    assistance.assistance }}</option>
+                </select>
+                <span class="text-sm text-red-500" v-if="errors.assistance_id && errors.assistance_id.length">{{ errors.assistance_id[0] }}</span>
+              </div>
+              <div class="form-group">
+                <label for="incident" class="block text-sm font-medium mb-2" :class="themeClasses">Incident/Case</label>
+                <select id="incident" v-model="data.incident" :class="dropClasses"
+                  class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200"
+                  :disabled="!data.incidentType || filteredIncidents.length === 0">
+                  <option disabled value="">Select incident</option>
+                  <option v-for="incident in filteredIncidents" :key="incident.id" :value="incident.id">
+                    {{ incident.type }}
+                  </option>
+                </select>
+                <span class="text-sm text-red-500" v-if="errors.incident_id && errors.incident_id.length">{{ errors.incident_id[0] }}</span>
+              </div>
+              <div class="form-group">
+                <label for="actionType" class="block text-sm font-medium mb-2" :class="themeClasses">Type of
+                  Action</label>
+                <select id="actionType" v-model="data.actionType" :class="dropClasses"
+                  class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
+                  <option disabled value="">Select action</option>
+                  <option v-for="action in actions" :key="action.id" :value="action.id">{{ action.actions }}</option>
+                </select>
+                <span class="text-sm text-red-500" v-if="errors.actions_id && errors.actions_id.length">{{ errors.actions_id[0] }}</span>
+              </div>
+            </div>
+
+            <h2 class="text-2xl font-bold mb-6 mt-12" :class="themeClasses">Time Information</h2>
+            <div class="space-y-4">
+              <div class="form-group">
+                <label for="receivedDate" class="block text-sm font-medium mb-2" :class="themeClasses">Date
+                  Received</label>
+                <input type="date" id="receivedDate" v-model="data.receivedDate" :class="dropClasses"
+                  class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
+                  <span class="text-sm text-red-500" v-if="errors.date_received && errors.date_received.length">{{ errors.date_received[0] }}</span>
+              </div>
+              <div class="form-group">
+                <label for="arrivalDate" class="block text-sm font-medium mb-2" :class="themeClasses">Time of Arrival on
+                  Site</label>
+                <input type="time" id="arrivalDate" v-model="data.arrivalTime" :class="dropClasses"
+                  class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
+                <span class="text-sm text-red-500" v-if="errors.arrival_on_site && errors.arrival_on_site.length">{{ errors.arrival_on_site[0] }}</span>
+              </div>
+              <div class="form-group">
+                <label for="incidentTime" class="block text-sm font-medium mb-2" :class="themeClasses">Time of
+                  Incident</label>
+                <input type="time" id="incidentTime" v-model="data.incidentTime" :class="dropClasses"
+                  class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
+                <span class="text-sm text-red-500" v-if="errors.time && errors.time.length">{{ errors.time[0] }}</span>
+              </div>
+            </div>
           </div>
 
-        <main class="flex-1 my-2 px-2">
+          <div class="w-px bg-gray-300 mx-4"></div>
 
-            <form @submit.prevent="submitForm" class="space-y-6 mx-auto max-w-6xl p-4">
-                <div class="p-6 rounded-lg shadow-lg flex" :class="themeClasses">
-                    <div class="w-1/2 pr-4">
-                        <h2 class="text-2xl font-bold mb-6" :class="themeClasses">Source Information</h2>
-                        <div class="grid grid-cols-2 gap-4 mb-8">
-                            <div class="form-group">
-                                <label for="source" class="block text-sm font-medium mb-2" :class="themeClasses">Source of Report</label>
-                                <select id="source" v-model="data.source" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
-                                    <option disabled value="">Select source</option>
-                                    <option v-for="source in sources" :key="source.id" :value="source.id">
-                                        {{ source.sources || "No Source Available"}}
-                                    </option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="incidentType" class="block text-sm font-medium mb-2" :class="themeClasses">Case Classification</label>
-                                <select id="incidentType" v-model="data.incidentType" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
-                                    <option disabled value="">Select classification</option>
-                                    <option v-for="assistance in assistance" :key="assistance.id" :value="assistance.id">{{ assistance.assistance }}</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="incident" class="block text-sm font-medium mb-2" :class="themeClasses">Incident/Case</label>
-                                <select id="incident" v-model="data.incident" :class="dropClasses"
-                                    class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200"
-                                    :disabled="!data.incidentType || filteredIncidents.length === 0">
-                                    <option disabled value="">Select incident</option>
-                                    <option v-for="incident in filteredIncidents" :key="incident.id" :value="incident.id">
-                                    {{ incident.type }}
-                                    </option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="actionType" class="block text-sm font-medium mb-2" :class="themeClasses">Type of Action</label>
-                                <select id="actionType" v-model="data.actionType" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
-                                    <option disabled value="">Select action</option>
-                                    <option v-for="action in actions" :key="action.id" :value="action.id">{{ action.actions }}</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <h2 class="text-2xl font-bold mb-6 mt-12" :class="themeClasses">Time Information</h2>
-                        <div class="space-y-4">
-                            <div class="form-group">
-                                <label for="receivedDate" class="block text-sm font-medium mb-2" :class="themeClasses">Date Received</label>
-                                <input type="date" id="receivedDate" v-model="data.receivedDate" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
-                            </div>
-                            <div class="form-group">
-                                <label for="arrivalDate" class="block text-sm font-medium mb-2" :class="themeClasses">Time of Arrival on Site</label>
-                                <input type="time" id="arrivalDate" v-model="data.arrivalTime" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
-                            </div>
-                            <div class="form-group">
-                                <label for="incidentTime" class="block text-sm font-medium mb-2" :class="themeClasses">Time of Incident</label>
-                                <input type="time" id="incidentTime" v-model="data.incidentTime" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="w-px bg-gray-300 mx-4"></div>
-
-                    <!-- right side -->
-                    <div class="w-1/2 pl-4">
-                        <h2 class="text-2xl font-bold mb-6" :class="themeClasses">Place Information</h2>
-                        <div class="space-y-4">
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="form-group">
-                                    <label for="place" class="block text-sm font-medium mb-2" :class="themeClasses">Place of Incident</label>
-                                    <select id="place" v-model="data.barangay" :class="dropClasses" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
-                                        <option disabled value="">Select Barangay (128)</option>
-                                        <option v-for="barangay in barangays" :key="barangay.id" :value="barangay.id">{{ barangay.name }}</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="details" class="block text-sm font-medium mb-2" :class="themeClasses">Location Details</label>
-                                    <input id="details" v-model="data.details" :class="dropClasses" placeholder="Enter location details/landmarks" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <div id="map" class="mb-4 h-64"></div>
-                            </div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="form-group">
-                                    <label for="longitude" class="block text-sm font-medium mb-2" :class="themeClasses">Longitude</label>
-                                    <input id="longitude" v-model="data.Longitude" :class="dropClasses" placeholder="Enter Longitude" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="latitude" class="block text-sm font-medium mb-2" :class="themeClasses">Latitude</label>
-                                    <input id="latitude" v-model="data.Latitude" :class="dropClasses" placeholder="Enter Latitude" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
-                                </div>
-                            </div>
-                            <div class="flex justify-end space-x-4 mt-8">
-                              <PrimaryButton type="button" name="Clear" @click="clearForm"
-                              class="px-6 py-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200" />
-                              <PrimaryButton type="submit" name="Add Report"
-                              class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200" />
-                            </div>
-                        </div>
-                    </div>
+          <!-- right side -->
+          <div class="w-1/2 pl-4">
+            <h2 class="text-2xl font-bold mb-6" :class="themeClasses">Place Information</h2>
+            <div class="space-y-4">
+              <div class="grid grid-cols-2 gap-4">
+                <div class="form-group">
+                  <label for="place" class="block text-sm font-medium mb-2" :class="themeClasses">Place of
+                    Incident</label>
+                  <select id="place" v-model="data.barangay" :class="dropClasses"
+                    class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200">
+                    <option disabled value="">Select Barangay (128)</option>
+                    <option v-for="barangay in barangays" :key="barangay.id" :value="barangay.id">{{ barangay.name }}
+                    </option>
+                  </select>
+                  <span class="text-sm text-red-500" v-if="errors.barangay_id && errors.barangay_id.length">{{ errors.barangay_id[0] }}</span>
                 </div>
-            </form>
-        </main>
+                <div class="form-group">
+                  <label for="details" class="block text-sm font-medium mb-2" :class="themeClasses">Location
+                    Details</label>
+                  <input id="details" v-model="data.details" :class="dropClasses"
+                    placeholder="Enter location details/landmarks"
+                    class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
+                  <span class="text-sm text-red-500" v-if="errors.landmark && errors.landmark.length">{{ errors.landmark[0] }}</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div id="map" class="mb-4 h-64"></div>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div class="form-group">
+                  <label for="longitude" class="block text-sm font-medium mb-2" :class="themeClasses">Longitude</label>
+                  <input id="longitude" v-model="data.Longitude" :class="dropClasses" placeholder="Enter Longitude"
+                    class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
+                  <span class="text-sm text-red-500" v-if="errors.longitude && errors.longitude.length">{{ errors.longitude[0] }}</span>
+                </div>
+                <div class="form-group">
+                  <label for="latitude" class="block text-sm font-medium mb-2" :class="themeClasses">Latitude</label>
+                  <input id="latitude" v-model="data.Latitude" :class="dropClasses" placeholder="Enter Latitude"
+                    class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
+                  <span class="text-sm text-red-500" v-if="errors.latitude && errors.latitude.length">{{ errors.latitude[0] }}</span>
+                </div>
+              </div>
+              <div class="flex justify-end space-x-4 mt-8">
+                <PrimaryButton type="button" name="Clear" @click="clearForm"
+                  class="px-6 py-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200" />
+                <PrimaryButton type="submit" name="Add Report"
+                  class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </main>
   </div>
+  <Toast v-if="success.length > 0" :message="success" />
 </template>
 
 <style scoped>

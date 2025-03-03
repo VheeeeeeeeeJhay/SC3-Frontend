@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 
 defineProps({
     message: String,
@@ -9,9 +9,17 @@ defineProps({
 
 const isVisible = ref(true);
 
+// Function to close the toast
 const closeToast = () => {
     isVisible.value = false;
 };
+
+// Set a timeout to automatically close the toast after 5 seconds
+onMounted(() => {
+    setTimeout(() => {
+        closeToast();
+    }, 5000); // Automatically close after 5 seconds
+});
 </script>
 
 <template>
