@@ -37,7 +37,7 @@ const clear = () => ({
 
 const success = ref([]);
 const errors = ref([]);
-const toastError = ref('');
+const toastError = ref([]);
 
 const formSubmit = async () => {
   try {
@@ -56,15 +56,13 @@ const formSubmit = async () => {
       success.value = response.data.message;
     })
     .catch(error => { 
-      // console.error(error.data.message)
-      toastError.value = error.response.data.message;
-      errors.value = error.response.data.errors;
+      console.error(error.response.data.error)
+      errors.value = error.response.data.error;
     })
   }
   catch (error) {
     console.error(error.response.data.message)
-    // toastError = error.response.data.message;
-    // errors.value = error.response.data.errors;
+    toastError.value = error.response.data.message;
   }
 }
 </script>
