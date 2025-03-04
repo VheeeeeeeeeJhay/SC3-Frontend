@@ -196,9 +196,9 @@ watch(searchQuery, () => {
 
 <template>
   <div class="min-h-screen">
-    <div v-if="errorMessage">
+    <!-- <div v-if="errorMessage">
       <p class="text-red-500">{{ errorMessage }}</p>
-    </div>
+    </div> -->
 
     <!-- render loading animation before displaying datatable -->
     <div v-if="isLoading" class="flex justify-center">
@@ -207,9 +207,8 @@ watch(searchQuery, () => {
           <span class="sr-only">Loading...</span>
       </div>
     </div>
-    
 
-    <div v-else>
+    <!-- <div v-else> -->
       <div v-if="barangays.length > 0" >
           <section class="w-full">
           <div class="mt-6 px-4 w-full" >
@@ -293,33 +292,31 @@ watch(searchQuery, () => {
                             <td class="px-4 py-3 " v-if="!barangay.longitude"><Badge Message="No Data for Longitude" /></td>
                             <td class="px-4 py-3" v-if="barangay.latitude">{{ barangay.latitude }}</td>
                             <td class="px-4 py-3" v-if="!barangay.latitude"><Badge Message="No Data for Latitude" /></td>
+                            <td class="px-4 py-3 border border-gray-600">
+                              <div class="p-2 space-x-2">
+                                <PopupModal Title="Edit Barangay" ModalButton="Edit" Icon="home" Classes="">
+                                  <template #modalContent>
+                                    <div class="p-6">
+                                      <EditBarangay />
+                                    </div>
+                                  </template>
+                                </PopupModal>
 
-                  <td class="px-4 py-3 border border-gray-600">
-                    <div class="p-2 space-x-2">
-                      <PopupModal Title="Edit Barangay" ModalButton="Edit" Icon="home" Classes="">
-                        <template #modalContent>
-                          <div class="p-6">
-                            <EditBarangay />
-                          </div>
-                        </template>
-                      </PopupModal>
+                                <PopupModal Title="Are you sure you want to delete this barangay?" ModalButton="Delete"
+                                  Icon="cancel" Classes="">
+                                  <template #modalContent>
+                                    <div class="p-6">
+                                      <PrimaryButton @click.prevent="formSubmit(barangay.id)" name="Delete"
+                                        class="bg-red-500 hover:bg-red-600 text-gray-100 shadow-md" />
+                                    </div>
+                                  </template>
+                                </PopupModal>
 
-                      <PopupModal Title="Are you sure you want to delete this barangay?" ModalButton="Delete"
-                        Icon="cancel" Classes="">
-                        <template #modalContent>
-                          <div class="p-6">
-                            <PrimaryButton @click.prevent="formSubmit(barangay.id)" name="Delete"
-                              class="bg-red-500 hover:bg-red-600 text-gray-100 shadow-md" />
-                          </div>
-                        </template>
-                      </PopupModal>
-
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-
-            </table>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
 
                   </div>
                   <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">
@@ -393,10 +390,10 @@ watch(searchQuery, () => {
             </div>
           </section>
 
-  </div>
+    </div>
   <!-- <div v-else>
           <p>No Barangays found.</p>
       </div> -->
 
-  <!-- </div> -->
+  </div>
 </template>

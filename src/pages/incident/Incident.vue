@@ -1,6 +1,5 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import Table from '../../components/Table.vue';
 import axiosClient from '../../axios.js';
 
 const reports = ref([]);
@@ -35,6 +34,6 @@ onMounted(() => {
 
 <template>
     <div>
-        <Table :reports="reports" :classifications="classifications" :isLoading="isLoading" :errorMessage="errorMessage"/>   
+          
     </div>
 </template>

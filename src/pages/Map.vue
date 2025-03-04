@@ -15,7 +15,9 @@ let map = null;
 onMounted(() => {
   axiosClient
     .get("/api/911/report-display", {
-      headers: { "x-api-key": "$m@rtC!ty" },
+      headers: { 
+        "x-api-key": import.meta.env.VITE_API_KEY
+      },
     })
     .then((res) => {
       reports.value = res.data[0];

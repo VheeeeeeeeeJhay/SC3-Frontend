@@ -330,9 +330,9 @@ const formSubmit = async (report_Id) => {
                                     </div>
                                 </td>
                             </tr>
-                            <tr v-else>
+                            <!-- <tr v-else>
                                 <td colspan="5">No reports found.</td>
-                            </tr>
+                            </tr> -->
                         </tbody>
                     </table>
                 </div>
