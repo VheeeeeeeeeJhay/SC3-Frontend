@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import PrimaryButton from '../../components/PrimaryButton.vue';
 import AddBarangay from './AddBarangay.vue';
 import EditBarangay from './EditBarangay.vue';
@@ -22,6 +22,13 @@ const hoverClasses = computed(() => {
   ? "border border-black hover:bg-slate-700 hover:border-gray-600 focus:ring-2 focus:ring-slate-500 focus:outline-none" 
   : "border border-gray-700 hover:bg-sky-100 hover:border-gray-500 focus:ring-2 focus:ring-sky-400 focus:outline-none";
 });
+
+// Dropdown base styles
+const dropMenuClasses = computed(() => {
+  return themeStore.isDarkMode 
+    ? "hover:bg-slate-600" : "hover:bg-sky-100"
+});
+
 const barangays = ref([]);
 const errorMessage = ref('');
 const errors = ref('');
@@ -165,14 +172,36 @@ document.addEventListener("click", closeDropdowns);
 
 // Pagination
 const currentPage = ref(1);
-const itemsPerPage = ref(10); // Number of reports per page
-const totalItems = computed(() => barangays.value.length); // Total number of reports
-const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage.value)); // Calculate total pages
-
+const itemsPerPage = ref(10);
+// Total pages based on filtered results
+const totalPages = computed(() => {
+  return Math.ceil(filteredBarangays.value.length / itemsPerPage.value);
+});
+// Get paginated barangays
 const paginatedBarangays = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value;
   const end = start + itemsPerPage.value;
   return filteredBarangays.value.slice(start, end);
+});
+// Pagination controls
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+  }
+};
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+  }
+};
+const goToPage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+  }
+};
+// Reset to first page when searching
+watch(searchQuery, () => {
+  currentPage.value = 1;
 });
 </script>
 
@@ -196,7 +225,7 @@ const paginatedBarangays = computed(() => {
           <section class="w-full">
           <div class="mt-6 px-4 w-full" >
               <!-- Start coding here -->
-              <div class="relative shadow-md sm:rounded-lg overflow-hidden" :class="themeClasses">
+              <div class="relative shadow-md sm:rounded-lg" :class="themeClasses">
                   <div
                       class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
                       <div class="w-full md:w-1/2">
@@ -295,37 +324,54 @@ const paginatedBarangays = computed(() => {
                               <span class="sr-only">Loading...</span>
                           </div>
                       </div>
-                      <table v-else class="w-full text-sm text-left border border-gray-600 divide-y divide-gray-600"
-                        :class="themeStore.isDarkMode ? 'text-gray-300' : 'text-gray-800'">
-                        
-                        <thead class="text-xs uppercase"
-                          :class="themeStore.isDarkMode ? 'bg-slate-900 text-gray-300' : 'bg-teal-300 text-gray-800'">
+                      <table v-else class="w-full text-sm text-left">
+                        <thead class="text-xs uppercase " :class="themeStore.isDarkMode ? 'bg-slate-900 text-gray-300' : 'bg-teal-300 text-gray-800'">
                           <tr>
-                            <th scope="col" class="px-4 py-3">Barangay ID</th>
+                            <th scope="col" class="px-4 py-3 ">Barangay ID</th>
                             <th scope="col" class="px-4 py-3">Barangay Name</th>
                             <th scope="col" class="px-4 py-3">Barangay Longitude</th>
                             <th scope="col" class="px-4 py-3">Barangay Latitude</th>
                             <th scope="col" class="px-4 py-3">Actions</th>
                           </tr>
                         </thead>
-
                         <tbody>
                           <tr v-for="barangay in paginatedBarangays" :key="barangay.id"
-                            :class="themeStore.isDarkMode ? 'bg-slate-800 hover:bg-slate-700' : 'bg-sky-50 hover:bg-gray-100'">
+                            :class="themeStore.isDarkMode ? 'bg-slate-800 hover:bg-slate-700' : 'bg-sky-50 hover:bg-gray-200'">
                             
-                            <td class="px-4 py-3 border border-gray-600">{{ barangay.id }}</td>
-                            <td class="px-4 py-3 border border-gray-600">{{ barangay.name }}</td>
-                            <td class="px-4 py-3 border border-gray-600">{{ barangay.longitude }}</td>
-                            <td class="px-4 py-3 border border-gray-600">{{ barangay.latitude }}</td>
+                            <td class="px-4 py-3 ">{{ barangay.id }}</td>
+                            <td class="px-4 py-3 ">{{ barangay.name }}</td>
+                            <td class="px-4 py-3 ">{{ barangay.longitude }}</td>
+                            <td class="px-4 py-3 ">{{ barangay.latitude }}</td>
                             
-                            <td class="px-4 py-3 border border-gray-600">
-                              <div class="p-2 space-x-2">
-                                <PrimaryButton @click.stop="openEditModal(barangay)" name="Edit"
-                                  class="bg-blue-500 hover:bg-blue-600 text-gray-100 shadow-md" />
-                                <PrimaryButton @click.prevent="formSubmit(barangay.id)" name="Delete"
-                                  class="bg-red-500 hover:bg-red-600 text-gray-100 shadow-md" />
-                              </div>
-                            </td>
+                            <td class="px-4 py-3 flex items-center relative">
+                            <!-- Dropdown Button -->
+                            <button @click.stop="toggleDropdown(barangay.id)"
+                              class="inline-flex items-center p-0.5 text-sm font-medium rounded-lg"
+                              type="button">
+                              <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                  d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+                              </svg>
+                            </button>
+
+                            <!-- Dropdown Menu -->
+                            <div v-if="openDropdownId === barangay.id" ref="dropdownRefs"
+                              :class="themeStore.isDarkMode ? 'bg-slate-700' : 'bg-white'"
+                              class="absolute z-[10] w-44 mt-2 top-full left-0 shadow-sm border rounded-md">
+                              <ul class="py-2 text-sm">
+                                <li>
+                                  <button @click.stop="openEditModal(barangay)"
+                                    class="block px-4 py-2 w-full text-left" :class="dropMenuClasses">
+                                    Edit
+                                  </button>
+                                </li>
+                                <li class="block px-2" :class="dropMenuClasses">
+                                  <PrimaryButton @click="formSubmit(barangay.id)" name="Delete" />
+                                </li>
+                              </ul>
+                            </div>
+                          </td>
                           </tr>
                         </tbody>
 
@@ -333,59 +379,59 @@ const paginatedBarangays = computed(() => {
 
                   </div>
                   <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">
-                      <span class="text-sm font-normal">
-                          Showing
-                          <span class="font-semibold">{{ (currentPage - 1) * itemsPerPage + 1 }} - 
-                          {{ Math.min(currentPage * itemsPerPage, totalItems) }}</span>
-                          of
-                          <span class="font-semibold">{{ totalItems }}</span>
-                      </span>
-                      
-                      <ul class="inline-flex items-stretch -space-x-px">
-                          <!-- Previous Page -->
-                          <li>
-                              <button 
-                                  @click="currentPage = Math.max(1, currentPage - 1)" 
-                                  :disabled="currentPage === 1"
-                                  class="flex items-center justify-center h-full py-1.5 px-3 ml-0 rounded-l-lg border"
-                                  :class="hoverClasses">
-                                  <span class="sr-only">Previous</span>
-                                  <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
-                                      xmlns="http://www.w3.org/2000/svg">
-                                      <path fill-rule="evenodd"
-                                          d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                                          clip-rule="evenodd" />
-                                  </svg>
-                              </button>
-                          </li>
+                    <span class="text-sm font-normal">
+                        Showing
+                        <span class="font-semibold">{{ filteredBarangays.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}</span>
+                        to
+                        <span class="font-semibold">{{ Math.min(currentPage * itemsPerPage, filteredBarangays.length) }}</span>
+                        of
+                        <span class="font-semibold">{{ filteredBarangays.length }}</span>
+                    </span>
+                    
+                    <ul class="inline-flex items-stretch -space-x-px">
+                        <!-- Previous Page -->
+                        <li>
+                            <button 
+                                @click="prevPage" 
+                                :disabled="currentPage === 1"
+                                class="flex items-center justify-center h-full py-1.5 px-3 ml-0 rounded-l-lg border"
+                                :class="hoverClasses">
+                                <span class="sr-only">Previous</span>
+                                <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </li>
 
-                          <!-- Page Numbers -->
-                          <li v-for="page in totalPages" :key="page">
-                              <button 
-                                  @click="currentPage = page" 
-                                  :class="[hoverClasses, { [hoverClasses]: page === currentPage }]"
-                                  class="flex items-center justify-center text-sm py-2 px-3 leading-tight border">
-                                  {{ page }}
-                              </button>
-                          </li>
+                        <!-- Page Numbers -->
+                        <li v-for="page in totalPages" :key="page">
+                            <button 
+                                @click="goToPage(page)" 
+                                :class="['flex items-center justify-center text-sm py-2 px-3 leading-tight border', currentPage === page ? 'bg-teal-500 text-white border-black' : hoverClasses]">
+                                {{ page }}
+                            </button>
+                        </li>
 
-                          <!-- Next Page -->
-                          <li>
-                              <button 
-                                  @click="currentPage = Math.min(totalPages, currentPage + 1)" 
-                                  :disabled="currentPage === totalPages"
-                                  class="flex items-center justify-center h-full py-1.5 px-3 leading-tight rounded-r-lg border"
-                                  :class="hoverClasses">
-                                  <span class="sr-only">Next</span>
-                                  <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
-                                      xmlns="http://www.w3.org/2000/svg">
-                                      <path fill-rule="evenodd"
-                                          d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                          clip-rule="evenodd" />
-                                  </svg>
-                              </button>
-                          </li>
-                      </ul>
+                        <!-- Next Page -->
+                        <li>
+                            <button 
+                                @click="nextPage" 
+                                :disabled="currentPage === totalPages"
+                                class="flex items-center justify-center h-full py-1.5 px-3 leading-tight rounded-r-lg border"
+                                :class="hoverClasses">
+                                <span class="sr-only">Next</span>
+                                <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </li>
+                    </ul>
                   </nav>
               </div>
           </div>

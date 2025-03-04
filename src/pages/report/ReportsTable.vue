@@ -9,7 +9,7 @@ const themeStore = useThemeStore();
 const themeClasses = computed(() => {
   return themeStore.isDarkMode 
     ? "bg-slate-800 border border-black text-white  "
-    : "bg-sky-100 border border-gray-200 text-gray-800 shadow-sm ";
+    : "bg-sky-50 border border-gray-200 text-gray-800 shadow-sm ";
 });
 // Hover styles (separate for reusability)
 const hoverClasses = computed(() => {
@@ -122,17 +122,14 @@ document.addEventListener("click", closeDropdowns);
 // Pagination
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
-
 // Total pages based on filtered results
 const totalPages = computed(() => {
   return Math.ceil(filteredReports.value.length / itemsPerPage.value);
 });
-
 // Get paginated reports
 const paginatedReports = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value;
   const end = start + itemsPerPage.value;
-  
   return filteredReports.value.slice(start, end);
 });
 
@@ -142,19 +139,16 @@ const nextPage = () => {
     currentPage.value++;
   }
 };
-
 const prevPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--;
   }
 };
-
 const goToPage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page;
   }
 };
-
 // Reset to first page when searching
 watch(searchQuery, () => {
   currentPage.value = 1;
@@ -312,7 +306,7 @@ const formSubmit = (report_Id) => {
                         </div>
                     </div>
                     <table v-else class="w-full text-sm text-left">
-                        <thead class="text-xs uppercase" :class="themeStore.isDarkMode ? 'bg-slate-700' : 'bg-teal-300'">
+                        <thead class="text-xs uppercase" :class="themeStore.isDarkMode ? 'bg-slate-900 text-gray-300' : 'bg-teal-300 text-gray-800'">
                             <tr>
                                 <th scope="col" class="px-4 py-3">ID</th>
                                 <th scope="col" class="px-4 py-3">Source</th>
@@ -323,7 +317,8 @@ const formSubmit = (report_Id) => {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="report in paginatedReports" :key="report.id">
+                            <tr v-for="report in paginatedReports" :key="report.id" 
+                            :class="themeStore.isDarkMode ? 'bg-slate-800 hover:bg-slate-700' : 'bg-sky-50 hover:bg-gray-200'">
                                 <td class="px-4 py-3">{{ report.id }}</td>
                                 <td class="px-4 py-3">{{ report.source.sources }}</td>
                                 <td class="px-4 py-3">{{ report.assistance.assistance }}</td>
@@ -387,8 +382,6 @@ const formSubmit = (report_Id) => {
                                 :class="['px-3 py-1 border', currentPage === page ? 'bg-teal-500 text-white border-black' : hoverClasses]">
                                 {{ page }}
                             </button>
-
-
                         </li>
                         <li>
                             <button @click="nextPage" :disabled="currentPage === totalPages"

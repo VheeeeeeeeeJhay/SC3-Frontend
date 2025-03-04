@@ -18,7 +18,7 @@ const user = computed(() => userStore.user);
 // For dark mode
 const themeStore = useThemeStore();
 const themeClasses = computed(() => {
-  return themeStore.isDarkMode ? "bg-slate-700 border-black text-white" : "bg-sky-100 border-gray-200 text-gray-800"
+  return themeStore.isDarkMode ? "bg-slate-800 border-black text-white" : "bg-sky-50 border-gray-200 text-gray-800"
 })
 const dropClasses = computed(() => {
   return themeStore.isDarkMode ? "bg-slate-600 border-black text-white" : "bg-white border-gray-200 text-gray-800"
@@ -27,6 +27,7 @@ const dropClasses = computed(() => {
 // Clearing Form Data
 const clearForm = () => {
   data.value = {
+    name: '',
     source_id: '',
     assistance_id: '',
     incident_id: '',
@@ -67,7 +68,6 @@ const actions = ref([]);
 const incidents = ref([]);
 const assistance = ref([]);
 const barangays = ref([]);
-
 const errorMessage = ref('');
 
 
@@ -115,6 +115,7 @@ const submitForm = () => {
       clearForm();
     })
     .catch(error => {
+      console.log('error daw', data.value);
       console.log('Error:', error.response.data);
     })
 };
@@ -127,7 +128,6 @@ const filteredIncidents = computed(() => {
     ? incidents.value.filter(incident_id => incident_id.assistance_id === data.value.assistance_id)
     : [];
 });
-
 watch(() => data.value.assistance_id, () => {
   data.value.incident_id = ''; // Reset the incident dropdown
 });
@@ -135,11 +135,11 @@ watch(() => data.value.assistance_id, () => {
 
 //Map scripts
 const { coords } = useGeolocation();
-
 const latitude = ref(0);
 const longitude = ref(0);
 let map = leaflet.Map;
 let marker;
+let singleMarker;
 
 onMounted(() => {
   map = leaflet
@@ -163,7 +163,7 @@ onMounted(() => {
   map.setMinZoom(12);
 
 // Add Default Marker at Baguio
-  let singleMarker = leaflet
+singleMarker = leaflet
     .marker([latitude.value, longitude.value])
     .addTo(map)
     .bindPopup(
@@ -236,26 +236,31 @@ watch(() => data.value.barangay_id, (newBarangayId) => {
   if (selectedBarangay) {
     data.value.longitude = selectedBarangay.longitude || '';
     data.value.latitude = selectedBarangay.latitude || '';
+
+    // ✅ Remove Default Marker
+    if (singleMarker) {
+      map.removeLayer(singleMarker);
+      singleMarker = null; // Clear reference
+    }
+
+    // ✅ Remove Previous Marker (if exists)
+    if (marker) {
+      map.removeLayer(marker);
+    }
+
+    // ✅ Add New Marker for Selected Barangay
+    marker = leaflet
+      .marker([selectedBarangay.latitude, selectedBarangay.longitude])
+      .addTo(map)
+      .bindPopup(`Barangay: ${selectedBarangay.name} (${selectedBarangay.latitude}, ${selectedBarangay.longitude})`)
+      .openPopup();
+
+    // ✅ Center Map to New Marker
+    map.setView([selectedBarangay.latitude, selectedBarangay.longitude], 15);
   } else {
     data.value.longitude = '';
     data.value.latitude = '';
   }
-  
-  // Update marker on the map
-  if (marker) {
-      marker.setLatLng([selectedBarangay.latitude, selectedBarangay.longitude]);
-      marker.bindPopup(`${selectedBarangay.name} (${selectedBarangay.latitude}, ${selectedBarangay.longitude})`).openPopup();
-    } else {
-      // If marker doesn't exist yet, create a new one
-      marker = leaflet.marker([selectedBarangay.latitude, selectedBarangay.longitude])
-        .addTo(map)
-        .bindPopup(`Barangay: ${selectedBarangay.name} (${selectedBarangay.latitude}, ${selectedBarangay.longitude})`)
-        .openPopup();
-    }
-
-    // Center the map on the new location
-    map.setView([selectedBarangay.latitude, selectedBarangay.longitude], 15);
-
 });
 </script>
 
@@ -358,11 +363,11 @@ watch(() => data.value.barangay_id, (newBarangayId) => {
                             <div class="grid grid-cols-2 gap-4">
                               <div class="form-group">
                                     <label for="latitude" class="block text-sm font-medium mb-2" :class="themeClasses">Latitude</label>
-                                    <input disabled id="latitude" v-model="data.latitude" :class="dropClasses" placeholder="Enter latitude" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
+                                    <input  id="latitude" v-model="data.latitude" :class="dropClasses" placeholder="Enter latitude" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
                                 </div>
                                 <div class="form-group">
                                     <label for="longitude" class="block text-sm font-medium mb-2" :class="themeClasses">Longitude</label>
-                                    <input disabled id="longitude" v-model="data.longitude" :class="dropClasses" placeholder="Enter longitude" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
+                                    <input  id="longitude" v-model="data.longitude" :class="dropClasses" placeholder="Enter longitude" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
                                 </div>   
                             </div>
                             <div class="flex justify-end space-x-4 mt-8">
