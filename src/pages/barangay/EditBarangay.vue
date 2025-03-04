@@ -33,7 +33,7 @@ onMounted(() => {
     isLoading.value = true;
     axiosClient.get(`/api/911/barangay-edit/${barangay_Id}`, {
         headers: {
-            'x-api-key': '$m@rtC!ty'
+            'x-api-key': import.meta.env.VITE_API_KEY
         }
     })
     .then((res) => {
@@ -65,19 +65,19 @@ watch(
 
 function formSubmit() {
     console.log(data.value);
-    // const formData = new FormData();
-    // formData.append('name', data.value.name);
-    // formData.append('longitude', data.value.longitude);
-    // formData.append('latitude', data.value.latitude);
-    // errors.value = '';
-    axiosClient.put(`/api/911/barangay-update/${data.value.id}`, data.value, {
+    const formData = new FormData();
+    formData.append('name', data.value.name);
+    formData.append('longitude', data.value.longitude);
+    formData.append('latitude', data.value.latitude);
+    errors.value = '';
+    axiosClient.put(`/api/911/barangay-update/${data.value.id}`, formData, {
         headers: {
-            'x-api-key': '$m@rtC!ty'
+            'x-api-key': import.meta.env.VITE_API_KEY
         }
     })
     .then(response => {
         router.push({ name: 'Barangay' });
-        console.log('Barangay updated ba');
+        console.log('Barangay updated successfully!');
     })
     .catch(error => {
         console.log(error.response.data.data);

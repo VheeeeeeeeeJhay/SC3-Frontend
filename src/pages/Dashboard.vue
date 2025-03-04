@@ -21,7 +21,7 @@ const incidents = ref([]);
 onMounted(() => {
   axiosClient.get('/api/911/dashboard', {
       headers: {
-          'x-api-key': '$m@rtC!ty'
+          'x-api-key': import.meta.env.VITE_API_KEY
       }
   })
   .then((res) => {

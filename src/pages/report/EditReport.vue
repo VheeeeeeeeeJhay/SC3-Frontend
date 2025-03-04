@@ -63,7 +63,7 @@ onMounted(() => {
     //fetch data for dropdowns
     axiosClient.get('/api/911/report', {
     headers: {
-      'x-api-key': '$m@rtC!ty'
+      'x-api-key': import.meta.env.VITE_API_KEY
     }
   })
     .then((res) => {
@@ -81,7 +81,9 @@ onMounted(() => {
 
     //fetch data for report item to be updated
     axiosClient.get(`/api/911/report-edit/${report_Id}`, {
-        headers: {'x-api-key': '$m@rtC!ty'}
+        headers: {
+            'x-api-key': import.meta.env.VITE_API_KEY
+        }
     })
     .then((res) => {
         console.log("API Response:", res.data);
@@ -138,8 +140,7 @@ const updateForm = () => {
 
   axiosClient.put(`/api/911/report/${report_Id}`, payload, {
     headers: {
-      'x-api-key': '$m@rtC!ty',
-      'Content-Type': 'application/json'
+      'x-api-key': import.meta.env.VITE_API_KEY,
     }
   })
   .then(response => {

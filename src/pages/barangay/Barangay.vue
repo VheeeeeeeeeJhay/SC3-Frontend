@@ -7,20 +7,23 @@ import axiosClient from '../../axios.js';
 import Modal from '../../components/Modal.vue';
 import { useRouter } from 'vue-router';
 import { useThemeStore } from '../../stores/themeStore';
+import Loader1 from '../../components/Loader1.vue';
+import PopupModal from '../../components/PopupModal.vue';
+import Badge from '../../components/Badge.vue';
 
 // For dark mode
 const themeStore = useThemeStore();
 const themeClasses = computed(() => {
-  return themeStore.isDarkMode 
+  return themeStore.isDarkMode
     ? "bg-slate-800 border border-gray-600 text-gray-200"
     : "bg-sky-50 border border-gray-200 text-gray-800 shadow-sm";
 });
 
 // Hover styles (separate for reusability)
 const hoverClasses = computed(() => {
-  return themeStore.isDarkMode 
-  ? "border border-black hover:bg-slate-700 hover:border-gray-600 focus:ring-2 focus:ring-slate-500 focus:outline-none" 
-  : "border border-gray-700 hover:bg-sky-100 hover:border-gray-500 focus:ring-2 focus:ring-sky-400 focus:outline-none";
+  return themeStore.isDarkMode
+    ? "border border-black hover:bg-slate-700 hover:border-gray-600 focus:ring-2 focus:ring-slate-500 focus:outline-none"
+    : "border border-gray-700 hover:bg-sky-100 hover:border-gray-500 focus:ring-2 focus:ring-sky-400 focus:outline-none";
 });
 
 // Dropdown base styles
@@ -38,32 +41,32 @@ const selectedBarangay = ref(null);
 onMounted(() => {
   isLoading.value = true;
   axiosClient.get('/api/911/barangay', {
-      headers: {
-          'x-api-key': '$m@rtC!ty'
-      }
+    headers: {
+      'x-api-key': import.meta.env.VITE_API_KEY
+    }
   })
-  .then((res) => {
+    .then((res) => {
       // console.log(res);
       console.log(res);
       // barangays.value = res.data;
       // isLoading.value = false;
       setTimeout(() => {
-          barangays.value = res.data;
-          isLoading.value = false; // Stop loading after delay
+        barangays.value = res.data;
+        isLoading.value = false; // Stop loading after delay
       }, 1500);
-  })
-  .catch((error) => {
+    })
+    .catch((error) => {
       isLoading.value = false;
       console.error('Error fetching data:', error);
       errorMessage.value = 'Failed to load barangays. Please try again later.';
-  });
+    });
 
   // ------------------------------------------
   document.addEventListener("click", (event) => {
-        if (
-            openDropdownId.value !== null &&
-            !dropdownRefs.value[openDropdownId.value]?.contains(event.target)
-        ) {
+    if (
+      openDropdownId.value !== null &&
+      !dropdownRefs.value[openDropdownId.value]?.contains(event.target)
+    ) {
       closeDropdown();
     }
   });
@@ -86,9 +89,9 @@ const filteredBarangays = computed(() => {
     // Match search query
     const matchesSearch = query
       ? barangayId.includes(query) ||
-        barangayName.includes(query) ||
-        barangayLat.includes(query) ||
-        barangayLong.includes(query)
+      barangayName.includes(query) ||
+      barangayLat.includes(query) ||
+      barangayLong.includes(query)
       : true;
 
     // const matchesClassification = selectedClassifications.value.length === 0 || 
@@ -102,45 +105,31 @@ const filteredBarangays = computed(() => {
 
 // Pass The ID To Delete
 const formSubmit = (barangay_Id) => {
-    errors.value = ''; // 🔹 Reset errors before making a request
-    axiosClient.delete(`/api/911/barangay-delete/${barangay_Id}`, {
-        headers: {
-            'x-api-key': '$m@rtC!ty'
-        }
-    })
+  errors.value = ''; // 🔹 Reset errors before making a request
+  axiosClient.delete(`/api/911/barangay-delete/${barangay_Id}`, {
+    headers: {
+      'x-api-key': import.meta.env.VITE_API_KEY
+    }
+  })
     .then(() => {
-        // Remove the deleted barangay from the list without refreshing the page
-        barangays.value = barangays.value.filter(b => b.id !== barangay_Id);
-        console.log('Barangay deleted successfully');
+      // Remove the deleted barangay from the list without refreshing the page
+      barangays.value = barangays.value.filter(b => b.id !== barangay_Id);
+      console.log('Barangay deleted successfully');
     })
     .catch(error => {
-        console.error('Error deleting barangay:', error.response?.data);
-        errors.value = error.response?.data?.errors || 'Failed to delete barangay.';
+      console.error('Error deleting barangay:', error.response?.data);
+      errors.value = error.response?.data?.errors || 'Failed to delete barangay.';
     });
-};
-
-// For Modal
-const isModalOpen = ref(false)
-const openModal = () => {
-   isModalOpen.value = true;
-   console.log("🚀 ~ openModal ~ isModalOpen:", isModalOpen.value)
-};
-
-const isEditModalOpen = ref(false)
-const openEditModal = (barangay) => {
-  selectedBarangay.value = barangay; // Store barangay details
-  isEditModalOpen.value = true;
-   console.log("🚀 ~ openModal ~ isEditModalOpen:", isEditModalOpen.value)
 };
 
 //for dropdown
 const openDropdownId = ref(null);
 const dropdownRefs = ref([]);
 const closeDropdown = () => {
-    openDropdownId.value = null;
+  openDropdownId.value = null;
 };
 const toggleDropdown = (transactionId) => {
-    openDropdownId.value = openDropdownId.value === transactionId ? null : transactionId;
+  openDropdownId.value = openDropdownId.value === transactionId ? null : transactionId;
 };
 
 
@@ -246,85 +235,45 @@ watch(searchQuery, () => {
                                   placeholder="Search..."
                                   />
 
-                              </div>
-                          </form>
-                      </div>
-                      <div
-                          class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0" >
-                          
-                              <button @click.stop="openModal()" type="button"
-                                  class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium focus:outline-none border rounded-lg" :class="hoverClasses">
-                                  <span class="material-icons">
-                                      add
-                                  </span>
-                                  Add Barangay
-                              </button>
-                              <Modal v-if="isModalOpen" v-model="isModalOpen" @click.stop >
-                                <template #contents>
-                                  <div class="p-6">
-                                    <AddBarangay />
-                                  </div>
-                                  <!-- <FormInput /> -->
-                                </template>
-                              </Modal>
-                          
-                          <div class="flex items-center space-x-3 w-full md:w-auto relative">
-                              <!-- Filter Dropdown Button -->
-                              <!-- <button
-                              @click="toggleFilterDropdown"
-                              class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium focus:outline-none rounded-lg border"
-                              :class="hoverClasses"
-                              id="filterDropdownButton"
-                              >
-                              <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                                  <path
-                                  fill-rule="evenodd"
-                                  d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
-                                  clip-rule="evenodd"
-                                  />
-                              </svg>
-                              Filter
-                              <svg class="-mr-1 ml-1.5 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                  <path
-                                  clip-rule="evenodd"
-                                  fill-rule="evenodd"
-                                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                  />
-                              </svg>
-                              </button> -->
+                </div>
+              </form>
+            </div>
+            <div
+              class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
 
-                              <!-- Filter Dropdown Menu -->
-                              <div
-                              id="filterDropdown"
-                              v-show="isFilterDropdownOpen"
-                              class="absolute top-full left-0 z-10 w-48 p-3 bg-white rounded-lg shadow"
-                              >
-                              <h6 class="mb-3 text-sm font-medium">Choose Classification</h6>
-                                  <ul class="space-y-2 text-sm">
-                                      <li v-for="classification in classifications" :key="classification.id" class="flex items-center">
-                                          <input
-                                            type="checkbox"
-                                            :id="classification.id"
-                                            :value="classification.id"
-                                            v-model="selectedClassifications"
-                                            class="w-4 h-4"
-                                          />
-                                          <label :for="classification.id" class="ml-2 text-sm font-medium">{{ classification.assistance }}</label>
-                                      </li>
-                                  </ul>
-                              </div>
-                          </div>
-                      </div>
+              <PopupModal Title="Add a new Barangay" ModalButton="Add Barangay" Icon="home" Classes=""
+                ButtonClass="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium focus:outline-none border hover:text-white hover:border-green-300 rounded-lg hover:bg-green-400">
+                <template #modalContent>
+                  <div class="p-6">
+                    <AddBarangay />
                   </div>
-                  <div class="">
-                      <!-- render loading animation before displaying datatable -->
-                      <div v-if="isLoading" class="flex justify-center">
-                          <div role="status">
-                              <svg aria-hidden="true" class="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg>
-                              <span class="sr-only">Loading...</span>
-                          </div>
-                      </div>
-                      <table v-else class="w-full text-sm text-left">
+                </template>
+              </PopupModal>
+
+              <div class="flex items-center space-x-3 w-full md:w-auto relative">
+
+                <!-- Filter Dropdown Menu -->
+                <div id="filterDropdown" v-show="isFilterDropdownOpen"
+                  class="absolute top-full left-0 z-10 w-48 p-3 bg-white rounded-lg shadow">
+                  <h6 class="mb-3 text-sm font-medium">Choose Classification</h6>
+                  <ul class="space-y-2 text-sm">
+                    <li v-for="classification in classifications" :key="classification.id" class="flex items-center">
+                      <input type="checkbox" :id="classification.id" :value="classification.id"
+                        v-model="selectedClassifications" class="w-4 h-4" />
+                      <label :for="classification.id" class="ml-2 text-sm font-medium">{{ classification.assistance
+                        }}</label>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="">
+            <!-- render loading animation before displaying datatable -->
+            <div v-if="isLoading" class="flex justify-center">
+              <Loader1 />
+            </div>
+            <table v-else class="w-full text-sm text-left">
                         <thead class="text-xs uppercase " :class="themeStore.isDarkMode ? 'bg-slate-900 text-gray-300' : 'bg-teal-300 text-gray-800'">
                           <tr>
                             <th scope="col" class="px-4 py-3 ">Barangay ID</th>
@@ -340,42 +289,37 @@ watch(searchQuery, () => {
                             
                             <td class="px-4 py-3 ">{{ barangay.id }}</td>
                             <td class="px-4 py-3 ">{{ barangay.name }}</td>
-                            <td class="px-4 py-3 ">{{ barangay.longitude }}</td>
-                            <td class="px-4 py-3 ">{{ barangay.latitude }}</td>
-                            
-                            <td class="px-4 py-3 flex items-center relative">
-                            <!-- Dropdown Button -->
-                            <button @click.stop="toggleDropdown(barangay.id)"
-                              class="inline-flex items-center p-0.5 text-sm font-medium rounded-lg"
-                              type="button">
-                              <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                  d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
-                              </svg>
-                            </button>
+                            <td class="px-4 py-3 " v-if="barangay.longitude">{{ barangay.longitude }}</td>
+                            <td class="px-4 py-3 " v-if="!barangay.longitude"><Badge Message="No Data for Longitude" /></td>
+                            <td class="px-4 py-3" v-if="barangay.latitude">{{ barangay.latitude }}</td>
+                            <td class="px-4 py-3" v-if="!barangay.latitude"><Badge Message="No Data for Latitude" /></td>
 
-                            <!-- Dropdown Menu -->
-                            <div v-if="openDropdownId === barangay.id" ref="dropdownRefs"
-                              :class="themeStore.isDarkMode ? 'bg-slate-700' : 'bg-white'"
-                              class="absolute z-[10] w-44 mt-2 top-full left-0 shadow-sm border rounded-md">
-                              <ul class="py-2 text-sm">
-                                <li>
-                                  <button @click.stop="openEditModal(barangay)"
-                                    class="block px-4 py-2 w-full text-left" :class="dropMenuClasses">
-                                    Edit
-                                  </button>
-                                </li>
-                                <li class="block px-2" :class="dropMenuClasses">
-                                  <PrimaryButton @click="formSubmit(barangay.id)" name="Delete" />
-                                </li>
-                              </ul>
-                            </div>
-                          </td>
-                          </tr>
-                        </tbody>
+                  <td class="px-4 py-3 border border-gray-600">
+                    <div class="p-2 space-x-2">
+                      <PopupModal Title="Edit Barangay" ModalButton="Edit" Icon="home" Classes="">
+                        <template #modalContent>
+                          <div class="p-6">
+                            <EditBarangay />
+                          </div>
+                        </template>
+                      </PopupModal>
 
-                      </table>
+                      <PopupModal Title="Are you sure you want to delete this barangay?" ModalButton="Delete"
+                        Icon="cancel" Classes="">
+                        <template #modalContent>
+                          <div class="p-6">
+                            <PrimaryButton @click.prevent="formSubmit(barangay.id)" name="Delete"
+                              class="bg-red-500 hover:bg-red-600 text-gray-100 shadow-md" />
+                          </div>
+                        </template>
+                      </PopupModal>
+
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+
+            </table>
 
                   </div>
                   <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">
@@ -449,12 +393,10 @@ watch(searchQuery, () => {
             </div>
           </section>
 
-      </div>
-      <div v-else>
-          <p>No Barangays found.</p>
-      </div>
-    
   </div>
+  <!-- <div v-else>
+          <p>No Barangays found.</p>
+      </div> -->
 
-</div>
+  <!-- </div> -->
 </template>

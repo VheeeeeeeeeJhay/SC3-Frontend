@@ -7,18 +7,17 @@ import router from "../../router.js";
 import logo from '../../assets/baguio-logo.png';
 
 
-
 const data = ref({
   email: '',
   password: '',
 })
 const errorMessage = ref('')
 
-function submit() {
+const submit = () => {
   axiosClient.get('/sanctum/csrf-cookie').then(response => {
     axiosClient.post("/login", data.value, {
       headers: {
-        'x-api-key':'$m@rtC!ty'
+        'x-api-key': import.meta.env.VITE_API_KEY
       }
       })
       .then(response => {
