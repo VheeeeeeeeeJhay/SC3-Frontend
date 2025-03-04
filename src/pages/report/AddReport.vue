@@ -66,8 +66,6 @@ const incidents = ref([]);
 const assistance = ref([]);
 const barangays = ref([]);
 
-
-
 const fetchData = async () => {
   await axiosClient.get('/api/911/report', {
     headers: {
