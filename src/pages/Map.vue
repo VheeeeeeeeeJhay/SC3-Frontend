@@ -1,95 +1,131 @@
 <script setup>
-import { ref, computed, onMounted, watchEffect} from 'vue';
+import { ref, computed, onMounted, watchEffect } from "vue";
+import axiosClient from "../axios";
+import leaflet from "leaflet";
+import "leaflet.heat";
+import { useGeolocation } from "@vueuse/core";
+import { userMarker } from "../stores/mapStore.js";
 
+const { coords } = useGeolocation();
+const reports = ref([]);
+const heatmapLayer = ref(null);
+let map = null;
 
-import leaflet from 'leaflet';
-import {useGeolocation} from '@vueuse/core';
-import { userMarker, nearbyMarkers } from '../stores/mapStore.js';
-const{coords} = useGeolocation();
+// **Fetch Reports**
+onMounted(() => {
+  axiosClient
+    .get("/api/911/report-display", {
+      headers: { 
+        "x-api-key": import.meta.env.VITE_API_KEY
+      },
+    })
+    .then((res) => {
+      reports.value = res.data[0];
+      console.log("Fetched Reports:", reports.value);
+      updateHeatmap();
+    })
+    .catch((error) => console.error("Error fetching reports:", error));
+});
 
-const latitude = ref(0);
-const longitude = ref(0);
+// **Compute Grouped Reports**
+const groupedReports = computed(() => {
+  const grouped = {};
 
-let map = leaflet.Map;
-let userGeoMarker = leaflet.Marker;
+  reports.value.forEach((report) => {
+    const { barangay, incident } = report;
+    const { id, name, latitude, longitude } = barangay;
 
+    if (!grouped[id]) {
+      grouped[id] = { name, latitude, longitude, incidents: {} };
+    }
+
+    if (!grouped[id].incidents[incident.id]) {
+      grouped[id].incidents[incident.id] = { name: incident.type, count: 0 };
+    }
+
+    grouped[id].incidents[incident.id].count += 1;
+  });
+
+  return grouped;
+});
+
+// **Initialize Map**
 onMounted(() => {
   map = leaflet
-  .map('map')
-  .setView([userMarker.value.latitude, userMarker.value.longitude], 13);
-
-  leaflet
-    .tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    keepBuffer: 2,
-    attribution: 
-      '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    })
-    .addTo(map);
-
-    const bounds = leaflet.latLngBounds(
-      [16.350, 120.520], // Southwest (bottom-left) - moved further out
-      [16.480, 120.660]  // Northeast (top-right) - moved further out
+    .map("map")
+    .setView([16.404, 120.599], 13)
+    .addLayer(
+      leaflet.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      })
     );
-    map.setMaxBounds(bounds);
-    map.setMinZoom(12); // Prevent zooming out too much
 
-    let singleMarker = null;
+  // ✅ Create heatmap ONCE
+  heatmapLayer.value = leaflet.heatLayer([], {
+    radius: 25,
+    blur: 15,
+    maxZoom: 17,
+    minOpacity: 0.4,
+    gradient: {
+      0.3: "blue",
+      0.6: "green",
+      1.0: "red",
+    },
+  }).addTo(map);
 
-    map.addEventListener("click", (e) => {
-    const { lat: newLat, lng: newLng } = e.latlng;
+  updateHeatmap(); // ✅ Only update points
+  
+});
 
-    if (bounds.contains([newLat, newLng])) {
-      if (singleMarker) {
-        map.removeLayer(singleMarker);
-      }
 
-      // 📍 Add a new marker
-      singleMarker = leaflet
-        .marker([newLat, newLng])
-        .addTo(map)
-        .bindPopup(
-          `Selected Marker at (<strong>${newLat.toFixed(5)}, ${newLng.toFixed(5)}</strong>)`
-        )
-        .openPopup();
 
-      // Update the stored user marker
-      userMarker.value.latitude = newLat;
-      userMarker.value.longitude = newLng;
-      // update new value
-      latitude.value = newLat;
-      longitude.value = newLng;
+// **Extract Data for Heatmap**
+const getHeatmapData = () => {
+  let heatData = [];
 
-    } else {
-      alert("You cannot place markers outside Baguio City.");
+  Object.values(groupedReports.value).forEach(({ latitude, longitude, incidents }) => {
+    const totalCount = Object.values(incidents).reduce((sum, inc) => sum + inc.count, 0);
+    if (latitude && longitude) {
+      heatData.push([latitude, longitude, totalCount]);
     }
   });
-});
 
+  return heatData;
+};
+
+// **Update Heatmap Layer**
+const updateHeatmap = () => {
+  if (!map || !heatmapLayer.value) return;
+
+  const heatData = getHeatmapData();
+
+  // ✅ Instead of re-adding, update heat layer data
+  heatmapLayer.value.setLatLngs(heatData);
+};
+
+
+
+
+// ✅ Refresh heatmap only when reports change (prevent excessive updates)
 watchEffect(() => {
-  if (coords.value.latitude && coords.value.longitude) {
-    latitude.value = coords.value.latitude;
-    longitude.value = coords.value.longitude;
+  if (reports.value.length > 0) {
+    updateHeatmap();
   }
 });
-
 </script>
 
+
 <template>
-  
-  <br>
   <div class="min-h-screen">
+    <h2 class="text-lg font-bold mb-4">Heatmap of Incidents</h2>
     <div id="map"></div>
-    
-      <div class="text-white text-lg"><p>hello</p> {{ latitude }} {{ longitude }}</div>
   </div>
-    
-    
 </template>
 
-
 <style scoped>
-#map { 
+#map {
   height: 70vh;
-  width: 50%; }
+  width: 100%;
+}
 </style>

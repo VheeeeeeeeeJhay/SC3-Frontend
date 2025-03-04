@@ -188,7 +188,7 @@ const cancelSignout = () => {
           </div>
       </aside>
 
-      <div class="pt-14 p-4 sm:ml-56" :class="themeClasses">
+      <div class="pt-14 p-4 sm:ml-56" :class="dropClasses">
           <router-view />
       </div>
   </div>
