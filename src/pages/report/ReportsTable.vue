@@ -12,9 +12,9 @@ import Badge from '../../components/Badge.vue';
 // For dark mode
 const themeStore = useThemeStore();
 const themeClasses = computed(() => {
-    return themeStore.isDarkMode
-        ? "bg-slate-800 border border-black text-white  "
-        : "bg-sky-50 border border-gray-200 text-gray-800 shadow-sm ";
+  return themeStore.isDarkMode 
+    ? "bg-slate-800 border border-black text-white  "
+    : "bg-sky-100 border border-gray-200 text-gray-800 shadow-sm ";
 });
 // Hover styles (separate for reusability)
 const hoverClasses = computed(() => {

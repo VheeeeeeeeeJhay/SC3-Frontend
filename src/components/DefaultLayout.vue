@@ -161,7 +161,7 @@ const cancelSignout = () => {
       </nav>
 
       <aside id="logo-sidebar"
-          class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full border-r sm:translate-x-0" :class="themeClasses"
+          class="fixed top-0 left-0 z-40 w-56 h-screen pt-20 transition-transform -translate-x-full border-r sm:translate-x-0" :class="themeClasses"
           aria-label="Sidebar">
           <div class="h-full px-3 pb-4 overflow-y-auto" :class="themeClasses">
               <ul class="space-y-2 font-medium">
@@ -188,7 +188,7 @@ const cancelSignout = () => {
           </div>
       </aside>
 
-      <div class=" pt-14 p-4 sm:ml-64" :class="dropClasses">
+      <div class="pt-14 p-4 sm:ml-56" :class="themeClasses">
           <router-view />
       </div>
   </div>
