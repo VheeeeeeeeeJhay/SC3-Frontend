@@ -25,34 +25,37 @@ const hoverClasses = computed(() => {
     ? "border border-black hover:bg-slate-700 hover:border-gray-600 focus:ring-2 focus:ring-slate-500 focus:outline-none"
     : "border border-gray-700 hover:bg-sky-100 hover:border-gray-500 focus:ring-2 focus:ring-sky-400 focus:outline-none";
 });
+
 const barangays = ref([]);
 const errorMessage = ref('');
 const errors = ref('');
 const isLoading = ref(false);
 const selectedBarangay = ref(null);
 
-onMounted(() => {
-  isLoading.value = true;
+const fetchData = async () => {
   axiosClient.get('/api/911/barangay', {
     headers: {
       'x-api-key': import.meta.env.VITE_API_KEY
     }
   })
-    .then((res) => {
-      // console.log(res);
-      console.log(res);
-      // barangays.value = res.data;
-      // isLoading.value = false;
-      setTimeout(() => {
-        barangays.value = res.data;
-        isLoading.value = false; // Stop loading after delay
-      }, 1500);
-    })
-    .catch((error) => {
-      isLoading.value = false;
-      console.error('Error fetching data:', error);
-      errorMessage.value = 'Failed to load barangays. Please try again later.';
+  .then((res) => {
+    console.log(res);
+    setTimeout(() => {
+      barangays.value = res.data;
+      isLoading.value = false; // Stop loading after delay
     });
+  })
+  .catch((error) => {
+    isLoading.value = false;
+    console.error('Error fetching data:', error);
+    errorMessage.value = 'Failed to load barangays. Please try again later.';
+  });
+}
+
+onMounted(() => {
+  isLoading.value = true;
+  
+  fetchData();
 
   // ------------------------------------------
   document.addEventListener("click", (event) => {
