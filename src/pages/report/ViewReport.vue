@@ -5,20 +5,6 @@ import { useRoute, useRouter } from 'vue-router';
 import PrimaryButton from '../../components/PrimaryButton.vue';
 import leaflet from 'leaflet';
 
-import { useThemeStore } from '../../stores/themeStore';
-// For dark mode
-const themeStore = useThemeStore();
-const themeClasses = computed(() => {
-  return themeStore.isDarkMode 
-    ? "bg-slate-800 border border-black text-white  "
-    : "bg-sky-50 border border-gray-200 text-gray-800 shadow-sm ";
-});
-// Hover styles (separate for reusability)
-const hoverClasses = computed(() => {
-  return themeStore.isDarkMode 
-  ? "border border-black hover:bg-slate-700 hover:border-gray-600 focus:ring-2 focus:ring-slate-500 focus:outline-none" 
-  : "border border-gray-700 hover:bg-sky-100 hover:border-gray-500 focus:ring-2 focus:ring-sky-400 focus:outline-none";
-});
 
 const route = useRoute();
 const router = useRouter();
@@ -109,24 +95,24 @@ watchEffect(() => {
     </div>
   
     <!-- Content Wrapper -->
-    <div class="container mx-auto mt-6 p-4  shadow-md rounded-lg" :class="themeClasses">
+    <div class="container mx-auto mt-6 p-4 bg-sky-50 dark:bg-slate-800  shadow-md rounded-lg" :class="themeClasses">
       <div class="flex flex-col md:flex-row">
         <!-- Left Side: Text Information -->
-        <div class="w-full md:w-1/2 p-6 rounded-lg">
-        <h2 class="text-lg font-semibold mb-4">Incident Details</h2>
+        <div class="w-full md:w-1/2 p-6 rounded-lg text-gray-800 dark:text-gray-200">
+        <h2 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Incident Details</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
-                <div><span class="font-semibold">Name:</span> {{ data.name }}</div>
-                <div><span class="font-semibold">Source:</span> {{ data.source?.sources }}</div>
-                <div><span class="font-semibold">Incident Type:</span> {{ data.assistance?.assistance }}</div>
-                <div><span class="font-semibold">Incident:</span> {{ data.incident?.type }}</div>
-                <div><span class="font-semibold">Action:</span> {{ data.actions?.actions }}</div>
-                <div><span class="font-semibold">Received Date:</span> {{ data.date_received }}</div>
-                <div><span class="font-semibold">Arrival Time:</span> {{ data.arrival_on_site }}</div>
-                <div><span class="font-semibold">Incident Time:</span> {{ data.time }}</div>
-                <div><span class="font-semibold">Barangay:</span> {{ data.barangay?.name }}</div>
-                <div><span class="font-semibold">Details:</span> {{ data.landmark }}</div>
-                <div><span class="font-semibold">Longitude:</span> {{ data.longitude }}</div>
-                <div><span class="font-semibold">Latitude:</span> {{ data.latitude }}</div>
+                <div><span class="font-semibold ">Name:</span> {{ data.name }}</div>
+                <div><span class="font-semibold ">Source:</span> {{ data.source?.sources }}</div>
+                <div><span class="font-semibold ">Incident Type:</span> {{ data.assistance?.assistance }}</div>
+                <div><span class="font-semibold ">Incident:</span> {{ data.incident?.type }}</div>
+                <div><span class="font-semibold ">Action:</span> {{ data.actions?.actions }}</div>
+                <div><span class="font-semibold ">Received Date:</span> {{ data.date_received }}</div>
+                <div><span class="font-semibold ">Arrival Time:</span> {{ data.arrival_on_site }}</div>
+                <div><span class="font-semibold ">Incident Time:</span> {{ data.time }}</div>
+                <div><span class="font-semibold ">Barangay:</span> {{ data.barangay?.name }}</div>
+                <div><span class="font-semibold ">Details:</span> {{ data.landmark }}</div>
+                <div><span class="font-semibold ">Longitude:</span> {{ data.longitude }}</div>
+                <div><span class="font-semibold ">Latitude:</span> {{ data.latitude }}</div>
             </div>
         </div>
 

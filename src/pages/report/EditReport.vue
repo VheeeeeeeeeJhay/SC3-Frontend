@@ -7,20 +7,20 @@ import { useGeolocation } from '@vueuse/core';
 import { userMarker } from '../../stores/mapStore.js';
 import PrimaryButton from '../../components/PrimaryButton.vue';
 import leaflet from 'leaflet';
-import { useThemeStore } from '../../stores/themeStore';
+
 import useUserStore from '../../stores/user.js';
 // Get Auth User Information
 const userStore = useUserStore();
 const user = computed(() => userStore.user);
 console.log("USER ID:", user.value.id);
-// For dark mode
-const themeStore = useThemeStore();
-const themeClasses = computed(() => {
-  return themeStore.isDarkMode ? "bg-slate-800 border-black text-white" : "bg-sky-50 border-gray-200 text-gray-800"
-})
-const dropClasses = computed(() => {
-  return themeStore.isDarkMode ? "bg-slate-600 border-black text-white" : "bg-white border-gray-200 text-gray-800"
-})
+// // For dark mode
+// const themeStore = useThemeStore();
+// const themeClasses = computed(() => {
+//   return themeStore.isDarkMode ? "bg-slate-800 border-black text-white" : "bg-sky-50 border-gray-200 text-gray-800"
+// })
+// const dropClasses = computed(() => {
+//   return themeStore.isDarkMode ? "bg-slate-600 border-black text-white" : "bg-white border-gray-200 text-gray-800"
+// })
 
 const route = useRoute();
 const router = useRouter();
@@ -207,7 +207,7 @@ watchEffect(() => {
         </div>
     </div>
     <div v-else>
-        <div style="min-height: 100vh;" >
+        <div style="min-height: 100vh;" class="" >
         <!-- Go Back Button -->
           <div class="mt-6 px-2 flex justify-end">
             <Button type="button" name="Back" @click.prevent="router.back()"
@@ -219,9 +219,9 @@ watchEffect(() => {
             </Button>
           </div>
 
-        <main class="flex-1 my-2 px-2">
+        <main class="flex-1 my-2 px-2 ">
 
-            <form @submit.prevent="updateForm" class="space-y-6 mx-auto max-w-6xl p-4">
+            <form @submit.prevent="updateForm" class="space-y-6 mx-auto max-w-6xl p-4 bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
                 <div class="p-6 rounded-lg shadow-lg flex" :class="themeClasses">
                     <div class="w-1/2 pr-4">
                         <h2 class="text-2xl font-bold mb-6" :class="themeClasses">Source Information</h2>
