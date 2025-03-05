@@ -118,14 +118,11 @@ const submitForm = async () => {
         clearForm();
         errors.value = [];
         console.log(success.value)
-        // goBack();
         fetchData();
       })
       .catch(error => {
         console.log('Error:', error.response.data);
         errors.value = error.response.data.errors;
-        // errors.value = error.response.data;
-        // console.log(errors.value)
       })
   } catch (error) {
     console.error(error.response.data);
@@ -279,7 +276,8 @@ function goBack() {
                     {{ source.sources || "No Source Available" }}
                   </option>
                 </select>
-                <span class="text-sm text-red-500" v-if="errors.source_id && errors.source_id.length">{{ errors.source_id[0] }}</span>
+                <span class="text-sm text-red-500" v-if="errors.source_id && errors.source_id.length">{{
+                  errors.source_id[0] }}</span>
               </div>
               <div class="form-group">
                 <label for="incidentType" class="block text-sm font-medium mb-2" :class="themeClasses">Case
@@ -290,7 +288,8 @@ function goBack() {
                   <option v-for="assistance in assistance" :key="assistance.id" :value="assistance.id">{{
                     assistance.assistance }}</option>
                 </select>
-                <span class="text-sm text-red-500" v-if="errors.assistance_id && errors.assistance_id.length">{{ errors.assistance_id[0] }}</span>
+                <span class="text-sm text-red-500" v-if="errors.assistance_id && errors.assistance_id.length">{{
+                  errors.assistance_id[0] }}</span>
               </div>
               <div class="form-group">
                 <label for="incident" class="block text-sm font-medium mb-2" :class="themeClasses">Incident/Case</label>
@@ -302,7 +301,8 @@ function goBack() {
                     {{ incident.type }}
                   </option>
                 </select>
-                <span class="text-sm text-red-500" v-if="errors.incident_id && errors.incident_id.length">{{ errors.incident_id[0] }}</span>
+                <span class="text-sm text-red-500" v-if="errors.incident_id && errors.incident_id.length">{{
+                  errors.incident_id[0] }}</span>
               </div>
               <div class="form-group">
                 <label for="actionType" class="block text-sm font-medium mb-2" :class="themeClasses">Type of
@@ -312,7 +312,8 @@ function goBack() {
                   <option disabled value="">Select action</option>
                   <option v-for="action in actions" :key="action.id" :value="action.id">{{ action.actions }}</option>
                 </select>
-                <span class="text-sm text-red-500" v-if="errors.actions_id && errors.actions_id.length">{{ errors.actions_id[0] }}</span>
+                <span class="text-sm text-red-500" v-if="errors.actions_id && errors.actions_id.length">{{
+                  errors.actions_id[0] }}</span>
               </div>
             </div>
 
@@ -323,14 +324,16 @@ function goBack() {
                   Received</label>
                 <input type="date" id="receivedDate" v-model="data.receivedDate" :class="dropClasses"
                   class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
-                  <span class="text-sm text-red-500" v-if="errors.date_received && errors.date_received.length">{{ errors.date_received[0] }}</span>
+                <span class="text-sm text-red-500" v-if="errors.date_received && errors.date_received.length">{{
+                  errors.date_received[0] }}</span>
               </div>
               <div class="form-group">
                 <label for="arrivalDate" class="block text-sm font-medium mb-2" :class="themeClasses">Time of Arrival on
                   Site</label>
                 <input type="time" id="arrivalDate" v-model="data.arrivalTime" :class="dropClasses"
                   class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
-                <span class="text-sm text-red-500" v-if="errors.arrival_on_site && errors.arrival_on_site.length">{{ errors.arrival_on_site[0] }}</span>
+                <span class="text-sm text-red-500" v-if="errors.arrival_on_site && errors.arrival_on_site.length">{{
+                  errors.arrival_on_site[0] }}</span>
               </div>
               <div class="form-group">
                 <label for="incidentTime" class="block text-sm font-medium mb-2" :class="themeClasses">Time of
@@ -358,7 +361,8 @@ function goBack() {
                     <option v-for="barangay in barangays" :key="barangay.id" :value="barangay.id">{{ barangay.name }}
                     </option>
                   </select>
-                  <span class="text-sm text-red-500" v-if="errors.barangay_id && errors.barangay_id.length">{{ errors.barangay_id[0] }}</span>
+                  <span class="text-sm text-red-500" v-if="errors.barangay_id && errors.barangay_id.length">{{
+                    errors.barangay_id[0] }}</span>
                 </div>
                 <div class="form-group">
                   <label for="details" class="block text-sm font-medium mb-2" :class="themeClasses">Location
@@ -366,7 +370,8 @@ function goBack() {
                   <input id="details" v-model="data.details" :class="dropClasses"
                     placeholder="Enter location details/landmarks"
                     class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
-                  <span class="text-sm text-red-500" v-if="errors.landmark && errors.landmark.length">{{ errors.landmark[0] }}</span>
+                  <span class="text-sm text-red-500" v-if="errors.landmark && errors.landmark.length">{{
+                    errors.landmark[0] }}</span>
                 </div>
               </div>
 
@@ -378,13 +383,15 @@ function goBack() {
                   <label for="longitude" class="block text-sm font-medium mb-2" :class="themeClasses">Longitude</label>
                   <input id="longitude" v-model="data.Longitude" :class="dropClasses" placeholder="Enter Longitude"
                     class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
-                  <span class="text-sm text-red-500" v-if="errors.longitude && errors.longitude.length">{{ errors.longitude[0] }}</span>
+                  <span class="text-sm text-red-500" v-if="errors.longitude && errors.longitude.length">{{
+                    errors.longitude[0] }}</span>
                 </div>
                 <div class="form-group">
                   <label for="latitude" class="block text-sm font-medium mb-2" :class="themeClasses">Latitude</label>
                   <input id="latitude" v-model="data.Latitude" :class="dropClasses" placeholder="Enter Latitude"
                     class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200" />
-                  <span class="text-sm text-red-500" v-if="errors.latitude && errors.latitude.length">{{ errors.latitude[0] }}</span>
+                  <span class="text-sm text-red-500" v-if="errors.latitude && errors.latitude.length">{{
+                    errors.latitude[0] }}</span>
                 </div>
               </div>
               <div class="flex justify-end space-x-4 mt-8">

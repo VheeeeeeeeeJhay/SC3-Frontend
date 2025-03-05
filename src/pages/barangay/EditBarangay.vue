@@ -5,6 +5,9 @@ import { onMounted, ref, computed, watch } from 'vue';
 import PrimaryButton from '../../components/PrimaryButton.vue';
 import { useThemeStore } from '../../stores/themeStore';
 import { useRouter } from 'vue-router';
+import Toast from '../../components/Toast.vue';
+
+
 const router = useRouter();
 
 // Dark mode
@@ -29,11 +32,13 @@ const data = ref({
     latitude: ''
 });
 
-const isLoading = ref(false);
-const errors = ref(null);
+const submitLoading = ref(false);
 
-onMounted(() => {
-    isLoading.value = true;
+const isLoading = ref(false);
+const errors = ref('');
+const success = ref('');
+
+const fetchData = () => {
     axiosClient.get(`/api/911/barangay-edit/${barangay_Id.value}`, {
         headers: {
             'x-api-key': import.meta.env.VITE_API_KEY
@@ -48,20 +53,21 @@ onMounted(() => {
         console.error('Error fetching data:', error);
         isLoading.value = false;
     });
+}
+
+onMounted(() => {
+    isLoading.value = true;
+    fetchData();
 });
 
 function formSubmit() {
-    console.log("Submitting data:", data.value);
-
+    submitLoading.value = true;
     // Convert ref values to JSON (instead of using FormData)
     const payload = {
         name: data.value.name ?? '',
         longitude: data.value.longitude ?? '',
         latitude: data.value.latitude ?? ''
     };
-
-    console.log("Payload being sent:", payload);
-
     axiosClient.put(`/api/911/barangay-update/${barangay_Id.value}`, payload, {
         headers: {
             'x-api-key': import.meta.env.VITE_API_KEY,
@@ -69,8 +75,8 @@ function formSubmit() {
         }
     })
     .then(response => {
-        console.log('Barangay updated successfully!', response.data);
-        router.push({ name: 'Barangay' });
+        console.log(response.data.message);
+        success.value = response.data.message;
     })
     .catch(error => {
         if (error.response) {
@@ -79,6 +85,9 @@ function formSubmit() {
         } else {
             console.error('Unexpected error:', error);
         }
+    })
+    .finally(() => {
+        submitLoading.value = false;
     });
 }
 </script>
@@ -109,7 +118,8 @@ function formSubmit() {
                     <FormInput name="latitude" class="px-4 py-2 border rounded-md w-full" v-model="data.latitude" type="number" placeholder="Enter latitude"/>         
                 </div> 
 
-               <PrimaryButton type="submit" name="Update Barangay" class="text-white bg-green-600 hover:bg-green-700 w-full" />
+               <PrimaryButton v-if="!submitLoading" type="submit" name="Update Barangay" class="text-white bg-green-600 hover:bg-green-700 w-full" />
+               <PrimaryButton v-else type="button" disabled name="Updating..." class="text-white bg-green-900 w-full" />
             </form>
 
             <div v-if="errors" class="text-red-500 mt-2">
@@ -117,4 +127,6 @@ function formSubmit() {
             </div>
         </div>
     </div>
+    <Toast v-if="success.length > 0" :message="success" />
+    <Toast v-if="errors.length > 0" :message="errors" />
 </template>
