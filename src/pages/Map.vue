@@ -15,6 +15,9 @@ const heatmapLayer = ref(null);
 const geojsonLayer = ref(null); // Reference for GeoJSON layer
 let map = null;
 
+// **Reactive State for GeoJSON Border Toggle**
+const showGeoJSONBorders = ref(true); // Default: borders are shown
+
 // **Fetch Reports**
 onMounted(() => {
   axiosClient
@@ -118,11 +121,35 @@ onMounted(() => {
         });
       }
     }).addTo(map);
+
+    // Initially, check if borders should be visible
+    if (!showGeoJSONBorders.value) {
+      geojsonLayer.value.eachLayer((layer) => {
+        layer.setStyle({
+          weight: 0, // Hide border by setting weight to 0
+        });
+      });
+    }
+
     console.log("GeoJSON Layer added to the map with hover effect.");
   }
 
   updateHeatmap(); // ✅ Only update points
 });
+
+// **Toggle GeoJSON Borders**
+const toggleGeoJSONBorders = () => {
+  showGeoJSONBorders.value = !showGeoJSONBorders.value;
+
+  // Update GeoJSON border visibility based on the toggle
+  if (geojsonLayer.value) {
+    geojsonLayer.value.eachLayer((layer) => {
+      layer.setStyle({
+        weight: showGeoJSONBorders.value ? 2 : 0, // Show or hide border based on the toggle
+      });
+    });
+  }
+};
 
 // **Extract Data for Heatmap**
 const getHeatmapData = () => {
@@ -161,6 +188,12 @@ watchEffect(() => {
 <template>
   <div class="min-h-screen">
     <h2 class="text-lg font-bold mb-4">Heatmap of Incidents</h2>
+    
+    <!-- Button to toggle GeoJSON Borders -->
+    <button @click="toggleGeoJSONBorders" class="mb-4 px-4 py-2 bg-blue-500 text-white rounded-md">
+      Toggle GeoJSON Borders
+    </button>
+
     <div id="map"></div>
   </div>
 </template>
