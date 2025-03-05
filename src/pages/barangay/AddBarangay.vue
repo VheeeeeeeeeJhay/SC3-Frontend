@@ -23,18 +23,6 @@ const data = ref({
   latitude: '',
 })
 
-const clear = () => ({
-  name: '',
-  longitude: '',
-  latitude: '',
-})
-
-// const errors = ref({
-//   name: [],
-//   longitude: [],
-//   latitude: [],
-// });
-
 const success = ref([]);
 const errors = ref([]);
 const toastError = ref('');
@@ -52,6 +40,9 @@ const formSubmit = async () => {
     }
     })
     .then(response => { 
+      data.value.name = '';
+      data.value.longitude = '';
+      data.value.latitude = '';
       console.log(response)
       success.value = response.data.message;
     })
