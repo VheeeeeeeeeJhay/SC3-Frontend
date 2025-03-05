@@ -38,28 +38,32 @@ const errors = ref('');
 const isLoading = ref(false);
 const selectedBarangay = ref(null);
 
-onMounted(() => {
-  isLoading.value = true;
+const fetchData = async () => {
   axiosClient.get('/api/911/barangay', {
     headers: {
       'x-api-key': import.meta.env.VITE_API_KEY
     }
   })
-    .then((res) => {
-      // console.log(res);
-      console.log(res);
-      // barangays.value = res.data;
-      // isLoading.value = false;
-      setTimeout(() => {
-        barangays.value = res.data;
-        isLoading.value = false; // Stop loading after delay
-      }, 1500);
-    })
-    .catch((error) => {
-      isLoading.value = false;
-      console.error('Error fetching data:', error);
-      errorMessage.value = 'Failed to load barangays. Please try again later.';
-    });
+  .then((res) => {
+    // console.log(res);
+    console.log(res);
+    // barangays.value = res.data;
+    // isLoading.value = false;
+    setTimeout(() => {
+      barangays.value = res.data;
+      isLoading.value = false; // Stop loading after delay
+    }, 1500);
+  })
+  .catch((error) => {
+    isLoading.value = false;
+    console.error('Error fetching data:', error);
+    errorMessage.value = 'Failed to load barangays. Please try again later.';
+  });
+}
+
+onMounted(() => {
+  isLoading.value = true;
+  fetchData();
 
   // ------------------------------------------
   document.addEventListener("click", (event) => {
@@ -113,7 +117,8 @@ const formSubmit = (barangay_Id) => {
   })
     .then(() => {
       // Remove the deleted barangay from the list without refreshing the page
-      barangays.value = barangays.value.filter(b => b.id !== barangay_Id);
+      // barangays.value = barangays.value.filter(b => b.id !== barangay_Id);
+      fetchData();
       console.log('Barangay deleted successfully');
     })
     .catch(error => {
@@ -128,8 +133,12 @@ const dropdownRefs = ref([]);
 const closeDropdown = () => {
   openDropdownId.value = null;
 };
-const toggleDropdown = (transactionId) => {
-  openDropdownId.value = openDropdownId.value === transactionId ? null : transactionId;
+const toggleDropdown = (id) => {
+  if (openDropdownId.value === id) {
+    openDropdownId.value = null;
+  } else {
+    openDropdownId.value = id;
+  }
 };
 
 
@@ -192,6 +201,8 @@ const goToPage = (page) => {
 watch(searchQuery, () => {
   currentPage.value = 1;
 });
+
+
 </script>
 
 <template>
@@ -292,28 +303,52 @@ watch(searchQuery, () => {
                             <td class="px-4 py-3 " v-if="!barangay.longitude"><Badge Message="No Data for Longitude" /></td>
                             <td class="px-4 py-3" v-if="barangay.latitude">{{ barangay.latitude }}</td>
                             <td class="px-4 py-3" v-if="!barangay.latitude"><Badge Message="No Data for Latitude" /></td>
-                            <td class="px-4 py-3 border border-gray-600">
-                              <div class="p-2 space-x-2">
-                                <PopupModal Title="Edit Barangay" ModalButton="Edit" Icon="home" Classes="">
-                                  <template #modalContent>
-                                    <div class="p-6">
-                                      <EditBarangay />
-                                    </div>
-                                  </template>
-                                </PopupModal>
+                            <td class="px-4 py-3 flex items-center relative">
+                            <!-- Dropdown Button -->
+                            <button @click.stop="toggleDropdown(barangay.id)"
+                              class="inline-flex items-center p-0.5 text-sm font-medium rounded-lg"
+                              type="button" >
+                              <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                  d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+                              </svg>
+                            </button>
+                            <!-- Dropdown Menu -->
+                            <div v-if="openDropdownId === barangay.id" ref="dropdownRefs"
+                              :class="themeStore.isDarkMode ? 'bg-slate-700' : 'bg-white'"
+                              class="absolute z-[10] w-44 mt-2 top-full left-0 shadow-sm border rounded-md"
+                              @click.stop>
+                              
+                              <!-- Dropdown Items Container -->
+                              <div class="py-2 text-sm">
 
-                                <PopupModal Title="Are you sure you want to delete this barangay?" ModalButton="Delete"
-                                  Icon="cancel" Classes="">
-                                  <template #modalContent>
-                                    <div class="p-6">
-                                      <PrimaryButton @click.prevent="formSubmit(barangay.id)" name="Delete"
-                                        class="bg-red-500 hover:bg-red-600 text-gray-100 shadow-md" />
-                                    </div>
-                                  </template>
-                                </PopupModal>
+                                <!-- Edit Button -->
+                                <div class="block px-2 cursor-pointer" :class="dropMenuClasses">
+                                  <PopupModal Title="Edit Barangay" ModalButton="Edit" Icon="home" Classes="">
+                                    <template #modalContent>
+                                      <div>
+                                        <EditBarangay :barangay="barangay.id" />
+                                      </div>
+                                    </template>
+                                  </PopupModal>
+                                </div>
+
+                                <!-- Delete Button -->
+                                <div class="block px-2 cursor-pointer" :class="dropMenuClasses">
+                                  <PopupModal Title="Are you sure you want to delete this barangay?" ModalButton="Delete" Icon="cancel" Classes="">
+                                    <template #modalContent>
+                                      <div class="p-6">
+                                        <PrimaryButton @click.prevent="formSubmit(barangay.id)" name="Delete"
+                                          class="bg-red-500 hover:bg-red-600 text-gray-100 shadow-md" />
+                                      </div>
+                                    </template>
+                                  </PopupModal>
+                                </div>
 
                               </div>
-                            </td>
+                            </div>                               
+                          </td>
                           </tr>
                         </tbody>
                       </table>
@@ -377,17 +412,18 @@ watch(searchQuery, () => {
               </div>
           </div>
               <!-- Edit Barangay Modal -->
-            <div>
+               
+            <!-- <div> -->
               <!-- Use the modal component and bind the v-model -->
-              <Modal v-if="isEditModalOpen" v-model="isEditModalOpen" @click.stop >
+              <!-- <Modal v-if="isEditModalOpen" v-model="isEditModalOpen" @click.stop >
                 <template #contents>
                   <div class="p-6">
                     <EditBarangay v-if="selectedBarangay" :barangay="selectedBarangay" />
-                  </div>
+                  </div> -->
                   <!-- <FormInput /> -->
-                </template>
+                <!-- </template>
               </Modal>
-            </div>
+            </div> -->
           </section>
 
     </div>

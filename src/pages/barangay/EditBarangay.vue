@@ -2,10 +2,12 @@
 import FormInput from '../../components/FormInput.vue';
 import axiosClient from '../../axios';
 import { onMounted, ref, computed, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router'; // Import useRouter
 import PrimaryButton from '../../components/PrimaryButton.vue';
 import { useThemeStore } from '../../stores/themeStore';
-// For dark mode
+import { useRouter } from 'vue-router';
+const router = useRouter();
+
+// Dark mode
 const themeStore = useThemeStore();
 const themeClasses = computed(() => {
   return themeStore.isDarkMode 
@@ -13,14 +15,14 @@ const themeClasses = computed(() => {
     : "bg-sky-50 border border-gray-200 text-gray-800 hover:border-gray-300 focus:ring-2 focus:ring-sky-400 focus:outline-none";
 });
 
-const route = useRoute();
-const router = useRouter(); // Initialize router
-const barangay_Id = route.params.id; // Get the barangay ID from route params
-
-// ✅ Define props correctly
+// Props
 const props = defineProps({
-  barangay: Object
+  barangay: Number
 });
+const barangay_Id = ref(props.barangay); // Make it reactive
+
+console.log("Barangay ID from Props:", barangay_Id.value);
+
 const data = ref({
     name: '',
     longitude: '',
@@ -28,20 +30,19 @@ const data = ref({
 });
 
 const isLoading = ref(false);
+const errors = ref(null);
 
 onMounted(() => {
     isLoading.value = true;
-    axiosClient.get(`/api/911/barangay-edit/${barangay_Id}`, {
+    axiosClient.get(`/api/911/barangay-edit/${barangay_Id.value}`, {
         headers: {
             'x-api-key': import.meta.env.VITE_API_KEY
         }
     })
     .then((res) => {
-        setTimeout(() => {
-            console.log(res);
-            data.value = res.data; // Assuming the response contains the barangay data
-            isLoading.value = false;
-        }, 1500);
+        console.log("Fetched Data:", res.data);
+        data.value = { ...res.data }; // Ensuring we copy raw values
+        isLoading.value = false;
     })
     .catch((error) => {
         console.error('Error fetching data:', error);
@@ -49,42 +50,39 @@ onMounted(() => {
     });
 });
 
-const errors = ref('');
-
-console.log(data.value);
-
-watch(
-  () => props.barangay,
-  (newBarangay) => {
-    if (newBarangay) {
-      data.value = { ...newBarangay }; // ✅ Copy data correctly
-    }
-  },
-  { immediate: true } // ✅ Run immediately when component is mounted
-);
-
 function formSubmit() {
-    console.log(data.value);
-    const formData = new FormData();
-    formData.append('name', data.value.name);
-    formData.append('longitude', data.value.longitude);
-    formData.append('latitude', data.value.latitude);
-    errors.value = '';
-    axiosClient.put(`/api/911/barangay-update/${data.value.id}`, formData, {
+    console.log("Submitting data:", data.value);
+
+    // Convert ref values to JSON (instead of using FormData)
+    const payload = {
+        name: data.value.name ?? '',
+        longitude: data.value.longitude ?? '',
+        latitude: data.value.latitude ?? ''
+    };
+
+    console.log("Payload being sent:", payload);
+
+    axiosClient.put(`/api/911/barangay-update/${barangay_Id.value}`, payload, {
         headers: {
-            'x-api-key': import.meta.env.VITE_API_KEY
+            'x-api-key': import.meta.env.VITE_API_KEY,
+            // 'Content-Type': 'application/json' // Ensure JSON format
         }
     })
     .then(response => {
+        console.log('Barangay updated successfully!', response.data);
         router.push({ name: 'Barangay' });
-        console.log('Barangay updated successfully!');
     })
     .catch(error => {
-        console.log(error.response.data.data);
-        errors.value = error.response.data.errors;
+        if (error.response) {
+            console.error('Error updating barangay:', error.response.data);
+            errors.value = error.response.data.errors || { message: 'Something went wrong' };
+        } else {
+            console.error('Unexpected error:', error);
+        }
     });
 }
 </script>
+
 
 <template>
     <div v-if="isLoading" class="flex justify-center">
@@ -95,20 +93,20 @@ function formSubmit() {
     </div>
     <div v-else>
         <div>
-            <form @submit.prevent="formSubmit" class="space-y-4" :themeClasses>
+            <form @submit.prevent="formSubmit" class="space-y-4  p-6 rounded-lg  w-96">
                 <div class="space-y-1">
-                    <label for="name" class="block text-sm font-medium">Barangay Name</label>
-                    <FormInput name="name" class="px-4 py-2 border rounded-md w-full" v-model="data.name"/>
+                    <label for="name" class="block text-sm font-medium text-gray-700">Barangay Name</label>
+                    <FormInput name="name" class="px-4 py-2 border rounded-md w-full" v-model="data.name" placeholder="Enter Barangay Name"/>
                 </div>
 
                 <div class="space-y-1">
-                    <label for="longitude" class="block text-sm font-medium">Longitude</label>
-                    <FormInput name="longitude" class="px-4 py-2 border rounded-md w-full" v-model="data.longitude" type="number"/>
+                    <label for="longitude" class="block text-sm font-medium text-gray-700">Longitude</label>
+                    <FormInput name="longitude" class="px-4 py-2 border rounded-md w-full" v-model="data.longitude" type="number" placeholder="Enter longitude"/>
                 </div>
 
                 <div class="space-y-1">
-                    <label for="latitude" class="block text-sm font-medium">Latitude</label>
-                    <FormInput name="latitude" class="px-4 py-2 border rounded-md w-full" v-model="data.latitude" type="number"/>         
+                    <label for="latitude" class="block text-sm font-medium text-gray-700">Latitude</label>
+                    <FormInput name="latitude" class="px-4 py-2 border rounded-md w-full" v-model="data.latitude" type="number" placeholder="Enter latitude"/>         
                 </div> 
 
                <PrimaryButton type="submit" name="Update Barangay" class="text-white bg-green-600 hover:bg-green-700 w-full" />
