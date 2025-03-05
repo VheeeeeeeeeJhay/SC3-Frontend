@@ -412,6 +412,6 @@ watch(searchQuery, () => {
           <p>No Barangays found.</p>
       </div> -->
 
-  </div>
+  <!-- </div> -->
   <Toast v-if="errors.length > 0" :message="errors" />
 </template>
