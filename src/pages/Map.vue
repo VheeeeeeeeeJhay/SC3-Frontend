@@ -1,10 +1,10 @@
 <script setup>
-import { ref, computed, onMounted, watchEffect } from "vue";
+import { ref, computed, onMounted, watch, watchEffect } from "vue";
 import axiosClient from "../axios";
 import leaflet from "leaflet";
 import "leaflet.heat";
 import { useGeolocation } from "@vueuse/core";
-import { userMarker } from "../stores/mapStore.js";
+import { useMapStore } from "../stores/mapStore"; // Import Pinia store for managing state
 
 // Import map.json from assets folder (GeoJSON)
 import mapData from "../assets/map.json"; // Adjust the path as needed
@@ -15,8 +15,8 @@ const heatmapLayer = ref(null);
 const geojsonLayer = ref(null); // Reference for GeoJSON layer
 let map = null;
 
-// **Reactive State for GeoJSON Border Toggle**
-const showGeoJSONBorders = ref(true); // Default: borders are shown
+// Access Pinia store for GeoJSON border visibility
+const mapStore = useMapStore();
 
 // **Fetch Reports**
 onMounted(() => {
@@ -48,8 +48,8 @@ const groupedReports = computed(() => {
 
   if (reports.value && reports.value.length > 0) {
     reports.value.forEach((report) => {
-      const { barangay, incident } = report;
-      const { id, name, latitude, longitude } = barangay;
+      const { barangay, incident, latitude, longitude } = report;
+      const { id, name } = barangay;
 
       if (!latitude || !longitude) {
         console.warn(`Missing lat/long for barangay ID: ${id}`);
@@ -102,50 +102,90 @@ onMounted(() => {
     },
   }).addTo(map);
 
-  // **Add GeoJSON Layer with hover effect**
+  // **Add GeoJSON Layer with hover effect and clickability**
   if (mapData && mapData.features) {
     geojsonLayer.value = leaflet.geoJSON(mapData, {
       onEachFeature: (feature, layer) => {
-        // Hover effect - when mouse enters
+        // Hover effect - when mouse enters (only if borders are enabled)
         layer.on("mouseover", () => {
-          layer.setStyle({
-            weight: 2,        // Thinner border (adjust this value to make it thinner or thicker)
-            color: "#ff0000", // Red border on hover
-            fillOpacity: 0.7  // Slightly transparent fill on hover
-          });
+          if (mapStore.showGeoJSONBorders) {
+            layer.setStyle({
+              weight: 5,        // Thicker border on hover
+              color: "#007FFF", // Light blue border on hover
+              fillOpacity: 0.7  // Slightly transparent fill on hover
+            });
+          }
         });
 
-        // Reset style when mouse leaves
+        // Reset style when mouse leaves (only if borders are enabled)
         layer.on("mouseout", () => {
-          geojsonLayer.value.resetStyle(layer); // Reset to original style
+          if (mapStore.showGeoJSONBorders) {
+            layer.setStyle({
+              weight: 2,        // Normal border size
+              color: "#007FFF", // Ensure it stays light blue even after mouseout
+              fillOpacity: 0.2  // Reset opacity
+            });
+          } else {
+            // If borders are disabled, reset completely (no hover effect)
+            layer.setStyle({
+              weight: 0, // No border
+              color: "",  // No color for border
+              fillOpacity: 0  // No fill opacity
+            });
+          }
+        });
+
+        // Add click event for interactivity
+        layer.on("click", () => {
+          // Extract feature data
+          const { adm4_en, geo_level, area_km2, len_km } = feature.properties;
+          
+          // Display a popup with feature info
+          const popupContent = `
+            <strong>Area:</strong> ${adm4_en}<br>
+            <strong>Geo Level:</strong> ${geo_level}<br>
+            <strong>Length (km):</strong> ${len_km} km<br>
+            <strong>Area (km²):</strong> ${area_km2} km²
+          `;
+          layer.bindPopup(popupContent).openPopup();
+          
+          // Example: You could display additional details about the clicked feature here
+          console.log("Feature clicked:", feature);
+        });
+
+        // Set initial style based on border toggle state
+        layer.setStyle({
+          weight: mapStore.showGeoJSONBorders ? 2 : 0, // Show or hide border based on the toggle
+          color: "#007FFF", // Ensure the default color is light blue
+          fillOpacity: mapStore.showGeoJSONBorders ? 0.2 : 0, // Ensure background is removed when toggled off
         });
       }
     }).addTo(map);
 
-    // Initially, check if borders should be visible
-    if (!showGeoJSONBorders.value) {
-      geojsonLayer.value.eachLayer((layer) => {
-        layer.setStyle({
-          weight: 0, // Hide border by setting weight to 0
-        });
-      });
-    }
-
-    console.log("GeoJSON Layer added to the map with hover effect.");
+    console.log("GeoJSON Layer added to the map with hover effect and clickability.");
   }
 
   updateHeatmap(); // ✅ Only update points
 });
 
-// **Toggle GeoJSON Borders**
-const toggleGeoJSONBorders = () => {
-  showGeoJSONBorders.value = !showGeoJSONBorders.value;
+// **Watch for changes in showGeoJSONBorders**
+watch(
+  () => mapStore.showGeoJSONBorders, // Watch the showGeoJSONBorders state
+  (newVal) => {
+    updateGeoJSONStyles(); // Apply the new styles when the value changes
+  }
+);
 
-  // Update GeoJSON border visibility based on the toggle
+// **Update GeoJSON Layer Styles**
+const updateGeoJSONStyles = () => {
   if (geojsonLayer.value) {
     geojsonLayer.value.eachLayer((layer) => {
+      // Update style based on border visibility
       layer.setStyle({
-        weight: showGeoJSONBorders.value ? 2 : 0, // Show or hide border based on the toggle
+        weight: mapStore.showGeoJSONBorders ? 2 : 0, // Show or hide borders based on the toggle
+        color: mapStore.showGeoJSONBorders ? "#007FFF" : "", // Light blue border when active, no border when inactive
+        fillOpacity: mapStore.showGeoJSONBorders ? 0.2 : 0, // Light opacity fill when active, no fill when inactive
+        fillColor: mapStore.showGeoJSONBorders ? "#007FFF" : "", // Optional: Set fill color based on border state
       });
     });
   }
@@ -188,11 +228,17 @@ watchEffect(() => {
 <template>
   <div class="min-h-screen">
     <h2 class="text-lg font-bold mb-4">Heatmap of Incidents</h2>
-    
-    <!-- Button to toggle GeoJSON Borders -->
-    <button @click="toggleGeoJSONBorders" class="mb-4 px-4 py-2 bg-blue-500 text-white rounded-md">
-      Toggle GeoJSON Borders
-    </button>
+
+    <!-- Toggle GeoJSON Borders -->
+    <label class="inline-flex items-center me-5 cursor-pointer">
+      <input 
+        type="checkbox" 
+        v-model="mapStore.showGeoJSONBorders" 
+        class="sr-only peer"
+      />
+      <div class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-4 peer-focus:ring-teal-300 dark:peer-focus:ring-teal-800 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-teal-600 dark:peer-checked:bg-teal-600"></div>
+      <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">Toggle GeoJSON Borders</span>
+    </label>
 
     <div id="map"></div>
   </div>
