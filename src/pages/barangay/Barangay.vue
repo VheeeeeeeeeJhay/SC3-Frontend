@@ -38,14 +38,8 @@ const errors = ref('');
 const isLoading = ref(false);
 const selectedBarangay = ref(null);
 
-const clear = ref({
-  name: '',
-  longitude: '',
-  latitude: ''
-})
-
 const fetchData = async () => {
-  await axiosClient.get('/api/911/barangay', {
+  axiosClient.get('/api/911/barangay', {
     headers: {
       'x-api-key': import.meta.env.VITE_API_KEY
     }
@@ -120,7 +114,9 @@ const formSubmit = (barangay_Id) => {
     }
   })
     .then(() => {
-      barangays.value = barangays.value.filter(b => b.id !== barangay_Id);
+      // Remove the deleted barangay from the list without refreshing the page
+      // barangays.value = barangays.value.filter(b => b.id !== barangay_Id);
+      fetchData();
       console.log('Barangay deleted successfully');
     })
     .catch(error => {
@@ -135,8 +131,12 @@ const dropdownRefs = ref([]);
 const closeDropdown = () => {
   openDropdownId.value = null;
 };
-const toggleDropdown = (transactionId) => {
-  openDropdownId.value = openDropdownId.value === transactionId ? null : transactionId;
+const toggleDropdown = (id) => {
+  if (openDropdownId.value === id) {
+    openDropdownId.value = null;
+  } else {
+    openDropdownId.value = id;
+  }
 };
 
 
@@ -199,6 +199,8 @@ const goToPage = (page) => {
 watch(searchQuery, () => {
   currentPage.value = 1;
 });
+
+
 </script>
 
 <template>
@@ -265,55 +267,74 @@ watch(searchQuery, () => {
               <Loader1 />
             </div>
             <table v-else class="w-full text-sm text-left">
-              <thead class="text-xs uppercase "
-                :class="themeStore.isDarkMode ? 'bg-slate-900 text-gray-300' : 'bg-teal-300 text-gray-800'">
-                <tr>
-                  <th scope="col" class="px-4 py-3 ">Barangay ID</th>
-                  <th scope="col" class="px-4 py-3">Barangay Name</th>
-                  <th scope="col" class="px-4 py-3">Barangay Longitude</th>
-                  <th scope="col" class="px-4 py-3">Barangay Latitude</th>
-                  <th scope="col" class="px-4 py-3">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="barangay in paginatedBarangays" :key="barangay.id"
-                  :class="themeStore.isDarkMode ? 'bg-slate-800 hover:bg-slate-700' : 'bg-sky-50 hover:bg-gray-200'">
+                        <thead class="text-xs uppercase " :class="themeStore.isDarkMode ? 'bg-slate-900 text-gray-300' : 'bg-teal-300 text-gray-800'">
+                          <tr>
+                            <th scope="col" class="px-4 py-3 ">Barangay ID</th>
+                            <th scope="col" class="px-4 py-3">Barangay Name</th>
+                            <th scope="col" class="px-4 py-3">Barangay Longitude</th>
+                            <th scope="col" class="px-4 py-3">Barangay Latitude</th>
+                            <th scope="col" class="px-4 py-3">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="barangay in paginatedBarangays" :key="barangay.id"
+                            :class="themeStore.isDarkMode ? 'bg-slate-800 hover:bg-slate-700' : 'bg-sky-50 hover:bg-gray-200'">
+                            
+                            <td class="px-4 py-3 ">{{ barangay.id }}</td>
+                            <td class="px-4 py-3 ">{{ barangay.name }}</td>
+                            <td class="px-4 py-3 " v-if="barangay.longitude">{{ barangay.longitude }}</td>
+                            <td class="px-4 py-3 " v-if="!barangay.longitude"><Badge Message="No Data for Longitude" /></td>
+                            <td class="px-4 py-3" v-if="barangay.latitude">{{ barangay.latitude }}</td>
+                            <td class="px-4 py-3" v-if="!barangay.latitude"><Badge Message="No Data for Latitude" /></td>
+                            <td class="px-4 py-3 flex items-center relative">
+                            <!-- Dropdown Button -->
+                            <button @click.stop="toggleDropdown(barangay.id)"
+                              class="inline-flex items-center p-0.5 text-sm font-medium rounded-lg"
+                              type="button" >
+                              <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                  d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+                              </svg>
+                            </button>
+                            <!-- Dropdown Menu -->
+                            <div v-if="openDropdownId === barangay.id" ref="dropdownRefs"
+                              :class="themeStore.isDarkMode ? 'bg-slate-700' : 'bg-white'"
+                              class="absolute z-[10] w-44 mt-2 top-full left-0 shadow-sm border rounded-md"
+                              @click.stop>
+                              
+                              <!-- Dropdown Items Container -->
+                              <div class="py-2 text-sm">
 
-                  <td class="px-4 py-3 ">{{ barangay.id }}</td>
-                  <td class="px-4 py-3 ">{{ barangay.name }}</td>
-                  <td class="px-4 py-3 " v-if="barangay.longitude">{{ barangay.longitude }}</td>
-                  <td class="px-4 py-3 " v-if="!barangay.longitude">
-                    <Badge Message="No Data for Longitude" />
-                  </td>
-                  <td class="px-4 py-3" v-if="barangay.latitude">{{ barangay.latitude }}</td>
-                  <td class="px-4 py-3" v-if="!barangay.latitude">
-                    <Badge Message="No Data for Latitude" />
-                  </td>
-                  <td class="px-4 py-3 border border-gray-600">
-                    <div class="p-2 space-x-2">
-                      <PopupModal Title="Edit Barangay" ModalButton="Edit" Icon="home" Classes="">
-                        <template #modalContent>
-                          <div class="p-6">
-                            <EditBarangay />
-                          </div>
-                        </template>
-                      </PopupModal>
+                                <!-- Edit Button -->
+                                <div class="block px-2 cursor-pointer" :class="dropMenuClasses">
+                                  <PopupModal Title="Edit Barangay" ModalButton="Edit" Icon="home" Classes="">
+                                    <template #modalContent>
+                                      <div>
+                                        <EditBarangay :barangay="barangay.id" />
+                                      </div>
+                                    </template>
+                                  </PopupModal>
+                                </div>
 
-                      <PopupModal Title="Are you sure you want to delete this barangay?" ModalButton="Delete"
-                        Icon="cancel" Classes="">
-                        <template #modalContent>
-                          <div class="p-6">
-                            <PrimaryButton @click.prevent="formSubmit(barangay.id)" name="Delete"
-                              class="bg-red-500 hover:bg-red-600 text-gray-100 shadow-md" />
-                          </div>
-                        </template>
-                      </PopupModal>
+                                <!-- Delete Button -->
+                                <div class="block px-2 cursor-pointer" :class="dropMenuClasses">
+                                  <PopupModal Title="Are you sure you want to delete this barangay?" ModalButton="Delete" Icon="cancel" Classes="">
+                                    <template #modalContent>
+                                      <div class="p-6">
+                                        <PrimaryButton @click.prevent="formSubmit(barangay.id)" name="Delete"
+                                          class="bg-red-500 hover:bg-red-600 text-gray-100 shadow-md" />
+                                      </div>
+                                    </template>
+                                  </PopupModal>
+                                </div>
 
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                              </div>
+                            </div>                               
+                          </td>
+                          </tr>
+                        </tbody>
+                      </table>
 
           </div>
           <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">
@@ -351,37 +372,46 @@ watch(searchQuery, () => {
                 </button>
               </li>
 
-              <!-- Next Page -->
-              <li>
-                <button @click="nextPage" :disabled="currentPage === totalPages"
-                  class="flex items-center justify-center h-full py-1.5 px-3 leading-tight rounded-r-lg border"
-                  :class="hoverClasses">
-                  <span class="sr-only">Next</span>
-                  <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd"
-                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                      clip-rule="evenodd" />
-                  </svg>
-                </button>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </div>
-      <!-- Edit Barangay Modal -->
-      <div>
-        <!-- Use the modal component and bind the v-model -->
-        <Modal v-if="isEditModalOpen" v-model="isEditModalOpen" @click.stop>
-          <template #contents>
-            <div class="p-6">
-              <EditBarangay v-if="selectedBarangay" :barangay="selectedBarangay" />
-            </div>
-            <!-- <FormInput /> -->
-          </template>
-        </Modal>
-      </div>
-    </section>
+                        <!-- Next Page -->
+                        <li>
+                            <button 
+                                @click="nextPage" 
+                                :disabled="currentPage === totalPages"
+                                class="flex items-center justify-center h-full py-1.5 px-3 leading-tight rounded-r-lg border"
+                                :class="hoverClasses">
+                                <span class="sr-only">Next</span>
+                                <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd"
+                                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </li>
+                    </ul>
+                  </nav>
+              </div>
+          </div>
+              <!-- Edit Barangay Modal -->
+               
+            <!-- <div> -->
+              <!-- Use the modal component and bind the v-model -->
+              <!-- <Modal v-if="isEditModalOpen" v-model="isEditModalOpen" @click.stop >
+                <template #contents>
+                  <div class="p-6">
+                    <EditBarangay v-if="selectedBarangay" :barangay="selectedBarangay" />
+                  </div> -->
+                  <!-- <FormInput /> -->
+                <!-- </template>
+              </Modal>
+            </div> -->
+          </section>
+
+    </div>
+  <!-- <div v-else>
+          <p>No Barangays found.</p>
+      </div> -->
+
   </div>
   <Toast v-if="errors.length > 0" :message="errors" />
 </template>
