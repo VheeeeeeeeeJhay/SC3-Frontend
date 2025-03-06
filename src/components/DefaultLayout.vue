@@ -47,11 +47,12 @@ const user = computed(() => userStore.user);
 const route = useRoute();
 
 const navigation = [
-  { name: 'Dashboard', to: { name: 'Dashboard' }, icon: 'bar_chart' },
+  { name: 'Overview', to: { name: 'Overview' }, icon: 'bar_chart' },
   { name: 'Map', to: { name: 'Map' }, icon: 'map' },
   { name: 'Report', to: { name: 'ReportTable' }, icon: 'report' },
   { name: 'Barangays', to: { name: 'Barangay' }, icon: 'home' },
   { name: 'Incidents', to: { name: 'Incident' }, icon: 'warning' },
+  { name: 'Users', to: { name: 'UsersTable' }, icon: 'people' },
 ];
 
 const logout = () => {

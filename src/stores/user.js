@@ -7,11 +7,15 @@ const useUserStore = defineStore('user', {
   }),
   actions: {
     fetchUser() {
-      return axiosClient.get('/api/user')
-        .then(({data}) => {
-          console.log(data)
-          this.user = data
-        })
+      return axiosClient.get('/api/user', {
+        headers: {
+          'x-api-key': import.meta.env.VITE_API_KEY
+        }
+      })
+      .then(({data}) => {
+        console.log(data)
+        this.user = data
+      })
     }
   }
 })
