@@ -15,6 +15,7 @@ import ReportViewDetails from "./pages/report/ViewReport.vue";
 import EditReports from "./pages/report/EditReport.vue";
 import AddReport from "./pages/report/AddReport.vue";
 import UsersTable from "./pages/user/UsersTable.vue";
+import ViewRelatedIncidents from "./pages/barangay/ViewRelatedIncidents.vue";
 
 const routes = [
   {
@@ -36,6 +37,7 @@ const routes = [
       {path: '/barangay-edit/:id', name: 'EditBarangay', component: EditBarangay, meta: { title: 'Edit Barangay' }},
       {path: '/barangay-update/:id', name: 'UpdateBarangay', component: Barangay, meta: { title: 'Update Barangay' }},
       {path: '/barangay-delete/:id', name: 'DeleteBarangay', component: Barangay, meta: { title: 'Delete Barangay' }},
+      {path: '/barangay-statistics/:id', name: 'BarangayStatistics', component: ViewRelatedIncidents, meta: { title: 'Barangay Statistics' }},
 
       {path: '/incident', name: 'Incident', component: Incident, meta: { title: 'Incident' }},
       {path: '/incident-display', name: 'IncidentDisplay', component: Incident, meta: { title: 'Incident Display' }},

@@ -5,7 +5,7 @@ import AddBarangay from './AddBarangay.vue';
 import EditBarangay from './EditBarangay.vue';
 import axiosClient from '../../axios.js';
 import Modal from '../../components/Modal.vue';
-import { useRouter } from 'vue-router';
+import { RouterLink, useRouter } from 'vue-router';
 import { useThemeStore } from '../../stores/themeStore';
 import Loader1 from '../../components/Loader1.vue';
 import PopupModal from '../../components/PopupModal.vue';
@@ -270,10 +270,11 @@ watch(searchQuery, () => {
               <thead class="text-xs uppercase "
                 :class="themeStore.isDarkMode ? 'bg-slate-900 text-gray-300' : 'bg-teal-300 text-gray-800'">
                 <tr>
-                  <th scope="col" class="px-4 py-3 ">Barangay ID</th>
-                  <th scope="col" class="px-4 py-3">Barangay Name</th>
-                  <th scope="col" class="px-4 py-3">Barangay Longitude</th>
-                  <th scope="col" class="px-4 py-3">Barangay Latitude</th>
+                  <th scope="col" class="px-4 py-3 ">ID</th>
+                  <th scope="col" class="px-4 py-3">Name</th>
+                  <th scope="col" class="px-4 py-3">Longitude</th>
+                  <th scope="col" class="px-4 py-3">Latitude</th>
+                  <th scope="col" class="px-4 py-3">Visit Barangay</th>
                   <th scope="col" class="px-4 py-3">Actions</th>
                 </tr>
               </thead>
@@ -290,6 +291,9 @@ watch(searchQuery, () => {
                   <td class="px-4 py-3" v-if="barangay.latitude">{{ barangay.latitude }}</td>
                   <td class="px-4 py-3" v-if="!barangay.latitude">
                     <Badge Message="No Data for Latitude" />
+                  </td>
+                  <td class="px-4 py-3 text-blue-800 hover:text-blue-600 hover:underline font-bold">
+                    <RouterLink :to="`/barangay-statistics/${barangay.id}`">View Incidents</RouterLink>
                   </td>
                   <td class="px-4 py-3 flex items-center relative">
                     <!-- Dropdown Button -->

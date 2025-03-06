@@ -7,6 +7,7 @@ import { userMarker } from '../../stores/mapStore.js';
 import leaflet from 'leaflet';
 import useUserStore from '../../stores/user.js';
 import Toast from '../../components/Toast.vue';
+import ToolTip from '../../components/ToolTip.vue';
 
 // Get Auth User Information
 const userStore = useUserStore();
@@ -266,8 +267,13 @@ function goBack() {
             <h2 class="text-2xl font-bold mb-6 ">Source Information</h2>
             <div class="grid grid-cols-2 gap-4 mb-8">
               <div class="form-group">
-                <label for="source" class="block text-sm font-medium mb-2" :class="themeClasses">Source of
-                  Report</label>
+                <div class="flex">
+                  <label for="source" class="block text-sm font-medium mb-2" :class="themeClasses">Source of
+                    Report
+                  </label>
+                  <ToolTip :Information="'Select the source of the report'" />
+                </div>
+                
                 <select id="source" v-model="data.source"
                   class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
                   <option disabled value="">Select source</option>

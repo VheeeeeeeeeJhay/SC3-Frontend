@@ -66,17 +66,17 @@ onMounted(() => {
             'x-api-key': import.meta.env.VITE_API_KEY
         }
     })
-        .then((res) => {
-            sources.value = res.data.sources;
-            actions.value = res.data.actions;
-            incidents.value = res.data.incidents;
-            assistance.value = res.data.assistance;
-            barangays.value = res.data.barangays;
-        })
-        .catch((error) => {
-            console.error('Error fetching data:', error);
-            errorMessage.value = 'Failed to load data. Please try again later.';
-        });
+    .then((res) => {
+        sources.value = res.data.sources;
+        actions.value = res.data.actions;
+        incidents.value = res.data.incidents;
+        assistance.value = res.data.assistance;
+        barangays.value = res.data.barangays;
+    })
+    .catch((error) => {
+        console.error('Error fetching data:', error);
+        errorMessage.value = 'Failed to load data. Please try again later.';
+    });
 
 
     //fetch data for report item to be updated
