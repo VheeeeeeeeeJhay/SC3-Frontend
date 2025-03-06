@@ -1,21 +1,10 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import PrimaryButton from '../../components/PrimaryButton.vue';
 import router from '../../router.js';
 import axiosClient from '../../axios.js';
 import FormInput from '../../components/FormInput.vue';
-import { useThemeStore } from '../../stores/themeStore';
 import Toast from '../../components/Toast.vue';
-
-
-// For dark mode
-const themeStore = useThemeStore();
-const themeClasses = computed(() => {
-  return themeStore.isDarkMode 
-    ? "bg-slate-800 border border-black text-white hover:border-gray-600 focus:ring-2 focus:ring-slate-500 focus:outline-none"
-    : "bg-sky-50 border border-gray-200 text-gray-800 hover:border-gray-300 focus:ring-2 focus:ring-sky-400 focus:outline-none";
-});
-
 
 const data = ref({
   name: '',
@@ -61,32 +50,49 @@ const formSubmit = async () => {
 </script>
 
 <template>
-    <div>
-        <form @submit.prevent="formSubmit" class="space-y-4" :themeClasses>
+  <div class="max-w-lg mx-auto bg-sky-50 dark:bg-slate-900 p-2">
+      <!-- <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Add Barangay</h2> -->
+      <form @submit.prevent="formSubmit" class="space-y-4">
+          
+          <!-- Barangay Name -->
           <div class="space-y-1">
-            <label for="name" class="block text-sm font-medium">Barangay Name</label>
-            <FormInput v-model="data.name" type="text" name="name" placeholder="Enter Barangay Name" class="px-4 py-2 border rounded-md w-full" />
-            <!-- <p class="text-sm mt-1 text-red-600">{{ errors.name ? errors.name[0] : '' }}</p> -->
-            <span class="text-sm text-red-500" v-if="errors.name && errors.name.length">{{ errors.name[0] }}</span>
+              <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Barangay Name</label>
+              <div class="relative">
+                  <FormInput v-model="data.name" type="text" name="name" placeholder="Enter Barangay Name"
+                      class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50 dark:bg-slate-800 dark:border-gray-700 dark:text-white" />
+                  <span class="text-sm text-red-500" v-if="errors.name && errors.name.length">{{ errors.name[0] }}</span>
+              </div>
           </div>
 
+          <!-- Longitude -->
           <div class="space-y-1">
-            <label for="longitude" class="block text-sm font-medium">Longitude</label>
-            <FormInput v-model="data.longitude" type="text" name="longitude" placeholder="Enter longitude" class="px-4 py-2 border rounded-md w-full" />
-            <!-- <p class="text-sm mt-1 text-red-600">{{ errors.longitude ? errors.longitude[0] : '' }}</p> -->
-            <span class="text-sm text-red-500" v-if="errors.longitude && errors.longitude.length">{{ errors.longitude[0] }}</span>
+              <label for="longitude" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Longitude</label>
+              <div class="relative">
+                  <FormInput v-model="data.longitude" type="text" name="longitude" placeholder="Enter Longitude"
+                      class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50 dark:bg-slate-800 dark:border-gray-700 dark:text-white" />
+                  <span class="text-sm text-red-500" v-if="errors.longitude && errors.longitude.length">{{ errors.longitude[0] }}</span>
+              </div>
           </div>
 
+          <!-- Latitude -->
           <div class="space-y-1">
-            <label for="latitude" class="block text-sm font-medium">Latitude</label>
-            <FormInput v-model="data.latitude" type="text" name="latitude" placeholder="Enter latitude" class="px-4 py-2 border rounded-md w-full" />
-            <!-- <p class="text-sm mt-1 text-red-600">{{ errors.latitude ? errors.latitude[0] : '' }}</p> -->
-            <span class="text-sm text-red-500" v-if="errors.latitude && errors.latitude.length">{{ errors.latitude[0] }}</span>
+              <label for="latitude" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Latitude</label>
+              <div class="relative">
+                  <FormInput v-model="data.latitude" type="text" name="latitude" placeholder="Enter Latitude"
+                      class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50 dark:bg-slate-800 dark:border-gray-700 dark:text-white" />
+                  <span class="text-sm text-red-500" v-if="errors.latitude && errors.latitude.length">{{ errors.latitude[0] }}</span>
+              </div>
           </div>
 
-          <PrimaryButton name="Add Barangay" type="submit" class="text-white bg-green-600 hover:bg-green-700 w-full" />
-        </form>
-    </div>
-    <Toast v-if="success.length > 0" :message="success" />
-    <Toast v-if="toastError.length > 0" :message="toastError" />
+          <!-- Submit Button -->
+          <PrimaryButton name="Add Barangay" type="submit"
+              class="w-full py-2 text-white bg-green-600 hover:bg-green-700 rounded-md transition-all">
+          </PrimaryButton>
+
+      </form>
+
+      <!-- Toast Notifications -->
+      <Toast v-if="success.length > 0" :message="success" />
+      <Toast v-if="toastError.length > 0" :message="toastError" />
+  </div>
 </template>

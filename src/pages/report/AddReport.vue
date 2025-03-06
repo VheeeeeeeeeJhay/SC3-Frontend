@@ -4,6 +4,7 @@ import PrimaryButton from '../../components/PrimaryButton.vue';
 import axiosClient from '../../axios.js';
 import { useGeolocation } from '@vueuse/core';
 import { userMarker } from '../../stores/mapStore.js';
+import { useRouter } from 'vue-router';
 import leaflet from 'leaflet';
 import useUserStore from '../../stores/user.js';
 import Toast from '../../components/Toast.vue';
@@ -11,30 +12,23 @@ import Toast from '../../components/Toast.vue';
 // Get Auth User Information
 const userStore = useUserStore();
 const user = computed(() => userStore.user);
-
-// // For dark mode
-// const themeStore = useThemeStore();
-// const themeClasses = computed(() => {
-//   return themeStore.isDarkMode ? "bg-slate-800 border-black text-white" : "bg-sky-50 border-gray-200 text-gray-800"
-// })
-// const dropClasses = computed(() => {
-//   return themeStore.isDarkMode ? "bg-slate-600 border-black text-white" : "bg-white border-gray-200 text-gray-800"
-// })
+const router = useRouter();
 
 // Clearing Form Data
 const clearForm = () => {
   data.value = {
-    source: '',
-    incidentType: '',
-    incident: '',
-    actionType: '',
-    receivedDate: '',
-    arrivalTime: '',
-    incidentTime: '',
-    barangay: '',
-    details: '',
-    Longitude: '',
-    Latitude: '',
+    name: '',
+    source_id: '',
+    assistance_id: '',
+    incident_id: '',
+    actions_id: '',
+    date_received: '',
+    arrival_on_site: '',
+    time: '',
+    barangay_id: '',
+    landmark: '',
+    longitude: '',
+    latitude: '',
   }
 };
 
@@ -44,18 +38,18 @@ const fullName = computed(() => {
 })
 
 const data = ref({
-  firstName: fullName.value,
-  source: '',
-  incidentType: '',
-  incident: '',
-  actionType: '',
-  receivedDate: '',
-  arrivalTime: '',
-  incidentTime: '',
-  barangay: '',
-  details: '',
-  Longitude: '',
-  Latitude: '',
+  time: '',
+  date_received: '',
+  arrival_on_site: '',
+  name: fullName.value,
+  landmark: '',
+  longitude: '',
+  latitude: '',
+  source_id: '',
+  assistance_id: '',
+  incident_id: '',
+  actions_id: '',
+  barangay_id: '',
 });
 
 // Store Fetch Data From Backend In An Array
@@ -64,6 +58,7 @@ const actions = ref([]);
 const incidents = ref([]);
 const assistance = ref([]);
 const barangays = ref([]);
+const errorMessage = ref('');
 
 const fetchData = async () => {
   await axiosClient.get('/api/911/report', {
@@ -83,7 +78,6 @@ const fetchData = async () => {
       errors.value = 'Failed to load data. Please try again later.';
     });
 }
-
 onMounted(() => {
   fetchData();
 });
@@ -92,40 +86,40 @@ const errors = ref([])
 const success = ref([])
 const submitForm = async () => {
   try {
-    const formData = new FormData();
-    formData.append('source_id', data.value.source)
-    formData.append('time', data.value.incidentTime)
-    formData.append('incident_id', data.value.incident)
-    formData.append('date_received', data.value.receivedDate)
-    formData.append('arrival_on_site', data.value.arrivalTime)
-    formData.append('name', data.value.firstName)
-    formData.append('landmark', data.value.details)
-    formData.append('barangay_id', data.value.barangay)
-    formData.append('actions_id', data.value.actionType)
-    formData.append('assistance_id', data.value.incidentType)
-    formData.append('longitude', data.value.Longitude)
-    formData.append('latitude', data.value.Latitude)
-    console.log(formData)
+  const formData = new FormData();
+  formData.append('source_id', data.value.source_id)
+  formData.append('time', data.value.time)
+  formData.append('incident_id', data.value.incident_id)
+  formData.append('date_received', data.value.date_received)
+  formData.append('arrival_on_site', data.value.arrival_on_site)
+  formData.append('name', data.value.name)
+  formData.append('landmark', data.value.landmark)
+  formData.append('barangay_id', data.value.barangay_id)
+  formData.append('actions_id', data.value.actions_id)
+  formData.append('assistance_id', data.value.assistance_id)
+  formData.append('longitude', data.value.longitude)
+  formData.append('latitude', data.value.latitude)
+  console.log(formData)
     await axiosClient.post('/api/911/report', formData, {
-      headers: {
+    headers: {
         'x-api-key': import.meta.env.VITE_API_KEY
-      }
-    })
-      .then(response => {
-        console.log('Form submitted successfully:', response.data);
+    }
+  })
+    .then(response => {
+      console.log('Form submitted successfully:', response.data);
         success.value = response.data.message;
-        clearForm();
+      clearForm();
         errors.value = [];
         console.log(success.value)
         // goBack();
         fetchData();
-      })
-      .catch(error => {
-        console.log('Error:', error.response.data);
+    })
+    .catch(error => {
+      console.log('Error:', error.response.data);
         errors.value = error.response.data.errors;
         // errors.value = error.response.data;
         // console.log(errors.value)
-      })
+    })
   } catch (error) {
     console.error(error.response.data);
     errors.value = `An error occurred: ${error.response.data}`;
@@ -133,24 +127,25 @@ const submitForm = async () => {
 };
 
 
+
 // Filter The Incident/Case Base On The Assistance Type
 const filteredIncidents = computed(() => {
-  return data.value.incidentType
-    ? incidents.value.filter(incident => incident.assistance_id === data.value.incidentType)
+  return data.value.assistance_id
+    ? incidents.value.filter(incident_id => incident_id.assistance_id === data.value.assistance_id)
     : [];
 });
-
-watch(() => data.value.incidentType, () => {
-  data.value.incident = ''; // Reset the incident dropdown
+watch(() => data.value.assistance_id, () => {
+  data.value.incident_id = ''; // Reset the incident dropdown
 });
 
 
 //Map scripts
 const { coords } = useGeolocation();
-
 const latitude = ref(0);
 const longitude = ref(0);
 let map = leaflet.Map;
+let marker;
+let singleMarker;
 
 onMounted(() => {
   map = leaflet
@@ -173,8 +168,8 @@ onMounted(() => {
   map.setMaxBounds(bounds);
   map.setMinZoom(12);
 
-  // Add Default Marker at Baguio
-  let singleMarker = leaflet
+// Add Default Marker at Baguio
+singleMarker = leaflet
     .marker([latitude.value, longitude.value])
     .addTo(map)
     .bindPopup(
@@ -183,35 +178,35 @@ onMounted(() => {
     .openPopup();
 
 
-  //User Click on Map
-  map.addEventListener("click", (e) => {
-    const { lat: newLat, lng: newLng } = e.latlng;
+// //User Click on Map
+//   map.addEventListener("click", (e) => {
+//     const { lat: newLat, lng: newLng } = e.latlng;
 
-    if (bounds.contains([newLat, newLng])) {
-      if (singleMarker) {
-        map.removeLayer(singleMarker);
-      }
+//     if (bounds.contains([newLat, newLng])) {
+//       if (singleMarker) {
+//         map.removeLayer(singleMarker);
+//       }
 
-      // Add a new marker
-      singleMarker = leaflet
-        .marker([newLat, newLng])
-        .addTo(map)
-        .bindPopup(
-          `Selected Marker at (<strong>${newLat.toFixed(5)}, ${newLng.toFixed(5)}</strong>)`
-        )
-        .openPopup();
+//       // Add a new marker
+//       singleMarker = leaflet
+//         .marker([newLat, newLng])
+//         .addTo(map)
+//         .bindPopup(
+//           `Selected Marker at (<strong>${newLat.toFixed(5)}, ${newLng.toFixed(5)}</strong>)`
+//         )
+//         .openPopup();
 
-      // Update the stored user marker
-      userMarker.value.latitude = newLat;
-      userMarker.value.longitude = newLng;
-      // Update form inputs
-      data.value.Latitude = newLat.toFixed(6);
-      data.value.Longitude = newLng.toFixed(6);
+//       // Update the stored user marker
+//       userMarker.value.latitude = newLat;
+//       userMarker.value.longitude = newLng;
+//       // Update form inputs
+//       data.value.latitude = newLat.toFixed(6);
+//       data.value.longitude = newLng.toFixed(6);
 
-    } else {
-      alert("You cannot place markers outside Baguio City.");
-    }
-  });
+//     } else {
+//       alert("You cannot place markers outside Baguio City.");
+//     }
+//   });
 });
 
 watchEffect(() => {
@@ -236,23 +231,51 @@ watchEffect(() => {
 
   // Update form inputs ONLY if the user hasn't manually selected a location
   if (!userMarker.value.latitude || !userMarker.value.longitude) {
-    data.value.Latitude = latitude.value.toFixed(6);
-    data.value.Longitude = longitude.value.toFixed(6);
+    data.value.latitude = latitude.value.toFixed(6);
+    data.value.longitude = longitude.value.toFixed(6);
   }
 });
 
+watch(() => data.value.barangay_id, (newBarangayId) => {
+  const selectedBarangay = barangays.value.find(b => b.id === newBarangayId);
+  
+  if (selectedBarangay) {
+    data.value.longitude = selectedBarangay.longitude || '';
+    data.value.latitude = selectedBarangay.latitude || '';
 
-// Back Button
-function goBack() {
-  window.history.back();
-}
+    // ✅ Remove Default Marker
+    if (singleMarker) {
+      map.removeLayer(singleMarker);
+      singleMarker = null; // Clear reference
+    }
+
+    // ✅ Remove Previous Marker (if exists)
+    if (marker) {
+      map.removeLayer(marker);
+    }
+
+    // ✅ Add New Marker for Selected Barangay
+    marker = leaflet
+      .marker([selectedBarangay.latitude, selectedBarangay.longitude])
+      .addTo(map)
+      .bindPopup(`Barangay: ${selectedBarangay.name} (${selectedBarangay.latitude}, ${selectedBarangay.longitude})`)
+      .openPopup();
+
+    // ✅ Center Map to New Marker
+    map.setView([selectedBarangay.latitude, selectedBarangay.longitude], 15);
+  } else {
+    data.value.longitude = '';
+    data.value.latitude = '';
+  }
+});
+
 </script>
 
 <template>
-  <div style="min-height: 100vh;">
+  <div class="min-h-screen">
     <!-- Go Back Button -->
     <div class="mt-6 px-2 flex justify-end">
-      <Button type="button" name="Back" @click="goBack"
+      <Button type="button" name="Back" @click.prevent="router.back()"
         class="px-3 py-1 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200 flex items-center">
         <span class="material-icons mr-2">
           arrow_back
@@ -268,10 +291,23 @@ function goBack() {
           <div class="w-1/2 pr-4">
             <h2 class="text-2xl font-bold mb-6 ">Source Information</h2>
             <div class="grid grid-cols-2 gap-4 mb-8">
+
               <div class="form-group">
-                <label for="source" class="block text-sm font-medium mb-2" :class="themeClasses">Source of
+                <label for="assistance_id" class="block text-sm font-medium mb-2">Case
+                  Classification</label>
+                <select id="assistance_id" v-model="data.assistance_id"
+                  class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
+                  <option disabled value="">Select classification</option>
+                  <option v-for="assistance in assistance" :key="assistance.id" :value="assistance.id">{{
+                    assistance.assistance }}</option>
+                </select>
+                <span class="text-sm text-red-500" v-if="errors.assistance_id && errors.assistance_id.length">{{ errors.assistance_id[0] }}</span>
+              </div>
+
+              <div class="form-group">
+                <label for="source_id" class="block text-sm font-medium mb-2">Source of
                   Report</label>
-                <select id="source" v-model="data.source"
+                <select id="source_id" v-model="data.source_id"
                   class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
                   <option disabled value="">Select source</option>
                   <option v-for="source in sources" :key="source.id" :value="source.id">
@@ -280,22 +316,17 @@ function goBack() {
                 </select>
                 <span class="text-sm text-red-500" v-if="errors.source_id && errors.source_id.length">{{ errors.source_id[0] }}</span>
               </div>
+              
               <div class="form-group">
-                <label for="incidentType" class="block text-sm font-medium mb-2" :class="themeClasses">Case
-                  Classification</label>
-                <select id="incidentType" v-model="data.incidentType"
-                  class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
-                  <option disabled value="">Select classification</option>
-                  <option v-for="assistance in assistance" :key="assistance.id" :value="assistance.id">{{
-                    assistance.assistance }}</option>
-                </select>
-                <span class="text-sm text-red-500" v-if="errors.assistance_id && errors.assistance_id.length">{{ errors.assistance_id[0] }}</span>
-              </div>
-              <div class="form-group">
-                <label for="incident" class="block text-sm font-medium mb-2" :class="themeClasses">Incident/Case</label>
-                <select id="incident" v-model="data.incident"
-                  class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white"
-                  :disabled="!data.incidentType || filteredIncidents.length === 0">
+                <label for="incident_id" class="block text-sm font-medium mb-2">Incident/Case</label>
+                <select id="incident_id" v-model="data.incident_id"
+                :class="[
+                  'w-full p-3 rounded-lg border focus:ring-2 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white',
+                  (!data.assistance_id || filteredIncidents.length === 0) 
+                    ? 'opacity-50 cursor-not-allowed' 
+                    : 'focus:ring-blue-500'
+                ]"
+                :disabled="!data.assistance_id || filteredIncidents.length === 0">
                   <option disabled value="">Select incident</option>
                   <option v-for="incident in filteredIncidents" :key="incident.id" :value="incident.id">
                     {{ incident.type }}
@@ -303,10 +334,11 @@ function goBack() {
                 </select>
                 <span class="text-sm text-red-500" v-if="errors.incident_id && errors.incident_id.length">{{ errors.incident_id[0] }}</span>
               </div>
+
               <div class="form-group">
-                <label for="actionType" class="block text-sm font-medium mb-2" :class="themeClasses">Type of
+                <label for="actions_id" class="block text-sm font-medium mb-2" >Type of
                   Action</label>
-                <select id="actionType" v-model="data.actionType"
+                <select id="actions_id" v-model="data.actions_id"
                   class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
                   <option disabled value="">Select action</option>
                   <option v-for="action in actions" :key="action.id" :value="action.id">{{ action.actions }}</option>
@@ -315,26 +347,26 @@ function goBack() {
               </div>
             </div>
 
-            <h2 class="text-2xl font-bold mb-6 mt-12" :class="themeClasses">Time Information</h2>
+            <h2 class="text-2xl font-bold mb-6 mt-12">Time Information</h2>
             <div class="space-y-4">
               <div class="form-group">
-                <label for="receivedDate" class="block text-sm font-medium mb-2" :class="themeClasses">Date
+                <label for="date_received" class="block text-sm font-medium mb-2">Date
                   Received</label>
-                <input type="date" id="receivedDate" v-model="data.receivedDate"
+                <input type="date" id="date_received" v-model="data.date_received"
                   class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                   <span class="text-sm text-red-500" v-if="errors.date_received && errors.date_received.length">{{ errors.date_received[0] }}</span>
               </div>
               <div class="form-group">
-                <label for="arrivalDate" class="block text-sm font-medium mb-2" :class="themeClasses">Time of Arrival on
+                <label for="arrivalDate" class="block text-sm font-medium mb-2">Time of Arrival on
                   Site</label>
-                <input type="time" id="arrivalDate" v-model="data.arrivalTime" 
+                <input type="time" id="arrivalDate" v-model="data.arrival_on_site" 
                   class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                 <span class="text-sm text-red-500" v-if="errors.arrival_on_site && errors.arrival_on_site.length">{{ errors.arrival_on_site[0] }}</span>
               </div>
               <div class="form-group">
-                <label for="incidentTime" class="block text-sm font-medium mb-2" :class="themeClasses">Time of
+                <label for="incidentTime" class="block text-sm font-medium mb-2">Time of
                   Incident</label>
-                <input type="time" id="incidentTime" v-model="data.incidentTime"
+                <input type="time" id="incidentTime" v-model="data.time"
                   class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                 <span class="text-sm text-red-500" v-if="errors.time && errors.time.length">{{ errors.time[0] }}</span>
               </div>
@@ -345,13 +377,13 @@ function goBack() {
 
           <!-- right side -->
           <div class="w-1/2 pl-4">
-            <h2 class="text-2xl font-bold mb-6" :class="themeClasses">Place Information</h2>
+            <h2 class="text-2xl font-bold mb-6">Place Information</h2>
             <div class="space-y-4">
               <div class="grid grid-cols-2 gap-4">
                 <div class="form-group">
-                  <label for="place" class="block text-sm font-medium mb-2" :class="themeClasses">Place of
+                  <label for="place" class="block text-sm font-medium mb-2">Place of
                     Incident</label>
-                  <select id="place" v-model="data.barangay"
+                  <select id="place" v-model="data.barangay_id"
                     class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
                     <option disabled value="">Select Barangay (128)</option>
                     <option v-for="barangay in barangays" :key="barangay.id" :value="barangay.id">{{ barangay.name }}
@@ -360,9 +392,9 @@ function goBack() {
                   <span class="text-sm text-red-500" v-if="errors.barangay_id && errors.barangay_id.length">{{ errors.barangay_id[0] }}</span>
                 </div>
                 <div class="form-group">
-                  <label for="details" class="block text-sm font-medium mb-2" :class="themeClasses">Location
+                  <label for="landmark" class="block text-sm font-medium mb-2">Location
                     Details</label>
-                  <input id="details" v-model="data.details"
+                  <input id="landmark" v-model="data.landmark"
                     placeholder="Enter location details/landmarks"
                     class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                   <span class="text-sm text-red-500" v-if="errors.landmark && errors.landmark.length">{{ errors.landmark[0] }}</span>
@@ -374,14 +406,14 @@ function goBack() {
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <div class="form-group">
-                  <label for="longitude" class="block text-sm font-medium mb-2" :class="themeClasses">Longitude</label>
-                  <input id="longitude" v-model="data.Longitude"  placeholder="Enter Longitude"
+                  <label for="longitude" class="block text-sm font-medium mb-2">Longitude</label>
+                  <input id="longitude" v-model="data.longitude"  placeholder="Enter Longitude"
                     class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                   <span class="text-sm text-red-500" v-if="errors.longitude && errors.longitude.length">{{ errors.longitude[0] }}</span>
                 </div>
                 <div class="form-group">
-                  <label for="latitude" class="block text-sm font-medium mb-2" :class="themeClasses">Latitude</label>
-                  <input id="latitude" v-model="data.Latitude" placeholder="Enter Latitude"
+                  <label for="latitude" class="block text-sm font-medium mb-2">Latitude</label>
+                  <input id="latitude" v-model="data.latitude" placeholder="Enter Latitude"
                     class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                   <span class="text-sm text-red-500" v-if="errors.latitude && errors.latitude.length">{{ errors.latitude[0] }}</span>
                 </div>

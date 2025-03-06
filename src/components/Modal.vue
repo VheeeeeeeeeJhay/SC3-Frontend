@@ -1,14 +1,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted, defineEmits, defineProps, computed } from 'vue'
 // import { MdDeleteForever } from '@kalimahapps/vue-icons';
-import { useThemeStore } from '../stores/themeStore';
-// For dark mode
-const themeStore = useThemeStore();
-const themeClasses = computed(() => {
-  return themeStore.isDarkMode 
-    ? "bg-slate-800 border border-black text-white hover:border-gray-600 focus:ring-2 focus:ring-slate-500 focus:outline-none"
-    : "bg-sky-50 border border-gray-200 text-gray-800 hover:border-gray-300 focus:ring-2 focus:ring-sky-400 focus:outline-none";
-});
 
 const props = defineProps({
   modelValue: Boolean, // v-model binding for modal open state
@@ -51,11 +43,11 @@ onUnmounted(() => {
 <template>
   <div 
     v-if="modelValue" 
-    class="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50"
+    class="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50 bg-white dark:bg-slate-900 p-6 rounded-lg shadow-md"
     @click.self="closeModal"
   >
     <!-- Modal Container (No shadow) -->
-    <div ref="modalContainer" class="w-full max-w-md rounded-lg p-6 border dark:border-gray-700 transition-all" :class="themeClasses">
+    <div ref="modalContainer" class="w-full max-w-md rounded-lg p-6 border dark:border-gray-700 transition-all">
       
       <!-- Header -->
       <div class="flex justify-between items-center pb-4 border-b dark:border-gray-600">
