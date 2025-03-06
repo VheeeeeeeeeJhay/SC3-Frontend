@@ -8,6 +8,7 @@ import { useRouter } from 'vue-router';
 import leaflet from 'leaflet';
 import useUserStore from '../../stores/user.js';
 import Toast from '../../components/Toast.vue';
+import ToolTip from '../../components/ToolTip.vue';
 
 // Get Auth User Information
 const userStore = useUserStore();
@@ -111,7 +112,6 @@ const submitForm = async () => {
       clearForm();
         errors.value = [];
         console.log(success.value)
-        // goBack();
         fetchData();
     })
     .catch(error => {
@@ -178,35 +178,35 @@ singleMarker = leaflet
     .openPopup();
 
 
-// //User Click on Map
-//   map.addEventListener("click", (e) => {
-//     const { lat: newLat, lng: newLng } = e.latlng;
+//User Click on Map
+  map.addEventListener("click", (e) => {
+    const { lat: newLat, lng: newLng } = e.latlng;
 
-//     if (bounds.contains([newLat, newLng])) {
-//       if (singleMarker) {
-//         map.removeLayer(singleMarker);
-//       }
+    if (bounds.contains([newLat, newLng])) {
+      if (singleMarker) {
+        map.removeLayer(singleMarker);
+      }
 
-//       // Add a new marker
-//       singleMarker = leaflet
-//         .marker([newLat, newLng])
-//         .addTo(map)
-//         .bindPopup(
-//           `Selected Marker at (<strong>${newLat.toFixed(5)}, ${newLng.toFixed(5)}</strong>)`
-//         )
-//         .openPopup();
+      // Add a new marker
+      singleMarker = leaflet
+        .marker([newLat, newLng])
+        .addTo(map)
+        .bindPopup(
+          `Selected Marker at (<strong>${newLat.toFixed(5)}, ${newLng.toFixed(5)}</strong>)`
+        )
+        .openPopup();
 
-//       // Update the stored user marker
-//       userMarker.value.latitude = newLat;
-//       userMarker.value.longitude = newLng;
-//       // Update form inputs
-//       data.value.latitude = newLat.toFixed(6);
-//       data.value.longitude = newLng.toFixed(6);
+      // Update the stored user marker
+      userMarker.value.latitude = newLat;
+      userMarker.value.longitude = newLng;
+      // Update form inputs
+      data.value.latitude = newLat.toFixed(6);
+      data.value.longitude = newLng.toFixed(6);
 
-//     } else {
-//       alert("You cannot place markers outside Baguio City.");
-//     }
-//   });
+    } else {
+      alert("You cannot place markers outside Baguio City.");
+    }
+  });
 });
 
 watchEffect(() => {
@@ -314,7 +314,8 @@ watch(() => data.value.barangay_id, (newBarangayId) => {
                     {{ source.sources || "No Source Available" }}
                   </option>
                 </select>
-                <span class="text-sm text-red-500" v-if="errors.source_id && errors.source_id.length">{{ errors.source_id[0] }}</span>
+                <span class="text-sm text-red-500" v-if="errors.source_id && errors.source_id.length">{{
+                  errors.source_id[0] }}</span>
               </div>
               
               <div class="form-group">
@@ -332,7 +333,8 @@ watch(() => data.value.barangay_id, (newBarangayId) => {
                     {{ incident.type }}
                   </option>
                 </select>
-                <span class="text-sm text-red-500" v-if="errors.incident_id && errors.incident_id.length">{{ errors.incident_id[0] }}</span>
+                <span class="text-sm text-red-500" v-if="errors.incident_id && errors.incident_id.length">{{
+                  errors.incident_id[0] }}</span>
               </div>
 
               <div class="form-group">
@@ -343,7 +345,8 @@ watch(() => data.value.barangay_id, (newBarangayId) => {
                   <option disabled value="">Select action</option>
                   <option v-for="action in actions" :key="action.id" :value="action.id">{{ action.actions }}</option>
                 </select>
-                <span class="text-sm text-red-500" v-if="errors.actions_id && errors.actions_id.length">{{ errors.actions_id[0] }}</span>
+                <span class="text-sm text-red-500" v-if="errors.actions_id && errors.actions_id.length">{{
+                  errors.actions_id[0] }}</span>
               </div>
             </div>
 
@@ -389,7 +392,8 @@ watch(() => data.value.barangay_id, (newBarangayId) => {
                     <option v-for="barangay in barangays" :key="barangay.id" :value="barangay.id">{{ barangay.name }}
                     </option>
                   </select>
-                  <span class="text-sm text-red-500" v-if="errors.barangay_id && errors.barangay_id.length">{{ errors.barangay_id[0] }}</span>
+                  <span class="text-sm text-red-500" v-if="errors.barangay_id && errors.barangay_id.length">{{
+                    errors.barangay_id[0] }}</span>
                 </div>
                 <div class="form-group">
                   <label for="landmark" class="block text-sm font-medium mb-2">Location

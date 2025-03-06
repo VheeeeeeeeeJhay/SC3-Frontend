@@ -28,7 +28,7 @@ const report_Id = route.params.id;
 
 // Full Name of Auth User
 const fullName = computed(() => {
-  return user.value.firstName + ' ' + user.value.lastName
+    return user.value.firstName + ' ' + user.value.lastName
 })
 const data = ref({
     name: fullName.value,
@@ -57,25 +57,25 @@ const barangays = ref([]);
 const errorMessage = ref(''); // Define errorMessage
 const isLoading = ref(false); // Define loading state
 let map = null;
-let marker = null; 
+let marker = null;
 
 onMounted(() => {
     //fetch data for dropdowns
     axiosClient.get('/api/911/report', {
-    headers: {
-      'x-api-key': import.meta.env.VITE_API_KEY
-    }
-  })
+        headers: {
+            'x-api-key': import.meta.env.VITE_API_KEY
+        }
+    })
     .then((res) => {
-      sources.value = res.data.sources;
-      actions.value = res.data.actions;
-      incidents.value = res.data.incidents;
-      assistance.value = res.data.assistance;
-      barangays.value = res.data.barangays;
+        sources.value = res.data.sources;
+        actions.value = res.data.actions;
+        incidents.value = res.data.incidents;
+        assistance.value = res.data.assistance;
+        barangays.value = res.data.barangays;
     })
     .catch((error) => {
-      console.error('Error fetching data:', error);
-      errorMessage.value = 'Failed to load data. Please try again later.';
+        console.error('Error fetching data:', error);
+        errorMessage.value = 'Failed to load data. Please try again later.';
     });
 
 
@@ -85,72 +85,72 @@ onMounted(() => {
             'x-api-key': import.meta.env.VITE_API_KEY
         }
     })
-    .then((res) => {
-        console.log("API Response:", res.data);
-        originalData.value = { ...res.data }; // Store original data
-        data.value = { ...res.data };;
-        
-       // Ensure dropdown fields store the correct IDs
-       data.value.source = res.data.source?.id ?? '';
-       data.value.classification = res.data.assistance?.id ?? '';
-       data.value.incident = res.data.incident?.id ?? '';
-       data.value.barangay = res.data.barangay?.id ?? '';
-       data.value.actions = res.data.actions?.id ?? '';
-       data.value.details = res.data.landmark ?? '';
-       data.value.latitude = res.data.latitude ?? ''; 
-       data.value.longitude = res.data.longitude ?? '';
-       data.value.receivedDate = res.data.date_received?.split('T')[0] ?? ''; // Extract YYYY-MM-DD
-       data.value.arrivalTime = res.data.arrival_on_site?.slice(0, 5) ?? ''; // Extract HH:mm
-       data.value.incidentTime = res.data.time?.slice(0, 5) ?? ''; // Extract HH:mm
-        // Initialize the map AFTER data is received
-        initMap();
-    })
-    .catch((error) => {
-        console.error('Error fetching data:', error);
-        errorMessage.value = 'Failed to load data. Please try again later.';
-    });
+        .then((res) => {
+            console.log("API Response:", res.data);
+            originalData.value = { ...res.data }; // Store original data
+            data.value = { ...res.data };;
+
+            // Ensure dropdown fields store the correct IDs
+            data.value.source = res.data.source?.id ?? '';
+            data.value.classification = res.data.assistance?.id ?? '';
+            data.value.incident = res.data.incident?.id ?? '';
+            data.value.barangay = res.data.barangay?.id ?? '';
+            data.value.actions = res.data.actions?.id ?? '';
+            data.value.details = res.data.landmark ?? '';
+            data.value.latitude = res.data.latitude ?? '';
+            data.value.longitude = res.data.longitude ?? '';
+            data.value.receivedDate = res.data.date_received?.split('T')[0] ?? ''; // Extract YYYY-MM-DD
+            data.value.arrivalTime = res.data.arrival_on_site?.slice(0, 5) ?? ''; // Extract HH:mm
+            data.value.incidentTime = res.data.time?.slice(0, 5) ?? ''; // Extract HH:mm
+            // Initialize the map AFTER data is received
+            initMap();
+        })
+        .catch((error) => {
+            console.error('Error fetching data:', error);
+            errorMessage.value = 'Failed to load data. Please try again later.';
+        });
 });
 
 // Filter The Incident/Case Base On The Assistance Type
 const filteredIncidents = computed(() => {
-  return data.value.classification
-    ? incidents.value.filter(incident => incident.assistance_id === data.value.classification)
-    : [];
+    return data.value.classification
+        ? incidents.value.filter(incident => incident.assistance_id === data.value.classification)
+        : [];
 });
 
 
 const updateForm = () => {
     const payload = {
-    // user_id: user.value.id,
-    source_id: data.value.source,
-    time: data.value.incidentTime,
-    incident_id: data.value.incident,
-    date_received: data.value.receivedDate,
-    arrival_on_site: data.value.arrivalTime,
-    name: data.value.name, // Ensure this matches API expectations
-    landmark: data.value.details,
-    barangay_id: data.value.barangay,
-    actions_id: data.value.actions,
-    assistance_id: data.value.classification, // Use `classification` instead of `incidentType`
-    longitude: data.value.longitude,
-    latitude: data.value.latitude
-  };
+        // user_id: user.value.id,
+        source_id: data.value.source,
+        time: data.value.incidentTime,
+        incident_id: data.value.incident,
+        date_received: data.value.receivedDate,
+        arrival_on_site: data.value.arrivalTime,
+        name: data.value.name, // Ensure this matches API expectations
+        landmark: data.value.details,
+        barangay_id: data.value.barangay,
+        actions_id: data.value.actions,
+        assistance_id: data.value.classification, // Use `classification` instead of `incidentType`
+        longitude: data.value.longitude,
+        latitude: data.value.latitude
+    };
 
-  console.log("Updating Report with data:", payload);
+    console.log("Updating Report with data:", payload);
 
-  axiosClient.put(`/api/911/report/${report_Id}`, payload, {
-    headers: {
-      'x-api-key': import.meta.env.VITE_API_KEY,
-    }
-  })
-  .then(response => {
-    console.log('Report updated successfully:', response.data);
-    // Optionally, refresh the originalData reference
-    originalData.value = { ...data.value };
-  })
-  .catch(error => {
-    console.error('Error updating report:', error.response?.data || error.message);
-  });
+    axiosClient.put(`/api/911/report/${report_Id}`, payload, {
+        headers: {
+            'x-api-key': import.meta.env.VITE_API_KEY,
+        }
+    })
+        .then(response => {
+            console.log('Report updated successfully:', response.data);
+            // Optionally, refresh the originalData reference
+            originalData.value = { ...data.value };
+        })
+        .catch(error => {
+            console.error('Error updating report:', error.response?.data || error.message);
+        });
 };
 
 
@@ -282,7 +282,7 @@ watchEffect(() => {
                         </div>
                     </div>
 
-                    <div class="w-px bg-gray-300 mx-4"></div>
+                            <div class="w-px bg-gray-300 mx-4"></div>
 
                     <!-- right side -->
                     <div class="w-1/2 pl-4">
@@ -333,8 +333,8 @@ watchEffect(() => {
 
 <style scoped>
 #map {
-  height: 50vh;
-  width: 100%;
-  border: 1px solid #ccc;
+    height: 50vh;
+    width: 100%;
+    border: 1px solid #ccc;
 }
 </style>
