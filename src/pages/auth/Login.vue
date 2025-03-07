@@ -28,7 +28,7 @@ const submit = () => {
       }
     })
       .then(response => {
-        router.push({ name: 'Dashboard' })
+        router.push({ name: 'Overview' })
       })
       .catch(error => {
         console.log(error.response.data.message)
