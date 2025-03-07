@@ -201,17 +201,13 @@ const maskEmail = (email) => {
                             <td class="px-4 py-3">{{ user.id }}</td>
                             <td class="px-4 py-3">{{ user.firstName }} {{ user.middleName }} {{ user.lastName }}</td>
                             <td class="px-4 py-3">{{ maskEmail(user.email) }}</td>
-                            <td class="px-4 py-3" v-if="user.for_911 === 1">
-                                <Badge :Message="`Has Access`" />
+                            <td class="px-4 py-3">
+                                <Badge :Message="`Has Access`"  v-if="user.for_911 === 1"/>
+                                <Badge :Message="`No Access`" v-else/>
                             </td>
-                            <td class="px-4 py-3" v-if="user.for_911 === 0">
-                                <Badge :Message="`No Access`" />
-                            </td>
-                            <td class="px-4 py-3" v-if="user.for_inventory === 1">
-                                <Badge :Message="`Has Access`" />
-                            </td>
-                            <td class="px-4 py-3" v-if="user.for_inventory === 0">
-                                <Badge :Message="`No Access`" />
+                            <td class="px-4 py-3">
+                                <Badge :Message="`Has Access`"  v-if="user.for_inventory === 1"/>
+                                <Badge :Message="`No Access`" v-else/>
                             </td>
                             <td class="px-4 py-3 flex items-center relative">
                                 <button @click.stop="toggleDropdown(user.id)"
@@ -225,12 +221,6 @@ const maskEmail = (email) => {
                                 <div v-if="openDropdownId === user.id" ref="dropdownRefs"
                                     class="absolute z-10 w-44 mt-2 top-full left-0 shadow-sm border rounded-md bg-white dark:bg-slate-700">
                                     <ul class="py-2 text-sm">
-                                        <li>
-                                            <RouterLink :to="{ name: 'ReportViewDetails', params: { id: user.id } }"
-                                                class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
-                                                View Details
-                                            </RouterLink>
-                                        </li>
                                         <li>
                                             <RouterLink :to="{ name: 'EditReport', params: { id: user.id } }"
                                                 class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
