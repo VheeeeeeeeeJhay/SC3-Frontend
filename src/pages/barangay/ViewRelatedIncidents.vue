@@ -5,6 +5,7 @@ import { useRoute } from 'vue-router';
 import axiosClient from '../../axios.js';
 import ToolTip from '../../components/ToolTip.vue';
 import { computed, watch, watchEffect } from 'vue';
+import Loader1 from '../../components/Loader1.vue';
 
 const id = String(useRoute().params.id);
 const isLoading = ref(false);
@@ -169,7 +170,10 @@ watch(searchQuery, () => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="report in paginatedReports" :key="report.id"
+                    <div v-if="isLoading">
+                        <Loader1 />
+                    </div>
+                    <tr v-else v-for="report in paginatedReports" :key="report.id"
                         class="dark:bg-slate-800 dark:hover:bg-slate-700 bg-sky-50 hover:bg-gray-200">
 
                         <td class="px-4 py-3 ">{{ report.id }}</td>
