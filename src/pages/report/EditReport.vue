@@ -9,6 +9,7 @@ import PrimaryButton from '../../components/PrimaryButton.vue';
 import leaflet from 'leaflet';
 
 import useUserStore from '../../stores/user.js';
+import ToolTip from '../../components/ToolTip.vue';
 // Get Auth User Information
 const userStore = useUserStore();
 const user = computed(() => userStore.user);
@@ -228,7 +229,10 @@ watchEffect(() => {
                         <div class="grid grid-cols-2 gap-4 mb-8">
                             <div class="form-group">
                                 <!-- <FormInput name="source" class="px-4 py-2 border rounded-md mr-2 text-white bg-gray-600" v-model="data.source.sources" /> -->
-                                <label for="source" class="block text-sm font-medium mb-2">Source of Report</label>
+                                <label for="source" class="block text-sm font-medium mb-2">
+                                    Source of Report
+                                    <ToolTip Information="This is the type of assistance that is being reported."/>
+                                </label>
                                 <select id="source" v-model="data.source" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
                                     <option disabled value="">Select source</option>
                                     <option v-for="source in sources" :key="source.id" :value="source.id">
@@ -237,7 +241,10 @@ watchEffect(() => {
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="incidentType" class="block text-sm font-medium mb-2" :class="themeClasses">Case Classification</label>
+                                <label for="incidentType" class="block text-sm font-medium mb-2" :class="themeClasses">
+                                    Case Classification
+                                    <ToolTip Information="This is the type of assistance that is being reported."/>
+                                </label>
                                 <select id="incidentType" v-model="data.classification"
                                 class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
                                     <option disabled value="">Select classification</option>
@@ -245,7 +252,10 @@ watchEffect(() => {
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="incident" class="block text-sm font-medium mb-2" :class="themeClasses">Incident/Case</label>
+                                <label for="incident" class="block text-sm font-medium mb-2" :class="themeClasses">
+                                    Incident/Case
+                                    <ToolTip Information="This is the type of incident that is being reported."/>
+                                </label>
                                 <select id="incident" v-model="data.incident"
                                     class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white"
                                     :disabled="!data.classification || filteredIncidents.length === 0">
@@ -256,7 +266,10 @@ watchEffect(() => {
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="actionType" class="block text-sm font-medium mb-2" :class="themeClasses">Type of Action</label>
+                                <label for="actionType" class="block text-sm font-medium mb-2" :class="themeClasses">
+                                    Type of Action
+                                    <ToolTip Information="This is the type of action that is being reported."/>
+                                </label>
                                 <select id="actionType" v-model="data.actions"
                                 class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
                                     <option disabled value="">Select action</option>
@@ -268,15 +281,24 @@ watchEffect(() => {
                         <h2 class="text-2xl font-bold mb-6 mt-12" >Time Information</h2>
                         <div class="space-y-4">
                             <div class="form-group">
-                                <label for="receivedDate" class="block text-sm font-medium mb-2" >Date Received</label>
+                                <label for="receivedDate" class="block text-sm font-medium mb-2" >
+                                    Date Received
+                                    <ToolTip Information="This is the date when the report was received."/>
+                                </label>
                                 <input type="date" id="receivedDate" v-model="data.receivedDate"  class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                             </div>
                             <div class="form-group">
-                                <label for="arrivalDate" class="block text-sm font-medium mb-2" >Time of Arrival on Site</label>
+                                <label for="arrivalDate" class="block text-sm font-medium mb-2" >
+                                    Time of Arrival on Site
+                                    <ToolTip Information="This is the time when the report was received."/>
+                                </label>
                                 <input type="time" id="arrivalDate" v-model="data.arrivalTime" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                             </div>
                             <div class="form-group">
-                                <label for="incidentTime" class="block text-sm font-medium mb-2" >Time of Incident</label>
+                                <label for="incidentTime" class="block text-sm font-medium mb-2" >
+                                    Time of Incident
+                                    <ToolTip Information="This is the time when the incident occurred."/>
+                                </label>
                                 <input type="time" id="incidentTime" v-model="data.incidentTime"  class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                             </div>
                         </div>
@@ -290,14 +312,20 @@ watchEffect(() => {
                         <div class="space-y-4">
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="form-group">
-                                    <label for="place" class="block text-sm font-medium mb-2" :class="themeClasses">Place of Incident</label>
+                                    <label for="place" class="block text-sm font-medium mb-2" :class="themeClasses">
+                                        Place of Incident
+                                        <ToolTip Information="This is the place where the incident occurred."/>
+                                    </label>
                                     <select id="place" v-model="data.barangay" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
                                         <option disabled value="">Select Barangay (128)</option>
                                         <option v-for="barangay in barangays" :key="barangay.id" :value="barangay.id">{{ barangay.name }}</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label for="details" class="block text-sm font-medium mb-2" :class="themeClasses">Location Details</label>
+                                    <label for="details" class="block text-sm font-medium mb-2" :class="themeClasses">
+                                        Location Details
+                                        <ToolTip Information="This is the location where the incident occurred."/>
+                                    </label>
                                     <input id="details" v-model="data.details" placeholder="Enter location details/landmarks" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                                 </div>
                             </div>
@@ -307,11 +335,17 @@ watchEffect(() => {
                             </div>
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="form-group">
-                                    <label for="longitude" class="block text-sm font-medium mb-2" :class="themeClasses">Longitude</label>
+                                    <label for="longitude" class="block text-sm font-medium mb-2" :class="themeClasses">
+                                        Longitude
+                                        <ToolTip Information="This is the longitude of the location where the incident occurred."/>
+                                    </label>
                                     <input id="longitude" v-model="data.longitude" placeholder="Enter Longitude" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                                 </div>
                                 <div class="form-group">
-                                    <label for="latitude" class="block text-sm font-medium mb-2" :class="themeClasses">Latitude</label>
+                                    <label for="latitude" class="block text-sm font-medium mb-2" :class="themeClasses">
+                                        Latitude
+                                        <ToolTip Information="This is the latitude of the location where the incident occurred."/>
+                                    </label>
                                     <input id="latitude" v-model="data.latitude" placeholder="Enter Latitude" class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                                 </div>
                             </div>

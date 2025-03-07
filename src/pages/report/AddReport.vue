@@ -17,8 +17,8 @@ const router = useRouter();
 
 // Clearing Form Data
 const clearForm = () => {
+  errors.value = [];
   data.value = {
-    name: '',
     source_id: '',
     assistance_id: '',
     incident_id: '',
@@ -59,7 +59,6 @@ const actions = ref([]);
 const incidents = ref([]);
 const assistance = ref([]);
 const barangays = ref([]);
-const errorMessage = ref('');
 
 const fetchData = async () => {
   await axiosClient.get('/api/911/report', {
@@ -85,6 +84,7 @@ onMounted(() => {
 
 const errors = ref([])
 const success = ref([])
+
 const submitForm = async () => {
   try {
   const formData = new FormData();
@@ -294,7 +294,9 @@ watch(() => data.value.barangay_id, (newBarangayId) => {
 
               <div class="form-group">
                 <label for="assistance_id" class="block text-sm font-medium mb-2">Case
-                  Classification</label>
+                  Classification
+                  <ToolTip Information="This is the type of assistance that is being reported." />
+                </label>
                 <select id="assistance_id" v-model="data.assistance_id"
                   class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
                   <option disabled value="">Select classification</option>
@@ -306,7 +308,9 @@ watch(() => data.value.barangay_id, (newBarangayId) => {
 
               <div class="form-group">
                 <label for="source_id" class="block text-sm font-medium mb-2">Source of
-                  Report</label>
+                  Report
+                  <ToolTip Information="This is the source of the report." />
+                </label>
                 <select id="source_id" v-model="data.source_id"
                   class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
                   <option disabled value="">Select source</option>
@@ -319,7 +323,10 @@ watch(() => data.value.barangay_id, (newBarangayId) => {
               </div>
               
               <div class="form-group">
-                <label for="incident_id" class="block text-sm font-medium mb-2">Incident/Case</label>
+                <label for="incident_id" class="block text-sm font-medium mb-2">
+                  Incident/Case 
+                  <ToolTip Information="This is the incident or case that is being reported." />
+                </label>
                 <select id="incident_id" v-model="data.incident_id"
                 :class="[
                   'w-full p-3 rounded-lg border focus:ring-2 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white',
@@ -339,7 +346,9 @@ watch(() => data.value.barangay_id, (newBarangayId) => {
 
               <div class="form-group">
                 <label for="actions_id" class="block text-sm font-medium mb-2" >Type of
-                  Action</label>
+                  Action
+                  <ToolTip Information="This is the type of action that is being reported." />
+                </label>
                 <select id="actions_id" v-model="data.actions_id"
                   class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
                   <option disabled value="">Select action</option>
@@ -353,22 +362,28 @@ watch(() => data.value.barangay_id, (newBarangayId) => {
             <h2 class="text-2xl font-bold mb-6 mt-12">Time Information</h2>
             <div class="space-y-4">
               <div class="form-group">
-                <label for="date_received" class="block text-sm font-medium mb-2">Date
-                  Received</label>
+                <label for="date_received" class="block text-sm font-medium mb-2">
+                  Date Received
+                  <ToolTip Information="This is the date the report was received." />
+                </label>
                 <input type="date" id="date_received" v-model="data.date_received"
                   class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                   <span class="text-sm text-red-500" v-if="errors.date_received && errors.date_received.length">{{ errors.date_received[0] }}</span>
               </div>
               <div class="form-group">
-                <label for="arrivalDate" class="block text-sm font-medium mb-2">Time of Arrival on
-                  Site</label>
+                <label for="arrivalDate" class="block text-sm font-medium mb-2">
+                  Time of Arrival on Site
+                  <ToolTip Information="This is the time the report was received." />
+                </label>
                 <input type="time" id="arrivalDate" v-model="data.arrival_on_site" 
                   class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                 <span class="text-sm text-red-500" v-if="errors.arrival_on_site && errors.arrival_on_site.length">{{ errors.arrival_on_site[0] }}</span>
               </div>
               <div class="form-group">
-                <label for="incidentTime" class="block text-sm font-medium mb-2">Time of
-                  Incident</label>
+                <label for="incidentTime" class="block text-sm font-medium mb-2">
+                  Time of Incident
+                  <ToolTip Information="This is the time of the incident." />
+                </label>
                 <input type="time" id="incidentTime" v-model="data.time"
                   class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                 <span class="text-sm text-red-500" v-if="errors.time && errors.time.length">{{ errors.time[0] }}</span>
@@ -384,8 +399,10 @@ watch(() => data.value.barangay_id, (newBarangayId) => {
             <div class="space-y-4">
               <div class="grid grid-cols-2 gap-4">
                 <div class="form-group">
-                  <label for="place" class="block text-sm font-medium mb-2">Place of
-                    Incident</label>
+                  <label for="place" class="block text-sm font-medium mb-2">
+                    Place of Incident
+                    <ToolTip Information="This is the place of the incident." />
+                  </label>
                   <select id="place" v-model="data.barangay_id"
                     class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
                     <option disabled value="">Select Barangay (128)</option>
@@ -396,8 +413,10 @@ watch(() => data.value.barangay_id, (newBarangayId) => {
                     errors.barangay_id[0] }}</span>
                 </div>
                 <div class="form-group">
-                  <label for="landmark" class="block text-sm font-medium mb-2">Location
-                    Details</label>
+                  <label for="landmark" class="block text-sm font-medium mb-2">
+                    Location Details
+                    <ToolTip Information="This is the location details of the incident." />
+                  </label>
                   <input id="landmark" v-model="data.landmark"
                     placeholder="Enter location details/landmarks"
                     class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
@@ -410,13 +429,19 @@ watch(() => data.value.barangay_id, (newBarangayId) => {
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <div class="form-group">
-                  <label for="longitude" class="block text-sm font-medium mb-2">Longitude</label>
+                  <label for="longitude" class="block text-sm font-medium mb-2">
+                    Longitude
+                    <ToolTip Information="This is the longitude of the incident." />
+                  </label>
                   <input id="longitude" v-model="data.longitude"  placeholder="Enter Longitude"
                     class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                   <span class="text-sm text-red-500" v-if="errors.longitude && errors.longitude.length">{{ errors.longitude[0] }}</span>
                 </div>
                 <div class="form-group">
-                  <label for="latitude" class="block text-sm font-medium mb-2">Latitude</label>
+                  <label for="latitude" class="block text-sm font-medium mb-2">
+                    Latitude
+                    <ToolTip Information="This is the latitude of the incident." />
+                  </label>
                   <input id="latitude" v-model="data.latitude" placeholder="Enter Latitude"
                     class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                   <span class="text-sm text-red-500" v-if="errors.latitude && errors.latitude.length">{{ errors.latitude[0] }}</span>
@@ -435,6 +460,7 @@ watch(() => data.value.barangay_id, (newBarangayId) => {
     </main>
   </div>
   <Toast v-if="success.length > 0" :message="success" />
+  <Toast v-if="errors.length > 0" :message="errors" />
 </template>
 
 <style scoped>
