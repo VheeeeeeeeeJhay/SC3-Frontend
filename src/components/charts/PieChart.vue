@@ -2,17 +2,6 @@
 import { ref, onMounted, computed, onUnmounted, watch } from 'vue';
 import axiosClient from "../../axios.js";
 import ApexCharts from 'apexcharts';
-import { useThemeStore } from '../../stores/themeStore';
-
-const themeStore = useThemeStore();
-const themeClasses = computed(() => {
-  return themeStore.isDarkMode ? "bg-slate-800 border-black text-white" : "bg-sky-50 border-gray-200 text-gray-800"
-})
-
-
-const props = defineProps({
-  dateRange: Object // Expecting { start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' }
-});
 
 const selectedCaseFilter = ref("");
 
@@ -38,14 +27,6 @@ onMounted(() => {
       incidents.value = res.data.incidents;
       assistance.value = res.data.assistance;
       report.value = res.data.report;
-      // Count occurrences of each incident_id in report
-      const incidentCounts = report.value.reduce((acc, reportItem) => {
-        const incidentId = reportItem.incident_id;
-        acc[incidentId] = (acc[incidentId] || 0) + 1;
-        return acc;
-      }, {});
-
-      console.log(incidentCounts, "Incident ID Counts in Reports");
 
       updateChart(); // Update the chart after fetching data
     })
@@ -104,31 +85,6 @@ const options = ref({
 const pieChart = ref(null);
 let chart = null;
 
-
-// Function to update the chart with backend data
-// const updateChart = () => {
-
-//   if (data.value.incidentType) {
-//     const filteredData = filteredIncidents.value;
-//     console.log(filteredIncidents.value, 'hellorerewrwer');
-
-//     // Assign a default count of 4 for now
-//     const incidentCounts = filteredData.map(() => 4);
-//     const incidentLabels = filteredData.map(incident => incident.type);
-
-//     // Update chart data
-//     options.value.series = incidentCounts;
-//     options.value.labels = incidentLabels;
-//     console.log(incidentLabels, 'hello123');
-
-//     emit('periodChange', props.dateRange);
-//     emit('periodChange', props.dateRange);
-
-//     if (chart) {
-//       chart.updateOptions(options.value);
-//     }
-//   }
-// };
 const updateChart = () => {
   console.log(assistance.value);
   console.log(incidents.value);
@@ -152,16 +108,13 @@ const updateChart = () => {
     // Update chart data
     options.value.series = incidentCountsArray;
     options.value.labels = incidentLabels;
-
-    emit('periodChange', props.dateRange);
-
+    
     if (chart) {
       chart.updateOptions(options.value);
     }
   }
 };
 
-watch(() => props.dateRange, updateChart, { deep: true });
 watch(() => data.value.incidentType, updateChart);
 
 onMounted(() => {
@@ -177,7 +130,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="w-full p-4" :class="themeClasses">
+  <div class="w-full p-4 bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-semibold">Number of Cases</h2>
       <select id="incidentType" v-model="data.incidentType"

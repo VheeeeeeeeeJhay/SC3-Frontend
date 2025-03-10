@@ -3,21 +3,32 @@
 import { ref, computed, onMounted } from "vue";
 import axiosClient from "../axios.js";
 import router from "../router.js";
-import { useThemeStore } from '../stores/themeStore';
 import PieChart from "../components/charts/PieChart.vue";
 import LineChart from "../components/charts/LineChart.vue";
 import BarChart from "../components/charts/BarChart.vue";
-
-const themeStore = useThemeStore();
-const themeClasses = computed(() => {
-  return themeStore.isDarkMode ? "bg-slate-800 border-black text-white" : "bg-sky-50 border-gray-200 text-gray-800"
-})
 
 
 // /👾👾👾👾👾👾👾👾/ //
 // Fetch Data From Backend //
 
 const incidents = ref([]);
+const reports = ref([]);
+const percentage = ref(0);
+const selectedMonth1 = ref('');
+const selectedMonth2 = ref('');
+
+const months = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
+
+// Compute available months for selectedMonth2
+const filteredMonths2 = computed(() => {
+  if (!selectedMonth1.value) return months; // If Month 1 is not selected, show all
+  const startIndex = months.indexOf(selectedMonth1.value);
+  return months.slice(startIndex + 1); // Exclude the current and previous months
+});
+
 onMounted(() => {
   axiosClient.get('/api/911/dashboard', {
       headers: {
@@ -27,6 +38,8 @@ onMounted(() => {
   .then((res) => {
       setTimeout(() => {
           incidents.value = res.data;
+          reports.value = res.data.report;
+          console.log(reports.value,'report data')
       }, 1500);
   })
   .catch((error) => {
@@ -35,32 +48,27 @@ onMounted(() => {
   });
 });
 
-// /👾👾👾👾👾👾👾👾/ //
+// Function to count reports for a given month
+const getReportCountForMonth = (month) => {
+  if (!month) return 0;
+  
+  const monthIndex = months.indexOf(month) + 1; // Convert to 1-based index (Jan = 1)
+  return reports.value.filter(report => {
+    const reportDate = new Date(report.date_received);
+    return reportDate.getMonth() + 1 === monthIndex;
+  }).length;
+};
 
+// Compute percentage change dynamically
+const percentageChange = computed(() => {
+  const count1 = getReportCountForMonth(selectedMonth1.value);
+  const count2 = getReportCountForMonth(selectedMonth2.value);
 
-// const incidents = [
-//   { name: 'Brawl', value: 'brawl' },
-//   { name: 'Assault', value: 'assault' },
-//   { name: 'Vandalism', value: 'vandalism' },
-//   { name: 'Traffic Violation', value: 'traffic' },
-//   { name: 'Suspicious Activity', value: 'suspicious' },
-//   { name: 'Other', value: 'other' }
-// ];
+  if (count1 === 0) return count2 > 0 ? 100 : 0; // Avoid division by zero
 
-const dateFilters = [
-  { name: 'Today', value: 'today' },
-  { name: 'This Week', value: 'week' },
-  { name: 'This Month', value: 'month' },
-  { name: 'This Year', value: 'year' },
-];
+  return ((count2 - count1) / count1) * 100;
+});
 
-const selectedMonth1 = ref('');
-const selectedMonth2 = ref('');
-
-const months = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
-];
 
 
 const formatDate = (date) => date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
@@ -69,6 +77,9 @@ const currentDate = ref(new Date());
 const selectedEndDate = ref(formatDate(new Date())); // Current day
 const selectedStartDate = ref(formatDate(new Date(new Date().setDate(new Date().getDate() - 6)))); // 6 days ago
 const selectedDateRange = ref({ start: selectedStartDate.value, end: selectedEndDate.value });
+
+
+
 </script>
 
 <template>
@@ -76,44 +87,60 @@ const selectedDateRange = ref({ start: selectedStartDate.value, end: selectedEnd
     <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
       <div class="grid grid-cols-3 gap-6">
-        <div class="col-span-1 p-6 rounded-lg shadow" :class="themeClasses">
+        <div class="col-span-1 p-6 rounded-lg shadow bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
           <PieChart/>
         </div>
         
-        <div class="col-span-1 p-6 rounded-lg shadow" :class="themeClasses">
-          <h2 class="text-xl font-semibold mb-4" :class="themeClasses">Recent Activities</h2>
+        <div class="col-span-1 p-6 rounded-lg shadow  bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
+          <h2 class="text-xl font-semibold mb-4">Recent Activities</h2>
           
             
         </div>
-        <div class="col-span-1 p-6 rounded-lg shadow" :class="themeClasses">
-          <h2 class="text-xl font-semibold mb-4" :class="themeClasses">Growth Rate of Incidents</h2>
-          <div class="text-4xl font-bold text-green-500 dark:text-green-500 text-center mb-4">
-            23%
-            <svg class="w-6 h-6 inline-block ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 14">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13V1m0 0L1 5m4-4 4 4"/>
-            </svg>
-          </div>
-          <div class="flex justify-center space-x-4">
-            <select v-model="selectedMonth1" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300">
-              <option value="" disabled>Select Month 1</option>
+        <div class="col-span-1 p-4 rounded-xl shadow-lg bg-sky-50 border border-gray-300 text-gray-800 dark:bg-slate-800 dark:border-gray-700 dark:text-white h-[220px] flex flex-col justify-between">
+          
+          <!-- Title -->
+          <h2 class="text-lg font-semibold text-center">
+            Growth Rate of Incidents <span class="text-sm text-gray-500">// Month over Month</span>
+          </h2>
+
+          <!-- Month Selection -->
+          <div class="flex justify-center space-x-4 mt-2">
+            <select v-model="selectedMonth1"
+              class="px-3 py-2 text-lg font-medium bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition duration-300">
+              <option value="" disabled>Month 1</option>
               <option v-for="month in months" :key="month" :value="month">{{ month }}</option>
             </select>
-            <select v-model="selectedMonth2" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300">
-              <option value="" disabled>Select Month 2</option>
-              <option v-for="month in months" :key="month" :value="month">{{ month }}</option>
+
+            <select v-model="selectedMonth2"
+              class="px-3 py-2 text-lg font-medium bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition duration-300">
+              <option value="" disabled>Month 2</option>
+              <option v-for="month in filteredMonths2" :key="month" :value="month">{{ month }}</option>
             </select>
           </div>
+
+          <!-- Percentage Change Display -->
+          <div class="flex justify-center items-center space-x-2">
+    <div class="text-5xl font-bold" :class="percentageChange >= 0 ? 'text-green-500' : 'text-red-500'">
+      {{ percentageChange.toFixed(2) }}%
+    </div>
+    <svg class="w-7 h-7" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 14">
+      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        :d="percentageChange >= 0 ? 'M5 13V1m0 0L1 5m4-4 4 4' : 'M5 1v12m0 0l4-4m-4 4L1 9'" />
+    </svg>
+  </div>
         </div>
+
+  
       </div>
       
       <div class="mt-6 grid grid-cols-2 gap-6">
         <!-- linechart -->
-        <div class="p-6 rounded-lg shadow" :class="themeClasses">
+        <div class="p-6 rounded-lg shadow  bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
             <LineChart/>
         </div>
       
       
-          <div class="p-6 rounded-lg shadow" :class="themeClasses">
+          <div class="p-6 rounded-lg shadow  bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
             <BarChart :dateRange="selectedDateRange" class="w-full"/>
           </div>
       </div>

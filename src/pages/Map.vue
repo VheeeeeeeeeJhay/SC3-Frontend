@@ -124,28 +124,27 @@ map.on("click", (event) => {
     }
   });
 
-  // ✅ Show a **persistent** popup on click
-  if (closestPoint && minDistance < 50) {
-    // ✅ Find the **single** matching report for the heatmap point
-  const matchingReport = reports.value.find(
-    (report) =>
-      report.latitude === closestPoint.lat &&
-      report.longitude === closestPoint.lng
-  );
+      // ✅ Show a **persistent** popup on click
+      if (closestPoint && minDistance < 50) {
+        // ✅ Find the **single** matching report for the heatmap point
+      const matchingReport = reports.value.find(
+        (report) =>
+          report.latitude === closestPoint.lat &&
+          report.longitude === closestPoint.lng
+      );
 
-let popupContent = "<strong>Reported Case</strong><br>";
+    let popupContent = "<strong>Reported Case</strong><br>";
 
-if (matchingReport) {
-  popupContent += `<strong>Type:</strong> ${matchingReport.incident.type} <br>`;
-  popupContent += `<strong>Details:</strong> ${matchingReport.incident.landmark || "N/A"} <br>`;
-  popupContent += `<strong>Reported By:</strong> ${matchingReport.name || "Anonymous"} <br>`;
-  popupContent += `<strong>Date:</strong> ${matchingReport.date || "Unknown"} <br>`;
+    if (matchingReport) {
+      popupContent += `<strong>Type:</strong> ${matchingReport.incident.type} <br>`;
+      popupContent += `<strong>Landmarks:</strong> ${matchingReport.landmark || "N/A"} <br>`;
+      popupContent += `<strong>Reported By:</strong> ${matchingReport.name || "Anonymous"} <br>`;
+      popupContent += `<strong>Date:</strong> ${matchingReport.date || "Unknown"} <br>`;
 
-  console.log(matchingReport); // ✅ Debugging: Log the single matched report
-} else {
-  popupContent += "No details available.";
-}
-
+      console.log(matchingReport); // ✅ Debugging: Log the single matched report
+    } else {
+      popupContent += "No details available.";
+    }
 
     // ✅ Close the previous persistent popup (if any)
     if (persistentPopup) {
@@ -200,7 +199,7 @@ if (matchingReport) {
           // Remove tooltip when mouse leaves
           layer.unbindTooltip();
         });
-
+        
         // Set initial style
         layer.setStyle({
           weight: mapStore.showGeoJSONBorders ? 2 : 0,
@@ -216,9 +215,9 @@ if (matchingReport) {
 
 // **Watch for changes in showGeoJSONBorders**
 watch(
-  () => mapStore.showGeoJSONBorders,
+  () => mapStore.showGeoJSONBorders, // Watch the showGeoJSONBorders state
   () => {
-    updateGeoJSONStyles();
+    updateGeoJSONStyles(); // Apply the new styles when the value changes
   }
 );
 
@@ -226,10 +225,12 @@ watch(
 const updateGeoJSONStyles = () => {
   if (geojsonLayer.value) {
     geojsonLayer.value.eachLayer((layer) => {
+      // Update style based on border visibility
       layer.setStyle({
-        weight: mapStore.showGeoJSONBorders ? 2 : 0,
-        color: mapStore.showGeoJSONBorders ? "#007FFF" : "",
-        fillOpacity: mapStore.showGeoJSONBorders ? 0.2 : 0,
+        weight: mapStore.showGeoJSONBorders ? 2 : 0, // Show or hide borders based on the toggle
+        color: mapStore.showGeoJSONBorders ? "#007FFF" : "", // Light blue border when active, no border when inactive
+        fillOpacity: mapStore.showGeoJSONBorders ? 0.2 : 0, // Light opacity fill when active, no fill when inactive
+        fillColor: mapStore.showGeoJSONBorders ? "#007FFF" : "", // Optional: Set fill color based on border state
       });
     });
   }
