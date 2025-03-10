@@ -184,8 +184,6 @@ const cancelSignout = () => {
         </aside>
         <div class="pt-14 p-4 sm:ml-56">
             <router-view />
-            dsadasddasdasdasdas
-            <h1>fds</h1>
         </div>
     </div>
 </template>

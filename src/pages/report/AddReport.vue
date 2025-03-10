@@ -273,15 +273,14 @@ watch(() => data.value.barangay_id, (newBarangayId) => {
 
 <template>
   <div class="min-h-screen">
-    <!-- Go Back Button -->
-    <div class="mt-6 px-2 flex justify-end">
-      <Button type="button" name="Back" @click.prevent="router.back()"
-        class="px-3 py-1 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200 flex items-center">
-        <span class="material-icons mr-2">
-          arrow_back
-        </span>
-        Back
-      </Button>
+    <!-- Titleee -->
+    <div class="mt-6 px-2 flex justify-between">
+        <h1 class="text-2xl font-bold dark:text-white">Add a New Report</h1>
+        <Button type="button" name="Back" @click.prevent="router.back()"
+          class="px-3 py-1 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200 flex items-center">
+          <span class="material-icons mr-2"> arrow_back </span>
+          Back
+        </Button>
     </div>
 
     <main class="flex-1 my-2 px-2">

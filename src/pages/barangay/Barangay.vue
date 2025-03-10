@@ -161,6 +161,11 @@ watch(searchQuery, () => {
 
 <template>
   <div class="min-h-screen">
+    <!-- Titleee -->
+    <div class="mt-6 px-2 flex justify-between">
+        <h1 class="text-2xl font-bold dark:text-white">Barangay Management</h1>
+    </div>
+
     <section class="w-full">
       <div class="mt-6 px-2">
         <!-- Start coding here -->
