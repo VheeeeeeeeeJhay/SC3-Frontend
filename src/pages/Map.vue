@@ -262,7 +262,10 @@ watchEffect(() => {
 
 <template>
   <div class="min-h-screen">
-    <h2 class="text-lg font-bold mb-4">Heatmap of Incidents</h2>
+    <!-- Titleee -->
+    <div class="mt-6 px-2 flex justify-between">
+        <h1 class="text-2xl font-bold dark:text-white">Heatmap of Incidents/Cases</h1>
+    </div>
 
     <!-- Toggle GeoJSON Borders -->
     <label class="inline-flex items-center me-5 cursor-pointer">

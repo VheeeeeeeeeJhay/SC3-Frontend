@@ -31,21 +31,21 @@ const filteredMonths2 = computed(() => {
 
 onMounted(() => {
   axiosClient.get('/api/911/dashboard', {
-      headers: {
-          'x-api-key': import.meta.env.VITE_API_KEY
-      }
+    headers: {
+      'x-api-key': import.meta.env.VITE_API_KEY
+    }
   })
-  .then((res) => {
+    .then((res) => {
       setTimeout(() => {
           incidents.value = res.data;
           reports.value = res.data.report;
           console.log(reports.value,'report data')
       }, 1500);
-  })
-  .catch((error) => {
+    })
+    .catch((error) => {
       console.error('Error fetching data:', error);
       // errorMessage.value = 'Failed to load incidents. Please try again later.';
-  });
+    });
 });
 
 // Function to count reports for a given month
@@ -84,6 +84,11 @@ const selectedDateRange = ref({ start: selectedStartDate.value, end: selectedEnd
 
 <template>
   <div class="min-h-screen">
+    <!-- Titleee -->
+    <div class="mt-6 px-2 flex justify-between">
+        <h1 class="text-2xl font-bold dark:text-white">Overview</h1>
+    </div>
+
     <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
       <div class="grid grid-cols-3 gap-6">
@@ -132,7 +137,7 @@ const selectedDateRange = ref({ start: selectedStartDate.value, end: selectedEnd
 
   
       </div>
-      
+
       <div class="mt-6 grid grid-cols-2 gap-6">
         <!-- linechart -->
         <div class="p-6 rounded-lg shadow  bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">

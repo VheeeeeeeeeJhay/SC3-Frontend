@@ -51,7 +51,6 @@ const navigation = [
     { name: 'Map', to: { name: 'Map' }, icon: 'map' },
     { name: 'Report', to: { name: 'ReportTable' }, icon: 'report' },
     { name: 'Barangays', to: { name: 'Barangay' }, icon: 'home' },
-    { name: 'Incidents', to: { name: 'Incident' }, icon: 'warning' },
     { name: 'Users', to: { name: 'UsersTable' }, icon: 'people' },
 ];
 
@@ -184,8 +183,6 @@ const cancelSignout = () => {
         </aside>
         <div class="pt-14 p-4 sm:ml-56">
             <router-view />
-            dsadasddasdasdasdas
-            <h1>fds</h1>
         </div>
     </div>
 </template>

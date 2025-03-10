@@ -165,11 +165,17 @@ const formSubmit = async (report_Id) => {
         console.error('Error deleting report:', error.response?.data);
         errors.value = error.response?.data?.errors || 'Failed to delete report.';
     });
+    
 };
 </script>
 
 <template>
     <section class="w-full min-h-screen">
+        <!-- Titleee -->
+        <div class="mt-6 px-2 flex justify-between">
+            <h1 class="text-2xl font-bold dark:text-white">Reports Management</h1>
+        </div>
+
         <div class="mt-6 px-4 w-full">
             <div class="relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
                 <div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">

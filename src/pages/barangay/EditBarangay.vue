@@ -60,7 +60,7 @@ onMounted(() => {
     fetchData();
 });
 
-function formSubmit() {
+const formSubmit = () => {
     submitLoading.value = true;
     // Convert ref values to JSON (instead of using FormData)
     const payload = {
@@ -68,6 +68,7 @@ function formSubmit() {
         longitude: data.value.longitude ?? '',
         latitude: data.value.latitude ?? ''
     };
+    
     axiosClient.put(`/api/911/barangay-update/${barangay_Id.value}`, payload, {
         headers: {
             'x-api-key': import.meta.env.VITE_API_KEY,

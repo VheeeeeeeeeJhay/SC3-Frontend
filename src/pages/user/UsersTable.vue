@@ -142,8 +142,7 @@ watch(searchQuery, () => {
     currentPage.value = 1;
 });
 
-
-
+// Email Masking
 const maskEmail = (email) => {
     const parts = email.split('@')
     const name = parts[0]
@@ -156,10 +155,54 @@ const maskEmail = (email) => {
     const maskedName = `${name[0]}${'*'.repeat(name.length - 2)}${name[name.length - 1]}`
     return `${maskedName}@${domain}`
 }
+
+
+// Role
+const dashboardRole = async (user) => {
+    const newRoleStatus = user.for_911 === 1 ? 0 : 1; // Toggle based on user state
+
+    try {
+        await axiosClient.patch(`/api/911/user-dashboard-role/${user.id}`, {
+            for_911: newRoleStatus
+        }, {
+            headers: {
+                'x-api-key': import.meta.env.VITE_API_KEY,
+                'Content-Type': 'application/json',
+            }
+        });
+
+        user.for_911 = newRoleStatus; // Update local state instantly
+    } catch (error) {
+        console.error(error.response?.data?.message || error.message);
+    }
+};
+
+const inventoryRole = async (user) => {
+    const newRoleStatus = user.for_inventory === 1 ? 0 : 1; // Toggle based on user state
+
+    try {
+        await axiosClient.patch(`/api/911/user-inventory-role/${user.id}`, {
+            for_inventory: newRoleStatus
+        }, {
+            headers: {
+                'x-api-key': import.meta.env.VITE_API_KEY,
+                'Content-Type': 'application/json',
+            }
+        });
+
+        user.for_inventory = newRoleStatus; // Update local state instantly
+    } catch (error) {
+        console.error(error.response?.data?.message || error.message);
+    }
+};
 </script>
 
 <template>
     <section class="w-full min-h-screen">
+        <!-- Titleee -->
+        <div class="mt-6 px-2 flex justify-between">
+            <h1 class="text-2xl font-bold dark:text-white">Users Management</h1>
+        </div>
         <div class="mt-6 px-4 w-full">
             <div
                 class="relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
@@ -202,12 +245,12 @@ const maskEmail = (email) => {
                             <td class="px-4 py-3">{{ user.firstName }} {{ user.middleName }} {{ user.lastName }}</td>
                             <td class="px-4 py-3">{{ maskEmail(user.email) }}</td>
                             <td class="px-4 py-3">
-                                <Badge :Message="`Has Access`"  v-if="user.for_911 === 1"/>
-                                <Badge :Message="`No Access`" v-else/>
+                                <Badge :Message="`Has Access`" v-if="user.for_911 === 1" />
+                                <Badge :Message="`No Access`" v-else />
                             </td>
                             <td class="px-4 py-3">
-                                <Badge :Message="`Has Access`"  v-if="user.for_inventory === 1"/>
-                                <Badge :Message="`No Access`" v-else/>
+                                <Badge :Message="`Has Access`" v-if="user.for_inventory === 1" />
+                                <Badge :Message="`No Access`" v-else />
                             </td>
                             <td class="px-4 py-3 flex items-center relative">
                                 <button @click.stop="toggleDropdown(user.id)"
@@ -222,13 +265,26 @@ const maskEmail = (email) => {
                                     class="absolute z-10 w-44 mt-2 top-full left-0 shadow-sm border rounded-md bg-white dark:bg-slate-700">
                                     <ul class="py-2 text-sm">
                                         <li>
-                                            <RouterLink :to="{ name: 'EditReport', params: { id: user.id } }"
-                                                class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
-                                                Edit Report
-                                            </RouterLink>
+                                            <!-- <PrimaryButton @click.prevent="dashboardRole(user.id)" 
+                                                name="Grant Access Dashboard" 
+                                                v-if="user.for_911 === 0" class="mt-2 hover:text-gray-700 dark:hover:text-gray-300"/>
+                                                <PrimaryButton @click.prevent="dashboardRole(user.id)" 
+                                                name="Revoke Access Dashboard" 
+                                                v-if="user.for_911 === 1" class="mt-2 hover:text-gray-700 dark:hover:text-gray-300"/> -->
+                                            <PrimaryButton @click.prevent="dashboardRole(user)"
+                                                :name="user.for_911 === 1 ? 'Revoke Access Dashboard' : 'Grant Access Dashboard'"
+                                                class="mt-2 hover:text-gray-700 dark:hover:text-gray-300" />
                                         </li>
-                                        <li class="block px-2">
-                                            <PrimaryButton @click.prevent="formSubmit(user.id)" name="Delete Report" />
+                                        <li>
+                                            <!-- <PrimaryButton @click.prevent="inventoryRole(user.id)" 
+                                                name="Grant Access Inventory" 
+                                                v-if="user.for_inventory === 0" class="mt-2 hover:text-gray-700 dark:hover:text-gray-300"/>
+                                            <PrimaryButton @click.prevent="inventoryRole(user.id)" 
+                                            name="Revoke Access Inventory" 
+                                            v-if="user.for_inventory === 1" class="mt-2 hover:text-gray-700 dark:hover:text-gray-300"/> -->
+                                            <PrimaryButton @click.prevent="inventoryRole(user)"
+                                                :name="user.for_inventory === 1 ? 'Revoke Access Inventory' : 'Grant Access Inventory'"
+                                                class="mt-2 hover:text-gray-700 dark:hover:text-gray-300" />
                                         </li>
                                     </ul>
                                 </div>
@@ -239,8 +295,9 @@ const maskEmail = (email) => {
 
                 <nav
                     class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">
-                    <span class="text-sm font-normal">Showing {{ filteredUsers.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }} to {{
-                        Math.min(currentPage * itemsPerPage, filteredUsers.length) }} of {{ filteredUsers.length
+                    <span class="text-sm font-normal">Showing {{ filteredUsers.length > 0 ? (currentPage - 1) *
+                        itemsPerPage + 1 : 0 }} to {{
+                            Math.min(currentPage * itemsPerPage, filteredUsers.length) }} of {{ filteredUsers.length
                         }}</span>
 
                     <ul class="inline-flex items-stretch -space-x-px">
