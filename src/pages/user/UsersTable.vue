@@ -158,78 +158,6 @@ const maskEmail = (email) => {
 
 
 // Role
-// const for911 = ref(false);  // Initial state for for_911 role (false by default)
-// const forInventory = ref(false); // Initial state for for_inventory role (false by default)
-
-// const dashboardRole = async (user_id) => {
-
-//     // Change the state of the role
-//     if (for911.value === false) {
-//         for911.value = true;
-//         console.log('for911.value === true');
-//     } else {
-//         for911.value = false;
-//     }
-//     console.log(for911.value);
-
-//     const payload = {
-//         for_911: for911.value // Send the updated value for the role
-//     };
-
-//     try {
-//         await axiosClient.patch(`/api/911/user-dashboard-role/${user_id}`, payload, {
-//             headers: {
-//                 'x-api-key': import.meta.env.VITE_API_KEY,
-//                 'Content-Type': 'application/json',
-//             }
-//         })
-//         .then((res) => {
-//             console.log(for911.value);
-//             fetchData();
-//         })
-//         .catch((error) => {
-//             console.log(error.response.data.message);
-//         });
-//     } catch (error) {
-//         console.log(error);
-//     }
-// }
-
-
-// const inventoryRole = async (user_id) => {
-
-//     // Change the state of the role
-//     if (forInventory.value === false) {
-//         forInventory.value = true;
-//         console.log('forInventory.value === true');
-//     } else {
-//         forInventory.value = false;
-//     }
-//     console.log(forInventory.value);
-
-
-//     const payload = {
-//         for_inventory: forInventory.value // Send the updated value for the role
-//     };
-
-//     try {
-//         await axiosClient.patch(`/api/911/user-inventory-role/${user_id}`, payload, {
-//             headers: {
-//                 'x-api-key': import.meta.env.VITE_API_KEY,
-//                 'Content-Type': 'application/json',
-//             }
-//         })
-//         .then((res) => {
-//             console.log(forInventory.value);
-//             fetchData();
-//         })
-//         .catch((error) => {
-//             console.log(error.response.data.message);
-//         });
-//     } catch (error) {
-//         console.log(error);
-//     }
-// }
 const dashboardRole = async (user) => {
     const newRoleStatus = user.for_911 === 1 ? 0 : 1; // Toggle based on user state
 
@@ -267,7 +195,6 @@ const inventoryRole = async (user) => {
         console.error(error.response?.data?.message || error.message);
     }
 };
-
 </script>
 
 <template>

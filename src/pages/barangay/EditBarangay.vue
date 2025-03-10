@@ -60,7 +60,7 @@ onMounted(() => {
     fetchData();
 });
 
-function formSubmit() {
+const formSubmit = () => {
     submitLoading.value = true;
     // Convert ref values to JSON (instead of using FormData)
     const payload = {

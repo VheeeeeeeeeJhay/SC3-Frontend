@@ -51,7 +51,6 @@ const navigation = [
     { name: 'Map', to: { name: 'Map' }, icon: 'map' },
     { name: 'Report', to: { name: 'ReportTable' }, icon: 'report' },
     { name: 'Barangays', to: { name: 'Barangay' }, icon: 'home' },
-    { name: 'Incidents', to: { name: 'Incident' }, icon: 'warning' },
     { name: 'Users', to: { name: 'UsersTable' }, icon: 'people' },
 ];
 

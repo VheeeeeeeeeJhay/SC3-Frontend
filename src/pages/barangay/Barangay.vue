@@ -11,6 +11,7 @@ import Loader1 from '../../components/Loader1.vue';
 import PopupModal from '../../components/PopupModal.vue';
 import Badge from '../../components/Badge.vue';
 import Toast from '../../components/Toast.vue';
+import ToolTip from '../../components/ToolTip.vue';
 
 const barangays = ref([]);
 const errors = ref('');
@@ -229,6 +230,7 @@ watch(searchQuery, () => {
                             <td class="px-4 py-3" v-if="!barangay.latitude"><Badge Message="No Data for Latitude" /></td>
                             <td class="px-4 py-3 text-blue-800 hover:text-blue-600 hover:underline font-bold">
                               <RouterLink :to="`/barangay-statistics/${barangay.id}`">View Incidents</RouterLink>
+                              <ToolTip :Information="`Click to visit barangay and view incidents`" />
                             </td>
                             <td class="px-4 py-3 flex items-center relative">
                             <!-- Dropdown Button -->
