@@ -124,7 +124,9 @@ const selectedDateRange = ref({ start: selectedStartDate.value, end: selectedEnd
 
 
         </div>
-        <div class="col-span-1 p-3 rounded-lg shadow-md bg-sky-50 border border-gray-300 text-gray-800 dark:bg-slate-800 dark:border-gray-700 dark:text-white h-[160px] flex flex-col justify-between">
+
+
+        <div class="col-span-1 p-3 rounded-lg shadow-md bg-sky-50 border border-gray-300 text-gray-800 dark:bg-slate-800 dark:border-gray-700 dark:text-white h-[260px] flex flex-col justify-between">
           <!-- Title -->
           <h2 class="text-base font-medium">
             Growth Rate of Incidents <span class="text-xs text-gray-500">// Month over Month</span>
@@ -132,17 +134,6 @@ const selectedDateRange = ref({ start: selectedStartDate.value, end: selectedEnd
 
           <!-- Month Selection -->
           <div class="grid grid-cols-3 gap-2 items-center">
-            <!-- Year Selection -->
-            <div class="col-span-1">
-              <select v-model="selectedYear1"
-                class="w-full px-2 py-1 text-sm font-medium bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 transition duration-200">
-                <option value="" disabled>Select Year</option>
-                <option v-for="year in years" :key="year" :value="year">
-                  {{ year }}
-                </option>
-              </select>
-            </div>
-
             <!-- Month 1 Selection -->
             <div class="col-span-1">
               <select v-model="selectedMonth1" :disabled="!selectedYear1"
@@ -164,23 +155,43 @@ const selectedDateRange = ref({ start: selectedStartDate.value, end: selectedEnd
                 </option>
               </select>
             </div>
+            
+            <!-- Year Selection -->
+            <div class="col-span-1">
+              <select v-model="selectedYear1"
+                class="w-full px-2 py-1 text-sm font-medium bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 transition duration-200">
+                <option value="" disabled>Select Year</option>
+                <option v-for="year in years" :key="year" :value="year">
+                  {{ year }}
+                </option>
+              </select>
+            </div>
           </div>
 
           <div class="flex justify-center items-center">
-            <svg v-if="percentageChange < 0" xmlns="http://www.w3.org/2000/svg" height="100px" viewBox="0 0 24 24" width="100px" fill="#75FB4C"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M16 18l2.29-2.29-4.88-4.88-4 4L2 7.41 3.41 6l6 6 4-4 6.3 6.29L22 12v6h-6z"/></svg>
-            <svg v-if="percentageChange > 0" xmlns="http://www.w3.org/2000/svg" height="100px" viewBox="0 0 24 24" width="100px" fill="#EA3323"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6h-6z"/></svg>
-            <svg v-if="percentageChange == 0" xmlns="http://www.w3.org/2000/svg" height="100px" viewBox="0 0 24 24" width="100px" fill="#666666"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M22 12l-4-4v3H3v2h15v3l4-4z"/></svg>
+            <svg v-if="percentageChange < 0" xmlns="http://www.w3.org/2000/svg" height="100px" viewBox="0 0 24 24"
+              width="100px" fill="#75FB4C">
+              <path d="M0 0h24v24H0V0z" fill="none" />
+              <path d="M16 18l2.29-2.29-4.88-4.88-4 4L2 7.41 3.41 6l6 6 4-4 6.3 6.29L22 12v6h-6z" />
+            </svg>
+            <svg v-if="percentageChange > 0" xmlns="http://www.w3.org/2000/svg" height="100px" viewBox="0 0 24 24"
+              width="100px" fill="#EA3323">
+              <path d="M0 0h24v24H0V0z" fill="none" />
+              <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6h-6z" />
+            </svg>
+            <svg v-if="percentageChange == 0" xmlns="http://www.w3.org/2000/svg" height="100px" viewBox="0 0 24 24"
+              width="100px" fill="#666666">
+              <path d="M0 0h24v24H0V0z" fill="none" />
+              <path d="M22 12l-4-4v3H3v2h15v3l4-4z" />
+            </svg>
           </div>
-          
+
           <!-- Percentage Change Display -->
           <div class="flex justify-center items-center space-x-2">
-            <div class="text-5xl font-bold" :class="percentageChange == 0 ? 'text-gray-500' : percentageChange >= 0 ? 'text-red-500' : 'text-green-500'">
+            <div class="text-5xl font-bold"
+              :class="percentageChange == 0 ? 'text-gray-500' : percentageChange >= 0 ? 'text-red-500' : 'text-green-500'">
               {{ percentageChange.toFixed(2) }}%
             </div>
-            <!-- <svg class="w-7 h-7" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 14">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                :d="percentageChange >= 0 ? 'M5 13V1m0 0L1 5m4-4 4 4' : 'M5 1v12m0 0l4-4m-4 4L1 9'" />
-            </svg> -->
           </div>
         </div>
       </div>
@@ -205,16 +216,22 @@ const selectedDateRange = ref({ start: selectedStartDate.value, end: selectedEnd
 #pie-chart {
   background-color: white !important;
 }
+
 .apexcharts-toolbar {
-  background-color: black !important; /* Background color */
-  color: white !important; /* Text color */
-  border-radius: 5px; /* Rounded corners */
+  background-color: black !important;
+  /* Background color */
+  color: white !important;
+  /* Text color */
+  border-radius: 5px;
+  /* Rounded corners */
   padding: 5px;
 }
 
 .apexcharts-menu {
-  background-color: black !important; /* Dropdown menu background */
-  color: white !important; /* Dropdown text color */
+  background-color: black !important;
+  /* Dropdown menu background */
+  color: white !important;
+  /* Dropdown text color */
 }
 
 .apexcharts-menu-item {
@@ -224,5 +241,4 @@ const selectedDateRange = ref({ start: selectedStartDate.value, end: selectedEnd
 .apexcharts-menu-item:hover {
   background-color: gray !important;
 }
-
 </style>
