@@ -147,7 +147,6 @@ watch(searchQuery, () => {
                         </div>
                     </template>
                 </PopupModal>
-
             </div>
         </div>
         <div class="">
@@ -169,11 +168,11 @@ watch(searchQuery, () => {
                         <th scope="col" class="px-4 py-3">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <div v-if="isLoading">
+                <div v-if="isLoading">
                         <Loader1 />
                     </div>
-                    <tr v-else v-for="report in paginatedReports" :key="report.id"
+                <tbody v-else >
+                    <tr v-for="report in paginatedReports" :key="report.id"
                         class="dark:bg-slate-800 dark:hover:bg-slate-700 bg-sky-50 hover:bg-gray-200">
 
                         <td class="px-4 py-3 ">{{ report.id }}</td>

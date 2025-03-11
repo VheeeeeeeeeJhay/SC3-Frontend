@@ -181,13 +181,12 @@ const inventoryRole = async (user) => {
     const newRoleStatus = user.for_inventory === 1 ? 0 : 1; // Toggle based on user state
 
     try {
-        await axiosClient.patch(`/api/911/user-inventory-role/${user.id}`, {
-            for_inventory: newRoleStatus
-        }, {
-            headers: {
-                'x-api-key': import.meta.env.VITE_API_KEY,
-                'Content-Type': 'application/json',
-            }
+        await axiosClient.patch(`/api/911/user-inventory-role/${user.id}`, { for_inventory: newRoleStatus }, 
+        {
+        headers: {
+            'x-api-key': import.meta.env.VITE_API_KEY,
+            'Content-Type': 'application/json',
+        }
         });
 
         user.for_inventory = newRoleStatus; // Update local state instantly
@@ -245,12 +244,10 @@ const inventoryRole = async (user) => {
                             <td class="px-4 py-3">{{ user.firstName }} {{ user.middleName }} {{ user.lastName }}</td>
                             <td class="px-4 py-3">{{ maskEmail(user.email) }}</td>
                             <td class="px-4 py-3">
-                                <Badge :Message="`Has Access`" v-if="user.for_911 === 1" />
-                                <Badge :Message="`No Access`" v-else />
+                                <Badge :Message="user.for_911 ? `Has Access` : `No Access`" :class="[user.for_911 ? 'bg-green-700' : 'bg-red-700']"/>
                             </td>
                             <td class="px-4 py-3">
-                                <Badge :Message="`Has Access`" v-if="user.for_inventory === 1" />
-                                <Badge :Message="`No Access`" v-else />
+                                <Badge :Message="user.for_inventory ? `Has Access` : `No Access`" :class="[user.for_inventory ? 'bg-green-700' : 'bg-red-700']" />
                             </td>
                             <td class="px-4 py-3 flex items-center relative">
                                 <button @click.stop="toggleDropdown(user.id)"
@@ -265,25 +262,13 @@ const inventoryRole = async (user) => {
                                     class="absolute z-10 w-44 mt-2 top-full left-0 shadow-sm border rounded-md bg-white dark:bg-slate-700">
                                     <ul class="py-2 text-sm">
                                         <li>
-                                            <!-- <PrimaryButton @click.prevent="dashboardRole(user.id)" 
-                                                name="Grant Access Dashboard" 
-                                                v-if="user.for_911 === 0" class="mt-2 hover:text-gray-700 dark:hover:text-gray-300"/>
-                                                <PrimaryButton @click.prevent="dashboardRole(user.id)" 
-                                                name="Revoke Access Dashboard" 
-                                                v-if="user.for_911 === 1" class="mt-2 hover:text-gray-700 dark:hover:text-gray-300"/> -->
                                             <PrimaryButton @click.prevent="dashboardRole(user)"
-                                                :name="user.for_911 === 1 ? 'Revoke Access Dashboard' : 'Grant Access Dashboard'"
+                                                :name="user.for_911 === 1 ? 'Revoke Access' : 'Grant Access'"
                                                 class="mt-2 hover:text-gray-700 dark:hover:text-gray-300" />
                                         </li>
                                         <li>
-                                            <!-- <PrimaryButton @click.prevent="inventoryRole(user.id)" 
-                                                name="Grant Access Inventory" 
-                                                v-if="user.for_inventory === 0" class="mt-2 hover:text-gray-700 dark:hover:text-gray-300"/>
-                                            <PrimaryButton @click.prevent="inventoryRole(user.id)" 
-                                            name="Revoke Access Inventory" 
-                                            v-if="user.for_inventory === 1" class="mt-2 hover:text-gray-700 dark:hover:text-gray-300"/> -->
                                             <PrimaryButton @click.prevent="inventoryRole(user)"
-                                                :name="user.for_inventory === 1 ? 'Revoke Access Inventory' : 'Grant Access Inventory'"
+                                                :name="user.for_inventory === 1 ? 'Revoke Access' : 'Grant Access'"
                                                 class="mt-2 hover:text-gray-700 dark:hover:text-gray-300" />
                                         </li>
                                     </ul>

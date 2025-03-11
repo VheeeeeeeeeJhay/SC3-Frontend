@@ -85,7 +85,12 @@ onMounted(() => {
     maxZoom: 12,
     minOpacity: 0.5,
     gradient: {
-      1.0: "red",
+      0.2: 'blue',
+      0.2: 'blue',
+      0.4: 'green',
+      0.6: 'yellow',
+      0.8: 'orange',
+      1.0: 'red',
     },
   }).addTo(map);
 

@@ -9,7 +9,6 @@ import Dashboard from "./pages/Dashboard.vue";
 import Map from "./pages/Map.vue";
 import Barangay from "./pages/barangay/Barangay.vue";
 import EditBarangay from "./pages/barangay/EditBarangay.vue";
-import Incident from "./pages/incident/Incident.vue";
 import ReportTable from "./pages/report/ReportsTable.vue";
 import ReportViewDetails from "./pages/report/ViewReport.vue";
 import EditReports from "./pages/report/EditReport.vue";
