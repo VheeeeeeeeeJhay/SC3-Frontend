@@ -6,6 +6,83 @@ import "leaflet.heat";
 import { useGeolocation } from "@vueuse/core";
 import { useMapStore } from "../stores/mapStore"; // Import Pinia store for managing state
 
+const props = defineProps({
+  viewID: Number
+});
+const viewId = ref(props.viewID); // Make it reactive
+const barangay_lat = ref(0);
+const barangay_long = ref(0);
+console.log("View ID from Props:", viewId.value);
+const data = ref({
+    name: '',
+    longitude: '',
+    latitude: ''
+});
+
+// const fetchData = async () => {
+//     // isLoading.value = true;
+//     axiosClient.get('/api/911/barangay-reports/${viewId.value}', {
+//         headers: {
+//             'x-api-key': import.meta.env.VITE_API_KEY
+//         }
+//     })
+//         .then((res) => {
+//             barangay_lat.value = res.data[0].barangay.latitude;
+//             barangay_long.value = res.data[0].barangay.longitude;
+//             console.log(res.data, 'test data');
+//         })
+//         .catch((error) => {
+//             console.error('Error fetching data:', error);
+//         })
+//         .finally(() => {
+//             // isLoading.value = false;
+//         });
+//     }
+
+    // const fetchData = async () => {
+    //     try {
+    //         const response = await axiosClient.get(`/api/911/barangay-reports/${viewId.value}`, {
+    //         headers: {
+    //             "x-api-key": import.meta.env.VITE_API_KEY,
+    //         },
+    //         });
+
+    //         console.log("API Response:", response.data[0]); // Debugging: Check full API response
+
+    //         if (response.data?.barangay) {
+    //         // ✅ Only assign values if barangay exists
+    //         barangay_lat.value = response.data.barangay.latitude || null;
+    //         barangay_long.value = response.data.barangay.longitude || null;
+    //         console.log(`Fetched Barangay Location: ${barangay_lat.value}, ${barangay_long.value}`);
+    //         } else {
+    //         console.warn("No barangay data found for ID:", viewId.value);
+    //         }
+    //     } catch (error) {
+    //         console.error("Error fetching barangay data:", error);
+    //     }
+    //     };
+
+        const fetchData = () => {
+    axiosClient.get(`/api/911/barangay-edit/${viewId.value}`, {
+        headers: {
+            'x-api-key': import.meta.env.VITE_API_KEY
+        }
+    })
+    .then((res) => {
+      // ✅ Correctly access latitude & longitude
+      data.value = { ...res.data }; // Copy response to reactive object
+      barangay_lat.value = data.value.latitude;
+      barangay_long.value = data.value.longitude;
+      console.log("barangay", data.value.name);
+
+      console.log("Latitude:", barangay_lat.value);
+      console.log("Longitude:", barangay_long.value);
+    })
+    .catch((error) => {
+        console.error('Error fetching data:', error);
+    });
+}
+
 // Import map.json from assets folder (GeoJSON)
 import mapData from "../assets/map.json"; // Adjust the path as needed
 
@@ -22,6 +99,9 @@ const mapStore = useMapStore();
 
 // **Fetch Reports**
 onMounted(() => {
+
+    fetchData();
+
   axiosClient
     .get("/api/911/report-display", {
       headers: {
@@ -30,7 +110,7 @@ onMounted(() => {
     })
     .then((res) => {
       reports.value = res.data[0] || []; // Ensure reports is an array even if empty
-      console.log("Fetched Reports:", reports.value);
+      console.log("orig:", res.data[0]);
 
       // Check if reports have latitude/longitude
       reports.value.forEach((report) => {
@@ -262,6 +342,8 @@ watchEffect(() => {
     updateHeatmap();
   }
 });
+
+
 </script>
 
 <template>

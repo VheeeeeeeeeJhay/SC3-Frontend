@@ -1,6 +1,6 @@
 <script setup>
 
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import axiosClient from "../axios.js";
 import router from "../router.js";
 import PieChart from "../components/charts/PieChart.vue";
@@ -13,21 +13,45 @@ import BarChart from "../components/charts/BarChart.vue";
 
 const incidents = ref([]);
 const reports = ref([]);
-const percentage = ref(0);
-const selectedMonth1 = ref('');
-const selectedMonth2 = ref('');
+
+const currentYear = new Date().getFullYear();
+const currentMonthIndex = new Date().getMonth(); // 0-based index (January = 0)
+const years = Array.from({ length: currentYear - 2019 + 1 }, (_, i) => 2020 + i); // Ensure inclusion of the current year
 
 const months = [
   'January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
-// Compute available months for selectedMonth2
+const selectedYear1 = ref(2025);
+const selectedMonth1 = ref(months[currentMonthIndex === 0 ? 11 : currentMonthIndex - 1]); // Previous month
+const selectedMonth2 = ref(months[currentMonthIndex]); // Current month
+
 const filteredMonths2 = computed(() => {
-  if (!selectedMonth1.value) return months; // If Month 1 is not selected, show all
-  const startIndex = months.indexOf(selectedMonth1.value);
-  return months.slice(startIndex + 1); // Exclude the current and previous months
+  if (!selectedYear1.value || !selectedMonth1.value) return [];
+
+  const selectedDateIndex = months.indexOf(selectedMonth1.value);
+
+  // If the same year, filter to exclude previous months
+  if (selectedYear1.value === currentYear) {
+    return months.slice(selectedDateIndex + 1);
+  }
+
+  // Different year, allow all months
+  return months;
 });
+
+// Reset months when year or month selection changes
+watch(selectedYear1, () => {
+  selectedMonth1.value = null;
+  selectedMonth2.value = null;
+});
+
+watch(selectedMonth1, () => {
+  selectedMonth2.value = null;
+});
+
+
 
 onMounted(() => {
   axiosClient.get('/api/911/dashboard', {
@@ -73,13 +97,10 @@ const percentageChange = computed(() => {
 
 const formatDate = (date) => date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
 
-const currentDate = ref(new Date());
+// const currentDate = ref(new Date());
 const selectedEndDate = ref(formatDate(new Date())); // Current day
 const selectedStartDate = ref(formatDate(new Date(new Date().setDate(new Date().getDate() - 6)))); // 6 days ago
 const selectedDateRange = ref({ start: selectedStartDate.value, end: selectedEndDate.value });
-
-
-
 </script>
 
 <template>
@@ -101,41 +122,60 @@ const selectedDateRange = ref({ start: selectedStartDate.value, end: selectedEnd
           
             
         </div>
-        <div class="col-span-1 p-4 rounded-xl shadow-lg bg-sky-50 border border-gray-300 text-gray-800 dark:bg-slate-800 dark:border-gray-700 dark:text-white h-[220px] flex flex-col justify-between">
-          
+        <div class="col-span-1 p-3 rounded-lg shadow-md bg-sky-50 border border-gray-300 text-gray-800 dark:bg-slate-800 dark:border-gray-700 dark:text-white h-[160px] flex flex-col justify-between">
           <!-- Title -->
-          <h2 class="text-lg font-semibold text-center">
-            Growth Rate of Incidents <span class="text-sm text-gray-500">// Month over Month</span>
+          <h2 class="text-base font-medium">
+            Growth Rate of Incidents <span class="text-xs text-gray-500">// Month over Month</span>
           </h2>
 
           <!-- Month Selection -->
-          <div class="flex justify-center space-x-4 mt-2">
-            <select v-model="selectedMonth1"
-              class="px-3 py-2 text-lg font-medium bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition duration-300">
-              <option value="" disabled>Month 1</option>
-              <option v-for="month in months" :key="month" :value="month">{{ month }}</option>
-            </select>
+          <div class="grid grid-cols-3 gap-2 items-center">
+            <!-- Year Selection -->
+            <div class="col-span-1">
+              <select v-model="selectedYear1"
+                class="w-full px-2 py-1 text-sm font-medium bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 transition duration-200">
+                <option value="" disabled>Select Year</option>
+                <option v-for="year in years" :key="year" :value="year">
+                  {{ year }}
+                </option>
+              </select>
+            </div>
 
-            <select v-model="selectedMonth2"
-              class="px-3 py-2 text-lg font-medium bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition duration-300">
-              <option value="" disabled>Month 2</option>
-              <option v-for="month in filteredMonths2" :key="month" :value="month">{{ month }}</option>
-            </select>
+            <!-- Month 1 Selection -->
+            <div class="col-span-1">
+              <select v-model="selectedMonth1" :disabled="!selectedYear1"
+                class="w-full px-2 py-1 text-sm font-medium bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 transition duration-200 disabled:opacity-50">
+                <option value="" disabled>Month 1</option>
+                <option v-for="month in months" :key="month" :value="month">
+                  {{ month }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Month 2 Selection -->
+            <div class="col-span-1">
+              <select v-model="selectedMonth2" :disabled="!selectedMonth1"
+                class="w-full px-2 py-1 text-sm font-medium bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 transition duration-200 disabled:opacity-50">
+                <option value="" disabled>Month 2</option>
+                <option v-for="month in filteredMonths2" :key="month" :value="month">
+                  {{ month }}
+                </option>
+              </select>
+            </div>
           </div>
 
           <!-- Percentage Change Display -->
-          <div class="flex justify-center items-center space-x-2">
-    <div class="text-5xl font-bold" :class="percentageChange >= 0 ? 'text-green-500' : 'text-red-500'">
-      {{ percentageChange.toFixed(2) }}%
-    </div>
-    <svg class="w-7 h-7" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 14">
-      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        :d="percentageChange >= 0 ? 'M5 13V1m0 0L1 5m4-4 4 4' : 'M5 1v12m0 0l4-4m-4 4L1 9'" />
-    </svg>
-  </div>
+          <div class="flex justify-center items-center space-x-2 mt-1">
+            <div class="text-3xl font-bold" :class="percentageChange >= 0 ? 'text-red-500' : 'text-green-500'">
+              {{ percentageChange.toFixed(2) }}%
+            </div>
+            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 14">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                :d="percentageChange >= 0 ? 'M5 13V1m0 0L1 5m4-4 4 4' : 'M5 1v12m0 0l4-4m-4 4L1 9'" />
+            </svg>
+          </div>
         </div>
 
-  
       </div>
 
       <div class="mt-6 grid grid-cols-2 gap-6">
@@ -157,4 +197,24 @@ const selectedDateRange = ref({ start: selectedStartDate.value, end: selectedEnd
 #pie-chart {
   background-color: white !important;
 }
+.apexcharts-toolbar {
+  background-color: black !important; /* Background color */
+  color: white !important; /* Text color */
+  border-radius: 5px; /* Rounded corners */
+  padding: 5px;
+}
+
+.apexcharts-menu {
+  background-color: black !important; /* Dropdown menu background */
+  color: white !important; /* Dropdown text color */
+}
+
+.apexcharts-menu-item {
+  color: white !important;
+}
+
+.apexcharts-menu-item:hover {
+  background-color: gray !important;
+}
+
 </style>

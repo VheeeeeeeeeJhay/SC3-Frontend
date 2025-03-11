@@ -6,6 +6,7 @@ import axiosClient from '../../axios.js';
 import ToolTip from '../../components/ToolTip.vue';
 import { computed, watch, watchEffect } from 'vue';
 import Loader1 from '../../components/Loader1.vue';
+import viewMap from '../../components/viewMap.vue';
 
 const id = String(useRoute().params.id);
 const isLoading = ref(false);
@@ -117,7 +118,8 @@ watch(searchQuery, () => {
 
 <template>
     <!-- This is for table -->
-    <div class="relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white"
+     <!-- <div class="mt-6 px-2"> -->
+    <div class=" mt-6 px-2 relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white"
         :class="themeClasses">
         <div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
             <div class="w-full md:w-1/2">
@@ -266,4 +268,7 @@ watch(searchQuery, () => {
             </ul>
         </nav>
     </div>
+<!-- </div> -->
+
+<viewMap :viewID="id" />
 </template>

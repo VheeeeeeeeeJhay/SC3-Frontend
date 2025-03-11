@@ -259,7 +259,7 @@ const formSubmit = async (report_Id) => {
                                 </button>
 
                                 <div v-if="openDropdownId === report.id" ref="dropdownRefs"
-                                    class="absolute z-10 w-44 mt-2 top-full left-0 shadow-sm border rounded-md bg-white dark:bg-slate-700">
+                                    class="absolute z-10 w-44 mt-2 top-full left-0 shadow-sm border rounded-md bg-white dark:bg-slate-700" @click.stop>
                                     <ul class="py-2 text-sm">
                                         <li>
                                             <RouterLink :to="{ name: 'ReportViewDetails', params: { id: report.id } }"
@@ -272,10 +272,17 @@ const formSubmit = async (report_Id) => {
                                                 class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
                                                 Edit Report
                                             </RouterLink>
-                                        </li>
-                                        <li class="block px-2">
-                                            <PrimaryButton @click.prevent="formSubmit(report.id)" name="Delete Report" />
-                                        </li>
+                                        </li>                              
+                                            <PopupModal Title="Are you sure you want to delete this report?" ModalButton="Delete" Icon="cancel" Classes="" ButtonClass="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
+                                                <template #modalContent>
+                                                <div class="p-6 space-x-2">
+                                                    <PrimaryButton @click="openDropdownId = null" name="Cancel"
+                                                    class="bg-gray-500 hover:bg-gray-600 text-gray-100 shadow-md" />
+                                                    <PrimaryButton @click.prevent="formSubmit(report.id)" name="Delete"
+                                                    class="bg-red-500 hover:bg-red-600 text-gray-100 shadow-md" />
+                                                </div>
+                                                </template>
+                                            </PopupModal>
                                     </ul>
                                 </div>
                             </td>

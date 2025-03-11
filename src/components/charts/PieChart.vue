@@ -54,7 +54,7 @@ const options = ref({
     width: "100%",
     type: "pie",
     toolbar: {
-      show: true,
+      show: false,
       tools: {
         download: true
       }
@@ -64,7 +64,7 @@ const options = ref({
     colors: ["white"],
     width: 1,
   },
-  labels: ["Direct", "Organic", "Referrals"],
+  labels: [],
   dataLabels: {
     enabled: false,
   },
@@ -72,12 +72,12 @@ const options = ref({
     position: "bottom",
     fontFamily: "Inter, sans-serif",
     labels: {
-      colors: "#333",
+      colors: "text-gray-800 dark:text-white",
     }
   },
   tooltip: {
     enabled: true,
-    theme: "light",
+    theme: "dark",
   }
 });
 
@@ -88,30 +88,32 @@ let chart = null;
 const updateChart = () => {
   console.log(assistance.value);
   console.log(incidents.value);
-  
+
   // Count occurrences of each incident_id in report
   const incidentCounts = report.value.reduce((acc, reportItem) => {
     const incidentId = reportItem.incident_id;
     acc[incidentId] = (acc[incidentId] || 0) + 1;
     return acc;
   }, {});
-  
+
   console.log(incidentCounts, "Incident ID Counts in Reports");
 
-  if (data.value.incidentType) {
-    const filteredData = filteredIncidents.value;
+  // **Use filteredIncidents when filtering is applied, otherwise use all incidents**
+  const selectedIncidents = data.value.incidentType ? filteredIncidents.value : incidents.value;
 
-    // Use incidentCounts to prepare counts for the chart
-    const incidentCountsArray = filteredData.map(incident => incidentCounts[incident.id] || 0); // Adjust 'incident.id' based on your data structure
-    const incidentLabels = filteredData.map(incident => incident.type);
+  // **Filter incidents that have a count of 1 or more**
+  const validIncidents = selectedIncidents.filter(incident => incidentCounts[incident.id] && incidentCounts[incident.id] > 0);
 
-    // Update chart data
-    options.value.series = incidentCountsArray;
-    options.value.labels = incidentLabels;
-    
-    if (chart) {
-      chart.updateOptions(options.value);
-    }
+  // Map valid incidents to their labels and counts
+  const incidentCountsArray = validIncidents.map(incident => incidentCounts[incident.id] || 0);
+  const incidentLabels = validIncidents.map(incident => incident.type);
+
+  // Update chart data
+  options.value.series = incidentCountsArray;
+  options.value.labels = incidentLabels;
+
+  if (chart) {
+    chart.updateOptions(options.value);
   }
 };
 
@@ -141,6 +143,28 @@ onUnmounted(() => {
       </select>
     </div>
 
-    <div ref="pieChart" class="h-32"></div>
+    <div class="h-32" ref="pieChart"></div>
   </div>
 </template>
+
+<style scoped>
+.apexcharts-toolbar {
+  background-color: black !important; /* Background color */
+  color: white !important; /* Text color */
+  border-radius: 5px; /* Rounded corners */
+  padding: 5px;
+}
+
+.apexcharts-menu {
+  background-color: black !important; /* Dropdown menu background */
+  color: white !important; /* Dropdown text color */
+}
+
+.apexcharts-menu-item {
+  color: white !important;
+}
+
+.apexcharts-menu-item:hover {
+  background-color: gray !important;
+}
+</style>
