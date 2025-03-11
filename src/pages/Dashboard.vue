@@ -126,19 +126,21 @@ const selectedDateRange = ref({ start: selectedStartDate.value, end: selectedEnd
             </select>
           </div>
 
-          <svg v-if="percentageChange > 0" xmlns="http://www.w3.org/2000/svg" height="220px" viewBox="0 -960 960 960" width="220px" fill="#78A75A"><path d="m123-240-43-43 292-291 167 167 241-241H653v-60h227v227h-59v-123L538-321 371-488 123-240Z"/></svg>
-          <svg v-if="percentageChange < 0" xmlns="http://www.w3.org/2000/svg" height="220px" viewBox="0 0 24 24" width="220px" fill="#EA3323"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M16 18l2.29-2.29-4.88-4.88-4 4L2 7.41 3.41 6l6 6 4-4 6.3 6.29L22 12v6h-6z"/></svg>
-          <svg v-if="percentageChange == 0" xmlns="http://www.w3.org/2000/svg" height="220px" viewBox="0 0 24 24" width="220px" fill="#666666"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M22 12l-4-4v3H3v2h15v3l4-4z"/></svg>
-
+          <div class="flex justify-center items-center">
+            <svg v-if="percentageChange < 0" xmlns="http://www.w3.org/2000/svg" height="100px" viewBox="0 0 24 24" width="100px" fill="#75FB4C"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M16 18l2.29-2.29-4.88-4.88-4 4L2 7.41 3.41 6l6 6 4-4 6.3 6.29L22 12v6h-6z"/></svg>
+            <svg v-if="percentageChange > 0" xmlns="http://www.w3.org/2000/svg" height="100px" viewBox="0 0 24 24" width="100px" fill="#EA3323"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6h-6z"/></svg>
+            <svg v-if="percentageChange == 0" xmlns="http://www.w3.org/2000/svg" height="100px" viewBox="0 0 24 24" width="100px" fill="#666666"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M22 12l-4-4v3H3v2h15v3l4-4z"/></svg>
+          </div>
+          
           <!-- Percentage Change Display -->
           <div class="flex justify-center items-center space-x-2">
-            <div class="text-5xl font-bold" :class="percentageChange >= 0 ? 'text-green-500' : 'text-red-500'">
+            <div class="text-5xl font-bold" :class="percentageChange == 0 ? 'text-gray-500' : percentageChange >= 0 ? 'text-red-500' : 'text-green-500'">
               {{ percentageChange.toFixed(2) }}%
             </div>
-            <svg class="w-7 h-7" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 14">
+            <!-- <svg class="w-7 h-7" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 14">
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 :d="percentageChange >= 0 ? 'M5 13V1m0 0L1 5m4-4 4 4' : 'M5 1v12m0 0l4-4m-4 4L1 9'" />
-            </svg>
+            </svg> -->
           </div>
         </div>
       </div>
