@@ -158,6 +158,26 @@ const goToPage = (page) => {
 watch(searchQuery, () => {
   currentPage.value = 1;
 });
+
+const maxVisiblePages = 3;
+
+const paginationStart = computed(() => {
+    if (currentPage.value <= Math.floor(maxVisiblePages / 2)) {
+        return 1;
+    } else if (currentPage.value + Math.floor(maxVisiblePages / 2) >= totalPages.value) {
+        return Math.max(1, totalPages.value - maxVisiblePages + 1);
+    } else {
+        return currentPage.value - Math.floor(maxVisiblePages / 2);
+    }
+});
+
+const paginationEnd = computed(() => {
+    return Math.min(totalPages.value, paginationStart.value + maxVisiblePages - 1);
+});
+
+const visiblePages = computed(() => {
+    return Array.from({ length: paginationEnd.value - paginationStart.value + 1 }, (_, i) => paginationStart.value + i);
+});
 </script>
 
 <template>
@@ -290,7 +310,7 @@ watch(searchQuery, () => {
                     <span class="font-semibold">{{ filteredBarangays.length }}</span>
                   </span>
 
-                  <ul class="inline-flex items-stretch -space-x-px">
+                  <!-- <ul class="inline-flex items-stretch -space-x-px">
                       <li><button @click="prevPage" :disabled="currentPage === 1" class="px-3 py-1 rounded-l-lg border hover:bg-gray-300 dark:hover:bg-slate-600">Previous</button></li>
                       <li v-for="page in totalPages" :key="page">
                           <button @click="goToPage(page)"
@@ -299,7 +319,39 @@ watch(searchQuery, () => {
                           </button>
                       </li>
                       <li><button @click="nextPage" :disabled="currentPage === totalPages" class="px-3 py-1 rounded-r-lg border hover:bg-gray-300 dark:hover:bg-slate-600">Next</button></li>
-                  </ul>
+                  </ul> -->
+                  <ul class="inline-flex items-stretch -space-x-px">
+                        <li>
+                            <button @click="prevPage" :disabled="currentPage === 1"
+                                class="px-3 py-1 rounded-l-lg border hover:bg-gray-300 dark:hover:bg-slate-600">
+                                Previous
+                            </button>
+                        </li>
+                        
+                        <li v-if="paginationStart > 1">
+                            <button @click="goToPage(1)" class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600">1</button>
+                            <button disabled class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</button>
+                        </li>
+
+                        <li v-for="page in visiblePages" :key="page">
+                            <button @click="goToPage(page)"
+                                :class="['px-3 py-1 border', currentPage === page ? 'bg-slate-500 text-white border-black' : 'hover:bg-gray-300 dark:hover:bg-slate-600']">
+                                {{ page }}
+                            </button>
+                        </li>
+
+                        <li v-if="paginationEnd < totalPages">
+                            <button disabled class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</button>
+                            <button @click="goToPage(totalPages)" class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600">{{ totalPages }}</button>
+                        </li>
+
+                        <li>
+                            <button @click="nextPage" :disabled="currentPage === totalPages"
+                                class="px-3 py-1 rounded-r-lg border hover:bg-gray-300 dark:hover:bg-slate-600">
+                                Next
+                            </button>
+                        </li>
+                    </ul>
                 </nav>
               </div>
             </div>

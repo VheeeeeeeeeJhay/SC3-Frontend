@@ -80,12 +80,11 @@ onMounted(() => {
 
   // ✅ Create heatmap ONCE
   heatmapLayer.value = leaflet.heatLayer([], {
-    radius: 20,
-    blur: 15,
+    radius: 15,
+    blur: 20,
     maxZoom: 12,
     minOpacity: 0.5,
     gradient: {
-      0.2: 'blue',
       0.2: 'blue',
       0.4: 'green',
       0.6: 'yellow',
@@ -283,7 +282,7 @@ watchEffect(() => {
       <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">Toggle GeoJSON Borders</span>
     </label>
 
-    <div id="map"></div>
+    <div id="map" class="z-10"></div>
   </div>
 </template>
 
