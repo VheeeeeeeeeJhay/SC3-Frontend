@@ -2,8 +2,9 @@
 import axiosClient from '../../axios';
 import { onMounted, ref, watchEffect, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import PrimaryButton from '../../components/PrimaryButton.vue';
+// import PrimaryButton from '../../components/PrimaryButton.vue';
 import leaflet from 'leaflet';
+import viewMap from '../../components/viewMap.vue';
 
 
 const route = useRoute();
@@ -38,7 +39,7 @@ onMounted(() => {
         console.log(res);
         data.value = res.data;
         // Initialize the map AFTER data is received
-        initMap();
+        // initMap();
     })
     .catch((error) => {
         console.error('Error fetching data:', error);
@@ -46,41 +47,41 @@ onMounted(() => {
 });
 
 // Initialize Map
-const initMap = () => {
-    if (!data.value.latitude || !data.value.longitude) {
-        console.error("Latitude or Longitude is missing");
-        return;
-    }
+// const initMap = () => {
+//     if (!data.value.latitude || !data.value.longitude) {
+//         console.error("Latitude or Longitude is missing");
+//         return;
+//     }
 
-    if (map) return; // Prevent reinitialization
+//     if (map) return; // Prevent reinitialization
 
-    map = leaflet.map('map').setView([data.value.latitude, data.value.longitude], 13);
+//     map = leaflet.map('map').setView([data.value.latitude, data.value.longitude], 13);
 
-    leaflet.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(map);
+//     leaflet.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+//         maxZoom: 19,
+//         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+//     }).addTo(map);
 
-    // Set map boundaries
-    const bounds = leaflet.latLngBounds(
-        [16.350, 120.520], // Southwest
-        [16.480, 120.660]  // Northeast
-    );
-    map.setMaxBounds(bounds);
-    map.setMinZoom(12);
+//     // Set map boundaries
+//     const bounds = leaflet.latLngBounds(
+//         [16.350, 120.520], // Southwest
+//         [16.480, 120.660]  // Northeast
+//     );
+//     map.setMaxBounds(bounds);
+//     map.setMinZoom(12);
 
-    // Place initial marker
-    marker = leaflet.marker([data.value.latitude, data.value.longitude]).addTo(map)
-        .bindPopup(`Original Marker: (${data.value.latitude}, ${data.value.longitude})`)
-        .openPopup();
-};
+//     // Place initial marker
+//     marker = leaflet.marker([data.value.latitude, data.value.longitude]).addTo(map)
+//         .bindPopup(`Original Marker: (${data.value.latitude}, ${data.value.longitude})`)
+//         .openPopup();
+// };
 
-// Watch geolocation changes but don't override original marker
-watchEffect(() => {
-    if (data.value.latitude && data.value.longitude) {
-        console.log("Updated Coordinates:", data.value.latitude, data.value.longitude);
-    }
-});
+// // Watch geolocation changes but don't override original marker
+// watchEffect(() => {
+//     if (data.value.latitude && data.value.longitude) {
+//         console.log("Updated Coordinates:", data.value.latitude, data.value.longitude);
+//     }
+// });
 </script>
 
 <template>
@@ -120,7 +121,8 @@ watchEffect(() => {
   
         <!-- Right Side: Map -->
         <div class="w-full md:w-1/2 flex justify-center items-center mt-6 md:mt-0">
-          <div id="map" class="rounded-lg shadow-md"></div>
+          <!-- <div id="map" class="rounded-lg shadow-md"></div> -->
+          <viewMap id="map" class=" z-10 rounded-lg shadow-md" :reportLat="data.latitude"  :reportLong="data.longitude"/>
         </div>
       </div>
     </div>

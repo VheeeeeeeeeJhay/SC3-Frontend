@@ -143,7 +143,7 @@ map.on("click", (event) => {
       popupContent += `<strong>Type:</strong> ${matchingReport.incident.type} <br>`;
       popupContent += `<strong>Landmarks:</strong> ${matchingReport.landmark || "N/A"} <br>`;
       popupContent += `<strong>Reported By:</strong> ${matchingReport.name || "Anonymous"} <br>`;
-      popupContent += `<strong>Date:</strong> ${matchingReport.date || "Unknown"} <br>`;
+      popupContent += `<strong>Date:</strong> ${matchingReport.date_received || "Unknown"} <br>`;
 
       console.log(matchingReport); // ✅ Debugging: Log the single matched report
     } else {
