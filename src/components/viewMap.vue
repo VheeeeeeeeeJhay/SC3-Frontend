@@ -1,149 +1,83 @@
 <script setup>
-import { ref, computed, onMounted, watch, watchEffect } from "vue";
+import { ref, onMounted, watch } from "vue";
 import axiosClient from "../axios";
 import leaflet from "leaflet";
 import "leaflet.heat";
 import { useGeolocation } from "@vueuse/core";
-import { useMapStore } from "../stores/mapStore"; // Import Pinia store for managing state
+import { useMapStore } from "../stores/mapStore";
 
+// **Props**
 const props = defineProps({
-  viewID: Number
+  viewID: Number,
 });
-const viewId = ref(props.viewID); // Make it reactive
+
+const viewId = ref(props.viewID);
+const barangay_name = ref("");
 const barangay_lat = ref(0);
 const barangay_long = ref(0);
-console.log("View ID from Props:", viewId.value);
-const data = ref({
-    name: '',
-    longitude: '',
-    latitude: ''
-});
+const data = ref({ name: "", longitude: "", latitude: "" });
 
-// const fetchData = async () => {
-//     // isLoading.value = true;
-//     axiosClient.get('/api/911/barangay-reports/${viewId.value}', {
-//         headers: {
-//             'x-api-key': import.meta.env.VITE_API_KEY
-//         }
-//     })
-//         .then((res) => {
-//             barangay_lat.value = res.data[0].barangay.latitude;
-//             barangay_long.value = res.data[0].barangay.longitude;
-//             console.log(res.data, 'test data');
-//         })
-//         .catch((error) => {
-//             console.error('Error fetching data:', error);
-//         })
-//         .finally(() => {
-//             // isLoading.value = false;
-//         });
-//     }
-
-    // const fetchData = async () => {
-    //     try {
-    //         const response = await axiosClient.get(`/api/911/barangay-reports/${viewId.value}`, {
-    //         headers: {
-    //             "x-api-key": import.meta.env.VITE_API_KEY,
-    //         },
-    //         });
-
-    //         console.log("API Response:", response.data[0]); // Debugging: Check full API response
-
-    //         if (response.data?.barangay) {
-    //         // ✅ Only assign values if barangay exists
-    //         barangay_lat.value = response.data.barangay.latitude || null;
-    //         barangay_long.value = response.data.barangay.longitude || null;
-    //         console.log(`Fetched Barangay Location: ${barangay_lat.value}, ${barangay_long.value}`);
-    //         } else {
-    //         console.warn("No barangay data found for ID:", viewId.value);
-    //         }
-    //     } catch (error) {
-    //         console.error("Error fetching barangay data:", error);
-    //     }
-    //     };
-
-        const fetchData = () => {
-    axiosClient.get(`/api/911/barangay-edit/${viewId.value}`, {
-        headers: {
-            'x-api-key': import.meta.env.VITE_API_KEY
-        }
+// ✅ Fetch Barangay Data
+const fetchData = () => {
+  axiosClient
+    .get(`/api/911/barangay-edit/${viewId.value}`, {
+      headers: { "x-api-key": import.meta.env.VITE_API_KEY },
     })
     .then((res) => {
-      // ✅ Correctly access latitude & longitude
-      data.value = { ...res.data }; // Copy response to reactive object
+      data.value = { ...res.data };
       barangay_lat.value = data.value.latitude;
       barangay_long.value = data.value.longitude;
-      console.log("barangay", data.value.name);
+      barangay_name.value = data.value.name;
 
-      console.log("Latitude:", barangay_lat.value);
-      console.log("Longitude:", barangay_long.value);
+      console.log("Barangay:", barangay_name.value);
+      console.log("Latitude:", barangay_lat.value, "Longitude:", barangay_long.value);
+
+      fetchReports();
+      addGeoJSONLayer();
     })
     .catch((error) => {
-        console.error('Error fetching data:', error);
+      console.error("Error fetching data:", error);
     });
-}
+};
 
-// Import map.json from assets folder (GeoJSON)
-import mapData from "../assets/map.json"; // Adjust the path as needed
+// **Import GeoJSON Data**
+import mapData from "../assets/map.json";
 
 const { coords } = useGeolocation();
 const reports = ref([]);
 const heatmapLayer = ref(null);
-const geojsonLayer = ref(null); // Reference for GeoJSON layer
+const geojsonLayer = ref(null);
+const maskLayer = ref(null);
 let map = null;
-const heatmapPoints = ref([]); // Store report locations
-
-
-// Access Pinia store for GeoJSON border visibility
+const heatmapPoints = ref([]);
 const mapStore = useMapStore();
+let persistentPopup = null; // ✅ Store reference for persistent popups
 
-// **Fetch Reports**
-onMounted(() => {
-
-    fetchData();
-
+// ✅ **Fetch Reports (Filtered by Barangay)**
+const fetchReports = () => {
   axiosClient
     .get("/api/911/report-display", {
-      headers: {
-        "x-api-key": import.meta.env.VITE_API_KEY,
-      },
+      headers: { "x-api-key": import.meta.env.VITE_API_KEY },
     })
     .then((res) => {
-      reports.value = res.data[0] || []; // Ensure reports is an array even if empty
-      console.log("orig:", res.data[0]);
+      const allReports = res.data[0] || [];
 
-      // Check if reports have latitude/longitude
-      reports.value.forEach((report) => {
-        if (!report.barangay.latitude || !report.barangay.longitude) {
-          console.warn(`Report missing lat/long: ${JSON.stringify(report)}`);
-        }
-      });
+      // ✅ Filter reports by barangay name
+      reports.value = allReports.filter(
+        (report) => report.barangay?.name === barangay_name.value
+      );
 
-      updateHeatmap(); // Update heatmap after fetching reports
+      console.log(`Filtered Reports for '${barangay_name.value}':`, reports.value);
+
+      updateHeatmap();
     })
     .catch((error) => console.error("Error fetching reports:", error));
-});
+};
 
-// **Compute Grouped Reports**
-// **Store Reports Directly Based on Latitude & Longitude**
-const processedReports = computed(() => {
-  return reports.value
-    .filter((report) => report.latitude && report.longitude) // Ensure lat/lng exist
-    .map((report) => ({
-      id: report.id, // Keep track of report ID
-      latitude: report.latitude,
-      longitude: report.longitude,
-      type: report.incident.type,
-      details: report.incident.details || "No details available",
-      reportedBy: report.reportedBy || "Anonymous",
-      date: report.date || "Unknown",
-    }));
-});
-
-
-// **Initialize Map**
-// Initialize the map
+// ✅ **Initialize Map**
 onMounted(() => {
+  fetchData();
+
   map = leaflet
     .map("map")
     .setView([16.404, 120.599], 13)
@@ -154,216 +88,151 @@ onMounted(() => {
       })
     );
 
-  if (mapData && mapData.center && mapData.zoom) {
-    map.setView(mapData.center, mapData.zoom);
-  }
-
-  // ✅ Create heatmap ONCE
+  // ✅ **Heatmap Layer**
   heatmapLayer.value = leaflet.heatLayer([], {
-    radius: 20,
-    blur: 15,
+    radius: 15,
+    blur: 20,
     maxZoom: 12,
     minOpacity: 0.5,
     gradient: {
-      0.2: 'blue',    // Low intensity
-      0.4: 'green',   // Medium-low intensity
-      0.6: 'yellow',  // Medium intensity
-      0.8: 'orange',  // Medium-high intensity
-      1.0: 'red'      // High intensity
+      0.2: "blue",
+      0.4: "green",
+      0.6: "yellow",
+      0.8: "orange",
+      1.0: "red",
     },
   }).addTo(map);
 
-  let persistentPopup = null; // Store the last clicked popup
+  // ✅ Add Click Event for Heatmap Popups
+  map.on("click", (event) => {
+    const { lat, lng } = event.latlng;
 
-// click effect for Heatmap Points
-map.on("mousemove", (event) => {
-  const { lat, lng } = event.latlng;
+    let closestPoint = null;
+    let minDistance = Infinity;
 
-  let closestPoint = null;
-  let minDistance = Infinity;
+    // ✅ Find the closest heatmap point
+    heatmapPoints.value.forEach((point) => {
+      const distance = map.distance([lat, lng], [point[0], point[1]]);
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestPoint = { lat: point[0], lng: point[1] };
+      }
+    });
 
-  heatmapPoints.value.forEach((point) => {
-    const distance = map.distance([lat, lng], [point.lat, point.lng]);
-    if (distance < minDistance) {
-      minDistance = distance;
-      closestPoint = point;
-    }
-  });
-
-  
-});
-
-// ✅ Click event for Heatmap Points (Keeps popup open)
-map.on("click", (event) => {
-  const { lat, lng } = event.latlng;
-
-  let closestPoint = null;
-  let minDistance = Infinity;
-
-  heatmapPoints.value.forEach((point) => {
-    const distance = map.distance([lat, lng], [point.lat, point.lng]);
-    if (distance < minDistance) {
-      minDistance = distance;
-      closestPoint = point;
-    }
-  });
-
-      // ✅ Show a **persistent** popup on click
-      if (closestPoint && minDistance < 50) {
-        // ✅ Find the **single** matching report for the heatmap point
+    // ✅ If a close point is found within 50 meters, show popup
+    if (closestPoint && minDistance < 50) {
       const matchingReport = reports.value.find(
         (report) =>
           report.latitude === closestPoint.lat &&
           report.longitude === closestPoint.lng
       );
 
-    let popupContent = "<strong>Reported Case</strong><br>";
+      let popupContent = "<strong>Reported Case</strong><br>";
 
-    if (matchingReport) {
-      popupContent += `<strong>Type:</strong> ${matchingReport.incident.type} <br>`;
-      popupContent += `<strong>Landmarks:</strong> ${matchingReport.landmark || "N/A"} <br>`;
-      popupContent += `<strong>Reported By:</strong> ${matchingReport.name || "Anonymous"} <br>`;
-      popupContent += `<strong>Date:</strong> ${matchingReport.date || "Unknown"} <br>`;
+      if (matchingReport) {
+        popupContent += `<strong>Type:</strong> ${matchingReport.incident?.type || "Unknown"} <br>`;
+        popupContent += `<strong>Landmark:</strong> ${matchingReport.landmark || "N/A"} <br>`;
+        popupContent += `<strong>Reported By:</strong> ${matchingReport.name || "Anonymous"} <br>`;
+        popupContent += `<strong>Date:</strong> ${matchingReport.date || "Unknown"} <br>`;
+      } else {
+        popupContent += "No details available.";
+      }
 
-      console.log(matchingReport); // ✅ Debugging: Log the single matched report
-    } else {
-      popupContent += "No details available.";
+      // ✅ Close the previous persistent popup
+      if (persistentPopup) {
+        map.closePopup(persistentPopup);
+      }
+
+      // ✅ Create new persistent popup
+      persistentPopup = leaflet
+        .popup()
+        .setLatLng([closestPoint.lat, closestPoint.lng])
+        .setContent(popupContent)
+        .openOn(map);
     }
-
-    // ✅ Close the previous persistent popup (if any)
-    if (persistentPopup) {
-      map.closePopup(persistentPopup);
-    }
-
-    // ✅ Create and store a new persistent popup
-    persistentPopup = leaflet
-      .popup()
-      .setLatLng([closestPoint.lat, closestPoint.lng])
-      .setContent(popupContent)
-      .openOn(map);
-
-    event.originalEvent.stopPropagation(); // ✅ Prevents GeoJSON hover from interfering
-  }
+  });
 });
 
-
-  // ✅ Add GeoJSON Layer with hover effect for barangay names
-  if (mapData && mapData.features) {
-    geojsonLayer.value = leaflet.geoJSON(mapData, {
-      onEachFeature: (feature, layer) => {
-        layer.on("mouseover", (event) => {
-          if (mapStore.showGeoJSONBorders) {
-            layer.setStyle({
-              weight: 5,
-              color: "#007FFF",
-              fillOpacity: 0.7,
-            });
-
-            // Show barangay name as a tooltip
-            const { adm4_en } = feature.properties;
-            layer.bindTooltip(adm4_en, { permanent: false, direction: "center" }).openTooltip();
-          }
-        });
-
-        layer.on("mouseout", () => {
-          if (mapStore.showGeoJSONBorders) {
-            layer.setStyle({
-              weight: 2,
-              color: "#007FFF",
-              fillOpacity: 0.2,
-            });
-          } else {
-            layer.setStyle({
-              weight: 0,
-              color: "",
-              fillOpacity: 0,
-            });
-          }
-
-          // Remove tooltip when mouse leaves
-          layer.unbindTooltip();
-        });
-        
-        // Set initial style
-        layer.setStyle({
-          weight: mapStore.showGeoJSONBorders ? 2 : 0,
-          color: "#007FFF",
-          fillOpacity: mapStore.showGeoJSONBorders ? 0.2 : 0,
-        });
-      },
-    }).addTo(map);
-  }
-
-  updateHeatmap();
-});
-
-// **Watch for changes in showGeoJSONBorders**
-watch(
-  () => mapStore.showGeoJSONBorders, // Watch the showGeoJSONBorders state
-  () => {
-    updateGeoJSONStyles(); // Apply the new styles when the value changes
-  }
-);
-
-// **Update GeoJSON Layer Styles**
-const updateGeoJSONStyles = () => {
-  if (geojsonLayer.value) {
-    geojsonLayer.value.eachLayer((layer) => {
-      // Update style based on border visibility
-      layer.setStyle({
-        weight: mapStore.showGeoJSONBorders ? 2 : 0, // Show or hide borders based on the toggle
-        color: mapStore.showGeoJSONBorders ? "#007FFF" : "", // Light blue border when active, no border when inactive
-        fillOpacity: mapStore.showGeoJSONBorders ? 0.2 : 0, // Light opacity fill when active, no fill when inactive
-        fillColor: mapStore.showGeoJSONBorders ? "#007FFF" : "", // Optional: Set fill color based on border state
-      });
-    });
-  }
-};
-
-// **Extract Data for Heatmap (No Grouping)**
-const getHeatmapData = () => {
-  return processedReports.value.map(({ latitude, longitude }) => [latitude, longitude, 1]); // Each report is one point
-};
-
-
-// **Update Heatmap Layer**
+// ✅ **Update Heatmap with Data**
 const updateHeatmap = () => {
   if (!map || !heatmapLayer.value) return;
 
-  const heatData = getHeatmapData();
-  heatmapPoints.value = heatData.map(([lat, lng, count]) => ({ lat, lng, count }));
-  heatmapLayer.value.setLatLngs(heatData);
+  heatmapPoints.value = reports.value
+    .filter((r) => r.latitude && r.longitude)
+    .map((r) => [r.latitude, r.longitude, 1]);
+
+  if (heatmapPoints.value.length === 0) {
+    console.warn("❌ No valid report locations found!");
+  } else {
+    console.log("✅ Updating heatmap with points:", heatmapPoints.value);
+  }
+
+  heatmapLayer.value.setLatLngs(heatmapPoints.value);
 };
 
+// ✅ **Function to Add Barangay Border + Dark Outside Effect**
+const addGeoJSONLayer = () => {
+  if (!map || !mapData.features || !barangay_name.value) return;
 
-// ✅ Refresh heatmap only when reports change (prevent excessive updates)
-watchEffect(() => {
-  if (reports.value.length > 0) {
-    updateHeatmap();
+  const filteredFeatures = mapData.features.filter(
+    (feature) => feature.properties.adm4_en === barangay_name.value
+  );
+
+  console.log(`Filtered GeoJSON for '${barangay_name.value}':`, filteredFeatures);
+
+  if (geojsonLayer.value) map.removeLayer(geojsonLayer.value);
+  if (maskLayer.value) map.removeLayer(maskLayer.value);
+
+  if (filteredFeatures.length > 0) {
+    geojsonLayer.value = leaflet.geoJSON(
+      { type: "FeatureCollection", features: filteredFeatures },
+      {
+        style: {
+          weight: mapStore.showGeoJSONBorders ? 2 : 0,
+          color: "#007FFF",
+          fillOpacity: 0,
+        },
+      }
+    ).addTo(map);
+
+    const maskPolygon = {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          geometry: {
+            type: "Polygon",
+            coordinates: [
+              [
+                [180, 90], [180, -90], [-180, -90], [-180, 90], [180, 90],
+              ],
+              ...filteredFeatures.flatMap((feature) => feature.geometry.coordinates),
+            ],
+          },
+        },
+      ],
+    };
+
+    maskLayer.value = leaflet.geoJSON(maskPolygon, {
+      style: {
+        color: "black",
+        weight: 0,
+        fillColor: "black",
+        fillOpacity: 0.6,
+      },
+    }).addTo(map);
   }
+};
+
+watch(barangay_name, () => {
+  fetchReports();
+  addGeoJSONLayer();
 });
-
-
 </script>
 
 <template>
   <div class="min-h-screen">
-    <!-- Titleee -->
-    <div class="mt-6 px-2 flex justify-between">
-        <h1 class="text-2xl font-bold dark:text-white">Heatmap of Incidents/Cases</h1>
-    </div>
-
-    <!-- Toggle GeoJSON Borders -->
-    <label class="inline-flex items-center me-5 cursor-pointer">
-      <input 
-        type="checkbox" 
-        v-model="mapStore.showGeoJSONBorders" 
-        class="sr-only peer"
-      />
-      <div class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-4 peer-focus:ring-teal-300 dark:peer-focus:ring-teal-800 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-teal-600 dark:peer-checked:bg-teal-600"></div>
-      <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">Toggle GeoJSON Borders</span>
-    </label>
-
+    <h1 class="text-2xl font-bold dark:text-white">Heatmap of Incidents/Cases</h1>
     <div id="map"></div>
   </div>
 </template>
