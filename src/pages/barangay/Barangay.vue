@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue';
 import PrimaryButton from '../../components/PrimaryButton.vue';
 import AddBarangay from './AddBarangay.vue';
 import EditBarangay from './EditBarangay.vue';
@@ -16,34 +16,87 @@ import ToolTip from '../../components/ToolTip.vue';
 const barangays = ref([]);
 const errors = ref('');
 const isLoading = ref(false);
-const selectedBarangay = ref(null);
+
+// const fetchData = async () => {
+//   axiosClient.get('/api/911/barangay', {
+//     headers: {
+//       'x-api-key': import.meta.env.VITE_API_KEY
+//     }
+//   })
+//     .then((res) => {
+//       console.log(res);
+//       setTimeout(() => {
+//         barangays.value = res.data;
+//         isLoading.value = false; // Stop loading after delay
+//       });
+//     })
+//     .catch((error) => {
+//       isLoading.value = false;
+//       console.error('Error fetching data:', error);
+//       errors.value = 'Failed to load barangays. Please try again later.';
+//     });
+// }
+
+// onMounted(() => {
+//   isLoading.value = true;
+
+//   fetchData();
+//   intervalId = setInterval(fetchData, 5000); // Fetch data every 5 seconds
+
+//   // ------------------------------------------
+//   document.addEventListener("click", (event) => {
+//     if (
+//       openDropdownId.value !== null &&
+//       !dropdownRefs.value[openDropdownId.value]?.contains(event.target)
+//     ) {
+//       closeDropdown();
+//     }
+//   });
+// });
+
+// onMounted(() => {
+//   fetchData(); // Fetch data immediately when the component is mounted
+//   intervalId = setInterval(fetchData, 5000); // Fetch data every 5 seconds
+// });
+
+// Clean up the interval when the component is destroyed
+// onBeforeUnmount(() => {
+//   if (intervalId) {
+//     clearInterval(intervalId);
+//   }
+// });
+
+let intervalId = null;
 
 const fetchData = async () => {
-  axiosClient.get('/api/911/barangay', {
-    headers: {
-      'x-api-key': import.meta.env.VITE_API_KEY
-    }
-  })
-    .then((res) => {
-      console.log(res);
-      setTimeout(() => {
-        barangays.value = res.data;
-        isLoading.value = false; // Stop loading after delay
-      });
-    })
-    .catch((error) => {
-      isLoading.value = false;
-      console.error('Error fetching data:', error);
-      errors.value = 'Failed to load barangays. Please try again later.';
+  try {
+    const res = await axiosClient.get('/api/911/barangay', {
+      headers: {
+        'x-api-key': import.meta.env.VITE_API_KEY
+      }
     });
-}
+    console.log(res);
+    setTimeout(() => {
+      barangays.value = res.data;
+      isLoading.value = false; // Stop loading after delay
+    });
+  } catch (error) {
+    isLoading.value = false;
+    console.error('Error fetching data:', error);
+    errors.value = 'Failed to load barangays. Please try again later.';
+  }
+};
 
 onMounted(() => {
   isLoading.value = true;
-
+  
+  // Initial data fetch
   fetchData();
-
-  // ------------------------------------------
+  
+  // Set interval to fetch data every 5 seconds
+  intervalId = setInterval(fetchData, 5000);
+  
+  // Handle click event to close dropdown
   document.addEventListener("click", (event) => {
     if (
       openDropdownId.value !== null &&
@@ -53,6 +106,15 @@ onMounted(() => {
     }
   });
 });
+
+onBeforeUnmount(() => {
+  // Clear the interval when the component is unmounted
+  if (intervalId !== null) {
+    clearInterval(intervalId);
+  }
+});
+
+
 
 const searchQuery = ref("");
 
@@ -123,7 +185,6 @@ const closeDropdowns = (event) => {
   }
 };
 document.addEventListener("click", closeDropdowns);
-
 
 // Pagination
 const currentPage = ref(1);
