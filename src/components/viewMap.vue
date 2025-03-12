@@ -232,13 +232,13 @@ watch(barangay_name, () => {
 
 <template>
   <!-- <div class="min-h-screen"> -->
-    <div id="map" class="z-10"></div>
+    <div id="map" class="z-10 rounded-lg"></div>
   <!-- </div> -->
 </template>
 
 <style scoped>
 #map {
-  height: 70vh;
+  height: 50vh;
   width: 100%;
 }
 </style>
