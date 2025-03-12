@@ -12,11 +12,12 @@ const props = defineProps({
 const viewId = ref(props.viewID); // Make it reactive
 const barangay_lat = ref(0);
 const barangay_long = ref(0);
+const barangay_name = ref('');
 console.log("View ID from Props:", viewId.value);
 const data = ref({
     name: '',
-    longitude: '',
-    latitude: ''
+    longitude: 0,
+    latitude: 0
 });
 
 // const fetchData = async () => {
@@ -73,6 +74,7 @@ const data = ref({
       data.value = { ...res.data }; // Copy response to reactive object
       barangay_lat.value = data.value.latitude;
       barangay_long.value = data.value.longitude;
+      barangay_name.value = data.value.name;
       console.log("barangay", data.value.name);
 
       console.log("Latitude:", barangay_lat.value);
@@ -99,9 +101,7 @@ const mapStore = useMapStore();
 
 // **Fetch Reports**
 onMounted(() => {
-
     fetchData();
-
   axiosClient
     .get("/api/911/report-display", {
       headers: {
@@ -110,7 +110,6 @@ onMounted(() => {
     })
     .then((res) => {
       reports.value = res.data[0] || []; // Ensure reports is an array even if empty
-      console.log("orig:", res.data[0]);
 
       // Check if reports have latitude/longitude
       reports.value.forEach((report) => {
@@ -143,10 +142,10 @@ const processedReports = computed(() => {
 
 // **Initialize Map**
 // Initialize the map
-onMounted(() => {
+onMounted(() => {   
   map = leaflet
     .map("map")
-    .setView([16.404, 120.599], 13)
+    .setView([barangay_lat.value, barangay_long.value], 13)
     .addLayer(
       leaflet.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
@@ -154,14 +153,29 @@ onMounted(() => {
       })
     );
 
+    const bounds = leaflet.latLngBounds(
+    [16.350, 120.520], // Southwest (bottom-left)
+    [16.480, 120.660]  // Northeast (top-right) 
+    );
+    map.setMaxBounds(bounds);
+    map.setMinZoom(12);
+
+    // Watch for changes in barangay_lat and barangay_long and update map
+  watchEffect(() => {
+    if (barangay_lat.value && barangay_long.value) {
+      console.log("Updating map to:", barangay_lat.value, barangay_long.value);
+      map.setView([barangay_lat.value, barangay_long.value], 18);
+    }
+  });
+
   if (mapData && mapData.center && mapData.zoom) {
     map.setView(mapData.center, mapData.zoom);
   }
 
   // ✅ Create heatmap ONCE
   heatmapLayer.value = leaflet.heatLayer([], {
-    radius: 20,
-    blur: 15,
+    radius: 15,
+    blur: 20,
     maxZoom: 12,
     minOpacity: 0.5,
     gradient: {
@@ -350,7 +364,7 @@ watchEffect(() => {
   <div class="min-h-screen">
     <!-- Titleee -->
     <div class="mt-6 px-2 flex justify-between">
-        <h1 class="text-2xl font-bold dark:text-white">Heatmap of Incidents/Cases</h1>
+        <h1 class="text-2xl font-bold dark:text-white">Incidents/Cases in {{ barangay_name }}</h1>
     </div>
 
     <!-- Toggle GeoJSON Borders -->

@@ -139,6 +139,7 @@ const visiblePages = computed(() => {
 <template>
     <!-- This is for table -->
      <!-- <div class="mt-6 px-2"> -->
+        <viewMap :viewID="id" />
     <div class=" mt-6 px-2 relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white"
         :class="themeClasses">
         <div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
@@ -321,5 +322,5 @@ const visiblePages = computed(() => {
     </div>
 <!-- </div> -->
 
-<viewMap :viewID="id" />
+
 </template>
