@@ -321,5 +321,5 @@ const visiblePages = computed(() => {
     </div>
 <!-- </div> -->
 
-<viewMap :viewID="id" />
+<viewMap :viewID="id" /> //id is the barangay id
 </template>

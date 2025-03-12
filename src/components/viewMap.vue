@@ -9,13 +9,15 @@ import { useMapStore } from "../stores/mapStore";
 // **Props**
 const props = defineProps({
   viewID: Number,
+  reportLat: Number,
+  reportLong: Number,
 });
 
 const viewId = ref(props.viewID);
 const barangay_name = ref("");
 const barangay_lat = ref(0);
 const barangay_long = ref(0);
-const data = ref({ name: "", longitude: "", latitude: "" });
+const data = ref({ name: "", longitude: 0, latitude: 0 });
 
 // ✅ Fetch Barangay Data
 const fetchData = () => {
@@ -28,9 +30,6 @@ const fetchData = () => {
       barangay_lat.value = data.value.latitude;
       barangay_long.value = data.value.longitude;
       barangay_name.value = data.value.name;
-
-      console.log("Barangay:", barangay_name.value);
-      console.log("Latitude:", barangay_lat.value, "Longitude:", barangay_long.value);
 
       fetchReports();
       addGeoJSONLayer();
@@ -67,7 +66,7 @@ const fetchReports = () => {
         (report) => report.barangay?.name === barangay_name.value
       );
 
-      console.log(`Filtered Reports for '${barangay_name.value}':`, reports.value);
+      console.log(`Filtered Reports for '${barangay_name.value}':`, reports.value); //2 
 
       updateHeatmap();
     })
@@ -80,27 +79,38 @@ onMounted(() => {
 
   map = leaflet
     .map("map")
-    .setView([16.404, 120.599], 13)
+    .setView([16.404, 120.599], 13) // Default view
     .addLayer(
       leaflet.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
       })
     );
+    const bounds = leaflet.latLngBounds(
+    [16.350, 120.520], // Southwest (bottom-left)
+    [16.480, 120.660]  // Northeast (top-right) 
+  );
+  map.setMaxBounds(bounds);
+  map.setMinZoom(12);
 
+  // ✅ Watch for changes in barangay_lat and barangay_long after they are set
+  watch([barangay_lat, barangay_long], ([lat, lng]) => {
+    if (lat !== 0 && lng !== 0) { // Ensure values are updated before setting view
+      console.log("🔄 Updating map view to:", lat, lng);
+      map.setView([lat, lng], 16);
+    }
+  });
+
+  if (mapData && mapData.center && mapData.zoom) {
+    map.setView(mapData.center, mapData.zoom);
+  }
   // ✅ **Heatmap Layer**
   heatmapLayer.value = leaflet.heatLayer([], {
     radius: 15,
     blur: 20,
     maxZoom: 12,
     minOpacity: 0.5,
-    gradient: {
-      0.2: "blue",
-      0.4: "green",
-      0.6: "yellow",
-      0.8: "orange",
-      1.0: "red",
-    },
+    gradient: { 0.2: "blue", 0.4: "green", 0.6: "yellow", 0.8: "orange", 1.0: "red" },
   }).addTo(map);
 
   // ✅ Add Click Event for Heatmap Popups
@@ -152,6 +162,7 @@ onMounted(() => {
     }
   });
 });
+
 
 // ✅ **Update Heatmap with Data**
 const updateHeatmap = () => {
@@ -232,14 +243,14 @@ watch(barangay_name, () => {
 
 <template>
   <div class="min-h-screen">
-    <h1 class="text-2xl font-bold dark:text-white">Heatmap of Incidents/Cases</h1>
+    <h1 class="text-2xl font-bold dark:text-white">Heatmap of Incidents/Cases in {{ barangay_name }}</h1>
     <div id="map"></div>
   </div>
 </template>
 
 <style scoped>
 #map {
-  height: 70vh;
-  width: 100%;
+  height: 50vh;
+  width: 60%;
 }
 </style>
