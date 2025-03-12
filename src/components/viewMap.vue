@@ -242,15 +242,14 @@ watch(barangay_name, () => {
 </script>
 
 <template>
-  <div class="min-h-screen">
-    <h1 class="text-2xl font-bold dark:text-white">Heatmap of Incidents/Cases in {{ barangay_name }}</h1>
-    <div id="map"></div>
-  </div>
+  <!-- <div class="min-h-screen"> -->
+    <div id="map" class="z-10 rounded-lg"></div>
+  <!-- </div> -->
 </template>
 
 <style scoped>
 #map {
   height: 50vh;
-  width: 60%;
+  width: 100%;
 }
 </style>
