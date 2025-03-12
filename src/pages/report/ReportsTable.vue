@@ -3,7 +3,7 @@ import { ref, onMounted, computed, watch } from 'vue';
 import axiosClient from '../../axios.js';
 import { RouterLink } from 'vue-router';
 import PrimaryButton from '../../components/PrimaryButton.vue';
-import Loader1 from '../../components/Loader1.vue';
+import Loader1 from '../../components/loading/loader1.vue';
 import Toast from '../../components/Toast.vue';
 import PopupModal from '../../components/PopupModal.vue';
 import Badge from '../../components/Badge.vue';

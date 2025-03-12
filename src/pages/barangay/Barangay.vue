@@ -7,7 +7,7 @@ import axiosClient from '../../axios.js';
 import Modal from '../../components/Modal.vue';
 import { RouterLink, useRouter } from 'vue-router';
 import { useThemeStore } from '../../stores/themeStore';
-import Loader1 from '../../components/Loader1.vue';
+import Loader1 from '../../components/loading/loader1.vue';
 import PopupModal from '../../components/PopupModal.vue';
 import Badge from '../../components/Badge.vue';
 import Toast from '../../components/Toast.vue';

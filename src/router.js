@@ -1,6 +1,6 @@
 import {createRouter, createWebHistory} from "vue-router";
-import DefaultLayout from "./components/DefaultLayout.vue";
-import GuestLayout from "./components/GuestLayout.vue";
+import DefaultLayout from "./components/layout/DefaultLayout.vue";
+import GuestLayout from "./components/layout/GuestLayout.vue";
 import Login from "./pages/auth/Login.vue";
 import Signup from "./pages/auth/Signup.vue";
 import NotFound from "./pages/auth/NotFound.vue";

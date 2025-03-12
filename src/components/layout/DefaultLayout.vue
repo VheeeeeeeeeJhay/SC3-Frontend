@@ -1,9 +1,9 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { RouterLink, useRoute } from 'vue-router';
-import useUserStore from "../stores/user.js";
-import axiosClient from "../axios.js";
-import router from "../router.js";
+import useUserStore from "../../stores/user.js";
+import axiosClient from "../../axios.js";
+import router from "../../router.js";
 
 const theme = ref(localStorage.getItem("theme") || "light");
 
@@ -89,7 +89,7 @@ const cancelSignout = () => {
                             </svg>
                         </button>
                         <a href="#" class="flex ms-2 md:me-24">
-                            <img src="../assets/baguio-logo.png" class="h-10 me-3" alt="Smart City Baguio" />
+                            <img src="../../assets/baguio-logo.png" class="h-10 me-3" alt="Smart City Baguio" />
                             <span
                                 class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap text-gray-800 dark:text-white">
                                 SCCC-911 Dashboard
