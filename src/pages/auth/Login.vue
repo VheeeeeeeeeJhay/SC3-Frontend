@@ -1,11 +1,11 @@
 <script setup>
 
-import GuestLayout from "../../components/GuestLayout.vue";
+import GuestLayout from "../../components/layout/GuestLayout.vue";
 import axiosClient from "../../axios.js";
 import { ref } from "vue";
 import router from "../../router.js";
 import logo from '../../assets/baguio-logo.png';
-import Loader1 from "../../components/Loader1.vue";
+import Loader1 from "../../components/loading/loader1.vue";
 
 const data = ref({
   email: '',

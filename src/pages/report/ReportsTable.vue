@@ -1,12 +1,11 @@
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue';
 import axiosClient from '../../axios.js';
 import { RouterLink } from 'vue-router';
 import PrimaryButton from '../../components/PrimaryButton.vue';
-import Loader1 from '../../components/Loader1.vue';
+import Loader1 from '../../components/loading/loader1.vue';
 import Toast from '../../components/Toast.vue';
 import PopupModal from '../../components/PopupModal.vue';
-import Badge from '../../components/Badge.vue';
 
 const reports = ref([]);
 const classifications = ref([]);
@@ -15,32 +14,67 @@ const isLoading = ref(false);
 
 const selectedClassifications = ref([]);
 
+let intervalId = null;
 
 const fetchData = async () => {
+    // try {
+    //     isLoading.value = true;
+    //     await axiosClient.get('/api/911/report-display', {
+    //         headers: {
+    //             'x-api-key': import.meta.env.VITE_API_KEY
+    //         }
+    //     })
+    //     .then((res) => {
+    //         setTimeout(() => {
+    //             reports.value = res.data[0]; // Assuming reports are in the first index
+    //             classifications.value = res.data[1]; // Assuming classifications are in the second index
+    //             isLoading.value = false;
+    //         });
+    //     })
+    //     .catch((error) => {
+    //         console.log(error.response.data.message);
+    //         // console.error('Error fetching data:', error);
+    //         // errors.value = 'Failed to load barangays. Please try again later.';
+    //         isLoading.value = false;
+    //     });
+    // } catch (error) {
+    //     console.log(error.response.data.message);
+    // }
     try {
-        isLoading.value = true;
-        await axiosClient.get('/api/911/report-display', {
-            headers: {
-                'x-api-key': import.meta.env.VITE_API_KEY
-            }
-        })
-        .then((res) => {
-            setTimeout(() => {
-                reports.value = res.data[0]; // Assuming reports are in the first index
-                classifications.value = res.data[1]; // Assuming classifications are in the second index
-                isLoading.value = false;
-            });
-        })
-        .catch((error) => {
-            console.log(error.response.data.message);
-            // console.error('Error fetching data:', error);
-            // errors.value = 'Failed to load barangays. Please try again later.';
+        const res = await axiosClient.get('/api/911/report-display', {
+        headers: {
+            'x-api-key': import.meta.env.VITE_API_KEY
+        }
+        });
+        console.log(res);
+        setTimeout(() => {
+            reports.value = res.data[0]; // Assuming reports are in the first index
+            classifications.value = res.data[1]; // Assuming classifications are in the second index
             isLoading.value = false;
         });
     } catch (error) {
-        console.log(error.response.data.message);
+        isLoading.value = false;
+        console.error('Error fetching data:', error);
+        errors.value = 'Failed to load barangays. Please try again later.';
     }
 };
+
+onMounted(() => {
+  isLoading.value = true;
+  
+  // Initial data fetch
+  fetchData();
+  
+  // Set interval to fetch data every 5 seconds
+  intervalId = setInterval(fetchData, 5000);
+});
+
+onBeforeUnmount(() => {
+  // Clear the interval when the component is unmounted
+  if (intervalId !== null) {
+    clearInterval(intervalId);
+  }
+});
 
 // Computed property for dynamic search and filtering
 const filteredReports = computed(() => {
