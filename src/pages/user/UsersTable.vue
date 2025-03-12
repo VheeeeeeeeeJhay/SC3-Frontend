@@ -158,8 +158,60 @@ const maskEmail = (email) => {
 
 
 // Role
+// const dashboardRole = async (user) => {
+//     const newRoleStatus = user.for_911 === 1 ? 0 : 1; // Toggle based on user state
+
+//     if(user.for_911 === 0 && user.for_inventory === 0) {
+//         alert('Atleast 1 role must be active');
+//         return;
+//     }
+
+//     try {
+//         await axiosClient.patch(`/api/911/user-dashboard-role/${user.id}`, {
+//             for_911: newRoleStatus
+//         }, {
+//             headers: {
+//                 'x-api-key': import.meta.env.VITE_API_KEY,
+//                 'Content-Type': 'application/json',
+//             }
+//         });
+
+//         user.for_911 = newRoleStatus; // Update local state instantly
+//     } catch (error) {
+//         console.error(error.response?.data?.message || error.message);
+//     }
+// };
+
+// const inventoryRole = async (user) => {
+//     const newRoleStatus = user.for_inventory === 1 ? 0 : 1; // Toggle based on user state
+
+//     if(user.for_911 === 0 && user.for_inventory === 0) {
+//         alert('Atleast 1 role must be active');
+//         return;
+//     }
+
+//     try {
+//         await axiosClient.patch(`/api/911/user-inventory-role/${user.id}`, { for_inventory: newRoleStatus },
+//             {
+//                 headers: {
+//                     'x-api-key': import.meta.env.VITE_API_KEY,
+//                     'Content-Type': 'application/json',
+//                 }
+//             });
+
+//         user.for_inventory = newRoleStatus; // Update local state instantly
+//     } catch (error) {
+//         console.error(error.response?.data?.message || error.message);
+//     }
+// };
 const dashboardRole = async (user) => {
     const newRoleStatus = user.for_911 === 1 ? 0 : 1; // Toggle based on user state
+
+    // Prevent both roles from being false at the same time
+    if (newRoleStatus === 0 && user.for_inventory === 0) {
+        alert('At least 1 role must be active');
+        return;
+    }
 
     try {
         await axiosClient.patch(`/api/911/user-dashboard-role/${user.id}`, {
@@ -171,14 +223,20 @@ const dashboardRole = async (user) => {
             }
         });
 
-        user.for_911 = newRoleStatus; // Update local state instantly
+        // Update local state instantly
+        user.for_911 = newRoleStatus;
     } catch (error) {
         console.error(error.response?.data?.message || error.message);
     }
 };
-
 const inventoryRole = async (user) => {
     const newRoleStatus = user.for_inventory === 1 ? 0 : 1; // Toggle based on user state
+
+    // Prevent both roles from being false at the same time
+    if (newRoleStatus === 0 && user.for_911 === 0) {
+        alert('At least 1 role must be active');
+        return;
+    }
 
     try {
         await axiosClient.patch(`/api/911/user-inventory-role/${user.id}`, { for_inventory: newRoleStatus },
@@ -189,11 +247,14 @@ const inventoryRole = async (user) => {
                 }
             });
 
-        user.for_inventory = newRoleStatus; // Update local state instantly
+        // Update local state instantly
+        user.for_inventory = newRoleStatus;
     } catch (error) {
         console.error(error.response?.data?.message || error.message);
     }
 };
+
+
 
 const maxVisiblePages = 3;
 
