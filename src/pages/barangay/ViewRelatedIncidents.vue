@@ -137,9 +137,23 @@ const visiblePages = computed(() => {
 </script>
 
 <template>
-    <!-- This is for table -->
-     <!-- <div class="mt-6 px-2"> -->
-    <div class=" mt-6 px-2 relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white"
+    <div class="grid grid-cols-2 grid-rows-6 gap-4">
+        <div class="row-span-6">
+            <div class="mt-6 px-2 flex justify-between">
+                <h1 class="text-2xl font-bold dark:text-white">Barangay Management</h1>
+            </div>
+            <div class="h-4/5 border border-gray-200 dark:border-black rounded-lg dark:bg-slate-800 dark:text-white p-1">
+                hi
+            </div>
+        </div>
+        <div class="row-span-6">
+            <div class="mt-6 px-2 flex justify-between">
+                <h1 class="text-2xl font-bold dark:text-white">Incident Heatmap Report</h1>
+            </div>
+            <viewMap :viewID="id"/>
+        </div>
+        <div class="col-span-2 row-start-7">
+            <div class=" mt-6 px-2 relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white"
         :class="themeClasses">
         <div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
             <div class="w-full md:w-1/2">
@@ -319,7 +333,14 @@ const visiblePages = computed(() => {
             </ul>
         </nav>
     </div>
+        </div>
+    </div>
+
+
+    <!-- This is for table -->
+     <!-- <div class="mt-6 px-2"> -->
+    
 <!-- </div> -->
 
-<viewMap :viewID="id" />
+<!-- <viewMap :viewID="id" /> -->
 </template>

@@ -231,10 +231,9 @@ watch(barangay_name, () => {
 </script>
 
 <template>
-  <div class="min-h-screen">
-    <h1 class="text-2xl font-bold dark:text-white">Heatmap of Incidents/Cases</h1>
-    <div id="map"></div>
-  </div>
+  <!-- <div class="min-h-screen"> -->
+    <div id="map" class="z-10"></div>
+  <!-- </div> -->
 </template>
 
 <style scoped>
