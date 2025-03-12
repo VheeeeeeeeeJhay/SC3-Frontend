@@ -1,10 +1,10 @@
 <script setup>
 import { ref, onMounted, watch } from "vue";
-import axiosClient from "../axios";
+import axiosClient from "../../axios";
 import leaflet from "leaflet";
 import "leaflet.heat";
 import { useGeolocation } from "@vueuse/core";
-import { useMapStore } from "../stores/mapStore";
+import { useMapStore } from "../../stores/mapStore";
 
 // **Props**
 const props = defineProps({
@@ -13,14 +13,17 @@ const props = defineProps({
   reportLong: Number,
 });
 
+console.log("📦 Props:", props.reportLat);
 const viewId = ref(props.viewID);
 const barangay_name = ref("");
-const barangay_lat = ref(0);
-const barangay_long = ref(0);
+const barangay_lat = ref(props.reportLat || 0);
+const barangay_long = ref(props.reportLong || 0);
+const marker = ref(null);
 const data = ref({ name: "", longitude: 0, latitude: 0 });
 
 // ✅ Fetch Barangay Data
 const fetchData = () => {
+  if (!viewId.value) return;
   axiosClient
     .get(`/api/911/barangay-edit/${viewId.value}`, {
       headers: { "x-api-key": import.meta.env.VITE_API_KEY },
@@ -40,7 +43,7 @@ const fetchData = () => {
 };
 
 // **Import GeoJSON Data**
-import mapData from "../assets/map.json";
+import mapData from "../../assets/map.json";
 
 const { coords } = useGeolocation();
 const reports = ref([]);
@@ -93,13 +96,29 @@ onMounted(() => {
   map.setMaxBounds(bounds);
   map.setMinZoom(12);
 
-  // ✅ Watch for changes in barangay_lat and barangay_long after they are set
-  watch([barangay_lat, barangay_long], ([lat, lng]) => {
-    if (lat !== 0 && lng !== 0) { // Ensure values are updated before setting view
-      console.log("🔄 Updating map view to:", lat, lng);
-      map.setView([lat, lng], 16);
+
+//for marker in reports
+    if (barangay_lat.value !== 0 && barangay_long.value !== 0) {
+      console.log("📍 Initial marker:", barangay_lat.value, barangay_long.value);
+      map.setView([barangay_lat.value, barangay_long.value], 16);
+
+      // ✅ Only add a marker if there is NO `viewID`
+      if (!viewId.value) {
+        console.log("📍 Adding marker...", viewId);
+        addMarker(barangay_lat.value, barangay_long.value);
+      }
     }
-  });
+
+  watch([barangay_lat, barangay_long], ([lat, lng]) => {
+  if (lat !== 0 && lng !== 0) {
+    console.log("📌 Updating marker position:", lat, lng);
+    map.setView([lat, lng], 16);
+    if (!viewId.value) {
+        console.log("📍 Adding marker...", viewId);
+        addMarker(barangay_lat.value, barangay_long.value);
+      }
+  }
+});
 
   if (mapData && mapData.center && mapData.zoom) {
     map.setView(mapData.center, mapData.zoom);
@@ -143,7 +162,7 @@ onMounted(() => {
         popupContent += `<strong>Type:</strong> ${matchingReport.incident?.type || "Unknown"} <br>`;
         popupContent += `<strong>Landmark:</strong> ${matchingReport.landmark || "N/A"} <br>`;
         popupContent += `<strong>Reported By:</strong> ${matchingReport.name || "Anonymous"} <br>`;
-        popupContent += `<strong>Date:</strong> ${matchingReport.date || "Unknown"} <br>`;
+        popupContent += `<strong>Date:</strong> ${matchingReport.date_received || "Unknown"} <br>`;
       } else {
         popupContent += "No details available.";
       }
@@ -162,6 +181,21 @@ onMounted(() => {
     }
   });
 });
+
+const addMarker = (lat, lng) => {
+  if (!map) return; // Ensure the map is initialized
+
+  // Remove existing marker if it exists
+  if (marker.value) {
+    map.removeLayer(marker.value);
+  }
+
+  // Create a new marker
+  marker.value = leaflet.marker([lat, lng])
+    .addTo(map)
+    .bindPopup(`📍 Reported Location: (${lat}, ${lng})`)
+    .openPopup();
+};
 
 
 // ✅ **Update Heatmap with Data**

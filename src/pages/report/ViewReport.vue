@@ -4,7 +4,7 @@ import { onMounted, ref, watchEffect, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 // import PrimaryButton from '../../components/PrimaryButton.vue';
 import leaflet from 'leaflet';
-import viewMap from '../../components/viewMap.vue';
+import viewMap from '../../components/Maps/viewMap.vue';
 
 
 const route = useRoute();
@@ -122,7 +122,7 @@ onMounted(() => {
         <!-- Right Side: Map -->
         <div class="w-full md:w-1/2 flex justify-center items-center mt-6 md:mt-0">
           <!-- <div id="map" class="rounded-lg shadow-md"></div> -->
-          <viewMap id="map" class=" z-10 rounded-lg shadow-md" :reportLat="data.latitude"  :reportLong="data.longitude"/>
+          <viewMap v-if="data.latitude && data.longitude"  id="map" class=" z-10 rounded-lg shadow-md" :reportLat="data.latitude"  :reportLong="data.longitude"/>
         </div>
       </div>
     </div>

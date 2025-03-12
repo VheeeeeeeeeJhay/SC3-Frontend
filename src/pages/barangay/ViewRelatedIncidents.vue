@@ -6,7 +6,7 @@ import axiosClient from '../../axios.js';
 import ToolTip from '../../components/ToolTip.vue';
 import { computed, watch, watchEffect } from 'vue';
 import Loader1 from '../../components/Loader1.vue';
-import viewMap from '../../components/viewMap.vue';
+import viewMap from '../../components/Maps/viewMap.vue';
 
 
 const router = useRouter();

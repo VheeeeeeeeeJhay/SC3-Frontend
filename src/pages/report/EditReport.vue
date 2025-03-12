@@ -14,14 +14,6 @@ import ToolTip from '../../components/ToolTip.vue';
 const userStore = useUserStore();
 const user = computed(() => userStore.user);
 console.log("USER ID:", user.value.id);
-// // For dark mode
-// const themeStore = useThemeStore();
-// const themeClasses = computed(() => {
-//   return themeStore.isDarkMode ? "bg-slate-800 border-black text-white" : "bg-sky-50 border-gray-200 text-gray-800"
-// })
-// const dropClasses = computed(() => {
-//   return themeStore.isDarkMode ? "bg-slate-600 border-black text-white" : "bg-white border-gray-200 text-gray-800"
-// })
 
 const route = useRoute();
 const router = useRouter();
@@ -101,8 +93,8 @@ onMounted(() => {
             data.value.latitude = res.data.latitude ?? '';
             data.value.longitude = res.data.longitude ?? '';
             data.value.receivedDate = res.data.date_received?.split('T')[0] ?? ''; // Extract YYYY-MM-DD
-            data.value.arrivalTime = res.data.arrival_on_site?.slice(0, 5) ?? ''; // Extract HH:mm
-            data.value.incidentTime = res.data.time?.slice(0, 5) ?? ''; // Extract HH:mm
+            data.value.arrival_on_site = res.data.arrival_on_site?.slice(0, 5) ?? ''; // Extract HH:mm
+            data.value.time = res.data.time?.slice(0, 5) ?? ''; // Extract HH:mm
             // Initialize the map AFTER data is received
             initMap();
         })
@@ -124,10 +116,10 @@ const updateForm = () => {
     const payload = {
         // user_id: user.value.id,
         source_id: data.value.source,
-        time: data.value.incidentTime,
+        time: data.value.time,
         incident_id: data.value.incident,
         date_received: data.value.receivedDate,
-        arrival_on_site: data.value.arrivalTime,
+        arrival_on_site: data.value.arrival_on_site,
         name: data.value.name, // Ensure this matches API expectations
         landmark: data.value.details,
         barangay_id: data.value.barangay,
@@ -232,8 +224,24 @@ watchEffect(() => {
                         <div
                             class="p-6 rounded-lg shadow-lg flex bg-sky-50 text-gray-800 dark:bg-slate-800 dark:text-white">
                             <div class="w-1/2 pr-4">
-                                <h2 class="text-2xl font-bold mb-6">Source Information</h2>
+                                <h2 class="text-2xl font-bold mb-6">Report Information</h2>
                                 <div class="grid grid-cols-2 gap-4 mb-8">
+                                    
+                                    <div class="form-group">
+                                        <label for="incidentType" class="block text-sm font-medium mb-2"
+                                            :class="themeClasses">
+                                            Case Classification
+                                            <ToolTip
+                                                Information="This is the type of assistance that is being reported." />
+                                        </label>
+                                        <select id="incidentType" v-model="data.classification"
+                                            class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
+                                            <option disabled value="">Select classification</option>
+                                            <option v-for="assistance in assistance" :key="assistance.id"
+                                                :value="assistance.id">{{ assistance.assistance }}</option>
+                                        </select>
+                                    </div>
+
                                     <div class="form-group">
                                         <!-- <FormInput name="source" class="px-4 py-2 border rounded-md mr-2 text-white bg-gray-600" v-model="data.source.sources" /> -->
                                         <label for="source" class="block text-sm font-medium mb-2">
@@ -249,20 +257,7 @@ watchEffect(() => {
                                             </option>
                                         </select>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="incidentType" class="block text-sm font-medium mb-2"
-                                            :class="themeClasses">
-                                            Case Classification
-                                            <ToolTip
-                                                Information="This is the type of assistance that is being reported." />
-                                        </label>
-                                        <select id="incidentType" v-model="data.classification"
-                                            class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
-                                            <option disabled value="">Select classification</option>
-                                            <option v-for="assistance in assistance" :key="assistance.id"
-                                                :value="assistance.id">{{ assistance.assistance }}</option>
-                                        </select>
-                                    </div>
+
                                     <div class="form-group">
                                         <label for="incident" class="block text-sm font-medium mb-2"
                                             :class="themeClasses">
@@ -306,19 +301,19 @@ watchEffect(() => {
                                             class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                                     </div>
                                     <div class="form-group">
-                                        <label for="arrivalDate" class="block text-sm font-medium mb-2">
-                                            Time of Arrival on Site
+                                        <label for="arrival_on_site" class="block text-sm font-medium mb-2">
+                                            Time of Arrival on Site {{ arrival_on_site }}
                                             <ToolTip Information="This is the time when the report was received." />
-                                        </label>
-                                        <input type="time" id="arrivalDate" v-model="data.arrivalTime"
+                                        </label> 
+                                        <input type="time" id="arrival_on_site" v-model="data.arrival_on_site"
                                             class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                                     </div>
                                     <div class="form-group">
-                                        <label for="incidentTime" class="block text-sm font-medium mb-2">
+                                        <label for="time" class="block text-sm font-medium mb-2">
                                             Time of Incident
                                             <ToolTip Information="This is the time when the incident occurred." />
                                         </label>
-                                        <input type="time" id="incidentTime" v-model="data.incidentTime"
+                                        <input type="time" id="time" v-model="data.time"
                                             class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                                     </div>
                                 </div>

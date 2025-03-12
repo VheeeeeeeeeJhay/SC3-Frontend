@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { RouterLink, useRoute } from 'vue-router';
 import useUserStore from "../stores/user.js";
 import axiosClient from "../axios.js";
@@ -22,13 +22,12 @@ const toggleTheme = () => {
     }
 };
 
-const toggleSidebar = () => {
-    sidebarVisible.value = !sidebarVisible.value;
-};
-
-const closeSidebar = () => {
-    sidebarVisible.value = false;
-};
+// const toggleSidebar = () => {
+//     sidebarVisible.value = !sidebarVisible.value;
+// };
+// const closeSidebar = () => {
+//     sidebarVisible.value = false;
+// };
 
 onMounted(() => {
     if (localStorage.getItem("theme") === "dark") {
@@ -41,10 +40,23 @@ const dropdownOpen = ref(false);
 const toggleDropdown = () => {
     dropdownOpen.value = !dropdownOpen.value;
 };
+const closeDropdown = (event) => {
+    if (!event.target.closest(".user-menu")) {
+        dropdownOpen.value = false;
+    }
+};
+// Attach and remove event listeners when component is mounted/unmounted
+onMounted(() => {
+    document.addEventListener("click", closeDropdown);
+});
+onUnmounted(() => {
+    document.removeEventListener("click", closeDropdown);
+});
 
 const userStore = useUserStore();
 const user = computed(() => userStore.user);
 const route = useRoute();
+
 
 const navigation = [
     { name: 'Overview', to: { name: 'Overview' }, icon: 'bar_chart' },
@@ -53,6 +65,31 @@ const navigation = [
     { name: 'Barangays', to: { name: 'Barangay' }, icon: 'home' },
     { name: 'Users', to: { name: 'UsersTable' }, icon: 'people' },
 ];
+
+// // Define main menu sections and related subroutes
+// const navigation = [
+//     { name: "Overview", to: { name: "Overview" }, icon: "bar_chart", section: "Overview" },
+//     { name: "Map", to: { name: "Map" }, icon: "map", section: "Map" },
+//     { name: "Report", to: { name: "ReportTable" }, icon: "report", section: "Report" },
+//     { name: "Barangays", to: { name: "Barangay" }, icon: "home", section: "Barangay" },
+//     { name: "Users", to: { name: "UsersTable" }, icon: "people", section: "Users" },
+// ];
+
+const isActive = (item) => {
+    // Check if the current route is the exact match
+    if (route.name === item.to.name) return true;
+    
+    // Check if the route belongs to the parent category (e.g., "ReportTable" includes "ReportAdd")
+    if (item.to.name === 'ReportTable' && ['AddReport', 'ReportViewDetails', 'EditReport'].includes(route.name)) {
+        return true;
+    }
+
+    if (item.to.name === 'Barangay' && ['EditBarangay', 'UpdateBarangay', 'DeleteBarangay', 'BarangayStatistics'].includes(route.name)) {
+        return true;
+    }
+
+    return false;
+};
 
 const logout = () => {
     axiosClient.post('/logout').then(() => {
@@ -97,61 +134,65 @@ const cancelSignout = () => {
                         </a>
                     </div>
 
+                    <!-- user icon -->
                     <div class="flex items-center">
-                        <div class="flex items-center ms-3 relative">
-                            <button @click="toggleDropdown" type="button"
-                                class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-sky-600"
-                                aria-expanded="false">
-                                <span class="sr-only">Open user menu</span>
-                                <img class="w-8 h-8 rounded-full"
-                                    src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
-                                    alt="user photo">
-                            </button>
-                            <div v-show="dropdownOpen"
-                                class="absolute right-0 top-full mt-2 z-50 w-48 text-base list-none divide-y divide-gray-100 rounded-lg shadow-lg bg-white dark:bg-slate-700 dark:text-white">
-                                <div class="px-4 py-3">
-                                    <p class="text-sm text-gray-800 dark:text-white">
-                                        {{ user?.firstname || 'Guest' }}
-                                    </p>
-                                    <p class="text-sm font-medium truncate text-gray-600 dark:text-gray-300">
-                                        {{ user?.email || 'No email' }}
-                                    </p>
-                                </div>
+                        <div class="flex items-center ms-3 relative user-menu">
+                        <button @click.stop="toggleDropdown" type="button"
+                            class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-sky-600"
+                            aria-expanded="false">
+                            <span class="sr-only">Open user menu</span>
+                            <img class="w-8 h-8 rounded-full"
+                            src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+                            alt="user photo">
+                        </button>
 
-                                <ul class="py-1">
-                                    <li>
-                                        <button @click="toggleTheme"
-                                            class="block w-full text-start px-4 py-2 text-sm hover:bg-gray-300 dark:hover:bg-slate-600 dark:hover:text-white">
-                                            <div v-if="theme === 'light'">🌞 Light Mode</div>
-                                            <div v-else>🌙 Dark Mode</div>
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <a @click="showSignoutConfirmation"
-                                            class="block px-4 py-2 text-sm hover:bg-gray-300 dark:hover:bg-slate-600 dark:hover:text-white">
-                                            Sign Out
-                                        </a>
-                                    </li>
-                                </ul>
+                        <!-- Dropdown Menu -->
+                        <div v-show="dropdownOpen"
+                            class="absolute right-0 top-full mt-2 z-50 w-48 text-base list-none divide-y divide-gray-100 rounded-lg shadow-lg bg-white dark:bg-slate-700 dark:text-white">
+                            <div class="px-4 py-3">
+                            <p class="text-sm text-gray-800 dark:text-white">
+                                {{ user?.firstname || 'Guest' }}
+                            </p>
+                            <p class="text-sm font-medium truncate text-gray-600 dark:text-gray-300">
+                                {{ user?.email || 'No email' }}
+                            </p>
                             </div>
+
+                            <ul class="py-1">
+                            <li>
+                                <button @click="toggleTheme"
+                                class="block w-full text-start px-4 py-2 text-sm hover:bg-gray-300 dark:hover:bg-slate-600 dark:hover:text-white">
+                                <div v-if="theme === 'light'">🌞 Light Mode</div>
+                                <div v-else>🌙 Dark Mode</div>
+                                </button>
+                            </li>
+                            <li>
+                                <a @click="showSignoutConfirmation"
+                                class="block px-4 py-2 text-sm hover:bg-gray-300 dark:hover:bg-slate-600 dark:hover:text-white">
+                                Sign Out
+                                </a>
+                            </li>
+                            </ul>
+                        </div>
                         </div>
 
+                        <!-- Sign Out Confirmation Modal -->
                         <div v-if="signoutConfirmationVisible" class="fixed inset-0 flex items-center justify-center">
-                            <div class="fixed inset-0 bg-black opacity-60"></div>
-                            <div class="p-6 rounded-lg shadow-xl z-10 bg-sky-50 dark:bg-slate-800">
-                                <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Sign out</h3>
-                                <p class="mb-6 text-gray-700 dark:text-gray-300">Are you sure you want to sign out?</p>
-                                <div class="flex justify-end gap-2">
-                                    <button @click="cancelSignout"
-                                        class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">
-                                        Cancel
-                                    </button>
-                                    <button @click="logout"
-                                        class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
-                                        Sign out
-                                    </button>
-                                </div>
+                        <div class="fixed inset-0 bg-black opacity-60"></div>
+                        <div class="p-6 rounded-lg shadow-xl z-10 bg-sky-50 dark:bg-slate-800">
+                            <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Sign out</h3>
+                            <p class="mb-6 text-gray-700 dark:text-gray-300">Are you sure you want to sign out?</p>
+                            <div class="flex justify-end gap-2">
+                            <button @click="cancelSignout"
+                                class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">
+                                Cancel
+                            </button>
+                            <button @click="logout"
+                                class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+                                Sign out
+                            </button>
                             </div>
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -163,22 +204,22 @@ const cancelSignout = () => {
             aria-label="Sidebar">
             <div class="h-full px-3 pb-4 overflow-y-auto">
                 <ul class="space-y-2 font-medium">
-                    <li v-for='item in navigation' :key="item.name">
-                        <RouterLink :to="item.to" :class="[
-                            'flex my-2 items-center p-2 rounded-lg group',
-                            route.name === item.to.name
-                                ? 'bg-gray-300 dark:bg-slate-600'
-                                : 'hover:bg-gray-300 dark:hover:bg-slate-600'
-                        ]">
-                            <span class="material-icons w-5 h-5 transition duration-75" :class="route.name === item.to.name
-                                ? 'text-gray-800 dark:!text-white'
-                                : 'text-gray-800 dark:!text-gray-300'">
-                                {{ item.icon }}
-                            </span>
-                            <span class="ms-3">{{ item.name }}</span>
-                        </RouterLink>
-                    </li>
-                </ul>
+    <li v-for='item in navigation' :key="item.name">
+        <RouterLink :to="item.to" :class="[
+            'flex my-2 items-center p-2 rounded-lg group',
+            isActive(item) 
+                ? 'bg-gray-300 dark:bg-slate-600'
+                : 'hover:bg-gray-300 dark:hover:bg-slate-600'
+        ]">
+            <span class="material-icons w-5 h-5 transition duration-75" :class="isActive(item)
+                ? 'text-gray-800 dark:!text-white'
+                : 'text-gray-800 dark:!text-gray-300'">
+                {{ item.icon }}
+            </span>
+            <span class="ms-3">{{ item.name }}</span>
+        </RouterLink>
+    </li>
+</ul>
             </div>
         </aside>
         <div class="pt-14 p-4 sm:ml-56">
