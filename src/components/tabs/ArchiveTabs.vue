@@ -2,8 +2,6 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import axiosClient from  '../../axios.js';
 import { RouterLink } from 'vue-router';
-import PrimaryButton from '../../components/PrimaryButton.vue';
-import Loader1 from '../loading/loader1.vue';
 import Badge from '../../components/Badge.vue';
 
 const users = ref([]);
@@ -23,7 +21,11 @@ const fetchData = async () => {
         })
             .then((res) => {
                 setTimeout(() => {
-                    users.value = res.data; // Assuming reports are in the first index
+                    const filteredData = res.data.filter(item => 
+                        (item.for_911 === 0 && item.for_inventory === 0) 
+                    );
+                    users.value = filteredData;
+                    // users.value = res.data; // Assuming reports are in the first index
                 });
             })
             .catch((error) => {
@@ -155,102 +157,22 @@ const maskEmail = (email) => {
 }
 
 // Role
-// const dashboardRole = async (user) => {
-//     const newRoleStatus = user.for_911 === 1 ? 0 : 1; // Toggle based on user state
-
-//     if(user.for_911 === 0 && user.for_inventory === 0) {
-//         alert('Atleast 1 role must be active');
-//         return;
-//     }
-
-//     try {
-//         await axiosClient.patch(`/api/911/user-dashboard-role/${user.id}`, {
-//             for_911: newRoleStatus
-//         }, {
-//             headers: {
-//                 'x-api-key': import.meta.env.VITE_API_KEY,
-//                 'Content-Type': 'application/json',
-//             }
-//         });
-
-//         user.for_911 = newRoleStatus; // Update local state instantly
-//     } catch (error) {
-//         console.error(error.response?.data?.message || error.message);
-//     }
-// };
-
-// const inventoryRole = async (user) => {
-//     const newRoleStatus = user.for_inventory === 1 ? 0 : 1; // Toggle based on user state
-
-//     if(user.for_911 === 0 && user.for_inventory === 0) {
-//         alert('Atleast 1 role must be active');
-//         return;
-//     }
-
-//     try {
-//         await axiosClient.patch(`/api/911/user-inventory-role/${user.id}`, { for_inventory: newRoleStatus },
-//             {
-//                 headers: {
-//                     'x-api-key': import.meta.env.VITE_API_KEY,
-//                     'Content-Type': 'application/json',
-//                 }
-//             });
-
-//         user.for_inventory = newRoleStatus; // Update local state instantly
-//     } catch (error) {
-//         console.error(error.response?.data?.message || error.message);
-//     }
-// };
-const dashboardRole = async (user) => {
-    const newRoleStatus = user.for_911 === 1 ? 0 : 1; // Toggle based on user state
-
-    // Prevent both roles from being false at the same time
-    if (newRoleStatus === 0 && user.for_inventory === 0) {
-        alert('At least 1 role must be active');
-        return;
-    }
-
+const archiveUser = async (user) => {
     try {
-        await axiosClient.patch(`/api/911/user-dashboard-role/${user.id}`, {
-            for_911: newRoleStatus
-        }, {
-            headers: {
-                'x-api-key': import.meta.env.VITE_API_KEY,
-                'Content-Type': 'application/json',
-            }
-        });
-
-        // Update local state instantly
-        user.for_911 = newRoleStatus;
-    } catch (error) {
-        console.error(error.response?.data?.message || error.message);
-    }
-};
-const inventoryRole = async (user) => {
-    const newRoleStatus = user.for_inventory === 1 ? 0 : 1; // Toggle based on user state
-
-    // Prevent both roles from being false at the same time
-    if (newRoleStatus === 0 && user.for_911 === 0) {
-        alert('At least 1 role must be active');
-        return;
-    }
-
-    try {
-        await axiosClient.patch(`/api/911/user-inventory-role/${user.id}`, { for_inventory: newRoleStatus },
+        await axiosClient.patch(`/api/911/user-archive/${user.id}`, { for_911: 1, for_inventory: 1 },
             {
                 headers: {
                     'x-api-key': import.meta.env.VITE_API_KEY,
-                    'Content-Type': 'application/json',
                 }
             });
 
         // Update local state instantly
-        user.for_inventory = newRoleStatus;
+        user.for_911 = 1;
+        user.for_inventory = 1;
     } catch (error) {
         console.error(error.response?.data?.message || error.message);
     }
 };
-
 
 
 const maxVisiblePages = 3;
@@ -277,7 +199,7 @@ const visiblePages = computed(() => {
 <template>
 <section class="w-full min-h-screen">
 
-        <div class="mt-6 px-4 w-full">
+        <div class="mt-6 w-full">
             <div
                 class="relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
                 <div
@@ -339,13 +261,8 @@ const visiblePages = computed(() => {
                                     class="absolute z-10 w-44 mt-2 top-full left-0 shadow-sm border rounded-md bg-white dark:bg-slate-700">
                                     <ul class="py-2 text-sm">
                                         <li>
-                                            <PrimaryButton @click.prevent="dashboardRole(user)"
-                                                :name="user.for_911 === 1 ? 'Revoke Access' : 'Grant Access'"
-                                                class="mt-2 hover:text-gray-700 dark:hover:text-gray-300" />
-                                        </li>
-                                        <li>
-                                            <PrimaryButton @click.prevent="inventoryRole(user)"
-                                                :name="user.for_inventory === 1 ? 'Revoke Access' : 'Grant Access'"
+                                            <PrimaryButton @click.prevent="archiveUser(user)"
+                                                :name="'Re-Activate User'"
                                                 class="mt-2 hover:text-gray-700 dark:hover:text-gray-300" />
                                         </li>
                                     </ul>

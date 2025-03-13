@@ -1,17 +1,11 @@
 <script setup>
 import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue';
-import PrimaryButton from '../../components/PrimaryButton.vue';
 import AddBarangay from './AddBarangay.vue';
 import EditBarangay from './EditBarangay.vue';
 import axiosClient from '../../axios.js';
-import Modal from '../../components/Modal.vue';
 import { RouterLink, useRouter } from 'vue-router';
 import { useThemeStore } from '../../stores/themeStore';
-import Loader1 from '../../components/loading/loader1.vue';
-import PopupModal from '../../components/PopupModal.vue';
 import Badge from '../../components/Badge.vue';
-import Toast from '../../components/Toast.vue';
-import ToolTip from '../../components/ToolTip.vue';
 
 const barangays = ref([]);
 const errors = ref('');
@@ -249,7 +243,7 @@ const visiblePages = computed(() => {
     </div>
 
     <section class="w-full">
-      <div class="mt-6 px-2">
+      <div class="mt-6">
         <!-- Start coding here -->
         <div class="relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
           <div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">

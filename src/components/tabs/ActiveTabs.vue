@@ -1,8 +1,6 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import axiosClient from  '../../axios.js';
-import PrimaryButton from '../../components/PrimaryButton.vue';
-import Loader1 from '../loading/loader1.vue';
 import Badge from '../../components/Badge.vue';
 
 const users = ref([]);
@@ -21,9 +19,13 @@ const fetchData = async () => {
             }
         })
             .then((res) => {
-                setTimeout(() => {
-                    users.value = res.data; // Assuming reports are in the first index
-                });
+                console.log(res.data);
+                const user_data = res.data.filter(item => 
+                    (item.for_911 === 1 && item.for_inventory === 1) || 
+                    (item.for_911 === 1 && item.for_inventory === 0) || 
+                    (item.for_911 === 0 && item.for_inventory === 1)
+                );
+                users.value = user_data;
             })
             .catch((error) => {
                 console.log(error.response.data.message);
@@ -168,8 +170,7 @@ const dashboardRole = async (user) => {
             for_911: newRoleStatus
         }, {
             headers: {
-                'x-api-key': import.meta.env.VITE_API_KEY,
-                'Content-Type': 'application/json',
+                'x-api-key': import.meta.env.VITE_API_KEY
             }
         });
 
@@ -192,8 +193,7 @@ const inventoryRole = async (user) => {
         await axiosClient.patch(`/api/911/user-inventory-role/${user.id}`, { for_inventory: newRoleStatus },
             {
                 headers: {
-                    'x-api-key': import.meta.env.VITE_API_KEY,
-                    'Content-Type': 'application/json',
+                    'x-api-key': import.meta.env.VITE_API_KEY
                 }
             });
 
@@ -203,6 +203,23 @@ const inventoryRole = async (user) => {
         console.error(error.response?.data?.message || error.message);
     }
 };
+const archiveUser = async (user) => {
+    try {
+        await axiosClient.patch(`/api/911/user-archive/${user.id}`, { for_911: 0, for_inventory: 0 },
+            {
+                headers: {
+                    'x-api-key': import.meta.env.VITE_API_KEY,
+                }
+            });
+
+        // Update local state instantly
+        user.for_911 = 0;
+        user.for_inventory = 0;
+    } catch (error) {
+        console.error(error.response?.data?.message || error.message);
+    }
+};
+
 
 
 
@@ -230,7 +247,7 @@ const visiblePages = computed(() => {
 <template>
 <section class="w-full min-h-screen">
 
-        <div class="mt-6 px-4 w-full">
+        <div class="mt-6 w-full">
             <div
                 class="relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
                 <div
@@ -299,6 +316,11 @@ const visiblePages = computed(() => {
                                         <li>
                                             <PrimaryButton @click.prevent="inventoryRole(user)"
                                                 :name="user.for_inventory === 1 ? 'Revoke Access' : 'Grant Access'"
+                                                class="mt-2 hover:text-gray-700 dark:hover:text-gray-300" />
+                                        </li>
+                                        <li>
+                                            <PrimaryButton @click.prevent="archiveUser(user)"
+                                                :name="'Archive User'"
                                                 class="mt-2 hover:text-gray-700 dark:hover:text-gray-300" />
                                         </li>
                                     </ul>

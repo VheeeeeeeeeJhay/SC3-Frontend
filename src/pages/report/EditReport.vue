@@ -9,7 +9,7 @@ import PrimaryButton from '../../components/PrimaryButton.vue';
 import leaflet from 'leaflet';
 
 import useUserStore from '../../stores/user.js';
-import ToolTip from '../../components/ToolTip.vue';
+
 // Get Auth User Information
 const userStore = useUserStore();
 const user = computed(() => userStore.user);
@@ -218,9 +218,9 @@ watchEffect(() => {
                     </Button>
                 </div>
 
-                <main class="flex-1 my-2 px-2 ">
+                <main class="flex-1 my-2 ">
 
-                    <form @submit.prevent="updateForm" class="space-y-6 mx-auto max-w-6xl p-4">
+                    <form @submit.prevent="updateForm" class="space-y-6 mt-6 max-w-6xl">
                         <div
                             class="p-6 rounded-lg shadow-lg flex bg-sky-50 text-gray-800 dark:bg-slate-800 dark:text-white">
                             <div class="w-1/2 pr-4">

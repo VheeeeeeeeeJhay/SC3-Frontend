@@ -5,7 +5,6 @@ import { onMounted, ref, computed, watch } from 'vue';
 import PrimaryButton from '../../components/PrimaryButton.vue';
 import { useThemeStore } from '../../stores/themeStore';
 import { useRouter } from 'vue-router';
-import Toast from '../../components/Toast.vue';
 
 
 const router = useRouter();

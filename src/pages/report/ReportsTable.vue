@@ -3,9 +3,6 @@ import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue';
 import axiosClient from '../../axios.js';
 import { RouterLink } from 'vue-router';
 import PrimaryButton from '../../components/PrimaryButton.vue';
-import Loader1 from '../../components/loading/loader1.vue';
-import Toast from '../../components/Toast.vue';
-import PopupModal from '../../components/PopupModal.vue';
 
 const reports = ref([]);
 const classifications = ref([]);
@@ -232,7 +229,7 @@ const formSubmit = async (report_Id) => {
             <h1 class="text-2xl font-bold dark:text-white">Reports Management</h1>
         </div>
 
-        <div class="mt-6 px-4 w-full">
+        <div class="mt-6 w-full">
             <div class="relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
                 <div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
                     <div class="w-full md:w-1/2">
