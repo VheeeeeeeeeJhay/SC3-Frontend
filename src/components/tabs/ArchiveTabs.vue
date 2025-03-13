@@ -1,7 +1,6 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import axiosClient from  '../../axios.js';
-import { RouterLink } from 'vue-router';
 import Badge from '../../components/Badge.vue';
 
 const users = ref([]);
