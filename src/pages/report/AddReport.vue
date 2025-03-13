@@ -283,7 +283,7 @@ watch(() => data.value.barangay_id, (newBarangayId) => {
 
     <main class="flex-1 px-2">
 
-      <form @submit.prevent="submitForm" class="space-y-6 mt-6 max-w-6xl">
+      <form @submit.prevent="submitForm" class="space-y-6 mt-6 mx-auto max-w-6xl">
         <div class="p-6 rounded-lg shadow-lg flex bg-sky-50 text-gray-800 dark:bg-slate-800 dark:text-white">
           <div class="w-1/2 pr-4">
             <h2 class="text-2xl font-bold mb-6 ">Report Information</h2>

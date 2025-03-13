@@ -110,7 +110,7 @@ const selectedDateRange = ref({ start: selectedStartDate.value, end: selectedEnd
       <h1 class="text-2xl font-bold dark:text-white">Overview</h1>
     </div>
 
-    <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <main class="mx-auto my-6 max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
       <div class="grid grid-cols-3 gap-6">
         <div

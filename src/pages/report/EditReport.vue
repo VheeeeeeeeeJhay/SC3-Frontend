@@ -220,7 +220,7 @@ watchEffect(() => {
 
                 <main class="flex-1 my-2 ">
 
-                    <form @submit.prevent="updateForm" class="space-y-6 mt-6 max-w-6xl">
+                    <form @submit.prevent="updateForm" class="space-y-6 mt-6 mx-auto max-w-6xl">
                         <div
                             class="p-6 rounded-lg shadow-lg flex bg-sky-50 text-gray-800 dark:bg-slate-800 dark:text-white">
                             <div class="w-1/2 pr-4">

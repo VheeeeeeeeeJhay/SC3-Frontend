@@ -97,7 +97,7 @@ onMounted(() => {
       </div>
   
     <!-- Content Wrapper -->
-    <div class="container mx-auto mt-6 p-4 bg-sky-50 dark:bg-slate-800  shadow-md rounded-lg" :class="themeClasses">
+    <div class="container mx-auto mt-6 bg-sky-50 dark:bg-slate-800  shadow-md rounded-lg" :class="themeClasses">
       <div class="flex flex-col md:flex-row">
         <!-- Left Side: Text Information -->
         <div class="w-full md:w-1/2 p-6 rounded-lg text-gray-800 dark:text-gray-200">
