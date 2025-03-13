@@ -37,6 +37,7 @@ const data = ref({
     longitude: '',
     latitude: '',
 });
+console.log("Data:", data.value.name);
 
 // Store Fetch Data From Backend In An Array
 const originalData = shallowRef(null); // Store original data
@@ -120,7 +121,7 @@ const updateForm = () => {
         incident_id: data.value.incident,
         date_received: data.value.receivedDate,
         arrival_on_site: data.value.arrival_on_site,
-        name: data.value.name, // Ensure this matches API expectations
+        name: data.value.name,
         landmark: data.value.details,
         barangay_id: data.value.barangay,
         actions_id: data.value.actions,
@@ -149,7 +150,8 @@ const updateForm = () => {
 
 
 //Map scripts
-// Initialize Map
+const { coords } = useGeolocation();
+
 const initMap = () => {
     if (!data.value.latitude || !data.value.longitude) {
         console.error("Latitude or Longitude is missing");
@@ -165,7 +167,7 @@ const initMap = () => {
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
-    // Set map boundaries
+    // Define Baguio City boundaries
     const bounds = leaflet.latLngBounds(
         [16.350, 120.520], // Southwest
         [16.480, 120.660]  // Northeast
@@ -177,15 +179,94 @@ const initMap = () => {
     marker = leaflet.marker([data.value.latitude, data.value.longitude]).addTo(map)
         .bindPopup(`Original Marker: (${data.value.latitude}, ${data.value.longitude})`)
         .openPopup();
+
+    map.addEventListener("click", (e) => {
+        const { lat: newLat, lng: newLng } = e.latlng;
+
+        if (bounds.contains([newLat, newLng])) {
+            // Remove previous marker if exists
+            if (marker) {
+                map.removeLayer(marker);
+            }
+
+            // Add a new marker
+            marker = leaflet.marker([newLat, newLng])
+                .addTo(map)
+                .bindPopup(`Selected Marker at (<strong>${newLat.toFixed(5)}, ${newLng.toFixed(5)}</strong>)`)
+                .openPopup();
+
+            // Update the stored user marker
+            userMarker.value.latitude = newLat;
+            userMarker.value.longitude = newLng;
+
+            // Update form inputs
+            data.value.latitude = newLat.toFixed(5);
+            data.value.longitude = newLng.toFixed(5);
+        } else {
+            alert("You cannot place markers outside Baguio City.");
+        }
+    });
 };
 
-// Watch geolocation changes but don't override original marker
+// Watch geolocation changes but don’t override manual marker selection
 watchEffect(() => {
     if (data.value.latitude && data.value.longitude) {
         console.log("Updated Coordinates:", data.value.latitude, data.value.longitude);
     }
+
+    if (coords.value.latitude && coords.value.longitude &&
+        isFinite(coords.value.latitude) && isFinite(coords.value.longitude)) {
+        // Only update if user hasn't set a marker
+        if (!userMarker.value.latitude || !userMarker.value.longitude) {
+            data.value.latitude = coords.value.latitude.toFixed(5);
+            data.value.longitude = coords.value.longitude.toFixed(5);
+        }
+    } else {
+        // If geolocation fails, default to Baguio City
+        if (!userMarker.value.latitude || !userMarker.value.longitude) {
+            data.value.latitude = "16.404000";
+            data.value.longitude = "120.599000";
+        }
+    }
 });
 
+let singleMarker;
+watch(() => data.value.barangay, (newBarangayId) => {
+  const selectedBarangay = barangays.value.find(b => b.id === newBarangayId);
+  
+  if (selectedBarangay) {
+    data.value.longitude = selectedBarangay.longitude || '';
+    data.value.latitude = selectedBarangay.latitude || '';
+
+    // ✅ Remove Default Marker
+    if (singleMarker) {
+      map.removeLayer(singleMarker);
+      singleMarker = null; // Clear reference
+    }
+
+    // ✅ Remove Previous Marker (if exists)
+    if (marker) {
+      map.removeLayer(marker);
+    }
+
+    // ✅ Add New Marker for Selected Barangay
+    marker = leaflet
+      .marker([selectedBarangay.latitude, selectedBarangay.longitude])
+      .addTo(map)
+      .bindPopup(`Barangay: ${selectedBarangay.name} (${selectedBarangay.latitude}, ${selectedBarangay.longitude})`)
+      .openPopup();
+
+    // ✅ Center Map to New Marker
+    map.setView([selectedBarangay.latitude, selectedBarangay.longitude], 15);
+  } else {
+    data.value.longitude = '';
+    data.value.latitude = '';
+  }
+});
+
+const openTimePicker = () => {
+    document.getElementById("arrival_on_site").showPicker();
+};
 
 </script>
 
@@ -276,6 +357,7 @@ watchEffect(() => {
                                             </option>
                                         </select>
                                     </div>
+
                                     <div class="form-group">
                                         <label for="actionType" class="block text-sm font-medium mb-2"
                                             :class="themeClasses">
@@ -301,13 +383,18 @@ watchEffect(() => {
                                         <input type="date" id="receivedDate" v-model="data.receivedDate"
                                             class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                                     </div>
-                                    <div class="form-group">
+                                    <div class="form-group relative">
                                         <label for="arrival_on_site" class="block text-sm font-medium mb-2">
                                             Time of Arrival on Site {{ arrival_on_site }}
                                             <ToolTip Information="This is the time when the report was received." />
                                         </label> 
-                                        <input type="time" id="arrival_on_site" v-model="data.arrival_on_site"
-                                            class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
+
+                                        <input type="time" id="arrival_on_site" v-model="data.arrival_on_site" @click="openTimePicker"
+                                            class="appearance-none w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 
+                                            bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white pr-10" />
+
+                                        <!-- Custom Clock Icon that triggers the input -->
+                                        <span class="material-icons schedule absolute right-3 top-11 text-gray-800 dark:text-white"/>
                                     </div>
                                     <div class="form-group">
                                         <label for="time" class="block text-sm font-medium mb-2">
@@ -399,5 +486,15 @@ watchEffect(() => {
     height: 50vh;
     width: 100%;
     border: 1px solid #ccc;
+}
+/* Hide the default time picker icon in WebKit browsers (Chrome, Safari, Edge) */
+input[type="time"]::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
+}
+
+/* Hide the default time picker icon in Firefox */
+input[type="time"] {
+    -moz-appearance: textfield;
 }
 </style>
