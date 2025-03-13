@@ -5,7 +5,6 @@ import axiosClient from "../../axios.js";
 import { ref } from "vue";
 import router from "../../router.js";
 import logo from '../../assets/baguio-logo.png';
-import Loader1 from "../../components/loading/loader1.vue";
 
 const data = ref({
   email: '',

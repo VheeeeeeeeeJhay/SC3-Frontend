@@ -4,7 +4,6 @@ import PrimaryButton from '../../components/PrimaryButton.vue';
 import router from '../../router.js';
 import axiosClient from '../../axios.js';
 import FormInput from '../../components/FormInput.vue';
-import Toast from '../../components/Toast.vue';
 
 const data = ref({
   name: '',
