@@ -5,6 +5,7 @@ import axiosClient from "../../axios.js";
 import { ref } from "vue";
 import router from "../../router.js";
 import logo from '../../assets/baguio-logo.png';
+import smart from '../../assets/smart-city1.jpg';
 
 const data = ref({
   email: '',
@@ -41,7 +42,13 @@ const submit = () => {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-black to-blue-900 relative">
+  <div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-black to-blue-900 relative" 
+     :style="{ 
+       backgroundImage: `url(${smart})`, 
+       backgroundSize: 'cover', 
+       backgroundPosition: 'center', 
+       backgroundRepeat: 'no-repeat' 
+     }">
     <!-- Main Container -->
     <div class="flex flex-col sm:flex-row items-center gap-8 z-10">
       <!-- City Logo and Title -->

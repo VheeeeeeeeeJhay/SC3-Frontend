@@ -141,6 +141,7 @@ const updateForm = () => {
             console.log('Report updated successfully:', response.data);
             // Optionally, refresh the originalData reference
             originalData.value = { ...data.value };
+            router.push({ name: 'ReportTable' });
         })
         .catch(error => {
             console.error('Error updating report:', error.response?.data || error.message);

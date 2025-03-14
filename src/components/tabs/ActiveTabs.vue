@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue';
 import axiosClient from  '../../axios.js';
 import Badge from '../../components/Badge.vue';
 
@@ -9,32 +9,37 @@ const isLoading = ref(false);
 
 const selectedClassifications = ref([]);
 
+const message = ref("");
+const errors = ref("");
+const icon = ref('');
+const classes = ref('');
+
+
+let interval_id = null;
 
 const fetchData = async () => {
     try {
-        isLoading.value = true;
-        await axiosClient.get('/api/911/users', {
+        if (users.value.length === 0) {
+          isLoading.value = true;  
+        }
+        
+        const response = await axiosClient.get('/api/911/users', {
             headers: {
                 'x-api-key': import.meta.env.VITE_API_KEY
             }
         })
-            .then((res) => {
-                console.log(res.data);
-                const user_data = res.data.filter(item => 
-                    (item.for_911 === 1 && item.for_inventory === 1) || 
-                    (item.for_911 === 1 && item.for_inventory === 0) || 
-                    (item.for_911 === 0 && item.for_inventory === 1)
-                );
-                users.value = user_data;
-            })
-            .catch((error) => {
-                console.log(error.response.data.message);
-            })
-            .finally(() => {
-                isLoading.value = false;
-            });
+        const user_data = response.data.filter(item => 
+            (item.for_911 === 1 && item.for_inventory === 1) || 
+            (item.for_911 === 1 && item.for_inventory === 0) || 
+            (item.for_911 === 0 && item.for_inventory === 1)
+        );
+        users.value = user_data;
+        console.log(users.value, 'users data');
     } catch (error) {
-        console.log(error.response.data.message);
+        console.log(error.response.data.errors);
+        errors.value = error.response.data.errors;
+    } finally {
+        isLoading.value = false;
     }
 };
 
@@ -54,10 +59,8 @@ const filteredUsers = computed(() => {
         return matchesSearch && matchesClassification;
     });
 });
-onMounted(() => {
-    fetchData();
 
-    // ------------------------------------------
+const dropListener = () => {
     document.addEventListener("click", (event) => {
         if (
             openDropdownId.value !== null &&
@@ -66,6 +69,21 @@ onMounted(() => {
             closeDropdown();
         }
     });
+}
+
+onMounted(() => {
+    fetchData();
+
+    interval_id = setInterval(fetchData, 5000);
+
+    // ------------------------------------------
+    dropListener();
+});
+
+onBeforeUnmount(() => {
+    if (interval_id) {
+        clearInterval(interval_id);
+    }
 });
 
 // -----------------------
@@ -166,18 +184,20 @@ const dashboardRole = async (user) => {
     }
 
     try {
-        await axiosClient.patch(`/api/911/user-dashboard-role/${user.id}`, {
+        const response = await axiosClient.patch(`/api/911/user-dashboard-role/${user.id}`, {
             for_911: newRoleStatus
         }, {
             headers: {
                 'x-api-key': import.meta.env.VITE_API_KEY
             }
         });
-
+        console.log('Role updated successfully');
         // Update local state instantly
         user.for_911 = newRoleStatus;
+        message.value = response.data.message;
     } catch (error) {
-        console.error(error.response?.data?.message || error.message);
+        console.error(error.response?.data?.error);
+        errors.value = error.response?.data?.error || 'Failed to update role';
     }
 };
 const inventoryRole = async (user) => {
@@ -190,7 +210,7 @@ const inventoryRole = async (user) => {
     }
 
     try {
-        await axiosClient.patch(`/api/911/user-inventory-role/${user.id}`, { for_inventory: newRoleStatus },
+        const response = await axiosClient.patch(`/api/911/user-inventory-role/${user.id}`, { for_inventory: newRoleStatus },
             {
                 headers: {
                     'x-api-key': import.meta.env.VITE_API_KEY
@@ -199,13 +219,16 @@ const inventoryRole = async (user) => {
 
         // Update local state instantly
         user.for_inventory = newRoleStatus;
+        message.value = response.data.message;
     } catch (error) {
         console.error(error.response?.data?.message || error.message);
+        errors.value = error.response?.data?.error || 'Failed to update role';
     }
 };
+
 const archiveUser = async (user) => {
     try {
-        await axiosClient.patch(`/api/911/user-archive/${user.id}`, { for_911: 0, for_inventory: 0 },
+        const response = await axiosClient.patch(`/api/911/user-archive/${user.id}`, { for_911: 0, for_inventory: 0 },
             {
                 headers: {
                     'x-api-key': import.meta.env.VITE_API_KEY,
@@ -213,14 +236,14 @@ const archiveUser = async (user) => {
             });
 
         // Update local state instantly
+        message.value = response.data.message;
         user.for_911 = 0;
         user.for_inventory = 0;
     } catch (error) {
         console.error(error.response?.data?.message || error.message);
+        errors.value = error.response?.data?.error || 'Failed to archive user';
     }
 };
-
-
 
 
 const maxVisiblePages = 3;
@@ -376,7 +399,7 @@ const visiblePages = computed(() => {
             </div>
         </div>
     </section>
-
+    <Toast v-if="message" :message="message" :icon="icon" :classes="classes" />
 </template>
 
 <style scoped>
