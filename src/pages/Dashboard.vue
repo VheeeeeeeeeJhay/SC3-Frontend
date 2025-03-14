@@ -6,7 +6,10 @@ import router from "../router.js";
 import PieChart from "../components/charts/PieChart.vue";
 import LineChart from "../components/charts/LineChart.vue";
 import BarChart from "../components/charts/BarChart.vue";
-
+import IncidentGrowthRate from "../components/widgets/IncidentGrowthRate.vue";
+import RecentIncident from "../components/widgets/RecentIncident.vue";
+import TotalReportsReceived from "../components/widgets/TotalReportsReceived.vue";
+import TopPerforming from "../components/widgets/TopPerforming.vue";
 
 // /👾👾👾👾👾👾👾👾/ //
 // Fetch Data From Backend //
@@ -110,90 +113,25 @@ const selectedDateRange = ref({ start: selectedStartDate.value, end: selectedEnd
       <h1 class="text-2xl font-bold dark:text-white">Overview</h1>
     </div>
 
-    <main class="mx-auto my-6 max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <main class="mx-auto my-6 max-w-7xl px-4 sm:px-6 lg:px-8">
 
       <div class="grid grid-cols-3 gap-6">
         <div
-          class="col-span-1 p-6 rounded-lg shadow bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
-          <PieChart />
+          class="col-span-1 p-3 bg-gradient-to-b from-sky-50 dark:from-slate-800 to-transparent rounded-lg shadow-lg">
+          <IncidentGrowthRate />
         </div>
 
-        <div
-          class="col-span-1 p-6 rounded-lg shadow  bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
-          <h2 class="text-xl font-semibold mb-4">Recent Activities</h2>
-
-
+        <div class="col-span-1 p-3 bg-gradient-to-b from-sky-50 dark:from-slate-800 to-transparent rounded-lg shadow-lg">
+          <TotalReportsReceived />
         </div>
 
 
-        <div class="col-span-1 p-3 rounded-lg shadow-md bg-sky-50 border border-gray-300 text-gray-800 dark:bg-slate-800 dark:border-gray-700 dark:text-white h-[260px] flex flex-col justify-between">
-          <!-- Title -->
-          <h2 class="text-base font-medium">
-            Growth Rate of Incidents <span class="text-xs text-gray-500">// Month over Month</span>
-          </h2>
-
-          <!-- Month Selection -->
-          <div class="grid grid-cols-3 gap-2 items-center">
-            <!-- Month 1 Selection -->
-            <div class="col-span-1">
-              <select v-model="selectedMonth1" :disabled="!selectedYear1"
-                class="w-full px-2 py-1 text-sm font-medium bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 transition duration-200 disabled:opacity-50">
-                <option value="" disabled>Month 1</option>
-                <option v-for="month in months" :key="month" :value="month">
-                  {{ month }}
-                </option>
-              </select>
-            </div>
-
-            <!-- Month 2 Selection -->
-            <div class="col-span-1">
-              <select v-model="selectedMonth2" :disabled="!selectedMonth1"
-                class="w-full px-2 py-1 text-sm font-medium bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 transition duration-200 disabled:opacity-50">
-                <option value="" disabled>Month 2</option>
-                <option v-for="month in filteredMonths2" :key="month" :value="month">
-                  {{ month }}
-                </option>
-              </select>
-            </div>
-            
-            <!-- Year Selection -->
-            <div class="col-span-1">
-              <select v-model="selectedYear1"
-                class="w-full px-2 py-1 text-sm font-medium bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 transition duration-200">
-                <option value="" disabled>Select Year</option>
-                <option v-for="year in years" :key="year" :value="year">
-                  {{ year }}
-                </option>
-              </select>
-            </div>
-          </div>
-
-          <div class="flex justify-center items-center">
-            <svg v-if="percentageChange < 0" xmlns="http://www.w3.org/2000/svg" height="100px" viewBox="0 0 24 24"
-              width="100px" fill="#75FB4C">
-              <path d="M0 0h24v24H0V0z" fill="none" />
-              <path d="M16 18l2.29-2.29-4.88-4.88-4 4L2 7.41 3.41 6l6 6 4-4 6.3 6.29L22 12v6h-6z" />
-            </svg>
-            <svg v-if="percentageChange > 0" xmlns="http://www.w3.org/2000/svg" height="100px" viewBox="0 0 24 24"
-              width="100px" fill="#EA3323">
-              <path d="M0 0h24v24H0V0z" fill="none" />
-              <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6h-6z" />
-            </svg>
-            <svg v-if="percentageChange == 0" xmlns="http://www.w3.org/2000/svg" height="100px" viewBox="0 0 24 24"
-              width="100px" fill="#666666">
-              <path d="M0 0h24v24H0V0z" fill="none" />
-              <path d="M22 12l-4-4v3H3v2h15v3l4-4z" />
-            </svg>
-          </div>
-
-          <!-- Percentage Change Display -->
-          <div class="flex justify-center items-center space-x-2">
-            <div class="text-5xl font-bold"
-              :class="percentageChange == 0 ? 'text-gray-500' : percentageChange >= 0 ? 'text-red-500' : 'text-green-500'">
-              {{ percentageChange.toFixed(2) }}%
-            </div>
-          </div>
+        <div class="col-span-1 p-3 bg-gradient-to-b from-sky-50 dark:from-slate-800 to-transparent rounded-lg shadow-lg">
+          <TopPerforming />
         </div>
+        <!-- <div class="col-span-1 p-3 rounded-lg shadow-md bg-sky-50 border border-gray-300 text-gray-800 dark:bg-slate-800 dark:border-gray-700 dark:text-white h-[260px] flex flex-col justify-between">
+          
+        </div> -->
       </div>
 
       <div class="mt-6 grid grid-cols-2 gap-6">
@@ -206,6 +144,20 @@ const selectedDateRange = ref({ start: selectedStartDate.value, end: selectedEnd
         <div
           class="p-6 rounded-lg shadow  bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
           <BarChart :dateRange="selectedDateRange" class="w-full" />
+        </div>
+      </div>
+
+      <div class="mt-6 grid grid-cols-2 gap-6">
+        <!-- linechart -->
+        <div
+          class="p-6 rounded-lg shadow  bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
+          <!-- <LineChart /> -->
+           <PieChart />
+        </div>
+
+        <div
+          class="p-6 rounded-lg shadow  bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
+          <RecentIncident />
         </div>
       </div>
     </main>

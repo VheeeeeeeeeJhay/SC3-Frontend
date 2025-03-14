@@ -60,24 +60,29 @@ const isLoading = ref(false);
 //   }
 // });
 
+const message = ref('');
+const errors = ref('');
+
+
 let intervalId = null;
 
 const fetchData = async () => {
   try {
-    const res = await axiosClient.get('/api/911/barangay', {
+    if (barangays.value.length === 0) {
+      isLoading.value = true;
+    }
+    const response = await axiosClient.get('/api/911/barangay', {
       headers: {
         'x-api-key': import.meta.env.VITE_API_KEY
       }
     });
-    console.log(res);
-    setTimeout(() => {
-      barangays.value = res.data;
-      isLoading.value = false; // Stop loading after delay
-    });
+    barangays.value = response.data.barangays;
   } catch (error) {
-    isLoading.value = false;
     console.error('Error fetching data:', error);
-    errors.value = 'Failed to load barangays. Please try again later.';
+    message.value = error.response.data.message;
+    errors.value = error.response.data.error;
+  } finally {
+    isLoading.value = false;
   }
 };
 
@@ -414,5 +419,8 @@ const visiblePages = computed(() => {
 
     </div>
 
-  <Toast v-if="errors.length > 0" :message="errors" />
+    <div>
+      <Toast v-if="message.length > 0" :message="message" />
+      <Toast v-if="errors.length > 0" :message="errors" />
+    </div>
 </template>

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue';
 import axiosClient from  '../../axios.js';
 import Badge from '../../components/Badge.vue';
 
@@ -9,32 +9,35 @@ const isLoading = ref(false);
 
 const selectedClassifications = ref([]);
 
+const message = ref("");
+const errors = ref("");
+const icon = ref('info');
+const classes = ref('');
+
+let interval_id = null;
 
 const fetchData = async () => {
     try {
-        isLoading.value = true;
-        await axiosClient.get('/api/911/users', {
+        if (users.value.length === 0) {
+            isLoading.value = true;
+        }
+
+        const response = await axiosClient.get('/api/911/users', {
             headers: {
                 'x-api-key': import.meta.env.VITE_API_KEY
             }
         })
-            .then((res) => {
-                setTimeout(() => {
-                    const filteredData = res.data.filter(item => 
-                        (item.for_911 === 0 && item.for_inventory === 0) 
-                    );
-                    users.value = filteredData;
-                    // users.value = res.data; // Assuming reports are in the first index
-                });
-            })
-            .catch((error) => {
-                console.log(error.response.data.message);
-            })
-            .finally(() => {
-                isLoading.value = false;
-            });
+        const filteredData = response.data.filter(item => 
+            (item.for_911 === 0 && item.for_inventory === 0) 
+        );
+        users.value = filteredData;
+        console.log(users.value, 'users data');
     } catch (error) {
         console.log(error.response.data.message);
+        errors.value = error.response.data.message;
+    } 
+    finally {
+        isLoading.value = false;
     }
 };
 
@@ -54,10 +57,8 @@ const filteredUsers = computed(() => {
         return matchesSearch && matchesClassification;
     });
 });
-onMounted(() => {
-    fetchData();
 
-    // ------------------------------------------
+const dropListener = () => {
     document.addEventListener("click", (event) => {
         if (
             openDropdownId.value !== null &&
@@ -66,6 +67,20 @@ onMounted(() => {
             closeDropdown();
         }
     });
+}
+
+onMounted(() => {
+    fetchData();
+
+    interval_id = setInterval(fetchData, 5000);
+
+    dropListener();
+});
+
+onBeforeUnmount(() => {
+    if (interval_id) {
+        clearInterval(interval_id);
+    }
 });
 
 // -----------------------
@@ -158,18 +173,18 @@ const maskEmail = (email) => {
 // Role
 const archiveUser = async (user) => {
     try {
-        await axiosClient.patch(`/api/911/user-archive/${user.id}`, { for_911: 1, for_inventory: 1 },
+        const response = await axiosClient.patch(`/api/911/user-archive/${user.id}`, { for_911: 1, for_inventory: 1 },
             {
                 headers: {
                     'x-api-key': import.meta.env.VITE_API_KEY,
                 }
             });
-
+        message.value = response.data.message;
         // Update local state instantly
         user.for_911 = 1;
         user.for_inventory = 1;
     } catch (error) {
-        console.error(error.response?.data?.message || error.message);
+        console.error(error.response?.data?.message || 'Failed to re-activate user');
     }
 };
 
@@ -277,21 +292,6 @@ const visiblePages = computed(() => {
                         itemsPerPage + 1 : 0 }} to {{
                             Math.min(currentPage * itemsPerPage, filteredUsers.length) }} of {{ filteredUsers.length
                         }}</span>
-
-                    <!-- <ul class="inline-flex items-stretch -space-x-px">
-                        <li><button @click="prevPage" :disabled="currentPage === 1"
-                                class="px-3 py-1 rounded-l-lg border hover:bg-gray-300 dark:hover:bg-slate-600">Previous</button>
-                        </li>
-                        <li v-for="page in totalPages" :key="page">
-                            <button @click="goToPage(page)"
-                                :class="['px-3 py-1 border', currentPage === page ? 'bg-slate-500 text-white border-black' : 'hover:bg-gray-300 dark:hover:bg-slate-600']">
-                                {{ page }}
-                            </button>
-                        </li>
-                        <li><button @click="nextPage" :disabled="currentPage === totalPages"
-                                class="px-3 py-1 rounded-r-lg border hover:bg-gray-300 dark:hover:bg-slate-600">Next</button>
-                        </li>
-                    </ul> -->
                     <ul class="inline-flex items-stretch -space-x-px">
                         <li>
                             <button @click="prevPage" :disabled="currentPage === 1"
@@ -331,7 +331,7 @@ const visiblePages = computed(() => {
             </div>
         </div>
     </section>
-
+    <Toast v-if="message" :message="message" :icon="icon" :classes="classes" />
 </template>
 
 <style scoped>
