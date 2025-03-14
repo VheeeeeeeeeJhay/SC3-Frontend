@@ -8,7 +8,7 @@ import { useThemeStore } from '../../stores/themeStore';
 import Badge from '../../components/Badge.vue';
 
 const barangays = ref([]);
-const errors = ref('');
+// const errors = ref('');
 const isLoading = ref(false);
 
 // const fetchData = async () => {
