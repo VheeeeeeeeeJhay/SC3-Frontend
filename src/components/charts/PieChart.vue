@@ -48,38 +48,40 @@ const emit = defineEmits(['periodChange']);
 // Reactive chart options
 const options = ref({
   series: [],
-  colors: ["#4A90E2", "#50E3C2", "#B8E986", "#E94E77", "#F7B801"],
+  colors: ["#4A90E2", "#50E3C2", "#B8E986", "#E94E77", "#F7B801", "#7D3C98", "#2E86C1", "#28B463", "#F39C12"],
   chart: {
-    height: 350,
-    width: "100%",
+    height: 400, // Fixed height, prevents resizing
+    width: 400,  // Fixed width, prevents resizing
     type: "pie",
-    toolbar: {
-      show: false,
-      tools: {
-        download: true
-      }
+    redrawOnParentResize: false, 
+    parentHeightOffset: 0,
+    animations: { enabled: false }
+  },
+  plotOptions: {
+    pie: {
+      size: "90%", // Ensures pie stays same size
+      customScale: 1, // Prevent auto-scaling
+      expandOnClick: false
     }
   },
-  stroke: {
-    colors: ["white"],
-    width: 1,
-  },
+  stroke: { colors: ["white"], width: 1 },
   labels: [],
-  dataLabels: {
-    enabled: false,
-  },
+  dataLabels: { enabled: false },
   legend: {
     position: "bottom",
-    fontFamily: "Inter, sans-serif",
-    labels: {
-      colors: "text-gray-800 dark:text-white",
-    }
+    fontSize: "12px",
+    floating: false,
+    itemMargin: { horizontal: 5, vertical: 5 },
+    markers: { width: 10, height: 10 },
+    maxHeight: 100, // Prevent legend from shrinking chart
+    onItemClick: { toggleDataSeries: true }
   },
-  tooltip: {
-    enabled: true,
-    theme: "dark",
-  }
+  tooltip: { enabled: true, theme: "dark" },
 });
+
+
+
+
 
 // Reference for the chart container
 const pieChart = ref(null);
@@ -143,28 +145,45 @@ onUnmounted(() => {
       </select>
     </div>
 
-    <div class="h-32" ref="pieChart"></div>
+    <div class="w-full flex flex-col items-center">
+      <div class="chart-wrapper">
+        <div ref="pieChart"></div>
+      </div>
+      <div class="legend-wrapper">
+        <div class="legend-scrollable"></div>
+      </div>
+    </div>
+
+
   </div>
 </template>
 
 <style scoped>
-.apexcharts-toolbar {
-  background-color: black !important; /* Background color */
-  color: white !important; /* Text color */
-  border-radius: 5px; /* Rounded corners */
-  padding: 5px;
+/* .fixed-chart-container {
+  width: 450px; 
+  height: 450px; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+} */
+.chart-wrapper {
+  width: 400px; /* Lock width */
+  height: 400px; /* Lock height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.apexcharts-menu {
-  background-color: black !important; /* Dropdown menu background */
-  color: white !important; /* Dropdown text color */
+.legend-wrapper {
+  width: 100%;
+  max-height: 100px; /* Prevents it from taking too much space */
+  overflow-y: auto; /* Make it scroll if needed */
 }
 
-.apexcharts-menu-item {
-  color: white !important;
+.legend-scrollable {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-.apexcharts-menu-item:hover {
-  background-color: gray !important;
-}
 </style>
