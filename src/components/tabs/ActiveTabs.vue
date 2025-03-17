@@ -9,10 +9,11 @@ const isLoading = ref(false);
 
 const selectedClassifications = ref([]);
 
-const message = ref("");
-const errors = ref("");
+const message = ref('');
+const errors = ref('');
 const icon = ref('');
 const classes = ref('');
+const type = ref('');
 
 
 let interval_id = null;
@@ -36,8 +37,9 @@ const fetchData = async () => {
         users.value = user_data;
         console.log(users.value, 'users data');
     } catch (error) {
-        console.log(error.response.data.errors);
-        errors.value = error.response.data.errors;
+        type.value = 'error';
+        console.log(error.response.data.error);
+        errors.value = error.response.data.error;
     } finally {
         isLoading.value = false;
     }
@@ -179,7 +181,9 @@ const dashboardRole = async (user) => {
 
     // Prevent both roles from being false at the same time
     if (newRoleStatus === 0 && user.for_inventory === 0) {
-        alert('At least 1 role must be active');
+        // alert('At least 1 role must be active');
+        type.value = 'warning';
+        message.value = 'At least 1 role must be active';
         return;
     }
 
@@ -194,8 +198,10 @@ const dashboardRole = async (user) => {
         console.log('Role updated successfully');
         // Update local state instantly
         user.for_911 = newRoleStatus;
+        type.value = 'success';
         message.value = response.data.message;
     } catch (error) {
+        type.value = 'error';
         console.error(error.response?.data?.error);
         errors.value = error.response?.data?.error || 'Failed to update role';
     }
@@ -205,7 +211,9 @@ const inventoryRole = async (user) => {
 
     // Prevent both roles from being false at the same time
     if (newRoleStatus === 0 && user.for_911 === 0) {
-        alert('At least 1 role must be active');
+        // alert('At least 1 role must be active');
+        type.value = 'warning';
+        message.value = 'At least 1 role must be active';
         return;
     }
 
@@ -218,9 +226,11 @@ const inventoryRole = async (user) => {
             });
 
         // Update local state instantly
+        type.value = 'success';
         user.for_inventory = newRoleStatus;
         message.value = response.data.message;
     } catch (error) {
+        type.value = 'error';
         console.error(error.response?.data?.message || error.message);
         errors.value = error.response?.data?.error || 'Failed to update role';
     }
@@ -236,10 +246,12 @@ const archiveUser = async (user) => {
             });
 
         // Update local state instantly
+        type.value = 'success';
         message.value = response.data.message;
         user.for_911 = 0;
         user.for_inventory = 0;
     } catch (error) {
+        type.value = 'error';
         console.error(error.response?.data?.message || error.message);
         errors.value = error.response?.data?.error || 'Failed to archive user';
     }
@@ -398,8 +410,16 @@ const visiblePages = computed(() => {
                 </nav>
             </div>
         </div>
+        
     </section>
-    <Toast v-if="message" :message="message" :icon="icon" :classes="classes" />
+    <!-- <Toast v-if="message" :message="message" :icon="icon" :classes="classes" /> -->
+
+    <div class="flex flex-col fixed top-17 right-5 w-1/2 items-end">
+        <Toast v-if="message" :message="message" :icon="icon" :classes="classes" :type="type"/>
+        <Toast v-if="errors" :message="errors" :icon="icon" :classes="classes" :type="type"/>
+    </div>
+
+    
 </template>
 
 <style scoped>

@@ -11,7 +11,8 @@ const selectedClassifications = ref([]);
 
 const message = ref("");
 const errors = ref("");
-const icon = ref('info');
+const icon = ref('');
+const type = ref('');
 const classes = ref('');
 
 let interval_id = null;
@@ -33,8 +34,9 @@ const fetchData = async () => {
         users.value = filteredData;
         console.log(users.value, 'users data');
     } catch (error) {
-        console.log(error.response.data.message);
-        errors.value = error.response.data.message;
+        type.value = 'error';
+        console.log(error.response.data.error);
+        errors.value = error.response.data.error;
     } 
     finally {
         isLoading.value = false;
@@ -174,17 +176,20 @@ const maskEmail = (email) => {
 const archiveUser = async (user) => {
     try {
         const response = await axiosClient.patch(`/api/911/user-archive/${user.id}`, { for_911: 1, for_inventory: 1 },
-            {
-                headers: {
-                    'x-api-key': import.meta.env.VITE_API_KEY,
-                }
-            });
+        {
+            headers: {
+                'x-api-key': import.meta.env.VITE_API_KEY,
+            }
+        });
+        type.value = 'success';
         message.value = response.data.message;
         // Update local state instantly
         user.for_911 = 1;
         user.for_inventory = 1;
     } catch (error) {
         console.error(error.response?.data?.message || 'Failed to re-activate user');
+        type.value = 'error';
+        errors.value = error.response?.data?.error || 'Failed to re-activate user';
     }
 };
 
@@ -331,7 +336,12 @@ const visiblePages = computed(() => {
             </div>
         </div>
     </section>
-    <Toast v-if="message" :message="message" :icon="icon" :classes="classes" />
+
+    <div class="flex flex-col fixed top-17 right-5 w-1/2 items-end">
+        <Toast v-if="message" :message="message" :icon="icon" :classes="classes" :type="type"/>
+        <Toast v-if="errors" :message="errors" :icon="icon" :classes="classes" :type="type"/>
+    </div>
+
 </template>
 
 <style scoped>

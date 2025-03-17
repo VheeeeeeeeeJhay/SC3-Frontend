@@ -29,7 +29,7 @@ const closeToast = () => {
 onMounted(() => {
     setTimeout(() => {
         closeToast();
-    }, 60000); // Automatically close after 1 minute (60000ms)
+    }, 10000); // Automatically close after 1 minute (60000ms)
 });
 
 // Define colors based on the type of toast
@@ -45,7 +45,7 @@ const typeClasses = {
     <transition name="fade">
         <div
             v-if="isVisible"
-            class="mt-14 fixed flex items-center w-full max-w-xs p-2.5 rounded-md shadow-md top-5 right-5 transition-all duration-300 ease-in-out opacity-90"
+            class="m-1 relative flex items-center w-full max-w-xs p-2.5 rounded-md shadow-md transition-all duration-300 ease-in-out opacity-90"
             :class="typeClasses[type]"
             role="alert"
         >

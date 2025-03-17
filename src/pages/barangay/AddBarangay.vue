@@ -11,9 +11,19 @@ const data = ref({
   latitude: '',
 })
 
-const success = ref([]);
+const clearData = () => {
+  errors.value = [];
+  data.value.name = '';
+  data.value.longitude = '';
+  data.value.latitude = '';
+}
+
+const message = ref('');
 const errors = ref([]);
 const toastError = ref('');
+const type = ref('');
+const icon = ref('');
+const classes = ref('');
 
 const formSubmit = async () => {
   try {
@@ -28,11 +38,10 @@ const formSubmit = async () => {
     }
     })
     .then(response => { 
-      data.value.name = '';
-      data.value.longitude = '';
-      data.value.latitude = '';
+      type.value = 'success';
+      clearData();
       console.log(response)
-      success.value = response.data.message;
+      message.value = response.data.message;
     })
     .catch(error => { 
       // console.error(error.data.message)
@@ -42,6 +51,8 @@ const formSubmit = async () => {
   }
   catch (error) {
     console.error(error.response.data.message)
+type.value = 'error';
+errors.value = error.response.data.errors;
     // toastError = error.response.data.message;
     // errors.value = error.response.data.errors;
   }
@@ -91,7 +102,9 @@ const formSubmit = async () => {
       </form>
 
       <!-- Toast Notifications -->
-      <Toast v-if="success.length > 0" :message="success" />
-      <Toast v-if="toastError.length > 0" :message="toastError" />
+      <div class="flex flex-col fixed top-17 right-5 w-1/2 items-end z-50">
+        <Toast v-if="message" :message="message" :icon="icon" :classes="classes" :type="type"/>
+        <Toast v-if="errors.length > 0" :message="errors" :icon="icon" :classes="classes" :type="type"/>
+    </div>
   </div>
 </template>

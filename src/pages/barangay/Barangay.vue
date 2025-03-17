@@ -4,64 +4,15 @@ import AddBarangay from './AddBarangay.vue';
 import EditBarangay from './EditBarangay.vue';
 import axiosClient from '../../axios.js';
 import { RouterLink, useRouter } from 'vue-router';
-import { useThemeStore } from '../../stores/themeStore';
 import Badge from '../../components/Badge.vue';
 
 const barangays = ref([]);
 const isLoading = ref(false);
-
-// const fetchData = async () => {
-//   axiosClient.get('/api/911/barangay', {
-//     headers: {
-//       'x-api-key': import.meta.env.VITE_API_KEY
-//     }
-//   })
-//     .then((res) => {
-//       console.log(res);
-//       setTimeout(() => {
-//         barangays.value = res.data;
-//         isLoading.value = false; // Stop loading after delay
-//       });
-//     })
-//     .catch((error) => {
-//       isLoading.value = false;
-//       console.error('Error fetching data:', error);
-//       errors.value = 'Failed to load barangays. Please try again later.';
-//     });
-// }
-
-// onMounted(() => {
-//   isLoading.value = true;
-
-//   fetchData();
-//   intervalId = setInterval(fetchData, 5000); // Fetch data every 5 seconds
-
-//   // ------------------------------------------
-//   document.addEventListener("click", (event) => {
-//     if (
-//       openDropdownId.value !== null &&
-//       !dropdownRefs.value[openDropdownId.value]?.contains(event.target)
-//     ) {
-//       closeDropdown();
-//     }
-//   });
-// });
-
-// onMounted(() => {
-//   fetchData(); // Fetch data immediately when the component is mounted
-//   intervalId = setInterval(fetchData, 5000); // Fetch data every 5 seconds
-// });
-
-// Clean up the interval when the component is destroyed
-// onBeforeUnmount(() => {
-//   if (intervalId) {
-//     clearInterval(intervalId);
-//   }
-// });
-
-const message = ref('');
 const errors = ref('');
-
+const message = ref('');
+const type = ref('');
+const icon = ref('');
+const classes = ref('');
 
 let intervalId = null;
 
@@ -77,8 +28,8 @@ const fetchData = async () => {
     });
     barangays.value = response.data.barangays;
   } catch (error) {
+    type.value = 'error';
     console.error('Error fetching data:', error);
-    message.value = error.response.data.message;
     errors.value = error.response.data.error;
   } finally {
     isLoading.value = false;
@@ -87,13 +38,13 @@ const fetchData = async () => {
 
 onMounted(() => {
   isLoading.value = true;
-  
+
   // Initial data fetch
   fetchData();
-  
+
   // Set interval to fetch data every 5 seconds
   intervalId = setInterval(fetchData, 5000);
-  
+
   // Handle click event to close dropdown
   document.addEventListener("click", (event) => {
     if (
@@ -137,20 +88,21 @@ const filteredBarangays = computed(() => {
   });
 });
 
-
 // Pass The ID To Delete
 const formSubmit = (barangay_Id) => {
-  errors.value = ''; // 🔹 Reset errors before making a request
   axiosClient.delete(`/api/911/barangay-delete/${barangay_Id}`, {
     headers: {
       'x-api-key': import.meta.env.VITE_API_KEY
     }
   })
-    .then(() => {
+    .then(response => {
       fetchData();
       console.log('Barangay deleted successfully');
+      type.value = 'success';
+      message.value = response.data.message;
     })
     .catch(error => {
+      type.value = 'error';
       console.error('Error deleting barangay:', error.response?.data);
       errors.value = error.response?.data?.errors || 'Failed to delete barangay.';
     });
@@ -221,21 +173,21 @@ watch(searchQuery, () => {
 const maxVisiblePages = 3;
 
 const paginationStart = computed(() => {
-    if (currentPage.value <= Math.floor(maxVisiblePages / 2)) {
-        return 1;
-    } else if (currentPage.value + Math.floor(maxVisiblePages / 2) >= totalPages.value) {
-        return Math.max(1, totalPages.value - maxVisiblePages + 1);
-    } else {
-        return currentPage.value - Math.floor(maxVisiblePages / 2);
-    }
+  if (currentPage.value <= Math.floor(maxVisiblePages / 2)) {
+    return 1;
+  } else if (currentPage.value + Math.floor(maxVisiblePages / 2) >= totalPages.value) {
+    return Math.max(1, totalPages.value - maxVisiblePages + 1);
+  } else {
+    return currentPage.value - Math.floor(maxVisiblePages / 2);
+  }
 });
 
 const paginationEnd = computed(() => {
-    return Math.min(totalPages.value, paginationStart.value + maxVisiblePages - 1);
+  return Math.min(totalPages.value, paginationStart.value + maxVisiblePages - 1);
 });
 
 const visiblePages = computed(() => {
-    return Array.from({ length: paginationEnd.value - paginationStart.value + 1 }, (_, i) => paginationStart.value + i);
+  return Array.from({ length: paginationEnd.value - paginationStart.value + 1 }, (_, i) => paginationStart.value + i);
 });
 </script>
 
@@ -243,13 +195,14 @@ const visiblePages = computed(() => {
   <div class="min-h-screen">
     <!-- Titleee -->
     <div class="mt-6 px-2 flex justify-between">
-        <h1 class="text-2xl font-bold dark:text-white">Barangay Management</h1>
+      <h1 class="text-2xl font-bold dark:text-white">Barangay Management</h1>
     </div>
 
     <section class="w-full">
       <div class="mt-6">
         <!-- Start coding here -->
-        <div class="relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
+        <div
+          class="relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
           <div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
             <div class="w-full md:w-1/2">
               <form class="flex items-center">
@@ -287,68 +240,74 @@ const visiblePages = computed(() => {
               <Loader1 />
             </div>
             <table v-else class="w-full text-sm text-left">
-                        <thead class="text-xs uppercase dark:bg-slate-900 dark:text-gray-300 bg-teal-300 text-gray-800">
-                          <tr>
-                            <th scope="col" class="px-4 py-3 ">ID</th>
-                            <th scope="col" class="px-4 py-3">Name</th>
-                            <th scope="col" class="px-4 py-3">Longitude</th>
-                            <th scope="col" class="px-4 py-3">Latitude</th>
-                            <th scope="col" class="px-4 py-3">Visit Barangay</th>
-                            <th scope="col" class="px-4 py-3">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr v-for="barangay in paginatedBarangays" :key="barangay.id"
-                            class="dark:bg-slate-800 dark:hover:bg-slate-700 bg-sky-50 hover:bg-gray-200">
-                            
-                            <td class="px-4 py-3 ">{{ barangay.id }}</td>
-                            <td class="px-4 py-3 ">{{ barangay.name }}</td>
-                            <td class="px-4 py-3 " v-if="barangay.longitude">{{ barangay.longitude }}</td>
-                            <td class="px-4 py-3 " v-if="!barangay.longitude"><Badge Message="No Data for Longitude" /></td>
-                            <td class="px-4 py-3" v-if="barangay.latitude">{{ barangay.latitude }}</td>
-                            <td class="px-4 py-3" v-if="!barangay.latitude"><Badge Message="No Data for Latitude" /></td>
-                            <td class="px-4 py-3 text-blue-800 hover:text-blue-600 hover:underline font-bold">
-                              <RouterLink :to="`/barangay-statistics/${barangay.id}`">View Incidents</RouterLink>
-                              <ToolTip :Information="`Click to visit barangay and view incidents`" />
-                            </td>
-                            <td class="px-4 py-3 flex items-center relative">
-                            <!-- Dropdown Button -->
-                            <button @click.stop="toggleDropdown(barangay.id)"
-                              class="inline-flex items-center p-0.5 text-sm font-medium rounded-lg"
-                              type="button" >
-                              <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                  d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
-                              </svg>
-                            </button>
-                            <!-- Dropdown Menu -->
-                            <div v-if="openDropdownId === barangay.id" ref="dropdownRefs"
-                              class="absolute z-[10] w-44 mt-2 top-full left-0 shadow-sm border rounded-md bg-white dark:bg-slate-700"
-                              @click.stop>
-                              
-                              <!-- Dropdown Items Container -->
-                              <div class="py-2 text-sm flex flex-col w-full items-center">
-                                <!-- Edit Button -->
-                                  <PopupModal Title="Edit Barangay" ModalButton="Edit" Icon="edit" Classes="" ButtonClass="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
-                                    <template #modalContent>
-                                      <div>
-                                        <EditBarangay :barangay="barangay.id" />
-                                      </div>
-                                    </template>
-                                  </PopupModal>
+              <thead class="text-xs uppercase dark:bg-slate-900 dark:text-gray-300 bg-teal-300 text-gray-800">
+                <tr>
+                  <th scope="col" class="px-4 py-3 ">ID</th>
+                  <th scope="col" class="px-4 py-3">Name</th>
+                  <th scope="col" class="px-4 py-3">Longitude</th>
+                  <th scope="col" class="px-4 py-3">Latitude</th>
+                  <th scope="col" class="px-4 py-3">Visit Barangay</th>
+                  <th scope="col" class="px-4 py-3">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="barangay in paginatedBarangays" :key="barangay.id"
+                  class="dark:bg-slate-800 dark:hover:bg-slate-700 bg-sky-50 hover:bg-gray-200">
 
-                                <!-- Delete Button -->
-                                  <PopupModal Title="Are you sure you want to delete this barangay?" ModalButton="Delete" Icon="cancel" Classes="" ButtonClass="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
-                                    <template #modalContent>
-                                      <div class="p-6 space-x-2">
-                                        <PrimaryButton @click="openDropdownId = null" name="Cancel"
-                                          class="bg-gray-500 hover:bg-gray-600 text-gray-100 shadow-md" />
-                                        <PrimaryButton @click.prevent="formSubmit(barangay.id)" name="Delete"
-                                          class="bg-red-500 hover:bg-red-600 text-gray-100 shadow-md" />
-                                      </div>
-                                    </template>
-                                  </PopupModal>
+                  <td class="px-4 py-3 ">{{ barangay.id }}</td>
+                  <td class="px-4 py-3 ">{{ barangay.name }}</td>
+                  <td class="px-4 py-3 " v-if="barangay.longitude">{{ barangay.longitude }}</td>
+                  <td class="px-4 py-3 " v-if="!barangay.longitude">
+                    <Badge Message="No Data for Longitude" />
+                  </td>
+                  <td class="px-4 py-3" v-if="barangay.latitude">{{ barangay.latitude }}</td>
+                  <td class="px-4 py-3" v-if="!barangay.latitude">
+                    <Badge Message="No Data for Latitude" />
+                  </td>
+                  <td class="px-4 py-3 text-blue-800 hover:text-blue-600 hover:underline font-bold">
+                    <RouterLink :to="`/barangay-statistics/${barangay.id}`">View Incidents</RouterLink>
+                    <ToolTip :Information="`Click to visit barangay and view incidents`" />
+                  </td>
+                  <td class="px-4 py-3 flex items-center relative">
+                    <!-- Dropdown Button -->
+                    <button @click.stop="toggleDropdown(barangay.id)"
+                      class="inline-flex items-center p-0.5 text-sm font-medium rounded-lg" type="button">
+                      <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                          d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+                      </svg>
+                    </button>
+                    <!-- Dropdown Menu -->
+                    <div v-if="openDropdownId === barangay.id" ref="dropdownRefs"
+                      class="absolute z-[10] w-44 mt-2 top-full left-0 shadow-sm border rounded-md bg-white dark:bg-slate-700"
+                      @click.stop>
+
+                      <!-- Dropdown Items Container -->
+                      <div class="py-2 text-sm flex flex-col w-full items-center">
+                        <!-- Edit Button -->
+                        <PopupModal Title="Edit Barangay" ModalButton="Edit" Icon="edit" Classes=""
+                          ButtonClass="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
+                          <template #modalContent>
+                            <div>
+                              <EditBarangay :barangay="barangay.id" />
+                            </div>
+                          </template>
+                        </PopupModal>
+
+                        <!-- Delete Button -->
+                        <PopupModal Title="Are you sure you want to delete this barangay?" ModalButton="Delete"
+                          Icon="cancel" Classes=""
+                          ButtonClass="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
+                          <template #modalContent>
+                            <div class="p-6 space-x-2">
+                              <PrimaryButton @click="openDropdownId = null" name="Cancel"
+                                class="bg-gray-500 hover:bg-gray-600 text-gray-100 shadow-md" />
+                              <PrimaryButton @click.prevent="formSubmit(barangay.id)" name="Delete"
+                                class="bg-red-500 hover:bg-red-600 text-gray-100 shadow-md" />
+                            </div>
+                          </template>
+                        </PopupModal>
 
                       </div>
                     </div>
@@ -357,69 +316,61 @@ const visiblePages = computed(() => {
               </tbody>
             </table>
 
-                </div>
-                <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">
-                  <span class="text-sm font-normal">
-                    Showing
-                    <span class="font-semibold">{{ filteredBarangays.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0
-                      }}</span>
-                    to
-                    <span class="font-semibold">{{ Math.min(currentPage * itemsPerPage, filteredBarangays.length) }}</span>
-                    of
-                    <span class="font-semibold">{{ filteredBarangays.length }}</span>
-                  </span>
+          </div>
+          <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">
+            <span class="text-sm font-normal">
+              Showing
+              <span class="font-semibold">{{ filteredBarangays.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0
+              }}</span>
+              to
+              <span class="font-semibold">{{ Math.min(currentPage * itemsPerPage, filteredBarangays.length) }}</span>
+              of
+              <span class="font-semibold">{{ filteredBarangays.length }}</span>
+            </span>
 
-                  <!-- <ul class="inline-flex items-stretch -space-x-px">
-                      <li><button @click="prevPage" :disabled="currentPage === 1" class="px-3 py-1 rounded-l-lg border hover:bg-gray-300 dark:hover:bg-slate-600">Previous</button></li>
-                      <li v-for="page in totalPages" :key="page">
-                          <button @click="goToPage(page)"
-                              :class="['px-3 py-1 border', currentPage === page ? 'bg-slate-500 text-white border-black' : 'hover:bg-gray-300 dark:hover:bg-slate-600']">
-                              {{ page }}
-                          </button>
-                      </li>
-                      <li><button @click="nextPage" :disabled="currentPage === totalPages" class="px-3 py-1 rounded-r-lg border hover:bg-gray-300 dark:hover:bg-slate-600">Next</button></li>
-                  </ul> -->
-                  <ul class="inline-flex items-stretch -space-x-px">
-                        <li>
-                            <button @click="prevPage" :disabled="currentPage === 1"
-                                class="px-3 py-1 rounded-l-lg border hover:bg-gray-300 dark:hover:bg-slate-600">
-                                Previous
-                            </button>
-                        </li>
-                        
-                        <li v-if="paginationStart > 1">
-                            <button @click="goToPage(1)" class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600">1</button>
-                            <button disabled class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</button>
-                        </li>
+            <ul class="inline-flex items-stretch -space-x-px">
+              <li>
+                <button @click="prevPage" :disabled="currentPage === 1"
+                  class="px-3 py-1 rounded-l-lg border hover:bg-gray-300 dark:hover:bg-slate-600">
+                  Previous
+                </button>
+              </li>
 
-                        <li v-for="page in visiblePages" :key="page">
-                            <button @click="goToPage(page)"
-                                :class="['px-3 py-1 border', currentPage === page ? 'bg-slate-500 text-white border-black' : 'hover:bg-gray-300 dark:hover:bg-slate-600']">
-                                {{ page }}
-                            </button>
-                        </li>
+              <li v-if="paginationStart > 1">
+                <button @click="goToPage(1)"
+                  class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600">1</button>
+                <button disabled class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</button>
+              </li>
 
-                        <li v-if="paginationEnd < totalPages">
-                            <button disabled class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</button>
-                            <button @click="goToPage(totalPages)" class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600">{{ totalPages }}</button>
-                        </li>
+              <li v-for="page in visiblePages" :key="page">
+                <button @click="goToPage(page)"
+                  :class="['px-3 py-1 border', currentPage === page ? 'bg-slate-500 text-white border-black' : 'hover:bg-gray-300 dark:hover:bg-slate-600']">
+                  {{ page }}
+                </button>
+              </li>
 
-                        <li>
-                            <button @click="nextPage" :disabled="currentPage === totalPages"
-                                class="px-3 py-1 rounded-r-lg border hover:bg-gray-300 dark:hover:bg-slate-600">
-                                Next
-                            </button>
-                        </li>
-                    </ul>
-                </nav>
-              </div>
-            </div>
-          </section>
+              <li v-if="paginationEnd < totalPages">
+                <button disabled class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</button>
+                <button @click="goToPage(totalPages)"
+                  class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600">{{
+                  totalPages }}</button>
+              </li>
 
-    </div>
+              <li>
+                <button @click="nextPage" :disabled="currentPage === totalPages"
+                  class="px-3 py-1 rounded-r-lg border hover:bg-gray-300 dark:hover:bg-slate-600">
+                  Next
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </section>
+  </div>
 
-    <div>
-      <Toast v-if="message.length > 0" :message="message" />
-      <Toast v-if="errors.length > 0" :message="errors" />
-    </div>
+  <div class="flex flex-col fixed top-17 right-5 w-1/2 items-end z-50">
+    <Toast v-if="message" :message="message" :icon="icon" :classes="classes" :type="type" />
+    <Toast v-if="errors" :message="errors" :icon="icon" :classes="classes" :type="type" />
+  </div>
 </template>

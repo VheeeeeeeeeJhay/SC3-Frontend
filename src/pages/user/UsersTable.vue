@@ -3,7 +3,7 @@ import { ref, onMounted, computed, watch } from 'vue';
 import axiosClient from '../../axios.js';
 import { RouterLink } from 'vue-router';
 import PrimaryButton from '../../components/PrimaryButton.vue';
-import TabNavigation from '../../components/TabNavigation.vue';
+import TabNavigation from '../../components/tabs/TabNavigation.vue';
 
 </script>
 

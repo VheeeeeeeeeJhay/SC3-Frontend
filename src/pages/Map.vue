@@ -5,7 +5,6 @@ import leaflet from "leaflet";
 import "leaflet.heat";
 import { useGeolocation } from "@vueuse/core";
 import { useMapStore } from "../stores/mapStore"; // Import Pinia store for managing state
-import TabNavigation from "../components/TabNavigation.vue";
 
 // Import map.json from assets folder (GeoJSON)
 import mapData from "../assets/map.json"; // Adjust the path as needed

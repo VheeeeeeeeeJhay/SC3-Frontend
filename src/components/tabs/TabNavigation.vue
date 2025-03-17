@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
-import ArchiveTabs from './tabs/ArchiveTabs.vue';
-import ActiveTabs from './tabs/ActiveTabs.vue';
+import ArchiveTabs from './ArchiveTabs.vue';
+import ActiveTabs from './ActiveTabs.vue';
 
 // Define the active tab using a reactive reference
 const activeTab = ref('active'); // Set the default active tab to 'active'

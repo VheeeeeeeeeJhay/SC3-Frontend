@@ -35,7 +35,10 @@ const submitLoading = ref(false);
 
 const isLoading = ref(false);
 const errors = ref('');
-const success = ref('');
+const message = ref('');
+const type = ref('');
+const icon = ref('');
+const classes = ref('');
 
 const fetchData = () => {
     axiosClient.get(`/api/911/barangay-edit/${barangay_Id.value}`, {
@@ -46,16 +49,20 @@ const fetchData = () => {
     .then((res) => {
         console.log("Fetched Data:", res.data);
         data.value = { ...res.data }; // Ensuring we copy raw values
-        isLoading.value = false;
     })
     .catch((error) => {
+        type.value = 'error';
         console.error('Error fetching data:', error);
+        errors.value = error.response.data.error;
+    })
+    .finally(() => {
         isLoading.value = false;
     });
 }
 
 onMounted(() => {
     isLoading.value = true;
+
     fetchData();
 });
 
@@ -75,15 +82,18 @@ const formSubmit = () => {
         }
     })
     .then(response => {
+        type.value = 'success';
         console.log(response.data.message);
-        success.value = response.data.message;
+        message.value = response.data.message;
     })
     .catch(error => {
+        type.value = 'error';
         if (error.response) {
             console.error('Error updating barangay:', error.response.data);
             errors.value = error.response.data.errors || { message: 'Something went wrong' };
         } else {
             console.error('Unexpected error:', error);
+            errors.value = 'Unexpected error';
         }
     })
     .finally(() => {
@@ -162,6 +172,8 @@ const formSubmit = () => {
             </div>
         </div>
     </div>
-    <Toast v-if="success.length > 0" :message="success" />
-    <Toast v-if="errors.length > 0" :message="errors" />
+    <div class="flex flex-col fixed top-17 right-5 w-1/2 items-end z-50">
+        <Toast v-if="message" :message="message" :icon="icon" :classes="classes" :type="type"/>
+        <Toast v-if="errors" :message="errors" :icon="icon" :classes="classes" :type="type"/>
+    </div>
 </template>
