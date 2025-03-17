@@ -4,20 +4,20 @@ import axiosClient from  '../../axios.js';
 import Badge from '../../components/Badge.vue';
 
 const users = ref([]);
-const searchQuery = ref("");
-const isLoading = ref(false);
-
 const selectedClassifications = ref([]);
 
+const searchQuery = ref('');
 const message = ref('');
 const errors = ref('');
 const icon = ref('');
 const classes = ref('');
 const type = ref('');
 
+const isLoading = ref(false);
 
 let interval_id = null;
 
+// Fetch Users
 const fetchData = async () => {
     try {
         if (users.value.length === 0) {
@@ -45,6 +45,105 @@ const fetchData = async () => {
     }
 };
 
+// Dashboard Role
+const dashboardRole = async (user) => {
+    const newRoleStatus = user.for_911 === 1 ? 0 : 1; // Toggle based on user state
+
+    // Prevent both roles from being false at the same time
+    if (newRoleStatus === 0 && user.for_inventory === 0) {
+        // alert('At least 1 role must be active');
+        type.value = 'warning';
+        message.value = 'At least 1 role must be active';
+        return;
+    }
+
+    try {
+        const response = await axiosClient.patch(`/api/911/user-dashboard-role/${user.id}`, {
+            for_911: newRoleStatus
+        }, {
+            headers: {
+                'x-api-key': import.meta.env.VITE_API_KEY
+            }
+        });
+        console.log('Role updated successfully');
+        // Update local state instantly
+        user.for_911 = newRoleStatus;
+        type.value = 'success';
+        message.value = response.data.message;
+    } catch (error) {
+        type.value = 'error';
+        console.error(error.response?.data?.error);
+        errors.value = error.response?.data?.error || 'Failed to update role';
+    }
+};
+
+// Inventory Role
+const inventoryRole = async (user) => {
+    const newRoleStatus = user.for_inventory === 1 ? 0 : 1; // Toggle based on user state
+
+    // Prevent both roles from being false at the same time
+    if (newRoleStatus === 0 && user.for_911 === 0) {
+        // alert('At least 1 role must be active');
+        type.value = 'warning';
+        message.value = 'At least 1 role must be active';
+        return;
+    }
+
+    try {
+        const response = await axiosClient.patch(`/api/911/user-inventory-role/${user.id}`, { for_inventory: newRoleStatus },
+            {
+                headers: {
+                    'x-api-key': import.meta.env.VITE_API_KEY
+                }
+            });
+
+        // Update local state instantly
+        type.value = 'success';
+        user.for_inventory = newRoleStatus;
+        message.value = response.data.message;
+    } catch (error) {
+        type.value = 'error';
+        console.error(error.response?.data?.message || error.message);
+        errors.value = error.response?.data?.error || 'Failed to update role';
+    }
+};
+
+// Archive User
+const archiveUser = async (user) => {
+    try {
+        const response = await axiosClient.patch(`/api/911/user-archive/${user.id}`, { for_911: 0, for_inventory: 0 },
+            {
+                headers: {
+                    'x-api-key': import.meta.env.VITE_API_KEY,
+                }
+            });
+
+        // Update local state instantly
+        type.value = 'success';
+        message.value = response.data.message;
+        user.for_911 = 0;
+        user.for_inventory = 0;
+    } catch (error) {
+        type.value = 'error';
+        console.error(error.response?.data?.message || error.message);
+        errors.value = error.response?.data?.error || 'Failed to archive user';
+    }
+};
+
+// Fetch Users
+onMounted(() => {
+    fetchData();
+    interval_id = setInterval(fetchData, 5000);
+});
+
+// Unmount Interval on Before Unmount
+onBeforeUnmount(() => {
+    if (interval_id) {
+        clearInterval(interval_id);
+    }
+});
+
+
 // Computed property for dynamic search and filtering
 const filteredUsers = computed(() => {
     return users.value.filter(user => {
@@ -62,6 +161,7 @@ const filteredUsers = computed(() => {
     });
 });
 
+// Dropdown
 const dropListener = () => {
     document.addEventListener("click", (event) => {
         if (
@@ -74,19 +174,10 @@ const dropListener = () => {
 }
 
 onMounted(() => {
-    fetchData();
-
-    interval_id = setInterval(fetchData, 5000);
-
-    // ------------------------------------------
+    // Dropdown listener
     dropListener();
 });
 
-onBeforeUnmount(() => {
-    if (interval_id) {
-        clearInterval(interval_id);
-    }
-});
 
 // -----------------------
 const openDropdownId = ref(null);
@@ -161,103 +252,6 @@ watch(searchQuery, () => {
     currentPage.value = 1;
 });
 
-// Email Masking
-const maskEmail = (email) => {
-    const parts = email.split('@')
-    const name = parts[0]
-    const domain = parts[1]
-
-    if (name.length <= 2) {
-        return name + '@' + domain // No masking for very short names
-    }
-
-    const maskedName = `${name[0]}${'*'.repeat(name.length - 2)}${name[name.length - 1]}`
-    return `${maskedName}@${domain}`
-}
-
-// Role
-const dashboardRole = async (user) => {
-    const newRoleStatus = user.for_911 === 1 ? 0 : 1; // Toggle based on user state
-
-    // Prevent both roles from being false at the same time
-    if (newRoleStatus === 0 && user.for_inventory === 0) {
-        // alert('At least 1 role must be active');
-        type.value = 'warning';
-        message.value = 'At least 1 role must be active';
-        return;
-    }
-
-    try {
-        const response = await axiosClient.patch(`/api/911/user-dashboard-role/${user.id}`, {
-            for_911: newRoleStatus
-        }, {
-            headers: {
-                'x-api-key': import.meta.env.VITE_API_KEY
-            }
-        });
-        console.log('Role updated successfully');
-        // Update local state instantly
-        user.for_911 = newRoleStatus;
-        type.value = 'success';
-        message.value = response.data.message;
-    } catch (error) {
-        type.value = 'error';
-        console.error(error.response?.data?.error);
-        errors.value = error.response?.data?.error || 'Failed to update role';
-    }
-};
-const inventoryRole = async (user) => {
-    const newRoleStatus = user.for_inventory === 1 ? 0 : 1; // Toggle based on user state
-
-    // Prevent both roles from being false at the same time
-    if (newRoleStatus === 0 && user.for_911 === 0) {
-        // alert('At least 1 role must be active');
-        type.value = 'warning';
-        message.value = 'At least 1 role must be active';
-        return;
-    }
-
-    try {
-        const response = await axiosClient.patch(`/api/911/user-inventory-role/${user.id}`, { for_inventory: newRoleStatus },
-            {
-                headers: {
-                    'x-api-key': import.meta.env.VITE_API_KEY
-                }
-            });
-
-        // Update local state instantly
-        type.value = 'success';
-        user.for_inventory = newRoleStatus;
-        message.value = response.data.message;
-    } catch (error) {
-        type.value = 'error';
-        console.error(error.response?.data?.message || error.message);
-        errors.value = error.response?.data?.error || 'Failed to update role';
-    }
-};
-
-const archiveUser = async (user) => {
-    try {
-        const response = await axiosClient.patch(`/api/911/user-archive/${user.id}`, { for_911: 0, for_inventory: 0 },
-            {
-                headers: {
-                    'x-api-key': import.meta.env.VITE_API_KEY,
-                }
-            });
-
-        // Update local state instantly
-        type.value = 'success';
-        message.value = response.data.message;
-        user.for_911 = 0;
-        user.for_inventory = 0;
-    } catch (error) {
-        type.value = 'error';
-        console.error(error.response?.data?.message || error.message);
-        errors.value = error.response?.data?.error || 'Failed to archive user';
-    }
-};
-
-
 const maxVisiblePages = 3;
 
 const paginationStart = computed(() => {
@@ -277,6 +271,21 @@ const paginationEnd = computed(() => {
 const visiblePages = computed(() => {
     return Array.from({ length: paginationEnd.value - paginationStart.value + 1 }, (_, i) => paginationStart.value + i);
 });
+
+// Email Masking
+const maskEmail = (email) => {
+    const parts = email.split('@')
+    const name = parts[0]
+    const domain = parts[1]
+
+    if (name.length <= 2) {
+        return name + '@' + domain // No masking for very short names
+    }
+
+    const maskedName = `${name[0]}${'*'.repeat(name.length - 2)}${name[name.length - 1]}`
+    return `${maskedName}@${domain}`
+}
+
 </script>
 
 <template>

@@ -11,9 +11,6 @@ import RecentIncident from "../components/widgets/RecentIncident.vue";
 import TotalReportsReceived from "../components/widgets/TotalReportsReceived.vue";
 import TopPerforming from "../components/widgets/TopPerforming.vue";
 
-// /👾👾👾👾👾👾👾👾/ //
-// Fetch Data From Backend //
-
 const incidents = ref([]);
 const reports = ref([]);
 
@@ -104,6 +101,8 @@ const formatDate = (date) => date.toISOString().split('T')[0]; // Format as YYYY
 const selectedEndDate = ref(formatDate(new Date())); // Current day
 const selectedStartDate = ref(formatDate(new Date(new Date().setDate(new Date().getDate() - 6)))); // 6 days ago
 const selectedDateRange = ref({ start: selectedStartDate.value, end: selectedEndDate.value });
+
+
 </script>
 
 <template>

@@ -1,7 +1,5 @@
 <script setup>
 import { ref } from 'vue';
-import PrimaryButton from '../../components/PrimaryButton.vue';
-import router from '../../router.js';
 import axiosClient from '../../axios.js';
 import FormInput from '../../components/FormInput.vue';
 
@@ -20,7 +18,6 @@ const clearData = () => {
 
 const message = ref('');
 const errors = ref([]);
-const toastError = ref('');
 const type = ref('');
 const icon = ref('');
 const classes = ref('');
@@ -32,27 +29,27 @@ const formSubmit = async () => {
     formData.append('name', data.value.name)
     formData.append('longitude', data.value.longitude)
     formData.append('latitude', data.value.latitude)
-    await axiosClient.post("/api/911/barangay", formData, {
-    headers: {
-      'x-api-key': import.meta.env.VITE_API_KEY
-    }
+    const response = await axiosClient.post("/api/911/barangay", formData, {
+      headers: {
+        'x-api-key': import.meta.env.VITE_API_KEY
+      }
     })
-    .then(response => { 
-      type.value = 'success';
-      clearData();
-      console.log(response)
-      message.value = response.data.message;
-    })
-    .catch(error => { 
-      // console.error(error.data.message)
-      toastError.value = error.response.data.message;
-      errors.value = error.response.data.errors;
-    })
+    // .then(response => { 
+    type.value = 'success';
+    clearData();
+    console.log(response)
+    message.value = response.data.message;
+    // })
+    // .catc/h(error => { 
+    // console.error(error.data.message)
+    // toastError.value = error.response.data.message;
+    // errors.value = error.response.data.errors;
+    // })
   }
   catch (error) {
     console.error(error.response.data.message)
-type.value = 'error';
-errors.value = error.response.data.errors;
+    type.value = 'error';
+    errors.value = error.response.data.errors;
     // toastError = error.response.data.message;
     // errors.value = error.response.data.errors;
   }
@@ -61,50 +58,52 @@ errors.value = error.response.data.errors;
 
 <template>
   <div class="max-w-lg mx-auto bg-sky-50 dark:bg-slate-900 p-2">
-      <!-- <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Add Barangay</h2> -->
-      <form @submit.prevent="formSubmit" class="space-y-4">
-          
-          <!-- Barangay Name -->
-          <div class="space-y-1">
-              <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Barangay Name</label>
-              <div class="relative">
-                  <FormInput v-model="data.name" type="text" name="name" placeholder="Enter Barangay Name"
-                      class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50 dark:bg-slate-800 dark:border-gray-700 dark:text-white" />
-                  <span class="text-sm text-red-500" v-if="errors.name && errors.name.length">{{ errors.name[0] }}</span>
-              </div>
-          </div>
+    <!-- <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Add Barangay</h2> -->
+    <form @submit.prevent="formSubmit" class="space-y-4">
 
-          <!-- Longitude -->
-          <div class="space-y-1">
-              <label for="longitude" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Longitude</label>
-              <div class="relative">
-                  <FormInput v-model="data.longitude" type="text" name="longitude" placeholder="Enter Longitude"
-                      class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50 dark:bg-slate-800 dark:border-gray-700 dark:text-white" />
-                  <span class="text-sm text-red-500" v-if="errors.longitude && errors.longitude.length">{{ errors.longitude[0] }}</span>
-              </div>
-          </div>
+      <!-- Barangay Name -->
+      <div class="space-y-1">
+        <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Barangay Name</label>
+        <div class="relative">
+          <FormInput v-model="data.name" type="text" name="name" placeholder="Enter Barangay Name"
+            class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50 dark:bg-slate-800 dark:border-gray-700 dark:text-white" />
+          <span class="text-sm text-red-500" v-if="errors.name && errors.name.length">{{ errors.name[0] }}</span>
+        </div>
+      </div>
 
-          <!-- Latitude -->
-          <div class="space-y-1">
-              <label for="latitude" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Latitude</label>
-              <div class="relative">
-                  <FormInput v-model="data.latitude" type="text" name="latitude" placeholder="Enter Latitude"
-                      class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50 dark:bg-slate-800 dark:border-gray-700 dark:text-white" />
-                  <span class="text-sm text-red-500" v-if="errors.latitude && errors.latitude.length">{{ errors.latitude[0] }}</span>
-              </div>
-          </div>
+      <!-- Longitude -->
+      <div class="space-y-1">
+        <label for="longitude" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Longitude</label>
+        <div class="relative">
+          <FormInput v-model="data.longitude" type="text" name="longitude" placeholder="Enter Longitude"
+            class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50 dark:bg-slate-800 dark:border-gray-700 dark:text-white" />
+          <span class="text-sm text-red-500" v-if="errors.longitude && errors.longitude.length">{{ errors.longitude[0]
+            }}</span>
+        </div>
+      </div>
 
-          <!-- Submit Button -->
-          <PrimaryButton name="Add Barangay" type="submit"
-              class="w-full py-2 text-white bg-green-600 hover:bg-green-700 rounded-md transition-all">
-          </PrimaryButton>
+      <!-- Latitude -->
+      <div class="space-y-1">
+        <label for="latitude" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Latitude</label>
+        <div class="relative">
+          <FormInput v-model="data.latitude" type="text" name="latitude" placeholder="Enter Latitude"
+            class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50 dark:bg-slate-800 dark:border-gray-700 dark:text-white" />
+          <span class="text-sm text-red-500" v-if="errors.latitude && errors.latitude.length">{{ errors.latitude[0]
+            }}</span>
+        </div>
+      </div>
 
-      </form>
+      <!-- Submit Button -->
+      <PrimaryButton name="Add Barangay" type="submit"
+        class="w-full py-2 text-white bg-green-600 hover:bg-green-700 rounded-md transition-all">
+      </PrimaryButton>
 
-      <!-- Toast Notifications -->
-      <div class="flex flex-col fixed top-17 right-5 w-1/2 items-end z-50">
-        <Toast v-if="message" :message="message" :icon="icon" :classes="classes" :type="type"/>
-        <Toast v-if="errors.length > 0" :message="errors" :icon="icon" :classes="classes" :type="type"/>
+    </form>
+
+    <!-- Toast Notifications -->
+    <div class="flex flex-col fixed top-17 right-5 w-1/2 items-end z-50">
+      <Toast v-if="message" :message="message" :icon="icon" :classes="classes" :type="type" />
+      <Toast v-if="errors.length > 0" :message="errors" :icon="icon" :classes="classes" :type="type" />
     </div>
   </div>
 </template>
