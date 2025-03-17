@@ -267,18 +267,51 @@ watch(() => data.value.barangay_id, (newBarangayId) => {
   }
 });
 
+//date and time icons
+const openTimePicker = () => {
+    document.getElementById("arrival_on_site").showPicker();
+};
+const openTimePicker2 = () => {
+    document.getElementById("time").showPicker();
+};
+const openDatePicker = () => {
+    document.getElementById("date_received").showPicker();
+};
+
+//testing
+const searchQuery = ref('');
+const isDropdownOpen = ref(false);
+// Filter Barangays
+const filteredBarangays = computed(() => {
+  return barangays.value.filter(b => 
+    b.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+});
+
+// Select Barangay
+const selectBarangay = (barangay) => {
+  data.value.barangay_id = barangay.id;
+  searchQuery.value = barangay.name;
+  isDropdownOpen.value = false;
+};
+
+// Close Dropdown
+const closeDropdown = () => {
+  setTimeout(() => isDropdownOpen.value = false, 200);
+};
+
 </script>
 
 <template>
   <div class="min-h-screen">
     <!-- Titleee -->
-    <div class="mt-6 px-2 flex justify-between">
-        <h1 class="text-2xl font-bold dark:text-white">Add a New Report</h1>
-        <Button type="button" name="Back" @click.prevent="router.back()"
-          class="px-3 py-1 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200 flex items-center">
-          <span class="material-icons mr-2"> arrow_back </span>
-          Back
-        </Button>
+    <div class="mt-6 px-2">
+      <h1 class="text-2xl font-bold dark:text-white mb-2">Add a New Report</h1>
+      <Button type="button" name="Back" @click.prevent="router.back()"
+        class="px-3 py-1 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200 flex items-center">
+        <span class="material-icons mr-2"> arrow_back </span>
+        Back
+      </Button>
     </div>
 
     <main class="flex-1 px-2">
@@ -357,33 +390,39 @@ watch(() => data.value.barangay_id, (newBarangayId) => {
             </div>
 
             <h2 class="text-2xl font-bold mb-6 mt-12">Time Information</h2>
-            <div class="space-y-4">
-              <div class="form-group">
+            <div class="space-y-4 grid grid-cols-2 gap-4 mb-8">
+              <div class="form-group relative">
                 <label for="date_received" class="block text-sm font-medium mb-2">
                   Date Received
                   <ToolTip Information="This is the date the report was received." />
                 </label>
-                <input type="date" id="date_received" v-model="data.date_received"
-                  class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
+                <input type="date" id="date_received" v-model="data.date_received" @click="openDatePicker"
+                  class="appearance-none w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
+                  <span @click="openDatePicker" class="material-icons calendar_month absolute right-3 top-11 text-gray-800 dark:text-white"/>   
+                  
                   <span class="text-sm text-red-500" v-if="errors.date_received && errors.date_received.length">{{ errors.date_received[0] }}</span>
               </div>
-              <div class="form-group">
+              <div class="form-group relative">
                 <label for="arrivalDate" class="block text-sm font-medium mb-2">
                   Time of Arrival on Site
                   <ToolTip Information="This is the time the report was received." />
                 </label>
-                <input type="time" id="arrivalDate" v-model="data.arrival_on_site" 
-                  class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
-                <span class="text-sm text-red-500" v-if="errors.arrival_on_site && errors.arrival_on_site.length">{{ errors.arrival_on_site[0] }}</span>
+                <input type="time" id="arrival_on_site" v-model="data.arrival_on_site" @click="openTimePicker"
+                  class="appearance-none w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
+                  <span @click="openTimePicker" class="material-icons schedule absolute right-3 top-11 text-gray-800 dark:text-white"/>
+                
+                  <span class="text-sm text-red-500" v-if="errors.arrival_on_site && errors.arrival_on_site.length">{{ errors.arrival_on_site[0] }}</span>
               </div>
-              <div class="form-group">
-                <label for="incidentTime" class="block text-sm font-medium mb-2">
+              <div class="form-group relative">
+                <label for="time" class="block text-sm font-medium mb-2">
                   Time of Incident
                   <ToolTip Information="This is the time of the incident." />
                 </label>
-                <input type="time" id="incidentTime" v-model="data.time"
-                  class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
-                <span class="text-sm text-red-500" v-if="errors.time && errors.time.length">{{ errors.time[0] }}</span>
+                <input type="time" id="time" v-model="data.time" @click="openTimePicker2"
+                  class="appearance-none w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
+                  <span @click="openTimePicker22" class="material-icons schedule absolute right-3 top-11 text-gray-800 dark:text-white"/>
+                
+                  <span class="text-sm text-red-500" v-if="errors.time && errors.time.length">{{ errors.time[0] }}</span>
               </div>
             </div>
           </div>
@@ -395,20 +434,42 @@ watch(() => data.value.barangay_id, (newBarangayId) => {
             <h2 class="text-2xl font-bold mb-6">Place Information</h2>
             <div class="space-y-4">
               <div class="grid grid-cols-2 gap-4">
-                <div class="form-group">
-                  <label for="place" class="block text-sm font-medium mb-2">
-                    Place of Incident
-                    <ToolTip Information="This is the place of the incident." />
-                  </label>
-                  <select id="place" v-model="data.barangay_id"
-                    class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
-                    <option disabled value="">Select Barangay (128)</option>
-                    <option v-for="barangay in barangays" :key="barangay.id" :value="barangay.id">{{ barangay.name }}
-                    </option>
-                  </select>
-                  <span class="text-sm text-red-500" v-if="errors.barangay_id && errors.barangay_id.length">{{
-                    errors.barangay_id[0] }}</span>
-                </div>
+                <div class="form-group relative">
+    <label for="place" class="block text-sm font-medium mb-2">
+      Place of Incident
+      <ToolTip Information="This is the place of the incident." />
+    </label>
+
+    <!-- Searchable Input -->
+    <input 
+      id="place" 
+      v-model="searchQuery" 
+      @focus="isDropdownOpen = true"
+      @blur="closeDropdown"
+      placeholder="Search Barangay..." 
+      class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white"
+    />
+
+    <!-- Dropdown List -->
+    <ul 
+      v-if="isDropdownOpen && filteredBarangays.length" 
+      class="absolute z-50 bg-white dark:bg-slate-900 w-full shadow-lg rounded-md mt-1 max-h-52 overflow-y-auto border border-gray-200 dark:border-black"
+    >
+      <li 
+        v-for="barangay in filteredBarangays" 
+        :key="barangay.id" 
+        @mousedown.prevent="selectBarangay(barangay)"
+        class="p-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-slate-600"
+      >
+        {{ barangay.name }}
+      </li>
+    </ul>
+
+    <!-- Error Message -->
+    <span class="text-sm text-red-500" v-if="errors.barangay_id && errors.barangay_id.length">
+      {{ errors.barangay_id[0] }}
+    </span>
+  </div>
                 <div class="form-group">
                   <label for="landmark" class="block text-sm font-medium mb-2">
                     Location Details
@@ -422,7 +483,7 @@ watch(() => data.value.barangay_id, (newBarangayId) => {
               </div>
 
               <div class="form-group">
-                <div id="map" class="mb-4 h-64"></div>
+                <div id="map" class="mb-4 h-64 z-10"></div>
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <div class="form-group">
@@ -456,13 +517,28 @@ watch(() => data.value.barangay_id, (newBarangayId) => {
       </form>
     </main>
   </div>
-  <Toast v-if="success.length > 0" :message="success" />
-  <Toast v-if="errors.length > 0" :message="errors" />
+  
+  <Toast v-if="success.length > 0" :message="success" icon="check_circle" type="success"/>
+  <Toast v-if="errors.length > 0" :message="errors"  icon="error" type="error"/>
 </template>
 
 <style scoped>
 #map {
   height: 35vh;
   width: 100%;
+}
+/* Hide the default date & time picker icons in WebKit browsers (Chrome, Safari, Edge) */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Hide the default date & time picker icons in Firefox */
+input[type="date"],
+input[type="time"] {
+    -moz-appearance: textfield;
 }
 </style>

@@ -267,7 +267,7 @@ const formSubmit = async (report_Id) => {
                             </button>
 
                             <div id="filterDropdown" v-show="isFilterDropdownOpen"
-                                class="absolute top-full left-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-slate-700 dark:text-white">
+                                class="absolute top-full right-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-slate-700 dark:text-white overflow-hidden">
                                 <h6 class="mb-3 text-sm font-medium">Choose Classification</h6>
                                 <ul class="space-y-2 text-sm">
                                     <li v-for="classification in classifications" :key="classification.id" class="flex items-center">
@@ -312,8 +312,10 @@ const formSubmit = async (report_Id) => {
                                 </button>
 
                                 <div v-if="openDropdownId === report.id" ref="dropdownRefs"
-                                    class="absolute z-10 w-44 mt-2 top-full left-0 shadow-sm border rounded-md bg-white dark:bg-slate-700" @click.stop>
-                                    <ul class="py-2 text-sm">
+                                class="absolute z-10 w-44 mt-0.5 top-full right-0 shadow-sm border rounded-md bg-white dark:bg-slate-700"
+                                @click.stop>
+                                    
+                                    <ul class=" text-sm">
                                         <li>
                                             <RouterLink :to="{ name: 'ReportViewDetails', params: { id: report.id } }"
                                                 class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">

@@ -267,6 +267,12 @@ watch(() => data.value.barangay, (newBarangayId) => {
 const openTimePicker = () => {
     document.getElementById("arrival_on_site").showPicker();
 };
+const openTimePicker2 = () => {
+    document.getElementById("time").showPicker();
+};
+const openDatePicker = () => {
+    document.getElementById("receivedDate").showPicker();
+};
 
 </script>
 
@@ -310,8 +316,7 @@ const openTimePicker = () => {
                                 <div class="grid grid-cols-2 gap-4 mb-8">
                                     
                                     <div class="form-group">
-                                        <label for="incidentType" class="block text-sm font-medium mb-2"
-                                            :class="themeClasses">
+                                        <label for="incidentType" class="block text-sm font-medium mb-2">
                                             Case Classification
                                             <ToolTip
                                                 Information="This is the type of assistance that is being reported." />
@@ -341,8 +346,7 @@ const openTimePicker = () => {
                                     </div>
 
                                     <div class="form-group">
-                                        <label for="incident" class="block text-sm font-medium mb-2"
-                                            :class="themeClasses">
+                                        <label for="incident" class="block text-sm font-medium mb-2">
                                             Incident/Case
                                             <ToolTip
                                                 Information="This is the type of incident that is being reported." />
@@ -359,8 +363,7 @@ const openTimePicker = () => {
                                     </div>
 
                                     <div class="form-group">
-                                        <label for="actionType" class="block text-sm font-medium mb-2"
-                                            :class="themeClasses">
+                                        <label for="actionType" class="block text-sm font-medium mb-2">
                                             Type of Action
                                             <ToolTip Information="This is the type of action that is being reported." />
                                         </label>
@@ -374,14 +377,15 @@ const openTimePicker = () => {
                                 </div>
 
                                 <h2 class="text-2xl font-bold mb-6 mt-12">Time Information</h2>
-                                <div class="space-y-4">
-                                    <div class="form-group">
+                                <div class="space-y-4 grid grid-cols-2 gap-4 mb-8">
+                                    <div class="form-group relative">
                                         <label for="receivedDate" class="block text-sm font-medium mb-2">
                                             Date Received
                                             <ToolTip Information="This is the date when the report was received." />
                                         </label>
-                                        <input type="date" id="receivedDate" v-model="data.receivedDate"
-                                            class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
+                                        <input type="date" id="receivedDate" v-model="data.receivedDate" @click="openDatePicker"
+                                            class=" appearance-none w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
+                                        <span @click="openDatePicker" class="material-icons calendar_month absolute right-3 top-11 text-gray-800 dark:text-white"/>   
                                     </div>
                                     <div class="form-group relative">
                                         <label for="arrival_on_site" class="block text-sm font-medium mb-2">
@@ -394,15 +398,18 @@ const openTimePicker = () => {
                                             bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white pr-10" />
 
                                         <!-- Custom Clock Icon that triggers the input -->
-                                        <span class="material-icons schedule absolute right-3 top-11 text-gray-800 dark:text-white"/>
+                                        <span @click="openTimePicker" class="material-icons schedule absolute right-3 top-11 text-gray-800 dark:text-white"/>
                                     </div>
-                                    <div class="form-group">
+                                    <div class="form-group relative">
                                         <label for="time" class="block text-sm font-medium mb-2">
                                             Time of Incident
                                             <ToolTip Information="This is the time when the incident occurred." />
                                         </label>
-                                        <input type="time" id="time" v-model="data.time"
-                                            class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
+                                        <input type="time" id="time" v-model="data.time" @click="openTimePicker2"
+                                        class="appearance-none w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 
+                                        bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white pr-10" />
+                                        
+                                        <span @click="openTimePicker2" class="material-icons schedule absolute right-3 top-11 text-gray-800 dark:text-white"/>
                                     </div>
                                 </div>
                             </div>
@@ -411,12 +418,11 @@ const openTimePicker = () => {
 
                             <!-- right side -->
                             <div class="w-1/2 pl-4">
-                                <h2 class="text-2xl font-bold mb-6" :class="themeClasses">Place Information</h2>
+                                <h2 class="text-2xl font-bold mb-6">Place Information</h2>
                                 <div class="space-y-4">
                                     <div class="grid grid-cols-2 gap-4">
                                         <div class="form-group">
-                                            <label for="place" class="block text-sm font-medium mb-2"
-                                                :class="themeClasses">
+                                            <label for="place" class="block text-sm font-medium mb-2">
                                                 Place of Incident
                                                 <ToolTip Information="This is the place where the incident occurred." />
                                             </label>
@@ -428,8 +434,7 @@ const openTimePicker = () => {
                                             </select>
                                         </div>
                                         <div class="form-group">
-                                            <label for="details" class="block text-sm font-medium mb-2"
-                                                :class="themeClasses">
+                                            <label for="details" class="block text-sm font-medium mb-2">
                                                 Location Details
                                                 <ToolTip
                                                     Information="This is the location where the incident occurred." />
@@ -445,8 +450,7 @@ const openTimePicker = () => {
                                     </div>
                                     <div class="grid grid-cols-2 gap-4">
                                         <div class="form-group">
-                                            <label for="longitude" class="block text-sm font-medium mb-2"
-                                                :class="themeClasses">
+                                            <label for="longitude" class="block text-sm font-medium mb-2">
                                                 Longitude
                                                 <ToolTip
                                                     Information="This is the longitude of the location where the incident occurred." />
@@ -455,8 +459,7 @@ const openTimePicker = () => {
                                                 class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                                         </div>
                                         <div class="form-group">
-                                            <label for="latitude" class="block text-sm font-medium mb-2"
-                                                :class="themeClasses">
+                                            <label for="latitude" class="block text-sm font-medium mb-2">
                                                 Latitude
                                                 <ToolTip
                                                     Information="This is the latitude of the location where the incident occurred." />
@@ -483,17 +486,21 @@ const openTimePicker = () => {
 
 <style scoped>
 #map {
-    height: 50vh;
+    height: 35vh;
     width: 100%;
     border: 1px solid #ccc;
 }
-/* Hide the default time picker icon in WebKit browsers (Chrome, Safari, Edge) */
+/* Hide the default date & time picker icons in WebKit browsers (Chrome, Safari, Edge) */
+input[type="date"]::-webkit-calendar-picker-indicator,
 input[type="time"]::-webkit-calendar-picker-indicator {
     display: none;
     -webkit-appearance: none;
+    opacity: 0;
+    pointer-events: none;
 }
 
-/* Hide the default time picker icon in Firefox */
+/* Hide the default date & time picker icons in Firefox */
+input[type="date"],
 input[type="time"] {
     -moz-appearance: textfield;
 }
