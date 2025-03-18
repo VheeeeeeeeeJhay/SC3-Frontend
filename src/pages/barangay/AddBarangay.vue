@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, inject, defineEmits } from 'vue';
 import axiosClient from '../../axios.js';
 import FormInput from '../../components/FormInput.vue';
 
@@ -22,38 +22,33 @@ const type = ref('');
 const icon = ref('');
 const classes = ref('');
 
+const addToast = inject('addToast'); // Inject global toast function
+const emit = defineEmits(['close']);
+
+
 const formSubmit = async () => {
   try {
-    console.log(data.value)
-    const formData = new FormData()
-    formData.append('name', data.value.name)
-    formData.append('longitude', data.value.longitude)
-    formData.append('latitude', data.value.latitude)
+    console.log(data.value);
+    const formData = new FormData();
+    formData.append('name', data.value.name);
+    formData.append('longitude', data.value.longitude);
+    formData.append('latitude', data.value.latitude);
+    
     const response = await axiosClient.post("/api/911/barangay", formData, {
       headers: {
         'x-api-key': import.meta.env.VITE_API_KEY
       }
-    })
-    // .then(response => { 
-    type.value = 'success';
+    });
+
+    addToast(response.data.message, 'success', 'check_circle'); // Add success toast
     clearData();
-    console.log(response)
-    message.value = response.data.message;
-    // })
-    // .catc/h(error => { 
-    // console.error(error.data.message)
-    // toastError.value = error.response.data.message;
-    // errors.value = error.response.data.errors;
-    // })
+    emit('close');
+
+  } catch (error) {
+    console.error(error.response.data.message);
+    addToast(error.response.data.message, 'error', 'error'); // Add error toast
   }
-  catch (error) {
-    console.error(error.response.data.message)
-    type.value = 'error';
-    errors.value = error.response.data.errors;
-    // toastError = error.response.data.message;
-    // errors.value = error.response.data.errors;
-  }
-}
+};
 </script>
 
 <template>
@@ -100,10 +95,5 @@ const formSubmit = async () => {
 
     </form>
 
-    <!-- Toast Notifications -->
-    <div class="flex flex-col fixed top-17 right-5 w-1/2 items-end z-50">
-      <Toast v-if="message" :message="message" :icon="icon" :classes="classes" :type="type" />
-      <Toast v-if="errors.length > 0" :message="errors" :icon="icon" :classes="classes" :type="type" />
-    </div>
   </div>
 </template>

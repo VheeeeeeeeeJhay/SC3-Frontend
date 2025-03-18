@@ -26,11 +26,11 @@ const closeToast = () => {
 };
 
 // Set a timeout to automatically close the toast after 5 seconds
-onMounted(() => {
-    setTimeout(() => {
-        closeToast();
-    }, 10000); // Automatically close after 1 minute (60000ms)
-});
+// onMounted(() => {
+//     setTimeout(() => {
+//         closeToast();
+//     }, 600000); // Automatically close after 1 minute (60000ms)
+// });
 
 // Define colors based on the type of toast
 const typeClasses = {

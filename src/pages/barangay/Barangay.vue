@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue';
+import { ref, onMounted, computed, watch, onBeforeUnmount, inject } from 'vue';
 import AddBarangay from './AddBarangay.vue';
 import EditBarangay from './EditBarangay.vue';
 import axiosClient from '../../axios.js';
@@ -13,6 +13,7 @@ const message = ref('');
 const type = ref('');
 const icon = ref('');
 const classes = ref('');
+const addToast = inject('addToast');
 
 let intervalId = null;
 
@@ -98,13 +99,13 @@ const formSubmit = (barangay_Id) => {
     .then(response => {
       fetchData();
       console.log('Barangay deleted successfully');
-      type.value = 'success';
-      message.value = response.data.message;
+      addToast(response.data.message, 'success', 'check_circle');
+      
     })
     .catch(error => {
-      type.value = 'error';
-      console.error('Error deleting barangay:', error.response?.data);
-      errors.value = error.response?.data?.errors || 'Failed to delete barangay.';
+      addToast(error.response.data.message, 'error', 'error'); // Add error toast
+      console.error(error.response?.data?.errors || 'Failed to delete barangay.', error.response?.data);
+      // errors.value = error.response?.data?.errors || 'Failed to delete barangay.';
     });
 };
 
@@ -189,6 +190,7 @@ const paginationEnd = computed(() => {
 const visiblePages = computed(() => {
   return Array.from({ length: paginationEnd.value - paginationStart.value + 1 }, (_, i) => paginationStart.value + i);
 });
+const isModalOpen = ref(false); //
 </script>
 
 <template>
@@ -223,11 +225,11 @@ const visiblePages = computed(() => {
             <div
               class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
 
-              <PopupModal Title="Add a new Barangay" ModalButton="Add Barangay" Icon="home" Classes=""
+              <PopupModal Title="Add a new Barangay" ModalButton="Add Barangay" Icon="home" Classes="" :show="isModalOpen" @update:show="isModalOpen = $event"
                 ButtonClass="w-full md:w-auto rounded-lg flex items-center justify-center py-2 px-4 text-sm font-medium focus:outline-none bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
                 <template #modalContent>
                   <div class="p-6">
-                    <AddBarangay />
+                    <AddBarangay  @close="isModalOpen = false"/>
                   </div>
                 </template>
               </PopupModal>
@@ -286,11 +288,11 @@ const visiblePages = computed(() => {
                       <!-- Dropdown Items Container -->
                       <div class="py-2 text-sm flex flex-col w-full items-center">
                         <!-- Edit Button -->
-                        <PopupModal Title="Edit Barangay" ModalButton="Edit" Icon="edit" Classes=""
+                        <PopupModal Title="Edit Barangay" ModalButton="Edit" Icon="edit" Classes="" :show="isModalOpen" @update:show="isModalOpen = $event"
                           ButtonClass="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
                           <template #modalContent>
                             <div>
-                              <EditBarangay :barangay="barangay.id" />
+                              <EditBarangay :barangay="barangay.id" @close="isModalOpen = false"/>
                             </div>
                           </template>
                         </PopupModal>
@@ -367,10 +369,5 @@ const visiblePages = computed(() => {
         </div>
       </div>
     </section>
-  </div>
-
-  <div class="flex flex-col fixed top-17 right-5 w-1/2 items-end z-50">
-    <Toast v-if="message" :message="message" :icon="icon" :classes="classes" :type="type" />
-    <Toast v-if="errors" :message="errors" :icon="icon" :classes="classes" :type="type" />
   </div>
 </template>

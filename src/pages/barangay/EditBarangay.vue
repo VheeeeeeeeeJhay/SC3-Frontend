@@ -1,22 +1,14 @@
 <script setup>
 import FormInput from '../../components/FormInput.vue';
 import axiosClient from '../../axios';
-import { onMounted, ref, computed, watch } from 'vue';
+import { onMounted, ref, computed, watch, inject, defineEmits } from 'vue';
 import PrimaryButton from '../../components/PrimaryButton.vue';
-import { useThemeStore } from '../../stores/themeStore';
 import { useRouter } from 'vue-router';
 
+const addToast = inject('addToast'); // Inject global toast function
 
 const router = useRouter();
-
-// Dark mode
-const themeStore = useThemeStore();
-const themeClasses = computed(() => {
-  return themeStore.isDarkMode 
-    ? "bg-slate-800 border border-black text-white hover:border-gray-600 focus:ring-2 focus:ring-slate-500 focus:outline-none"
-    : "bg-sky-50 border border-gray-200 text-gray-800 hover:border-gray-300 focus:ring-2 focus:ring-sky-400 focus:outline-none";
-});
-
+const emit = defineEmits(['close']);
 // Props
 const props = defineProps({
   barangay: Number
@@ -82,14 +74,15 @@ const formSubmit = () => {
         }
     })
     .then(response => {
-        type.value = 'success';
         console.log(response.data.message);
-        message.value = response.data.message;
+        addToast(response.data.message, 'success', 'check_circle'); // Add success toast
+        emit('close');
+        // closeModal();
     })
     .catch(error => {
-        type.value = 'error';
         if (error.response) {
             console.error('Error updating barangay:', error.response.data);
+            addToast(error.response.data.message, 'error', 'error');
             errors.value = error.response.data.errors || { message: 'Something went wrong' };
         } else {
             console.error('Unexpected error:', error);
@@ -171,9 +164,5 @@ const formSubmit = () => {
                 <p v-for="(error, index) in errors" :key="index">{{ error }}</p>
             </div>
         </div>
-    </div>
-    <div class="flex flex-col fixed top-17 right-5 w-1/2 items-end z-50">
-        <Toast v-if="message" :message="message" :icon="icon" :classes="classes" :type="type"/>
-        <Toast v-if="errors" :message="errors" :icon="icon" :classes="classes" :type="type"/>
     </div>
 </template>
