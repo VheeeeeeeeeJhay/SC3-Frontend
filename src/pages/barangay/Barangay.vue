@@ -190,7 +190,8 @@ const paginationEnd = computed(() => {
 const visiblePages = computed(() => {
   return Array.from({ length: paginationEnd.value - paginationStart.value + 1 }, (_, i) => paginationStart.value + i);
 });
-const isModalOpen = ref(false); //
+const isModalOpen = ref(false); 
+const isDeleteModalOpen = ref(false);
 </script>
 
 <template>
@@ -299,7 +300,7 @@ const isModalOpen = ref(false); //
 
                         <!-- Delete Button -->
                         <PopupModal Title="Are you sure you want to delete this barangay?" ModalButton="Delete"
-                          Icon="cancel" Classes=""
+                          Icon="cancel" Classes="" :show="isDeleteModalOpen" @update:show="isDeleteModalOpen = $event"
                           ButtonClass="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
                           <template #modalContent>
                             <div class="p-6 space-x-2">
