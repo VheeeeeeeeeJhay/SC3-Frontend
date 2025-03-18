@@ -2,7 +2,6 @@
 
 import { ref, computed, onMounted, watch } from "vue";
 import axiosClient from "../axios.js";
-import router from "../router.js";
 import PieChart from "../components/charts/PieChart.vue";
 import LineChart from "../components/charts/LineChart.vue";
 import BarChart from "../components/charts/BarChart.vue";
@@ -10,6 +9,7 @@ import IncidentGrowthRate from "../components/widgets/IncidentGrowthRate.vue";
 import RecentIncident from "../components/widgets/RecentIncident.vue";
 import TotalReportsReceived from "../components/widgets/TotalReportsReceived.vue";
 import TopPerforming from "../components/widgets/TopPerforming.vue";
+import StackedColumns from "../components/charts/StackedColumns.vue";
 
 const incidents = ref([]);
 const reports = ref([]);
@@ -152,6 +152,20 @@ const selectedDateRange = ref({ start: selectedStartDate.value, end: selectedEnd
           class="p-6 rounded-lg shadow  bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
           <!-- <LineChart /> -->
            <PieChart />
+        </div>
+
+        <div
+          class="p-6 rounded-lg shadow  bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
+          <!-- <RecentIncident /> -->
+        </div>
+      </div>
+
+      <div class="mt-6 grid grid-cols-2 gap-6">
+        <!-- linechart -->
+        <div
+          class="p-6 rounded-lg shadow  bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
+          <!-- <LineChart /> -->
+           <StackedColumns />
         </div>
 
         <div

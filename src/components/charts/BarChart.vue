@@ -1,12 +1,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch, computed } from "vue";
 import ApexCharts from 'apexcharts';
-import { useThemeStore } from '../../stores/themeStore';
 
-const themeStore = useThemeStore();
-const themeClasses = computed(() => {
-  return themeStore.isDarkMode ? "bg-slate-800 border-black text-white" : "bg-sky-50 border-gray-200 text-gray-800"
-})
 const props = defineProps({
     dateRange: Object // Expecting { start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' }
 });
@@ -178,7 +173,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="w-full p-4" :class="themeClasses">   
+  <div class="w-full p-4">   
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-semibold">Case Statistics????</h2>
       <select v-model="selectedDateFilter" class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600">

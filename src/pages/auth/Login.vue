@@ -61,7 +61,7 @@ const submit = () => {
         </h1>
       </div>
       <!-- Login Form -->
-      <div class="bg-white p-6 rounded-xl shadow-lg w-80">
+      <div class="bg-white/10 backdrop-blur-sm p-6 rounded-xl shadow-lg w-80">
         <h2 class="text-gray-800 text-lg text-center font-semibold mb-4">Login to your account</h2>
         <Toast v-if="errors.length > 0" :message="errors" />
         <form @submit.prevent="submit" class="flex flex-col gap-4">
