@@ -11,6 +11,12 @@ const data = ref({
   latitude: '',
 })
 
+const clearData = () => {
+  data.value.name = '';
+  data.value.longitude = '';
+  data.value.latitude = '';
+}
+
 const success = ref([]);
 const errors = ref([]);
 const toastError = ref('');
@@ -28,16 +34,14 @@ const formSubmit = async () => {
     }
     })
     .then(response => { 
-      data.value.name = '';
-      data.value.longitude = '';
-      data.value.latitude = '';
+      clearData();
       console.log(response)
       success.value = response.data.message;
     })
     .catch(error => { 
       // console.error(error.data.message)
       toastError.value = error.response.data.message;
-      errors.value = error.response.data.errors;
+      errors.value = error.response.data.error;
     })
   }
   catch (error) {

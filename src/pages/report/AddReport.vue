@@ -81,7 +81,7 @@ onMounted(() => {
 });
 
 const errors = ref([])
-const success = ref([])
+const message = ref('')
 
 const submitForm = async () => {
   try {
@@ -106,21 +106,23 @@ const submitForm = async () => {
   })
     .then(response => {
       console.log('Form submitted successfully:', response.data);
-        success.value = response.data.message;
+      message.value = response.data.message;
       clearForm();
-        errors.value = [];
-        console.log(success.value)
-        fetchData();
+      errors.value = [];
+      console.log(message.value)
+      fetchData();
     })
-    .catch(error => {
-      console.log('Error:', error.response.data);
-        errors.value = error.response.data.errors;
-        // errors.value = error.response.data;
-        // console.log(errors.value)
-    })
+    // .catch(error => {
+    //   console.log('Error:', error.response.data);
+    //     errors.value = error.response.data.errors;
+    //     // errors.value = error.response.data;
+    //     // console.log(errors.value)
+    // })
   } catch (error) {
     console.error(error.response.data);
     errors.value = `An error occurred: ${error.response.data}`;
+    console.log('Error:', error.response.data);
+    errors.value = error.response.data.errors;
   }
 };
 
@@ -518,7 +520,7 @@ const closeDropdown = () => {
     </main>
   </div>
   
-  <Toast v-if="success.length > 0" :message="success" icon="check_circle" type="success"/>
+  <Toast v-if="message.length > 0" :message="message" icon="check_circle" type="success"/>
   <Toast v-if="errors.length > 0" :message="errors"  icon="error" type="error"/>
 </template>
 
