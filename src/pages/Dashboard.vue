@@ -10,6 +10,7 @@ import IncidentGrowthRate from "../components/widgets/IncidentGrowthRate.vue";
 import RecentIncident from "../components/widgets/RecentIncident.vue";
 import TotalReportsReceived from "../components/widgets/TotalReportsReceived.vue";
 import TopPerforming from "../components/widgets/TopPerforming.vue";
+import MonthPicker from "vue-month-picker";
 
 // /👾👾👾👾👾👾👾👾/ //
 // Fetch Data From Backend //
@@ -158,10 +159,14 @@ const selectedDateRange = ref({ start: selectedStartDate.value, end: selectedEnd
         <div
           class="p-6 rounded-lg shadow  bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
           <RecentIncident />
+          
         </div>
       </div>
     </main>
   </div>
+
+
+  
 </template>
 
 <style scoped>
