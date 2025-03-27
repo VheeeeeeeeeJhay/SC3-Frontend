@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue';
-import axiosClient from  '../../axios.js';
+import axiosClient from '../../axios.js';
 import Badge from '../../components/Badge.vue';
 
 const users = ref([]);
@@ -28,8 +28,8 @@ const fetchData = async () => {
                 'x-api-key': import.meta.env.VITE_API_KEY
             }
         })
-        const filteredData = response.data.filter(item => 
-            (item.for_911 === 0 && item.for_inventory === 0) 
+        const filteredData = response.data.filter(item =>
+            (item.for_911 === 0 && item.for_inventory === 0)
         );
         users.value = filteredData;
         console.log(users.value, 'users data');
@@ -37,7 +37,7 @@ const fetchData = async () => {
         type.value = 'error';
         console.log(error.response.data.error);
         errors.value = error.response.data.error;
-    } 
+    }
     finally {
         isLoading.value = false;
     }
@@ -176,11 +176,11 @@ const maskEmail = (email) => {
 const archiveUser = async (user) => {
     try {
         const response = await axiosClient.patch(`/api/911/user-archive/${user.id}`, { for_911: 1, for_inventory: 1 },
-        {
-            headers: {
-                'x-api-key': import.meta.env.VITE_API_KEY,
-            }
-        });
+            {
+                headers: {
+                    'x-api-key': import.meta.env.VITE_API_KEY,
+                }
+            });
         type.value = 'success';
         message.value = response.data.message;
         // Update local state instantly
@@ -216,7 +216,7 @@ const visiblePages = computed(() => {
 </script>
 
 <template>
-<section class="w-full min-h-screen">
+    <section class="w-full min-h-screen">
 
         <div class="mt-6 w-full">
             <div
@@ -280,8 +280,7 @@ const visiblePages = computed(() => {
                                     class="absolute z-10 w-44 mt-2 top-full left-0 shadow-sm border rounded-md bg-white dark:bg-slate-700">
                                     <ul class="py-2 text-sm">
                                         <li>
-                                            <PrimaryButton @click.prevent="archiveUser(user)"
-                                                :name="'Re-Activate User'"
+                                            <PrimaryButton @click.prevent="archiveUser(user)" :name="'Re-Activate User'"
                                                 class="mt-2 hover:text-gray-700 dark:hover:text-gray-300" />
                                         </li>
                                     </ul>
@@ -338,11 +337,10 @@ const visiblePages = computed(() => {
     </section>
 
     <div class="flex flex-col fixed top-17 right-5 w-1/2 items-end">
-        <Toast v-if="message" :message="message" :icon="icon" :classes="classes" :type="type"/>
-        <Toast v-if="errors" :message="errors" :icon="icon" :classes="classes" :type="type"/>
+        <Toast v-if="message" :message="message" :icon="icon" :classes="classes" :type="type" />
+        <Toast v-if="errors" :message="errors" :icon="icon" :classes="classes" :type="type" />
     </div>
 
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

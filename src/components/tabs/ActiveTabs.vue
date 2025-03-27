@@ -286,6 +286,79 @@ const maskEmail = (email) => {
     return `${maskedName}@${domain}`
 }
 
+// generate pdf user
+const handlePrint = () => {
+  const printWindow = window.open('', '_blank', 'width=800,height=600');
+
+  printWindow.document.write(`
+        <html>
+            <head>
+                <title>Printed Active Users</title>
+                <style>
+                    body { font-family: Arial, sans-serif; }
+                    table { 
+                        width: 100%; 
+                        border-collapse: collapse; 
+                        margin-bottom: 20px; 
+                    }
+                    th, td { 
+                        border: 1px solid #ddd; 
+                        padding: 8px; 
+                        text-align: left; 
+                    }
+                    th { 
+                        background-color: #f2f2f2; 
+                        font-weight: bold; 
+                    }
+                    .print-header {
+                        text-align: center;
+                        margin-bottom: 20px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="print-header">
+                    <h1>Users Management - Printed Report</h1>
+                    <p>Printed on: ${new Date().toLocaleString()}</p>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Dashboard</th>
+                            <th>Inventory</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filteredUsers.value.map(report => `
+                            <tr>
+                                <td>${report.id}</td>
+                                <td>${report.firstName} {report.middleName} {report.lastName}</td>
+                                <td>${report.email}</td>
+                                <td>${report.for_911 ? `Has Access` : `No Access`}</td>
+                                <td>${report.for_inventory ? `Has Access` : `No Access`}</
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                <div class="print-footer">
+                    <p>Total Users: ${filteredUsers.value.length}</p>
+                </div>
+            </body>
+        </html>
+    `);
+
+  printWindow.document.close();
+
+  printWindow.print();
+
+  printWindow.onafterprint = () => {
+    printWindow.close();
+  };
+};
+
 </script>
 
 <template>
@@ -308,7 +381,16 @@ const maskEmail = (email) => {
                                     placeholder="Search..." />
                             </div>
                         </form>
+                        
                     </div>
+                    <div
+                class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+                <button @click="handlePrint"
+                  class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-1 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
+                  <span class="material-icons">add</span>
+                  Print users
+                </button>
+              </div>
                 </div>
 
                 <div v-if="isLoading" class="flex justify-center">

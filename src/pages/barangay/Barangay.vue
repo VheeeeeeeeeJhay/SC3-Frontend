@@ -191,10 +191,11 @@ const visiblePages = computed(() => {
 const isModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);
 
+// generate pdf barangay
 const handlePrint = () => {
-    const printWindow = window.open('', '_blank', 'width=800,height=600');
-    
-    printWindow.document.write(`
+  const printWindow = window.open('', '_blank', 'width=800,height=600');
+
+  printWindow.document.write(`
         <html>
             <head>
                 <title>Printed Barangays</title>
@@ -252,13 +253,13 @@ const handlePrint = () => {
         </html>
     `);
 
-    printWindow.document.close();
+  printWindow.document.close();
 
-    printWindow.print();
+  printWindow.print();
 
-    printWindow.onafterprint = () => {
-        printWindow.close();
-    };
+  printWindow.onafterprint = () => {
+    printWindow.close();
+  };
 };
 </script>
 
