@@ -291,10 +291,10 @@ const isDeleteModalOpen = ref(false);
           </div>
           <div class="">
             <!-- render loading animation before displaying datatable -->
-            <!-- <div v-if="isLoading" class="flex justify-center">
+             <!-- <div v-if="isLoading" class="flex justify-center">
               <Loader1 />
-            </div>
-            <table v-else class="w-full text-sm text-left">
+            </div> -->
+            <table class="w-full text-sm text-left">
               <thead class="text-xs uppercase dark:bg-slate-900 dark:text-gray-300 bg-teal-300 text-gray-800">
                 <tr>
                   <th scope="col" class="px-4 py-3 ">ID</th>
@@ -345,7 +345,7 @@ const isDeleteModalOpen = ref(false);
                           ButtonClass="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
                           <template #modalContent>
                             <div>
-                              <EditBarangay :barangay="barangay.id" @close="isModalOpen = false"/>
+                              <EditBarangay :barangay="barangay" @close="isModalOpen = false"/>
                             </div>
                           </template>
                         </PopupModal>
