@@ -64,8 +64,6 @@ onBeforeUnmount(() => {
   }
 });
 
-
-
 const searchQuery = ref("");
 
 // Computed property for dynamic search and filtering
@@ -100,7 +98,7 @@ const formSubmit = (barangay_Id) => {
       fetchData();
       console.log('Barangay deleted successfully');
       addToast(response.data.message, 'success', 'check_circle');
-      
+
     })
     .catch(error => {
       addToast(error.response.data.message, 'error', 'error'); // Add error toast
@@ -190,8 +188,78 @@ const paginationEnd = computed(() => {
 const visiblePages = computed(() => {
   return Array.from({ length: paginationEnd.value - paginationStart.value + 1 }, (_, i) => paginationStart.value + i);
 });
-const isModalOpen = ref(false); 
+const isModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);
+
+const handlePrint = () => {
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
+    
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Printed Barangays</title>
+                <style>
+                    body { font-family: Arial, sans-serif; }
+                    table { 
+                        width: 100%; 
+                        border-collapse: collapse; 
+                        margin-bottom: 20px; 
+                    }
+                    th, td { 
+                        border: 1px solid #ddd; 
+                        padding: 8px; 
+                        text-align: left; 
+                    }
+                    th { 
+                        background-color: #f2f2f2; 
+                        font-weight: bold; 
+                    }
+                    .print-header {
+                        text-align: center;
+                        margin-bottom: 20px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="print-header">
+                    <h1>Barangays Management - Printed Report</h1>
+                    <p>Printed on: ${new Date().toLocaleString()}</p>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Latitude</th>
+                            <th>Longitude</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filteredBarangays.value.map(report => `
+                            <tr>
+                                <td>${report.id}</td>
+                                <td>${report.name}</td>
+                                <td>${report.latitude || 'N/A'}</td>
+                                <td>${report.longitude || 'N/A'}</
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                <div class="print-footer">
+                    <p>Total Barangays: ${filteredBarangays.value.length}</p>
+                </div>
+            </body>
+        </html>
+    `);
+
+    printWindow.document.close();
+
+    printWindow.print();
+
+    printWindow.onafterprint = () => {
+        printWindow.close();
+    };
+};
 </script>
 
 <template>
@@ -226,17 +294,26 @@ const isDeleteModalOpen = ref(false);
             <div
               class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
 
-              <PopupModal Title="Add a new Barangay" ModalButton="Add Barangay" Icon="home" Classes="" :show="isModalOpen" @update:show="isModalOpen = $event"
+              <PopupModal Title="Add a new Barangay" ModalButton="Add Barangay" Icon="home" Classes=""
+                :show="isModalOpen" @update:show="isModalOpen = $event"
                 ButtonClass="w-full md:w-auto rounded-lg flex items-center justify-center py-2 px-4 text-sm font-medium focus:outline-none bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
                 <template #modalContent>
                   <div class="p-6">
-                    <AddBarangay  @close="isModalOpen = false"/>
+                    <AddBarangay @close="isModalOpen = false" />
                   </div>
                 </template>
               </PopupModal>
-
+              <div
+                class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+                <button @click="handlePrint"
+                  class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-1 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
+                  <span class="material-icons">add</span>
+                  Print Barangay
+                </button>
+              </div>
             </div>
           </div>
+
           <div class="">
             <!-- render loading animation before displaying datatable -->
             <div v-if="isLoading" class="flex justify-center">
@@ -289,11 +366,12 @@ const isDeleteModalOpen = ref(false);
                       <!-- Dropdown Items Container -->
                       <div class="py-2 text-sm flex flex-col w-full items-center">
                         <!-- Edit Button -->
-                        <PopupModal Title="Edit Barangay" ModalButton="Edit" Icon="edit" Classes="" :show="isModalOpen" @update:show="isModalOpen = $event"
+                        <PopupModal Title="Edit Barangay" ModalButton="Edit" Icon="edit" Classes="" :show="isModalOpen"
+                          @update:show="isModalOpen = $event"
                           ButtonClass="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
                           <template #modalContent>
                             <div>
-                              <EditBarangay :barangay="barangay.id" @close="isModalOpen = false"/>
+                              <EditBarangay :barangay="barangay.id" @close="isModalOpen = false" />
                             </div>
                           </template>
                         </PopupModal>
@@ -356,7 +434,7 @@ const isDeleteModalOpen = ref(false);
                 <button disabled class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</button>
                 <button @click="goToPage(totalPages)"
                   class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600">{{
-                  totalPages }}</button>
+                    totalPages }}</button>
               </li>
 
               <li>

@@ -39,9 +39,9 @@ const fetchData = async () => {
     // }
     try {
         const res = await axiosClient.get('/api/911/report-display', {
-        headers: {
-            'x-api-key': import.meta.env.VITE_API_KEY
-        }
+            headers: {
+                'x-api-key': import.meta.env.VITE_API_KEY
+            }
         });
         console.log(res);
         setTimeout(() => {
@@ -57,20 +57,20 @@ const fetchData = async () => {
 };
 
 onMounted(() => {
-  isLoading.value = true;
-  
-  // Initial data fetch
-  fetchData();
-  
-  // Set interval to fetch data every 5 seconds
-  intervalId = setInterval(fetchData, 5000);
+    isLoading.value = true;
+
+    // Initial data fetch
+    fetchData();
+
+    // Set interval to fetch data every 5 seconds
+    intervalId = setInterval(fetchData, 5000);
 });
 
 onBeforeUnmount(() => {
-  // Clear the interval when the component is unmounted
-  if (intervalId !== null) {
-    clearInterval(intervalId);
-  }
+    // Clear the interval when the component is unmounted
+    if (intervalId !== null) {
+        clearInterval(intervalId);
+    }
 });
 
 // Computed property for dynamic search and filtering
@@ -150,9 +150,9 @@ const totalPages = computed(() => {
 });
 // Get paginated reports
 const paginatedReports = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return filteredReports.value.slice(start, end);
+    const start = (currentPage.value - 1) * itemsPerPage.value;
+    const end = start + itemsPerPage.value;
+    return filteredReports.value.slice(start, end);
 });
 
 // Pagination controls
@@ -198,6 +198,81 @@ const visiblePages = computed(() => {
     return Array.from({ length: paginationEnd.value - paginationStart.value + 1 }, (_, i) => paginationStart.value + i);
 });
 
+// for printing reports
+const handlePrint = () => {
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
+    
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Printed Reports</title>
+                <style>
+                    body { font-family: Arial, sans-serif; }
+                    table { 
+                        width: 100%; 
+                        border-collapse: collapse; 
+                        margin-bottom: 20px; 
+                    }
+                    th, td { 
+                        border: 1px solid #ddd; 
+                        padding: 8px; 
+                        text-align: left; 
+                    }
+                    th { 
+                        background-color: #f2f2f2; 
+                        font-weight: bold; 
+                    }
+                    .print-header {
+                        text-align: center;
+                        margin-bottom: 20px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="print-header">
+                    <h1>Reports Management - Printed Report</h1>
+                    <p>Printed on: ${new Date().toLocaleString()}</p>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Source</th>
+                            <th>Case Classification</th>
+                            <th>Incident/Case</th>
+                            <th>Assistance</th>
+                            <th>Location</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filteredReports.value.map(report => `
+                            <tr>
+                                <td>${report.id}</td>
+                                <td>${report.source.sources}</td>
+                                <td>${report.assistance.assistance}</td>
+                                <td>${report.incident.type}</td>
+                                <td>${report.actions.actions}</td>
+                                <td>${report.barangay.name}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                <div class="print-footer">
+                    <p>Total Reports: ${filteredReports.value.length}</p>
+                </div>
+            </body>
+        </html>
+    `);
+
+    printWindow.document.close();
+
+    printWindow.print();
+
+    printWindow.onafterprint = () => {
+        printWindow.close();
+    };
+};
+
 // Delete A Report
 const errors = ref('');
 const success = ref('');
@@ -209,16 +284,16 @@ const formSubmit = async (report_Id) => {
             'x-api-key': import.meta.env.VITE_API_KEY
         }
     })
-    .then(() => {
-        // Remove the deleted barangay from the list without refreshing the page
-        reports.value = reports.value.filter(b => b.id !== report_Id);
-        success.value = 'Report deleted successfully';
-    })
-    .catch(error => {
-        console.error('Error deleting report:', error.response?.data);
-        errors.value = error.response?.data?.errors || 'Failed to delete report.';
-    });
-    
+        .then(() => {
+            // Remove the deleted barangay from the list without refreshing the page
+            reports.value = reports.value.filter(b => b.id !== report_Id);
+            success.value = 'Report deleted successfully';
+        })
+        .catch(error => {
+            console.error('Error deleting report:', error.response?.data);
+            errors.value = error.response?.data?.errors || 'Failed to delete report.';
+        });
+
 };
 </script>
 
@@ -230,8 +305,10 @@ const formSubmit = async (report_Id) => {
         </div>
 
         <div class="mt-6 w-full">
-            <div class="relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
-                <div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
+            <div
+                class="relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
+                <div
+                    class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
                     <div class="w-full md:w-1/2">
                         <form class="flex items-center">
                             <label for="simple-search" class="sr-only">Search</label>
@@ -245,7 +322,8 @@ const formSubmit = async (report_Id) => {
                             </div>
                         </form>
                     </div>
-                    <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+                    <div
+                        class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
                         <RouterLink :to="{ name: 'AddReport' }">
                             <button type="button"
                                 class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-1 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
@@ -253,12 +331,22 @@ const formSubmit = async (report_Id) => {
                                 Add a New Report
                             </button>
                         </RouterLink>
+                        <!-- report button -->
+                        <div
+                            class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+                            <button @click="handlePrint"
+                                class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-1 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
+                                <span class="material-icons">add</span>
+                                Print Reports
+                            </button>
+                        </div>
 
                         <div class="flex items-center space-x-3 w-full md:w-auto relative">
                             <button @click="toggleFilterDropdown"
                                 class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium rounded-lg border bg-white hover:bg-gray-200 dark:bg-slate-700 dark:border-black dark:text-white dark:hover:bg-slate-600"
                                 id="filterDropdownButton">
-                                <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2"
+                                    viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd"
                                         d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
                                         clip-rule="evenodd" />
@@ -270,10 +358,12 @@ const formSubmit = async (report_Id) => {
                                 class="absolute top-full right-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-slate-700 dark:text-white overflow-hidden">
                                 <h6 class="mb-3 text-sm font-medium">Choose Classification</h6>
                                 <ul class="space-y-2 text-sm">
-                                    <li v-for="classification in classifications" :key="classification.id" class="flex items-center">
+                                    <li v-for="classification in classifications" :key="classification.id"
+                                        class="flex items-center">
                                         <input type="checkbox" :id="classification.id" :value="classification.id"
                                             v-model="selectedClassifications" class="w-4 h-4" />
-                                        <label :for="classification.id" class="ml-2 text-sm font-medium">{{ classification.assistance }}</label>
+                                        <label :for="classification.id" class="ml-2 text-sm font-medium">{{
+                                            classification.assistance }}</label>
                                     </li>
                                 </ul>
                             </div>
@@ -281,7 +371,9 @@ const formSubmit = async (report_Id) => {
                     </div>
                 </div>
 
-                <div v-if="isLoading" class="flex justify-center"><Loader1 /></div>
+                <div v-if="isLoading" class="flex justify-center">
+                    <Loader1 />
+                </div>
 
                 <table v-else class="w-full text-sm text-left">
                     <thead class="text-xs uppercase bg-teal-300 text-gray-800 dark:bg-slate-950 dark:text-gray-300">
@@ -305,16 +397,18 @@ const formSubmit = async (report_Id) => {
                             <td class="px-4 py-3">{{ report.actions.actions }}</td>
                             <td class="px-4 py-3">{{ report.barangay.name }}</td>
                             <td class="px-4 py-3 flex items-center relative">
-                                <button @click.stop="toggleDropdown(report.id)" class="inline-flex items-center p-0.5 text-sm font-medium rounded-lg">
+                                <button @click.stop="toggleDropdown(report.id)"
+                                    class="inline-flex items-center p-0.5 text-sm font-medium rounded-lg">
                                     <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z"/>
+                                        <path
+                                            d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
                                     </svg>
                                 </button>
 
                                 <div v-if="openDropdownId === report.id" ref="dropdownRefs"
-                                class="absolute z-10 w-44 mt-0.5 top-full right-0 shadow-sm border rounded-md bg-white dark:bg-slate-700"
-                                @click.stop>
-                                    
+                                    class="absolute z-10 w-44 mt-0.5 top-full right-0 shadow-sm border rounded-md bg-white dark:bg-slate-700"
+                                    @click.stop>
+
                                     <ul class=" text-sm">
                                         <li>
                                             <RouterLink :to="{ name: 'ReportViewDetails', params: { id: report.id } }"
@@ -327,17 +421,19 @@ const formSubmit = async (report_Id) => {
                                                 class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
                                                 Edit Report
                                             </RouterLink>
-                                        </li>                              
-                                            <PopupModal Title="Are you sure you want to delete this report?" ModalButton="Delete" Icon="cancel" Classes="" ButtonClass="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
-                                                <template #modalContent>
+                                        </li>
+                                        <PopupModal Title="Are you sure you want to delete this report?"
+                                            ModalButton="Delete" Icon="cancel" Classes=""
+                                            ButtonClass="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
+                                            <template #modalContent>
                                                 <div class="p-6 space-x-2">
                                                     <PrimaryButton @click="openDropdownId = null" name="Cancel"
-                                                    class="bg-gray-500 hover:bg-gray-600 text-gray-100 shadow-md" />
+                                                        class="bg-gray-500 hover:bg-gray-600 text-gray-100 shadow-md" />
                                                     <PrimaryButton @click.prevent="formSubmit(report.id)" name="Delete"
-                                                    class="bg-red-500 hover:bg-red-600 text-gray-100 shadow-md" />
+                                                        class="bg-red-500 hover:bg-red-600 text-gray-100 shadow-md" />
                                                 </div>
-                                                </template>
-                                            </PopupModal>
+                                            </template>
+                                        </PopupModal>
                                     </ul>
                                 </div>
                             </td>
@@ -345,8 +441,11 @@ const formSubmit = async (report_Id) => {
                     </tbody>
                 </table>
 
-                <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">
-                    <span class="text-sm font-normal">Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{ Math.min(currentPage * itemsPerPage, filteredReports.length) }} of {{ filteredReports.length }}</span>
+                <nav
+                    class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">
+                    <span class="text-sm font-normal">Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{
+                        Math.min(currentPage *
+                            itemsPerPage, filteredReports.length) }} of {{ filteredReports.length }}</span>
 
                     <!-- <ul class="inline-flex items-stretch -space-x-px">
                         <li><button @click="prevPage" :disabled="currentPage === 1" class="px-3 py-1 rounded-l-lg border hover:bg-gray-300 dark:hover:bg-slate-600">Previous</button></li>
@@ -365,9 +464,10 @@ const formSubmit = async (report_Id) => {
                                 Previous
                             </button>
                         </li>
-                        
+
                         <li v-if="paginationStart > 1">
-                            <button @click="goToPage(1)" class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600">1</button>
+                            <button @click="goToPage(1)"
+                                class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600">1</button>
                             <button disabled class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</button>
                         </li>
 
@@ -380,7 +480,9 @@ const formSubmit = async (report_Id) => {
 
                         <li v-if="paginationEnd < totalPages">
                             <button disabled class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</button>
-                            <button @click="goToPage(totalPages)" class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600">{{ totalPages }}</button>
+                            <button @click="goToPage(totalPages)"
+                                class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600">{{
+                                    totalPages }}</button>
                         </li>
 
                         <li>
