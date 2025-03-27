@@ -10,7 +10,7 @@ import IncidentGrowthRate from "../components/widgets/IncidentGrowthRate.vue";
 import RecentIncident from "../components/widgets/RecentIncident.vue";
 import TotalReportsReceived from "../components/widgets/TotalReportsReceived.vue";
 import TopPerforming from "../components/widgets/TopPerforming.vue";
-import MonthPicker from "vue-month-picker";
+//import MonthPicker from "vue-month-picker";
 
 // /👾👾👾👾👾👾👾👾/ //
 // Fetch Data From Backend //
