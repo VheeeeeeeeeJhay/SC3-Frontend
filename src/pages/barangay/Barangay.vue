@@ -4,95 +4,57 @@ import AddBarangay from './AddBarangay.vue';
 import EditBarangay from './EditBarangay.vue';
 import axiosClient from '../../axios.js';
 import { RouterLink, useRouter } from 'vue-router';
-import { useThemeStore } from '../../stores/themeStore';
 import Badge from '../../components/Badge.vue';
+import { useDatabaseStore } from '../../stores/databaseStore';
 
-const barangays = ref([]);
-const isLoading = ref(false);
-
-// const fetchData = async () => {
-//   axiosClient.get('/api/911/barangay', {
-//     headers: {
-//       'x-api-key': import.meta.env.VITE_API_KEY
-//     }
-//   })
-//     .then((res) => {
-//       console.log(res);
-//       setTimeout(() => {
-//         barangays.value = res.data;
-//         isLoading.value = false; // Stop loading after delay
-//       });
-//     })
-//     .catch((error) => {
-//       isLoading.value = false;
-//       console.error('Error fetching data:', error);
-//       errors.value = 'Failed to load barangays. Please try again later.';
-//     });
-// }
-
-// onMounted(() => {
-//   isLoading.value = true;
-
-//   fetchData();
-//   intervalId = setInterval(fetchData, 5000); // Fetch data every 5 seconds
-
-//   // ------------------------------------------
-//   document.addEventListener("click", (event) => {
-//     if (
-//       openDropdownId.value !== null &&
-//       !dropdownRefs.value[openDropdownId.value]?.contains(event.target)
-//     ) {
-//       closeDropdown();
-//     }
-//   });
-// });
-
-// onMounted(() => {
-//   fetchData(); // Fetch data immediately when the component is mounted
-//   intervalId = setInterval(fetchData, 5000); // Fetch data every 5 seconds
-// });
-
-// Clean up the interval when the component is destroyed
-// onBeforeUnmount(() => {
-//   if (intervalId) {
-//     clearInterval(intervalId);
-//   }
-// });
-
+const barangaysList = ref([]);
 const message = ref('');
 const errors = ref('');
 
+const databaseStore = useDatabaseStore();
 
-let intervalId = null;
+let refreshInterval = null;
 
-const fetchData = async () => {
-  try {
-    if (barangays.value.length === 0) {
-      isLoading.value = true;
-    }
-    const response = await axiosClient.get('/api/911/barangay', {
-      headers: {
-        'x-api-key': import.meta.env.VITE_API_KEY
-      }
-    });
-    barangays.value = response.data.barangays;
-  } catch (error) {
-    console.error('Error fetching data:', error);
-    message.value = error.response.data.message;
-    errors.value = error.response.data.error;
-  } finally {
-    isLoading.value = false;
+// const fetchData = async () => {
+//   try {
+//     if (barangays.value.length === 0) {
+//       isLoading.value = true;
+//     }
+//     const response = await axiosClient.get('/api/911/barangay', {
+//       headers: {
+//         'x-api-key': import.meta.env.VITE_API_KEY
+//       }
+//     });
+//     barangays.value = response.data.barangays;
+//   } catch (error) {
+//     console.error('Error fetching data:', error);
+//     message.value = error.response.data.message;
+//     errors.value = error.response.data.error;
+//   } finally {
+//     isLoading.value = false;
+//   }
+// };
+
+
+// watch(() => databaseStore.barangaysList, () => {
+//   barangaysList.value = databaseStore.barangaysList;
+//   console.log('barangays', barangaysList.value);
+// });
+watch(() => databaseStore.barangaysList, () => {
+  if (databaseStore.barangaysList && Array.isArray(databaseStore.barangaysList.barangays)) {
+    barangaysList.value = databaseStore.barangaysList.barangays;
+  } else {
+    barangaysList.value = []; // Prevent errors if data is not an array
   }
-};
+});
+
 
 onMounted(() => {
-  isLoading.value = true;
-
-  // Initial data fetch
-  fetchData();
-
-  // Set interval to fetch data every 5 seconds
-  intervalId = setInterval(fetchData, 5000);
+  databaseStore.fetchData();
+  
+  refreshInterval = setInterval(() => {
+    databaseStore.fetchData();
+  }, 50000);
 
   // Handle click event to close dropdown
   document.addEventListener("click", (event) => {
@@ -105,37 +67,78 @@ onMounted(() => {
   });
 });
 
-onBeforeUnmount(() => {
-  // Clear the interval when the component is unmounted
-  if (intervalId !== null) {
-    clearInterval(intervalId);
-  }
-});
+// const computedProperties = {
+//     barangays: "barangaysList",
+// };
 
-
+// const { 
+//     barangays,
+// } = Object.fromEntries(
+//     Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
+// );
 
 const searchQuery = ref("");
 
+
 // Computed property for dynamic search and filtering
+// const filteredBarangays = computed(() => {
+//   return barangaysList.value.filter(barangay => {
+//     const barangayName = barangay.name?.toLowerCase() || "";
+//     const barangayId = String(barangay.id)?.toLowerCase() || "";
+//     const barangayLat = String(barangay.latitude)?.toLowerCase() || "";
+//     const barangayLong = String(barangay.longitude)?.toLowerCase() || "";
+//     const query = searchQuery.value.toLowerCase();
+
+//     // Match search query
+//     const matchesSearch = query
+//       ? barangayId.includes(query) ||
+//       barangayName.includes(query) ||
+//       barangayLat.includes(query) ||
+//       barangayLong.includes(query)
+//       : true;
+
+//     return matchesSearch;
+//   });
+// });
+
+
 const filteredBarangays = computed(() => {
-  return barangays.value.filter(barangay => {
-    const barangayName = barangay.name?.toLowerCase() || "";
-    const barangayId = String(barangay.id)?.toLowerCase() || "";
-    const barangayLat = String(barangay.latitude)?.toLowerCase() || "";
-    const barangayLong = String(barangay.longitude)?.toLowerCase() || "";
+  if (!Array.isArray(barangaysList.value)) {
+    console.error("barangaysList is not an array:", barangaysList.value);
+    return []; // Prevent errors
+  }
+  return barangaysList.value.filter(barangay => {
     const query = searchQuery.value.toLowerCase();
-
-    // Match search query
-    const matchesSearch = query
-      ? barangayId.includes(query) ||
-      barangayName.includes(query) ||
-      barangayLat.includes(query) ||
-      barangayLong.includes(query)
-      : true;
-
-    return matchesSearch;
+    return (
+      barangay.name?.toLowerCase().includes(query) ||
+      String(barangay.id).toLowerCase().includes(query) ||
+      String(barangay.latitude || "").toLowerCase().includes(query) ||
+      String(barangay.longitude || "").toLowerCase().includes(query)
+    );
   });
 });
+
+// const filteredBarangays = computed(() => {
+//   return barangaysList.value
+//     .filter(barangay =>
+//       barangay.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+//       barangay.id.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+//       barangay.latitude.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+//       barangay.longitude.toLowerCase().includes(searchQuery.value.toLowerCase())
+//     );
+// });
+// const filteredBarangays = computed(() => {
+//   if (!Array.isArray(databaseStore.barangays)) {
+//     console.error("barangays is NOT an array:", databaseStore.barangays);
+//     return []; // Return an empty array if barangays is not an array
+//   }
+//   return databaseStore.barangays.filter(barangays =>
+//     barangay.name?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+//     barangay.id?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+//     barangay.latitude?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+//     barangay.longitude?.toLowerCase().includes(searchQuery.value.toLowerCase())
+//   );
+// });
 
 
 // Pass The ID To Delete
@@ -284,10 +287,10 @@ const visiblePages = computed(() => {
           </div>
           <div class="">
             <!-- render loading animation before displaying datatable -->
-            <div v-if="isLoading" class="flex justify-center">
+            <!-- <div v-if="isLoading" class="flex justify-center">
               <Loader1 />
-            </div>
-            <table v-else class="w-full text-sm text-left">
+            </div> -->
+            <table class="w-full text-sm text-left">
               <thead class="text-xs uppercase dark:bg-slate-900 dark:text-gray-300 bg-teal-300 text-gray-800">
                 <tr>
                   <th scope="col" class="px-4 py-3 ">ID</th>
@@ -338,7 +341,9 @@ const visiblePages = computed(() => {
                           ButtonClass="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
                           <template #modalContent>
                             <div>
-                              <EditBarangay :barangay="barangay.id" />
+                              {{ barangay.name }}
+                              <!-- <EditBarangay :barangay="barangay.id" /> -->
+                              <EditBarangay :barangay="barangay" />
                             </div>
                           </template>
                         </PopupModal>

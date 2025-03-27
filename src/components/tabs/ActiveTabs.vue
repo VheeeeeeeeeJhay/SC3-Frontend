@@ -2,8 +2,8 @@
 import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue';
 import axiosClient from  '../../axios.js';
 import Badge from '../../components/Badge.vue';
+import { useDatabaseStore } from "../../stores/databaseStore";
 
-const users = ref([]);
 const searchQuery = ref("");
 const isLoading = ref(false);
 
@@ -15,33 +15,9 @@ const icon = ref('');
 const classes = ref('');
 
 
-let interval_id = null;
+let refreshInterval = null;
 
-const fetchData = async () => {
-    try {
-        if (users.value.length === 0) {
-          isLoading.value = true;  
-        }
-        
-        const response = await axiosClient.get('/api/911/users', {
-            headers: {
-                'x-api-key': import.meta.env.VITE_API_KEY
-            }
-        })
-        const user_data = response.data.filter(item => 
-            (item.for_911 === 1 && item.for_inventory === 1) || 
-            (item.for_911 === 1 && item.for_inventory === 0) || 
-            (item.for_911 === 0 && item.for_inventory === 1)
-        );
-        users.value = user_data;
-        console.log(users.value, 'users data');
-    } catch (error) {
-        console.log(error.response.data.errors);
-        errors.value = error.response.data.errors;
-    } finally {
-        isLoading.value = false;
-    }
-};
+const databaseStore = useDatabaseStore()
 
 // Computed property for dynamic search and filtering
 const filteredUsers = computed(() => {
@@ -72,19 +48,27 @@ const dropListener = () => {
 }
 
 onMounted(() => {
-    fetchData();
+    // fetchData();
+    databaseStore.fetchData();
 
-    interval_id = setInterval(fetchData, 5000);
+    refreshInterval = setInterval(() => {
+        databaseStore.fetchData();
+    }, 50000);
 
     // ------------------------------------------
     dropListener();
 });
 
-onBeforeUnmount(() => {
-    if (interval_id) {
-        clearInterval(interval_id);
-    }
-});
+const computedProperties = {
+    users: "activeUsers",
+};
+
+const { 
+    users
+} = Object.fromEntries(
+    Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
+);
+
 
 // -----------------------
 const openDropdownId = ref(null);

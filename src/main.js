@@ -10,7 +10,6 @@ import Loader1 from "./components/loading/loader1.vue";
 import ToolTip from "./components/ToolTip.vue";
 import Toast from "./components/Toast.vue";
 
-
 const pinia = createPinia();
 
 createApp(App)
