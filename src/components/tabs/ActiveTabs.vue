@@ -2,8 +2,8 @@
 import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue';
 import axiosClient from  '../../axios.js';
 import Badge from '../../components/Badge.vue';
+import { useDatabaseStore } from "../../stores/databaseStore";
 
-const users = ref([]);
 const selectedClassifications = ref([]);
 
 const searchQuery = ref('');
@@ -15,37 +15,10 @@ const type = ref('');
 
 const isLoading = ref(false);
 
-let interval_id = null;
+let refreshInterval = null;
 
-// Fetch Users
-const fetchData = async () => {
-    try {
-        if (users.value.length === 0) {
-          isLoading.value = true;  
-        }
-        
-        const response = await axiosClient.get('/api/911/users', {
-            headers: {
-                'x-api-key': import.meta.env.VITE_API_KEY
-            }
-        })
-        const user_data = response.data.filter(item => 
-            (item.for_911 === 1 && item.for_inventory === 1) || 
-            (item.for_911 === 1 && item.for_inventory === 0) || 
-            (item.for_911 === 0 && item.for_inventory === 1)
-        );
-        users.value = user_data;
-        console.log(users.value, 'users data');
-    } catch (error) {
-        type.value = 'error';
-        console.log(error.response.data.error);
-        errors.value = error.response.data.error;
-    } finally {
-        isLoading.value = false;
-    }
-};
+const databaseStore = useDatabaseStore()
 
-// Dashboard Role
 const dashboardRole = async (user) => {
     const newRoleStatus = user.for_911 === 1 ? 0 : 1; // Toggle based on user state
 
@@ -130,20 +103,6 @@ const archiveUser = async (user) => {
     }
 };
 
-// Fetch Users
-onMounted(() => {
-    fetchData();
-    interval_id = setInterval(fetchData, 5000);
-});
-
-// Unmount Interval on Before Unmount
-onBeforeUnmount(() => {
-    if (interval_id) {
-        clearInterval(interval_id);
-    }
-});
-
-
 // Computed property for dynamic search and filtering
 const filteredUsers = computed(() => {
     return users.value.filter(user => {
@@ -174,9 +133,26 @@ const dropListener = () => {
 }
 
 onMounted(() => {
-    // Dropdown listener
+    // fetchData();
+    databaseStore.fetchData();
+
+    refreshInterval = setInterval(() => {
+        databaseStore.fetchData();
+    }, 50000);
+
+    // ------------------------------------------
     dropListener();
 });
+
+const computedProperties = {
+    users: "activeUsers",
+};
+
+const { 
+    users
+} = Object.fromEntries(
+    Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
+);
 
 
 // -----------------------

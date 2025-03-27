@@ -2,8 +2,10 @@
 import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue';
 import axiosClient from  '../../axios.js';
 import Badge from '../../components/Badge.vue';
+import { useDatabaseStore } from "../../stores/databaseStore";
 
-const users = ref([]);
+const databaseStore = useDatabaseStore();
+
 const searchQuery = ref("");
 const isLoading = ref(false);
 
@@ -15,33 +17,7 @@ const icon = ref('');
 const type = ref('');
 const classes = ref('');
 
-let interval_id = null;
-
-const fetchData = async () => {
-    try {
-        if (users.value.length === 0) {
-            isLoading.value = true;
-        }
-
-        const response = await axiosClient.get('/api/911/users', {
-            headers: {
-                'x-api-key': import.meta.env.VITE_API_KEY
-            }
-        })
-        const filteredData = response.data.filter(item => 
-            (item.for_911 === 0 && item.for_inventory === 0) 
-        );
-        users.value = filteredData;
-        console.log(users.value, 'users data');
-    } catch (error) {
-        type.value = 'error';
-        console.log(error.response.data.error);
-        errors.value = error.response.data.error;
-    } 
-    finally {
-        isLoading.value = false;
-    }
-};
+let refreshInterval = null;
 
 // Computed property for dynamic search and filtering
 const filteredUsers = computed(() => {
@@ -72,18 +48,24 @@ const dropListener = () => {
 }
 
 onMounted(() => {
-    fetchData();
+    databaseStore.fetchData();
 
-    interval_id = setInterval(fetchData, 5000);
+    refreshInterval = setInterval(() => {
+        databaseStore.fetchData();
+    }, 50000);
 
     dropListener();
 });
 
-onBeforeUnmount(() => {
-    if (interval_id) {
-        clearInterval(interval_id);
-    }
-});
+const computedProperties = {
+    users: "archivedUsers",
+};
+
+const { 
+    users
+} = Object.fromEntries(
+    Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
+);
 
 // -----------------------
 const openDropdownId = ref(null);

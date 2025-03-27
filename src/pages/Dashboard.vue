@@ -2,7 +2,6 @@
 
 import { ref, computed, onMounted, watch } from "vue";
 import axiosClient from "../axios.js";
-import router from "../router.js";
 import PieChart from "../components/charts/PieChart.vue";
 import LineChart from "../components/charts/LineChart.vue";
 import BarChart from "../components/charts/BarChart.vue";
@@ -51,7 +50,21 @@ watch(selectedMonth1, () => {
   selectedMonth2.value = null;
 });
 
+const errors = ref('');
 
+const fetchData = async () => {
+  try {
+    const response = await axiosClient.get('/api/911/dashboard', {
+      headers: {
+        'x-api-key': import.meta.env.VITE_API_KEY
+      }
+    })
+
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    errors.value = error.response.data.error;
+  }
+};
 
 onMounted(() => {
   axiosClient.get('/api/911/dashboard', {

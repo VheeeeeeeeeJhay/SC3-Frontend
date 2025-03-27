@@ -29,21 +29,21 @@ const data = ref({
 let map = null;
 let marker = null; // Store the marker reference
 
-onMounted(() => {
-    axiosClient.get(`/api/911/report-view/${report_Id}`, {
+const fetchData = async () => {
+  try {
+    const response = await axiosClient.get(`/api/911/report-view/${report_Id}`, {
         headers: {
             'x-api-key': import.meta.env.VITE_API_KEY
         }
     })
-    .then((res) => {
-        console.log(res);
-        data.value = res.data;
-        // Initialize the map AFTER data is received
-        // initMap();
-    })
-    .catch((error) => {
-        console.error('Error fetching data:', error);
-    });
+    data.value = response.data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+onMounted(() => {
+    fetchData();
 });
 
 // Initialize Map
