@@ -3,12 +3,12 @@ import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from "vue"
 import axiosClient from "../../axios.js";
 import DateRangePicker from "../DateRangePicker.vue";
 import monthYearPicker from "../monthYearPicker.vue";
+import { useDateStore } from '../../stores/useDateStore';
 
+const dateStore = useDateStore();
 const totalReports = ref([]); // All reports from API
 const reportCount = ref(0); // Total reports count based on date filter
-
-const selectedOption = ref("all");
-
+const selectedOption = ref("day");
 const currentYear = new Date().getFullYear();
 const months = [
   "January",
@@ -26,8 +26,6 @@ const months = [
 ];
 
 const selectedYear1 = ref(currentYear);
-// const currentMonth = months[new Date().getMonth()];
-// const selectedMonth1 = ref(currentMonth);
 const selectedMonth1 = ref(new Date().getMonth() + 1); // JS months are 0-based
 
 
@@ -37,7 +35,6 @@ const fetchData = async () => {
     const response = await axiosClient.get("/api/911/report-display", {
       headers: { "x-api-key": import.meta.env.VITE_API_KEY },
     });
-    console.log("Full API Response:", response.data[0]);
     totalReports.value = response.data[0]; // Store all reports
     console.log(totalReports.value.length, "✅ Total Reports Loaded");
     countReports(); // Count reports after fetching
@@ -46,17 +43,17 @@ const fetchData = async () => {
   }
 };
 
-//date range picker
-const selectedStartDate = ref(null);
-const selectedEndDate = ref(null);
+// // date range picker
+// const selectedStartDate = ref(null);
+// const selectedEndDate = ref(null);
 
-const updateDateRange = (dateRange) => {
-  selectedStartDate.value = dateRange.start;
-  selectedEndDate.value = dateRange.end;
-  console.log("Updated Start Date:", selectedStartDate.value);
-  console.log("Updated End Date:", selectedEndDate.value);
-  countReports(); // Refresh the report count when date range changes
-};
+// const updateDateRange = (dateRange) => {
+//   selectedStartDate.value = dateRange.start;
+//   selectedEndDate.value = dateRange.end;
+//   console.log("Updated Start Date:", selectedStartDate.value);
+//   console.log("Updated End Date:", selectedEndDate.value);
+//   countReports(); // Refresh the report count when date range changes
+// };
 
 const convertToISODate = (dateString) => {
   const [month, day, year] = dateString.split("/");
@@ -66,28 +63,26 @@ const convertToISODate = (dateString) => {
 // Function to count reports based on selected filter
 const countReports = () => {
   let count = 0;
+  const { start, end } = dateStore.dateRange;
 
   totalReports.value.forEach((report) => {
     const reportDate = report.date_received.split("T")[0]; // Extract date part
     const reportYear = new Date(reportDate).getFullYear();
     const reportMonth = new Date(reportDate).getMonth() + 1;
 
-    if (selectedOption.value === "all") {
-      count++; // Count all reports
-    } else if (
+    if (
       selectedOption.value === "day" &&
       reportDate === formatDate(new Date())
     ) {
       count++;
     } else if (
-      selectedOption.value === "week" &&
-      selectedStartDate.value &&
-      selectedEndDate.value
+       selectedOption.value === "week" &&
+       start && end
     ) {
-      const start = convertToISODate(selectedStartDate.value);
-      const end = convertToISODate(selectedEndDate.value);
+      const startDate = convertToISODate(start);
+      const endDate = convertToISODate(end);
 
-      if (reportDate >= start && reportDate <= end) {
+      if (reportDate >= startDate && reportDate <= endDate) {
         count++;
       }
     } else if (
@@ -104,9 +99,10 @@ const countReports = () => {
 
 // Watch for filter changes
 watch([selectedOption, selectedMonth1, selectedYear1], countReports);
-watch([selectedStartDate, selectedEndDate, selectedOption], () => {
-  countReports();
-});
+// watch([selectedStartDate, selectedEndDate, selectedOption], () => {
+//   countReports();
+// });
+watch(() => dateStore.dateRange, countReports, { deep: true });
 
 //date range picker
 onMounted(() => {
@@ -119,10 +115,12 @@ const formatDate = (date) => date.toISOString().split("T")[0]; // Format as YYYY
 const currentDate = ref(new Date());
 
 onMounted(() => {
-  updateDateRange({
-    start: selectedStartDate.value,
-    end: selectedEndDate.value,
-  });
+  if (dateStore.dateRange.start && dateStore.dateRange.end) {
+    updateDateRange({
+      start: dateStore.dateRange.start,
+      end: dateStore.dateRange.end,
+    });
+  }
 });
 
 </script>
@@ -140,7 +138,7 @@ onMounted(() => {
   <!-- Selection Dropdown -->
   <div class="grid grid-cols-3 gap-3 items-center">
     <div>
-      <select
+      <!-- <select
         v-model="selectedOption"
         class="w-full px-2 py-1 text-sm font-medium bg-teal-500 text-white rounded-md shadow hover:bg-teal-600 transition duration-200 disabled:opacity-50"
       >
@@ -148,7 +146,7 @@ onMounted(() => {
         <option value="day">Today</option>
         <option value="month">By Month</option>
         <option value="week">By Week//Custom</option>
-      </select>
+      </select> -->
     </div>
 
     <!-- Date Range for 'This Week' -->

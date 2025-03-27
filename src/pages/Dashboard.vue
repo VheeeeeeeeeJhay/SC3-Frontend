@@ -10,6 +10,8 @@ import IncidentGrowthRate from "../components/widgets/IncidentGrowthRate.vue";
 import RecentIncident from "../components/widgets/RecentIncident.vue";
 import TotalReportsReceived from "../components/widgets/TotalReportsReceived.vue";
 import TopPerforming from "../components/widgets/TopPerforming.vue";
+import { useDateStore } from '../stores/useDateStore';
+import DateRangePicker from "../components/DateRangePicker.vue";
 //import MonthPicker from "vue-month-picker";
 
 // /👾👾👾👾👾👾👾👾/ //
@@ -99,20 +101,27 @@ const percentageChange = computed(() => {
 
 
 
-const formatDate = (date) => date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+const dateStore = useDateStore();
 
-// const currentDate = ref(new Date());
-const selectedEndDate = ref(formatDate(new Date())); // Current day
-const selectedStartDate = ref(formatDate(new Date(new Date().setDate(new Date().getDate() - 6)))); // 6 days ago
-const selectedDateRange = ref({ start: selectedStartDate.value, end: selectedEndDate.value });
+const updateDateRange = (dateRange) => {
+  dateStore.updateDateRange(dateRange);
+};
 </script>
 
 <template>
   <div class="min-h-screen">
     <!-- Titleee -->
-    <div class="mt-6 px-2 flex justify-between">
-      <h1 class="text-2xl font-bold dark:text-white">Overview</h1>
+    <div class="mt-6 px-2 flex items-center">
+      <h1 class="text-2xl font-bold dark:text-white mr-4">Overview</h1>
+      <div>
+        <DateRangePicker 
+          :start-date="dateStore.dateRange.start"
+          :end-date="dateStore.dateRange.end"
+          @dateRangeSelected="dateStore.updateDateRange"
+        />
+      </div>
     </div>
+    
 
     <main class="mx-auto my-6 max-w-7xl px-4 sm:px-6 lg:px-8">
 

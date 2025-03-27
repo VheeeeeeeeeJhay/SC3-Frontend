@@ -156,12 +156,12 @@ onUnmounted(() => {
   <div class="w-full p-4 dark:bg-slate-800 dark:border-black dark:text-white bg-sky-50 border-gray-200 text-gray-800">   
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-semibold">Report per source SAUCED</h2>
-      <select v-model="selectedDateFilter" class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600">
+      <!-- <select v-model="selectedDateFilter" class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600">
         <option value="" disabled>Select Date Range</option>
         <option v-for="filter in dateFilters" :key="filter.value" :value="filter.value">
           {{ filter.name }}
         </option>
-      </select>
+      </select> -->
     </div>
     <!-- BAR CHART -->
     <div class="dark:text-gray-800 h-64" ref="barChart"></div>
