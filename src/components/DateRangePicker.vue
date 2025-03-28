@@ -1,87 +1,87 @@
 <template>
 <div class="relative w-full">
-    <!-- Input Field -->
-    <div
-      class="w-full px-3 py-2 flex items-center bg-white dark:bg-teal-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
-      ref="datepickerRef"
-      @click="toggleDatepicker"
-    >
-      <span class="mr-3 text-gray-500 dark:text-gray-400">
-        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-          <!-- Calendar Icon -->
-          <path
-            d="M6 2a1 1 0 011 1v1h6V3a1 1 0 112 0v1h1a2 2 0 012 2v11a2 2 0 01-2 2H3a2 2 0 01-2-2V6a2 2 0 012-2h1V3a1 1 0 112 0v1zM3 8v9h14V8H3z"
-          />
-        </svg>
-      </span>
-      <input
-        type="text"
-        placeholder="Select Date Range"
-        class="w-full bg-transparent text-sm focus:outline-none cursor-pointer"
-        :value="updateInput()"
-        readonly
+  <!-- Input Field -->
+  <div
+    class="w-full px-3 py-2 flex items-center bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
+    ref="datepickerRef"
+    @click="toggleDatepicker"
+  >
+    <span class="mr-3 text-gray-500 dark:text-gray-300">
+    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+      <!-- Calendar Icon -->
+      <path
+      d="M6 2a1 1 0 011 1v1h6V3a1 1 0 112 0v1h1a2 2 0 012 2v11a2 2 0 01-2 2H3a2 2 0 01-2-2V6a2 2 0 012-2h1V3a1 1 0 112 0v1zM3 8v9h14V8H3z"
       />
-      <span class="ml-auto text-gray-500 dark:text-gray-400 cursor-pointer">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 16 16">
-          <!-- Dropdown Arrow -->
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6l4 4 4-4"></path>
-        </svg>
-      </span>
+    </svg>
+    </span>
+    <input
+    type="text"
+    placeholder="Select Date Range"
+    class="w-full bg-transparent text-sm focus:outline-none cursor-pointer dark:text-gray-200 dark:placeholder-gray-400"
+    :value="updateInput()"
+    readonly
+    />
+    <span class="ml-auto text-gray-500 dark:text-gray-400 cursor-pointer">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 16 16">
+      <!-- Dropdown Arrow -->
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6l4 4 4-4"></path>
+    </svg>
+    </span>
+  </div>
+
+  <!-- Date Picker Container -->
+  <div
+    v-if="isOpen"
+    class="absolute z-50 mt-2 w-full max-w-xs bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 shadow-lg rounded-lg overflow-hidden"
+    @click.stop
+    >
+    <!-- Month Navigation -->
+    <div class="flex items-center justify-between px-4 py-2 bg-gray-100 dark:bg-gray-700">
+    <button @click="changeMonth(-1)" class="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200">
+      <svg class="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+      <path d="M11 2L5 8l6 6"></path>
+      </svg>
+    </button>
+
+    <div class="text-sm font-semibold text-gray-700 dark:text-gray-200">{{ currentMonth }}</div>
+
+    <button @click="changeMonth(1)" class="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200">
+      <svg class="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+      <path d="M5 2l6 6-6 6"></path>
+      </svg>
+    </button>
     </div>
 
-    <!-- Date Picker Container -->
+    <!-- Days of the Week -->
+    <div class="grid grid-cols-7 px-4 text-xs font-semibold text-gray-500 dark:text-gray-400">
+    <div v-for="day in daysOfWeek" :key="day" class="text-center">{{ day }}</div>
+    </div>
+
+    <!-- Calendar Grid -->
+    <div class="grid grid-cols-7 px-4 pb-3 text-sm">
     <div
-      v-if="isOpen"
-      class="absolute z-50 mt-2 w-full max-w-xs bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 shadow-lg rounded-lg overflow-hidden"
-      @click.stop
-      >
-      <!-- Month Navigation -->
-      <div class="flex items-center justify-between px-4 py-2 bg-gray-100 dark:bg-gray-700">
-        <button @click="changeMonth(-1)" class="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600">
-          <svg class="w-4 h-4 text-gray-700 dark:text-gray-200" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M11 2L5 8l6 6"></path>
-          </svg>
-        </button>
+      v-for="(day, index) in renderCalendar()"
+      :key="index"
+      :class="day.className"
+      class="text-center py-2 cursor-pointer rounded-md hover:bg-teal-500 dark:hover:bg-teal-600 text-gray-700 dark:text-gray-200 transition"
+      @click="handleDayClick(day.dayString)"
+    >
+      {{ day.day }}
+    </div>
+    </div>
 
-        <div class="text-sm font-semibold text-gray-700 dark:text-gray-200">{{ currentMonth }}</div>
-
-        <button @click="changeMonth(1)" class="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600">
-          <svg class="w-4 h-4 text-gray-700 dark:text-gray-200" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M5 2l6 6-6 6"></path>
-          </svg>
-        </button>
-      </div>
-
-      <!-- Days of the Week -->
-      <div class="grid grid-cols-7 px-4 text-xs font-semibold text-gray-500 dark:text-gray-400">
-        <div v-for="day in daysOfWeek" :key="day" class="text-center ">{{ day }}</div>
-      </div>
-
-      <!-- Calendar Grid -->
-      <div class="grid grid-cols-7 px-4 pb-3 text-sm">
-        <div
-          v-for="(day, index) in renderCalendar()"
-          :key="index"
-          :class="day.className"
-          class="text-center py-2 cursor-pointer rounded-md hover:bg-teal-500 text-white transition"
-          @click="handleDayClick(day.dayString)"
-        >
-          {{ day.day }}
-        </div>
-      </div>
-
-      <!-- Actions -->
-      <div class="flex justify-end space-x-2 border-t border-gray-200 dark:border-gray-700 p-3">
-        <button @click="handleCancel" class="px-4 py-2 text-sm font-medium text-teal-500 border border-teal-500 rounded-lg hover:bg-teal-50 dark:hover:bg-gray-700">
-          Cancel
-        </button>
-        <button @click="handleApply" class="px-4 py-2 text-sm font-medium text-white bg-teal-500 rounded-lg hover:bg-teal-600">
-          Apply
-        </button>
-      </div>
+    <!-- Actions -->
+    <div class="flex justify-end space-x-2 border-t border-gray-200 dark:border-gray-700 p-3">
+    <button @click="handleClear" class="px-4 py-2 text-sm font-medium text-teal-500 dark:text-teal-400 border border-teal-500 dark:border-teal-400 rounded-lg hover:bg-teal-50 dark:hover:bg-gray-700">
+      clear
+    </button>
+    <button @click="handleApply" class="px-4 py-2 text-sm font-medium text-white bg-teal-500 dark:bg-teal-600 rounded-lg hover:bg-teal-600 dark:hover:bg-teal-700">
+      Apply
+    </button>
     </div>
   </div>
-    
+  </div>
+  
 </template>
 
 <script setup>
@@ -175,17 +175,27 @@ const toggleDatepicker = () => {
 //   }
 
 const handleApply = () => {
-    if (selectedStartDate.value && selectedEndDate.value) {
-        emit('dateRangeSelected', { start: selectedStartDate.value, end: selectedEndDate.value })
-        console.log('Applied:', selectedStartDate.value, selectedEndDate.value)
-        isOpen.value = false
+  if (selectedStartDate.value && selectedEndDate.value) {
+        // Convert to ISO format (YYYY-MM-DD)
+        const startISO = new Date(selectedStartDate.value).toISOString().split("T")[0];
+        const endISO = new Date(selectedEndDate.value).toISOString().split("T")[0];
+
+        emit('dateRangeSelected', { start: startISO, end: endISO });
+        console.log('📅 Applied Date Range:', startISO, 'to', endISO);
+        
+        isOpen.value = false;
     }
 }
 
-const handleCancel = () => {
-    // selectedStartDate.value = null
-    // selectedEndDate.value = null
-    isOpen.value = false
+const handleClear = () => {
+  selectedStartDate.value = null;
+    selectedEndDate.value = null;
+    
+    // Emit event to clear date range in parent
+    emit('dateRangeSelected', { start: null, end: null });
+
+    console.log('🗑 Cleared Date Range');
+    isOpen.value = false;
 }
 
 const handleDocumentClick = (e) => {

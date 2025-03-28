@@ -2,6 +2,13 @@
 import axiosClient from '../../axios.js';
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import ToolTip from '../../components/ToolTip.vue';
+import monthYearPicker from "../monthYearPicker.vue";
+
+// Props
+const props = defineProps({
+  selectedYear: Number,
+  selectedMonth: Number
+});
 
 const incidents = ref([]);
 const reports = ref([]);
@@ -15,32 +22,44 @@ const months = [
     'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
-const selectedYear1 = ref(2025);
-const selectedMonth1 = ref(months[currentMonthIndex === 0 ? 11 : currentMonthIndex - 1]); // Previous month
-const selectedMonth2 = ref(months[currentMonthIndex]); // Current month
+// const selectedYear1 = ref(2025);
+// const selectedMonth1 = ref(months[currentMonthIndex === 0 ? 11 : currentMonthIndex - 1]); // Previous month
+// const selectedMonth2 = ref(months[currentMonthIndex]); // Current month
 
-const filteredMonths2 = computed(() => {
-    if (!selectedYear1.value || !selectedMonth1.value) return [];
+const selectedMonth2 = ref(months[props.selectedMonth - 1]); // Current month
+const selectedMonth1 = ref(
+  props.selectedMonth === 1 ? months[11] : months[props.selectedMonth - 2] // Previous month
+);
+const selectedYear1 = ref(
+  props.selectedMonth === 1 ? props.selectedYear - 1 : props.selectedYear // Adjust year for December -> January transition
+);
 
-    const selectedDateIndex = months.indexOf(selectedMonth1.value);
+console.log(`📆 selectedMonth1 (Previous): ${selectedMonth1.value}`);
+console.log(`📆 selectedMonth2 (Current): ${selectedMonth2.value}`);
 
-    // If the same year, filter to exclude previous months
-    if (selectedYear1.value === currentYear) {
-        return months.slice(selectedDateIndex + 1);
-    }
+//for month year picker component // replace select options with monthYearPicker component
+// const selectedYear1 = ref(currentYear);
+// const selectedMonth1 = ref(new Date().getMonth() + 1); // JS months are 0-based
 
-    // Different year, allow all months
-    return months;
-});
+// const filteredMonths2 = computed(() => {
+//     if (!selectedYear1.value || !selectedMonth1.value) return [];
 
-// Reset months when year or month selection changes
-watch(selectedYear1, () => {
-    selectedMonth1.value = null;
-    selectedMonth2.value = null;
-});
+//     const selectedDateIndex = months.indexOf(selectedMonth1.value);
 
-watch(selectedMonth1, () => {
-    selectedMonth2.value = null;
+//     // If the same year, filter to exclude previous months
+//     if (selectedYear1.value === currentYear) {
+//         return months.slice(selectedDateIndex + 1);
+//     }
+
+//     // Different year, allow all months
+//     return months;
+// });
+
+// Watch for prop changes and update months accordingly
+watch(() => [props.selectedYear, props.selectedMonth], () => {
+  selectedMonth2.value = months[props.selectedMonth - 1]; // Set current month
+  selectedMonth1.value = props.selectedMonth === 1 ? months[11] : months[props.selectedMonth - 2]; // Set previous month
+  selectedYear1.value = props.selectedMonth === 1 ? props.selectedYear - 1 : props.selectedYear; // Adjust year if needed
 });
 
 let interval_id = null;
@@ -62,26 +81,8 @@ const fetchData = async () => {
 
 
 onMounted(() => {
-    // axiosClient.get('/api/911/dashboard', {
-    //     headers: {
-    //         'x-api-key': import.meta.env.VITE_API_KEY
-    //     }
-    // })
-    //     .then((res) => {
-    //         setTimeout(() => {
-    //             incidents.value = res.data;
-    //             reports.value = res.data.report;
-    //             console.log(reports.value, 'report data')
-    //         }, 1500);
-    //     })
-    //     .catch((error) => {
-    //         console.error('Error fetching data:', error);
-    //         // errorMessage.value = 'Failed to load incidents. Please try again later.';
-    //     });
-
     fetchData();
-
-    interval_id = setInterval(fetchData, 5000);
+    // interval_id = setInterval(fetchData, 5000);
 });
 
 onBeforeUnmount(() => {
@@ -89,20 +90,33 @@ onBeforeUnmount(() => {
 });
 
 // Function to count reports for a given month
-const getReportCountForMonth = (month) => {
-    if (!month) return 0;
+const getReportCountForMonth = (month, year) => { 
+    if (!month || !year) return 0; 
 
     const monthIndex = months.indexOf(month) + 1; // Convert to 1-based index (Jan = 1)
-    return reports.value.filter(report => {
+    
+    console.log(`🔍 Checking reports for ${month} ${year} (Index: ${monthIndex})`);
+
+    const filteredReports = reports.value.filter(report => {
         const reportDate = new Date(report.date_received);
-        return reportDate.getMonth() + 1 === monthIndex;
-    }).length;
+        const reportMonth = reportDate.getMonth() + 1;
+        const reportYear = reportDate.getFullYear();
+
+        console.log(`📅 Report Date: ${report.date_received} (Month: ${reportMonth}, Year: ${reportYear})`);
+
+        return reportMonth === monthIndex && reportYear === year;
+    });
+
+    console.log(`✅ Found ${filteredReports.length} reports for ${month} ${year}`);
+
+    return filteredReports.length;
 };
+
 
 // Compute percentage change dynamically
 const percentageChange = computed(() => {
-    const count1 = getReportCountForMonth(selectedMonth1.value);
-    const count2 = getReportCountForMonth(selectedMonth2.value);
+    const count1 = getReportCountForMonth(selectedMonth1.value, selectedYear1.value);
+    const count2 = getReportCountForMonth(selectedMonth2.value, selectedYear1.value);
 
     if (count1 === 0) return count2 > 0 ? 100 : 0; // Avoid division by zero
 
@@ -111,12 +125,12 @@ const percentageChange = computed(() => {
 
 
 
-const formatDate = (date) => date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+// const formatDate = (date) => date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
 
 // const currentDate = ref(new Date());
-const selectedEndDate = ref(formatDate(new Date())); // Current day
-const selectedStartDate = ref(formatDate(new Date(new Date().setDate(new Date().getDate() - 6)))); // 6 days ago
-const selectedDateRange = ref({ start: selectedStartDate.value, end: selectedEndDate.value });
+// const selectedEndDate = ref(formatDate(new Date())); // Current day
+// const selectedStartDate = ref(formatDate(new Date(new Date().setDate(new Date().getDate() - 6)))); // 6 days ago
+// const selectedDateRange = ref({ start: selectedStartDate.value, end: selectedEndDate.value });
 </script>
 
 <template>
@@ -125,34 +139,35 @@ const selectedDateRange = ref({ start: selectedStartDate.value, end: selectedEnd
         Growth Rate of Incidents
         <ToolTip
             Information="The growth rate of incidents is the percentage change in the number of incidents between two months." />
+            <p class="text-xs">Compared to previous month</p>
     </h2>
 
     <!-- Month Selection -->
     <div class="grid grid-cols-3 gap-2 items-center">
         <!-- Month 1 Selection -->
         <div class="col-span-1">
-            <select v-model="selectedMonth1" :disabled="!selectedYear1"
+            <!-- <select v-model="selectedMonth1" :disabled="!selectedYear1"
                 class="w-full px-2 py-1 text-sm font-medium bg-teal-500 text-white rounded-md shadow hover:bg-teal-600 transition duration-200 disabled:opacity-50">
                 <option value="" disabled>Month 1</option>
                 <option v-for="month in months" :key="month" :value="month">
                     {{ month }}
                 </option>
-            </select>
+            </select> -->
         </div>
 
         <!-- Month 2 Selection -->
         <div class="col-span-1">
-            <select v-model="selectedMonth2" :disabled="!selectedMonth1"
+            <!-- <select v-model="selectedMonth2" :disabled="!selectedMonth1"
                 class="w-full px-2 py-1 text-sm font-medium bg-teal-500 text-white rounded-md shadow hover:bg-teal-600 transition duration-200 disabled:opacity-50">
                 <option value="" disabled>Month 2</option>
                 <option v-for="month in filteredMonths2" :key="month" :value="month">
                     {{ month }}
                 </option>
-            </select>
+            </select> -->
         </div>
 
         <!-- Year Selection -->
-        <div class="col-span-1">
+        <!-- <div class="col-span-1">
             <select v-model="selectedYear1"
                 class="w-full px-2 py-1 text-sm font-medium bg-teal-500 text-white rounded-md shadow hover:bg-teal-600 transition duration-200">
                 <option value="" disabled>Select Year</option>
@@ -160,7 +175,9 @@ const selectedDateRange = ref({ start: selectedStartDate.value, end: selectedEnd
                     {{ year }}
                 </option>
             </select>
-        </div>
+        </div> -->
+        <!-- <monthYearPicker v-model:selectedMonth="selectedMonth1" v-model:selectedYear="selectedYear1"/> -->
+
     </div>
 
     <div class="flex justify-center items-center">

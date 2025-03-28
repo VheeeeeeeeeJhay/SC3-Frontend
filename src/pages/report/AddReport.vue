@@ -420,7 +420,7 @@ const closeDropdown = () => {
                 </label>
                 <input type="time" id="time" v-model="data.time" @click="openTimePicker2"
                   class="appearance-none w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
-                  <span @click="openTimePicker22" class="material-icons schedule absolute right-3 top-11 text-gray-800 dark:text-white"/>
+                  <span @click="openTimePicker2" class="material-icons schedule absolute right-3 top-11 text-gray-800 dark:text-white"/>
                 
                   <span class="text-sm text-red-500" v-if="errors.time && errors.time.length">{{ errors.time[0] }}</span>
               </div>

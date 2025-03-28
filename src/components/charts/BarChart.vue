@@ -30,7 +30,7 @@ const options = ref({
     colors: ["#bf1029", "#3f8f29", "#4A90E2", "#50E3C2", "#B8E986", "#F5A623"],
     series: [],
     chart: {
-        type: "bar",
+        type: "line",
         height: "100%",
         fontFamily: "Inter, sans-serif",
         toolbar: {
@@ -40,14 +40,16 @@ const options = ref({
             },
         },
     },
-    plotOptions: {
-        bar: {
-            horizontal: false,
-            columnWidth: "70%",
-            borderRadiusApplication: "end",
-            borderRadius: 8,
-            distributed: true,
-        },
+    stroke: {
+        show: true,
+        width: 2,  // Adjust line thickness
+        colors: ["#bf1029"],  // Line color
+    },
+    markers: {
+        size: 5,  // Adjust marker size
+        colors: ["#bf1029"],  // Marker color
+        strokeColors: "#fff",
+        strokeWidth: 2,
     },
     tooltip: {
         shared: true,
@@ -57,13 +59,8 @@ const options = ref({
             fontFamily: "Inter, sans-serif",
         },
     },
-    stroke: {
-        show: true,
-        width: 0,
-        colors: ["transparent"],
-    },
     grid: {
-        show: false,
+        show: true,
         strokeDashArray: 4,
         padding: {
             left: 2,
@@ -95,7 +92,7 @@ const options = ref({
         },
     },
     yaxis: {
-        show: false,
+        show: true,
     },
     fill: {
         opacity: 1,

@@ -10,115 +10,121 @@ import IncidentGrowthRate from "../components/widgets/IncidentGrowthRate.vue";
 import RecentIncident from "../components/widgets/RecentIncident.vue";
 import TotalReportsReceived from "../components/widgets/TotalReportsReceived.vue";
 import TopPerforming from "../components/widgets/TopPerforming.vue";
-import { useDateStore } from '../stores/useDateStore';
 import DateRangePicker from "../components/DateRangePicker.vue";
+import monthYearPicker from "../components/monthYearPicker.vue";
+
 //import MonthPicker from "vue-month-picker";
 
 // /👾👾👾👾👾👾👾👾/ //
 // Fetch Data From Backend //
 
-const incidents = ref([]);
-const reports = ref([]);
+// const incidents = ref([]);
+// const reports = ref([]);
 
+// const currentYear = new Date().getFullYear();
+// const currentMonthIndex = new Date().getMonth(); // 0-based index (January = 0)
+// const years = Array.from({ length: currentYear - 2019 + 1 }, (_, i) => 2020 + i); // Ensure inclusion of the current year
+
+// const months = [
+//   'January', 'February', 'March', 'April', 'May', 'June',
+//   'July', 'August', 'September', 'October', 'November', 'December'
+// ];
+
+// const selectedYear1 = ref(2025);
+// const selectedMonth1 = ref(months[currentMonthIndex === 0 ? 11 : currentMonthIndex - 1]); // Previous month
+// const selectedMonth2 = ref(months[currentMonthIndex]); // Current month
+// const monthPicker1 = ref("January");
+
+
+
+// const filteredMonths2 = computed(() => {
+//   if (!selectedYear1.value || !selectedMonth1.value) return [];
+
+//   const selectedDateIndex = months.indexOf(selectedMonth1.value);
+
+//   // If the same year, filter to exclude previous months
+//   if (selectedYear1.value === currentYear) {
+//     return months.slice(selectedDateIndex + 1);
+//   }
+
+//   // Different year, allow all months
+//   return months;
+// });
+
+// // Reset months when year or month selection changes
+// watch(selectedYear1, () => {
+//   selectedMonth1.value = null;
+//   selectedMonth2.value = null;
+// });
+
+// watch(selectedMonth1, () => {
+//   selectedMonth2.value = null;
+// });
+
+
+
+// onMounted(() => {
+//   axiosClient.get('/api/911/dashboard', {
+//     headers: {
+//       'x-api-key': import.meta.env.VITE_API_KEY
+//     }
+//   })
+//     .then((res) => {
+//       setTimeout(() => {
+//         incidents.value = res.data;
+//         reports.value = res.data.report;
+//         console.log(reports.value, 'report data')
+//       }, 1500);
+//     })
+//     .catch((error) => {
+//       console.error('Error fetching data:', error);
+//       // errorMessage.value = 'Failed to load incidents. Please try again later.';
+//     });
+// });
+
+// // Function to count reports for a given month
+// const getReportCountForMonth = (month) => {
+//   if (!month) return 0;
+
+//   const monthIndex = months.indexOf(month) + 1; // Convert to 1-based index (Jan = 1)
+//   return reports.value.filter(report => {
+//     const reportDate = new Date(report.date_received);
+//     return reportDate.getMonth() + 1 === monthIndex;
+//   }).length;
+// };
+
+// // Compute percentage change dynamically
+// const percentageChange = computed(() => {
+//   const count1 = getReportCountForMonth(selectedMonth1.value);
+//   const count2 = getReportCountForMonth(selectedMonth2.value);
+
+//   if (count1 === 0) return count2 > 0 ? 100 : 0; // Avoid division by zero
+
+//   return ((count2 - count1) / count1) * 100;
+// });
+
+//for filters
 const currentYear = new Date().getFullYear();
-const currentMonthIndex = new Date().getMonth(); // 0-based index (January = 0)
-const years = Array.from({ length: currentYear - 2019 + 1 }, (_, i) => 2020 + i); // Ensure inclusion of the current year
+const selectedYear1 = ref(currentYear);
+const selectedMonth1 = ref(new Date().getMonth() + 1); // JS months are 0-based
+const startDate = ref(null);
+const endDate = ref(null);
 
-const months = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
-];
-
-const selectedYear1 = ref(2025);
-const selectedMonth1 = ref(months[currentMonthIndex === 0 ? 11 : currentMonthIndex - 1]); // Previous month
-const selectedMonth2 = ref(months[currentMonthIndex]); // Current month
-
-const filteredMonths2 = computed(() => {
-  if (!selectedYear1.value || !selectedMonth1.value) return [];
-
-  const selectedDateIndex = months.indexOf(selectedMonth1.value);
-
-  // If the same year, filter to exclude previous months
-  if (selectedYear1.value === currentYear) {
-    return months.slice(selectedDateIndex + 1);
-  }
-
-  // Different year, allow all months
-  return months;
-});
-
-// Reset months when year or month selection changes
-watch(selectedYear1, () => {
-  selectedMonth1.value = null;
-  selectedMonth2.value = null;
-});
-
-watch(selectedMonth1, () => {
-  selectedMonth2.value = null;
-});
-
-
-
-onMounted(() => {
-  axiosClient.get('/api/911/dashboard', {
-    headers: {
-      'x-api-key': import.meta.env.VITE_API_KEY
-    }
-  })
-    .then((res) => {
-      setTimeout(() => {
-        incidents.value = res.data;
-        reports.value = res.data.report;
-        console.log(reports.value, 'report data')
-      }, 1500);
-    })
-    .catch((error) => {
-      console.error('Error fetching data:', error);
-      // errorMessage.value = 'Failed to load incidents. Please try again later.';
-    });
-});
-
-// Function to count reports for a given month
-const getReportCountForMonth = (month) => {
-  if (!month) return 0;
-
-  const monthIndex = months.indexOf(month) + 1; // Convert to 1-based index (Jan = 1)
-  return reports.value.filter(report => {
-    const reportDate = new Date(report.date_received);
-    return reportDate.getMonth() + 1 === monthIndex;
-  }).length;
-};
-
-// Compute percentage change dynamically
-const percentageChange = computed(() => {
-  const count1 = getReportCountForMonth(selectedMonth1.value);
-  const count2 = getReportCountForMonth(selectedMonth2.value);
-
-  if (count1 === 0) return count2 > 0 ? 100 : 0; // Avoid division by zero
-
-  return ((count2 - count1) / count1) * 100;
-});
-
-
-
-const dateStore = useDateStore();
-
-const updateDateRange = (dateRange) => {
-  dateStore.updateDateRange(dateRange);
+const updateDateRange = ({ start, end }) => {
+  startDate.value = start;
+  endDate.value = end;
+  console.log("Date Range:", startDate.value, endDate.value);
 };
 </script>
 
 <template>
   <div class="min-h-screen">
     <!-- Titleee -->
-    <div class="mt-6 px-2 flex items-center">
-      <h1 class="text-2xl font-bold dark:text-white mr-4">Overview</h1>
-      <div>
-        <DateRangePicker 
-          :start-date="dateStore.dateRange.start"
-          :end-date="dateStore.dateRange.end"
-          @dateRangeSelected="dateStore.updateDateRange"
-        />
+    <div class="mt-6 px-2 flex items-center justify-between">
+      <h1 class="text-2xl font-bold dark:text-white">Overview</h1>
+      <div class="flex items-center space-x-6">
+      <monthYearPicker class="flex-1" v-model:selectedMonth="selectedMonth1" v-model:selectedYear="selectedYear1"/>
+      <DateRangePicker class="max-w-xs"  @dateRangeSelected="updateDateRange"/>
       </div>
     </div>
     
@@ -128,11 +134,11 @@ const updateDateRange = (dateRange) => {
       <div class="grid grid-cols-3 gap-6">
         <div
           class="col-span-1 p-3 bg-gradient-to-b from-sky-50 dark:from-slate-800 to-transparent rounded-lg shadow-lg">
-          <IncidentGrowthRate />
+          <IncidentGrowthRate :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" />
         </div>
 
         <div class="col-span-1 p-3 bg-gradient-to-b from-sky-50 dark:from-slate-800 to-transparent rounded-lg shadow-lg">
-          <TotalReportsReceived />
+          <TotalReportsReceived :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate"/>
         </div>
 
 
@@ -162,12 +168,12 @@ const updateDateRange = (dateRange) => {
         <div
           class="p-6 rounded-lg shadow  bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
           <!-- <LineChart /> -->
-           <PieChart />
+           <!-- <PieChart /> -->
         </div>
 
         <div
           class="p-6 rounded-lg shadow  bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
-          <RecentIncident />
+          <!-- <RecentIncident /> -->
           
         </div>
       </div>
