@@ -82,7 +82,7 @@ const isActive = (item) => {
         return true;
     }
 
-    if (item.to.name === 'Barangay' && ['EditBarangay', 'UpdateBarangay', 'DeleteBarangay', 'BarangayStatistics'].includes(route.name)) {
+    if (item.to.name === 'Barangay' && ['EditBarangay', 'UpdateBarangay', 'DeleteBarangay', 'BarangayStatistics', 'ImportFile'].includes(route.name)) {
         return true;
     }
 
