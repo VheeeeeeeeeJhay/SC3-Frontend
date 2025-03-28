@@ -100,16 +100,16 @@ onMounted(() => {
   let persistentPopup = null; // Store the last clicked popup
 
   // click effect for Heatmap Points
-  map.on("mousemove", (event) => {
-    const { lat, lng } = event.latlng;
+  // map.on("mousemove", (event) => {
+  //   const { lat, lng } = event.latlng;
   // click effect for Heatmap Points
   map.on("mousemove", (event) => {
     const { lat, lng } = event.latlng;
 
     let closestPoint = null;
     let minDistance = Infinity;
-    let closestPoint = null;
-    let minDistance = Infinity;
+    // let closestPoint = null;
+    // let minDistance = Infinity;
 
     heatmapPoints.value.forEach((point) => {
       const distance = map.distance([lat, lng], [point.lat, point.lng]);
