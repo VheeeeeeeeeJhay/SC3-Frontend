@@ -175,6 +175,81 @@ const visiblePages = computed(() => {
     return Array.from({ length: paginationEnd.value - paginationStart.value + 1 }, (_, i) => paginationStart.value + i);
 });
 
+// for printing reports
+const handlePrint = () => {
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
+    
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Printed Reports</title>
+                <style>
+                    body { font-family: Arial, sans-serif; }
+                    table { 
+                        width: 100%; 
+                        border-collapse: collapse; 
+                        margin-bottom: 20px; 
+                    }
+                    th, td { 
+                        border: 1px solid #ddd; 
+                        padding: 8px; 
+                        text-align: left; 
+                    }
+                    th { 
+                        background-color: #f2f2f2; 
+                        font-weight: bold; 
+                    }
+                    .print-header {
+                        text-align: center;
+                        margin-bottom: 20px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="print-header">
+                    <h1>Reports Management - Printed Report</h1>
+                    <p>Printed on: ${new Date().toLocaleString()}</p>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Source</th>
+                            <th>Case Classification</th>
+                            <th>Incident/Case</th>
+                            <th>Assistance</th>
+                            <th>Location</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filteredReports.value.map(report => `
+                            <tr>
+                                <td>${report.id}</td>
+                                <td>${report.source.sources}</td>
+                                <td>${report.assistance.assistance}</td>
+                                <td>${report.incident.type}</td>
+                                <td>${report.actions.actions}</td>
+                                <td>${report.barangay.name}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                <div class="print-footer">
+                    <p>Total Reports: ${filteredReports.value.length}</p>
+                </div>
+            </body>
+        </html>
+    `);
+
+    printWindow.document.close();
+
+    printWindow.print();
+
+    printWindow.onafterprint = () => {
+        printWindow.close();
+    };
+};
+
 // Delete A Report
 const errors = ref('');
 const success = ref('');
@@ -245,6 +320,15 @@ const isModalOpen = ref(false);
                                     <ChooseReportType />
                                 </template>
                             </PopupModal>
+                        </div>
+                        <!-- report button -->
+                        <div
+                            class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+                            <button @click="handlePrint"
+                                class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-1 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
+                                <span class="material-icons">add</span>
+                                Print Reports
+                            </button>
                         </div>
 
                         <div class="flex items-center space-x-3 w-full md:w-auto relative">

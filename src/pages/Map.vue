@@ -102,7 +102,12 @@ onMounted(() => {
   // click effect for Heatmap Points
   map.on("mousemove", (event) => {
     const { lat, lng } = event.latlng;
+  // click effect for Heatmap Points
+  map.on("mousemove", (event) => {
+    const { lat, lng } = event.latlng;
 
+    let closestPoint = null;
+    let minDistance = Infinity;
     let closestPoint = null;
     let minDistance = Infinity;
 
