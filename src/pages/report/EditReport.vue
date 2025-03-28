@@ -34,6 +34,7 @@ const data = ref({
     landmark: '',
     longitude: '',
     latitude: '',
+    urgency: '',
 });
 console.log("Data:", data.value.name);
 
@@ -44,6 +45,7 @@ const actions = ref([]);
 const incidents = ref([]);
 const assistance = ref([]);
 const barangays = ref([]);
+const urgencies = ref([]);
 
 const errors = ref([]); // Define errors
 let map = null;
@@ -121,6 +123,7 @@ const findData = async () => {
         data.value.receivedDate = response.data.date_received?.split('T')[0] ?? ''; // Extract YYYY-MM-DD
         data.value.arrival_on_site = response.data.arrival_on_site?.slice(0, 5) ?? ''; // Extract HH:mm
         data.value.time = response.data.time?.slice(0, 5) ?? ''; // Extract HH:mm
+        data.value.urgency = response.data.urgency?.id ?? '';
         // Initialize the map AFTER data is received
         initMap();
     } catch (error) {
@@ -140,6 +143,7 @@ const fetchData = async () => {
         actions.value = response.data.actions;
         incidents.value = response.data.incidents;
         assistance.value = response.data.assistance;
+        urgencies.value = response.data.urgencies;
         barangays.value = response.data.barangays;
     } catch (error) {
         console.error('Error fetching data:', error);
@@ -161,7 +165,8 @@ const updateForm = async () => {
         actions_id: data.value.actions,
         assistance_id: data.value.classification,
         longitude: data.value.longitude,
-        latitude: data.value.latitude
+        latitude: data.value.latitude,
+        urgency_id: data.value.urgency
     };
     try {
         // const response = await axiosClient.put(`/api/911/report/${report_Id}`, payload, {
@@ -428,6 +433,19 @@ const openDatePicker = () => {
                                         <option disabled value="">Select action</option>
                                         <option v-for="action in actions" :key="action.id" :value="action.id">{{
                                             action.actions }}</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="urgency" class="block text-sm font-medium mb-2">
+                                        Urgency
+                                        <ToolTip Information="This is the urgency of the report." />
+                                    </label>
+                                    <select id="urgency" v-model="data.urgency"
+                                        class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
+                                        <option disabled value="">Select urgency</option>
+                                        <option v-for="urgency in urgencies" :key="urgency.id" :value="urgency.id">
+                                            {{ urgency.urgency }}</option>
                                     </select>
                                 </div>
                             </div>

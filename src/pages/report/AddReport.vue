@@ -28,6 +28,7 @@ const clearForm = () => {
     landmark: '',
     longitude: '',
     latitude: '',
+    urgency_id: '',
   }
 };
 
@@ -49,6 +50,7 @@ const data = ref({
   incident_id: '',
   actions_id: '',
   barangay_id: '',
+  urgency_id: '',
 });
 
 // Store Fetch Data From Backend In An Array
@@ -57,6 +59,7 @@ const actions = ref([]);
 const incidents = ref([]);
 const assistance = ref([]);
 const barangays = ref([]);
+const urgencies = ref([]);
 
 const fetchData = async () => {
   await axiosClient.get('/api/911/report', {
@@ -70,6 +73,7 @@ const fetchData = async () => {
       incidents.value = res.data.incidents;
       assistance.value = res.data.assistance;
       barangays.value = res.data.barangays;
+      urgencies.value = res.data.urgencies;
     })
     .catch((error) => {
       console.error('Error fetching data:', error);
@@ -98,6 +102,7 @@ const submitForm = async () => {
   formData.append('assistance_id', data.value.assistance_id)
   formData.append('longitude', data.value.longitude)
   formData.append('latitude', data.value.latitude)
+  formData.append('urgency_id', data.value.urgency_id)
   console.log(formData)
     await axiosClient.post('/api/911/report', formData, {
     headers: {
@@ -389,6 +394,21 @@ const closeDropdown = () => {
                 <span class="text-sm text-red-500" v-if="errors.actions_id && errors.actions_id.length">{{
                   errors.actions_id[0] }}</span>
               </div>
+
+              <div class="form-group">
+                <label for="urgency_id" class="block text-sm font-medium mb-2">Urgency
+                  <ToolTip Information="This is the urgency of the report." />
+                </label>
+                <select id="urgency_id" v-model="data.urgency_id"
+                  class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
+                  <option disabled value="">Select urgency</option>
+                  <option v-for="urgency in urgencies" :key="urgency.id" :value="urgency.id">
+                    {{ urgency.urgency }}
+                  </option>
+                </select>
+                <span class="text-sm text-red-500" v-if="errors.urgency_id && errors.urgency_id.length">{{
+                  errors.urgency_id[0] }}</span>
+              </div>
             </div>
 
             <h2 class="text-2xl font-bold mb-6 mt-12">Time Information</h2>
@@ -422,7 +442,7 @@ const closeDropdown = () => {
                 </label>
                 <input type="time" id="time" v-model="data.time" @click="openTimePicker2"
                   class="appearance-none w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
-                  <span @click="openTimePicker22" class="material-icons schedule absolute right-3 top-11 text-gray-800 dark:text-white"/>
+                  <span @click="openTimePicker2" class="material-icons schedule absolute right-3 top-11 text-gray-800 dark:text-white"/>
                 
                   <span class="text-sm text-red-500" v-if="errors.time && errors.time.length">{{ errors.time[0] }}</span>
               </div>

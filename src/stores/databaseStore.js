@@ -9,7 +9,6 @@ export const useDatabaseStore = defineStore('database', {
     barangaysList: [],
     reportsList: [],
     classificationsList: [],
-    barangayData: [],
   }),
   actions: {
     async fetchData() {
@@ -21,13 +20,12 @@ export const useDatabaseStore = defineStore('database', {
           resArchivedUsers,
           resBarangays,
           resReports,
-          resBarangayData
         ] = await Promise.all([
           axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }),
           axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }),
           axiosClient.get('/api/911/barangay', { headers: { 'x-api-key': API_KEY } }),
           axiosClient.get('/api/911/report-display', { headers: { 'x-api-key': API_KEY } }),
-          
+
         ])
 
         this.activeUsers = resActiveUsers.data.filter(user => 

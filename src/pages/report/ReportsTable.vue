@@ -399,6 +399,7 @@ const isModalOpen = ref(false);
                             <th scope="col" class="px-4 py-3">Case Classification</th>
                             <th scope="col" class="px-4 py-3">Incident/Case</th>
                             <th scope="col" class="px-4 py-3">Assistance</th>
+                            <th scope="col" class="px-4 py-3">Urgency</th>
                             <th scope="col" class="px-4 py-3">Location</th>
                             <th scope="col" class="px-4 py-3">Actions</th>
                         </tr>
@@ -411,6 +412,9 @@ const isModalOpen = ref(false);
                             <td class="px-4 py-3">{{ report.assistance.assistance }}</td>
                             <td class="px-4 py-3">{{ report.incident.type }}</td>
                             <td class="px-4 py-3">{{ report.actions.actions }}</td>
+                            <td class="px-4 py-3" :class="[report.urgency.urgency === 'Emergent' ? 'text-red-500' : report.urgency.urgency === 'Urgent' ? 'text-orange-500' : report.urgency.urgency === 'Less Urgent' ? 'text-yellow-500' : 'text-green-500']">
+                                {{ report.urgency.urgency }}
+                            </td>
                             <td class="px-4 py-3">{{ report.barangay.name }}</td>
                             <td class="px-4 py-3 flex items-center relative">
                                 <button @click.stop="toggleDropdown(report.id)"

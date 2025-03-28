@@ -9,6 +9,7 @@ import PopupModal from "./components/PopupModal.vue";
 import Loader1 from "./components/loading/loader1.vue";
 import ToolTip from "./components/ToolTip.vue";
 import Toast from "./components/Toast.vue";
+import Badge from "./components/Badge.vue";
 
 const pinia = createPinia();
 
