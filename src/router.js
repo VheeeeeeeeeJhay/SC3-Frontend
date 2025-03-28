@@ -15,6 +15,7 @@ import EditReports from "./pages/report/EditReport.vue";
 import AddReport from "./pages/report/AddReport.vue";
 import UsersTable from "./pages/user/UsersTable.vue";
 import ViewRelatedIncidents from "./pages/barangay/ViewRelatedIncidents.vue";
+import ImportFile from "./pages/report/ImportFile.vue";
 
 const routes = [
   {
@@ -26,7 +27,8 @@ const routes = [
 
       {path: '/map', name: 'Map', component: Map, meta: { title: 'Map' }},
 
-      {path: '/report-add', name: 'AddReport', component: AddReport, meta: { title: 'Add Report' }},
+      {path: '/report-add-form', name: 'AddReport', component: AddReport, meta: { title: 'Add Report' }},
+      {path: '/import-file', name: 'ImportFile', component: ImportFile, meta: { title: 'Import File' }},
       {path: '/report-display', name: 'ReportViewDetails', component: ReportViewDetails, meta: { title: 'View Report' }},
       {path: '/report-table', name: 'ReportTable', component: ReportTable, meta: { title: 'Report Table' }},
       {path: '/report-view/:id', name: 'ReportViewDetails', component: ReportViewDetails, meta: { title: 'Report View' }},

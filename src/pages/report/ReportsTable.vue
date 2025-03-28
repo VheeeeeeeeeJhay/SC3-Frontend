@@ -2,7 +2,7 @@
 import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue';
 import axiosClient from '../../axios.js';
 import { RouterLink } from 'vue-router';
-import PrimaryButton from '../../components/PrimaryButton.vue';
+import ChooseReportType from '../../components/modal/ChooseReportType.vue';
 
 const reports = ref([]);
 const classifications = ref([]);
@@ -197,6 +197,10 @@ const formSubmit = async (report_Id) => {
         });
 
 };
+
+
+
+const isModalOpen = ref(false); 
 </script>
 
 <template>
@@ -233,6 +237,15 @@ const formSubmit = async (report_Id) => {
                                 Add a New Report
                             </button>
                         </RouterLink>
+                        <div>
+                            <PopupModal Title="Please select what type of report you want to add"
+                                ModalButton="Add A New Report" Icon="" Classes="" :show="isModalOpen" @update:show="isModalOpen = $event"
+                                ButtonClass="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-1 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
+                                <template #modalContent>
+                                    <ChooseReportType />
+                                </template>
+                            </PopupModal>
+                        </div>
 
                         <div class="flex items-center space-x-3 w-full md:w-auto relative">
                             <button @click="toggleFilterDropdown"
@@ -338,7 +351,7 @@ const formSubmit = async (report_Id) => {
                     class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">
                     <span class="text-sm font-normal">Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{
                         Math.min(currentPage *
-                        itemsPerPage, filteredReports.length) }} of {{ filteredReports.length }}</span>
+                            itemsPerPage, filteredReports.length) }} of {{ filteredReports.length }}</span>
 
                     <!-- <ul class="inline-flex items-stretch -space-x-px">
                         <li><button @click="prevPage" :disabled="currentPage === 1" class="px-3 py-1 rounded-l-lg border hover:bg-gray-300 dark:hover:bg-slate-600">Previous</button></li>
@@ -375,7 +388,7 @@ const formSubmit = async (report_Id) => {
                             <button disabled class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</button>
                             <button @click="goToPage(totalPages)"
                                 class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600">{{
-                                totalPages }}</button>
+                                    totalPages }}</button>
                         </li>
 
                         <li>

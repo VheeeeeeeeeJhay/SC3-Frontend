@@ -102,31 +102,31 @@ const searchQuery = ref("");
 // });
 
 
-const filteredBarangays = computed(() => {
-  if (!Array.isArray(barangaysList.value)) {
-    console.error("barangaysList is not an array:", barangaysList.value);
-    return []; // Prevent errors
-  }
-  return barangaysList.value.filter(barangay => {
-    const query = searchQuery.value.toLowerCase();
-    return (
-      barangay.name?.toLowerCase().includes(query) ||
-      String(barangay.id).toLowerCase().includes(query) ||
-      String(barangay.latitude || "").toLowerCase().includes(query) ||
-      String(barangay.longitude || "").toLowerCase().includes(query)
-    );
-  });
-});
-
 // const filteredBarangays = computed(() => {
-//   return barangaysList.value
-//     .filter(barangay =>
-//       barangay.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-//       barangay.id.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-//       barangay.latitude.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-//       barangay.longitude.toLowerCase().includes(searchQuery.value.toLowerCase())
+//   if (!Array.isArray(barangaysList.value)) {
+//     console.error("barangaysList is not an array:", barangaysList.value);
+//     return []; // Prevent errors
+//   }
+//   return barangaysList.value.filter(barangay => {
+//     const query = searchQuery.value.toLowerCase();
+//     return (
+//       barangay.name?.toLowerCase().includes(query) ||
+//       String(barangay.id).toLowerCase().includes(query) ||
+//       String(barangay.latitude || "").toLowerCase().includes(query) ||
+//       String(barangay.longitude || "").toLowerCase().includes(query)
 //     );
+//   });
 // });
+
+const filteredBarangays = computed(() => {
+  return barangaysList.value
+    .filter(barangay =>
+      barangay.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      barangay.id.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      barangay.latitude.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      barangay.longitude.toLowerCase().includes(searchQuery.value.toLowerCase())
+    );
+});
 // const filteredBarangays = computed(() => {
 //   if (!Array.isArray(databaseStore.barangays)) {
 //     console.error("barangays is NOT an array:", databaseStore.barangays);

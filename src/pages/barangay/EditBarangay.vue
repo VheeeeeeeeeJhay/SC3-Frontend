@@ -47,6 +47,7 @@ const submitLoading = ref(false);
 
 // const isLoading = ref(false);
 const errors = ref('');
+const success = ref('');
 const message = ref('');
 const type = ref('');
 const icon = ref('');
