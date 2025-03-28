@@ -3,9 +3,10 @@ import { onMounted } from 'vue';
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axiosClient from '../../axios.js';
-import { computed, watch, watchEffect } from 'vue';
+import { computed, watch } from 'vue';
 import viewMap from '../../components/Maps/viewMap.vue';
-
+import ChooseReportType from '../../components/modal/ChooseReportType.vue';
+import { useDatabaseStore } from '../../stores/databaseStore';
 
 const router = useRouter();
 const id = String(useRoute().params.id);
@@ -17,6 +18,11 @@ const barangay = ref([]);
 const errors = ref([]);
 const openDropdownId = ref(null);
 const dropdownRefs = ref([]);
+
+const databaseStore = useDatabaseStore();
+
+let refreshInterval = null;
+
 
 const fetchBarangay = async () => {
     await axiosClient.get(`/api/911/barangay-edit/${id}`, {
@@ -156,7 +162,7 @@ const visiblePages = computed(() => {
     return Array.from({ length: paginationEnd.value - paginationStart.value + 1 }, (_, i) => paginationStart.value + i);
 });
 
-
+const isModalOpen = ref(false); 
 </script>
 
 <template>
@@ -171,7 +177,8 @@ const visiblePages = computed(() => {
     <div>
 
         <!--  -->
-        <div class="mt-6 p-5 h-4/5 border border-gray-200 dark:border-black rounded-lg dark:bg-slate-800 dark:text-white p-1">
+        <div
+            class="mt-6 p-5 h-4/5 border border-gray-200 dark:border-black rounded-lg dark:bg-slate-800 dark:text-white p-1">
             <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Barangay Details</h2>
             <div class="flex justify-evenly">
                 <div><span class="font-semibold my-2">Name:</span> {{ barangay.name }}</div>
@@ -210,12 +217,12 @@ const visiblePages = computed(() => {
                     <div
                         class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
 
-                        <PopupModal Title="Add a new Barangay" ModalButton="Add Barangay" Icon="home" Classes=""
-                            ButtonClass="w-full md:w-auto rounded-lg flex items-center justify-center py-2 px-4 text-sm font-medium focus:outline-none bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
+                        <PopupModal Title="Please select what type of report you want to add"
+                            ModalButton="Create Report" Icon="" Classes="" :show="isModalOpen"
+                            @update:show="isModalOpen = $event"
+                            ButtonClass="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
                             <template #modalContent>
-                                <div class="p-6">
-                                    <AddBarangay />
-                                </div>
+                                <ChooseReportType />
                             </template>
                         </PopupModal>
                     </div>
@@ -317,10 +324,10 @@ const visiblePages = computed(() => {
                         Showing
                         <span class="font-semibold">{{ filteredReports.length > 0 ? (currentPage - 1) * itemsPerPage + 1
                             : 0
-                            }}</span>
+                        }}</span>
                         to
                         <span class="font-semibold">{{ Math.min(currentPage * itemsPerPage, filteredReports.length)
-                            }}</span>
+                        }}</span>
                         of
                         <span class="font-semibold">{{ filteredReports.length }}</span>
                     </span>
@@ -350,7 +357,7 @@ const visiblePages = computed(() => {
                             <button disabled class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</button>
                             <button @click="goToPage(totalPages)"
                                 class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600">{{
-                                totalPages }}</button>
+                                    totalPages }}</button>
                         </li>
 
                         <li>

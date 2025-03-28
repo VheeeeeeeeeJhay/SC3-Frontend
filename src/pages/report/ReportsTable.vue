@@ -3,52 +3,68 @@ import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue';
 import axiosClient from '../../axios.js';
 import { RouterLink } from 'vue-router';
 import ChooseReportType from '../../components/modal/ChooseReportType.vue';
+import { useDatabaseStore } from '../../stores/databaseStore';
+import logo from '../../assets/baguio-logo.png';
 
-const reports = ref([]);
-const classifications = ref([]);
+// const reports = ref([]);
+// const classifications = ref([]);
 const searchQuery = ref("");
 const isLoading = ref(false);
 
 const selectedClassifications = ref([]);
 
-let intervalId = null;
+const databaseStore = useDatabaseStore();
 
-const fetchData = async () => {
-    try {
-        const response = await axiosClient.get('/api/911/report-display', {
-            headers: {
-                'x-api-key': import.meta.env.VITE_API_KEY
-            }
-        });
-        console.log(response);
-        setTimeout(() => {
-            reports.value = response.data[0]; // Assuming reports are in the first index
-            classifications.value = response.data[1]; // Assuming classifications are in the second index
-            isLoading.value = false;
-        });
-    } catch (error) {
-        isLoading.value = false;
-        console.error('Error fetching data:', error);
-        errors.value = error.response?.data.error || 'Failed to load barangays. Please try again later.';
-    }
+let refreshInterval = null;
+
+// const fetchData = async () => {
+//     try {
+//         const response = await axiosClient.get('/api/911/report-display', {
+//             headers: {
+//                 'x-api-key': import.meta.env.VITE_API_KEY
+//             }
+//         });
+//         console.log(response);
+//         setTimeout(() => {
+//             reports.value = response.data[0]; // Assuming reports are in the first index
+//             classifications.value = response.data[1]; // Assuming classifications are in the second index
+//             isLoading.value = false;
+//         });
+//     } catch (error) {
+//         isLoading.value = false;
+//         console.error('Error fetching data:', error);
+//         errors.value = error.response?.data.error || 'Failed to load barangays. Please try again later.';
+//     }
+// };
+
+// onMounted(() => {
+//     isLoading.value = true;
+
+//     // Initial data fetch
+//     fetchData();
+
+//     // Set interval to fetch data every 5 seconds
+//     intervalId = setInterval(fetchData, 5000);
+// });
+onMounted(() => {
+  databaseStore.fetchData();
+  
+  refreshInterval = setInterval(() => {
+    databaseStore.fetchData();
+  }, 50000);
+});
+
+const computedProperties = {
+    reports: "reportsList",
+    classifications: "classificationsList",
 };
 
-onMounted(() => {
-    isLoading.value = true;
-
-    // Initial data fetch
-    fetchData();
-
-    // Set interval to fetch data every 5 seconds
-    intervalId = setInterval(fetchData, 5000);
-});
-
-onBeforeUnmount(() => {
-    // Clear the interval when the component is unmounted
-    if (intervalId !== null) {
-        clearInterval(intervalId);
-    }
-});
+const { 
+    reports,
+    classifications,
+} = Object.fromEntries(
+    Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
+);
 
 // Computed property for dynamic search and filtering
 const filteredReports = computed(() => {
@@ -66,7 +82,6 @@ const filteredReports = computed(() => {
         return matchesSearch && matchesClassification;
     });
 });
-
 
 
 onMounted(() => {
@@ -176,9 +191,22 @@ const visiblePages = computed(() => {
 });
 
 // for printing reports
-const handlePrint = () => {
+const handlePrint = async () => {
     const printWindow = window.open('', '_blank', 'width=800,height=600');
-    
+
+    // Wait for the image to load
+    await new Promise((resolve) => {
+        const img = new Image();
+        img.src = logo;
+        img.onload = resolve;
+        img.onerror = resolve; // Avoid hanging if image fails
+    });
+
+    // Wait for the reports data to be fully available
+    await new Promise((resolve) => {
+        setTimeout(resolve, 100); // Small delay to ensure data is processed
+    });
+
     printWindow.document.write(`
         <html>
             <head>
@@ -207,6 +235,7 @@ const handlePrint = () => {
             </head>
             <body>
                 <div class="print-header">
+                    <img src="${logo}" alt="Logo" style="width: 100px; height: auto; display: block; margin: 20px auto;">
                     <h1>Reports Management - Printed Report</h1>
                     <p>Printed on: ${new Date().toLocaleString()}</p>
                 </div>
@@ -243,12 +272,16 @@ const handlePrint = () => {
 
     printWindow.document.close();
 
+    // Wait for the new window to finish rendering before printing
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     printWindow.print();
 
     printWindow.onafterprint = () => {
         printWindow.close();
     };
 };
+
 
 // Delete A Report
 const errors = ref('');
@@ -305,17 +338,11 @@ const isModalOpen = ref(false);
                     </div>
                     <div
                         class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-                        <RouterLink :to="{ name: 'AddReport' }">
-                            <button type="button"
-                                class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-1 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
-                                <span class="material-icons">add</span>
-                                Add a New Report
-                            </button>
-                        </RouterLink>
                         <div>
                             <PopupModal Title="Please select what type of report you want to add"
-                                ModalButton="Add A New Report" Icon="" Classes="" :show="isModalOpen" @update:show="isModalOpen = $event"
-                                ButtonClass="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-1 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
+                                ModalButton="Create Report" Icon="" Classes="" :show="isModalOpen"
+                                @update:show="isModalOpen = $event"
+                                ButtonClass="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
                                 <template #modalContent>
                                     <ChooseReportType />
                                 </template>
@@ -325,15 +352,14 @@ const isModalOpen = ref(false);
                         <div
                             class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
                             <button @click="handlePrint"
-                                class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-1 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
-                                <span class="material-icons">add</span>
+                                class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
                                 Print Reports
                             </button>
                         </div>
 
-                        <div class="flex items-center space-x-3 w-full md:w-auto relative">
+                        <div class="flex items-center space-x-3 md:w-auto relative">
                             <button @click="toggleFilterDropdown"
-                                class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium rounded-lg border bg-white hover:bg-gray-200 dark:bg-slate-700 dark:border-black dark:text-white dark:hover:bg-slate-600"
+                                class="w-full md:w-auto flex items-center justify-center py-2 px-4  text-sm font-medium rounded-lg border bg-white hover:bg-gray-200 dark:bg-slate-700 dark:border-black dark:text-white dark:hover:bg-slate-600"
                                 id="filterDropdownButton">
                                 <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2"
                                     viewBox="0 0 20 20" fill="currentColor">
@@ -341,7 +367,7 @@ const isModalOpen = ref(false);
                                         d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
                                         clip-rule="evenodd" />
                                 </svg>
-                                Filter
+                                Filter by Classification
                             </button>
 
                             <div id="filterDropdown" v-show="isFilterDropdownOpen"
@@ -436,17 +462,6 @@ const isModalOpen = ref(false);
                     <span class="text-sm font-normal">Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{
                         Math.min(currentPage *
                             itemsPerPage, filteredReports.length) }} of {{ filteredReports.length }}</span>
-
-                    <!-- <ul class="inline-flex items-stretch -space-x-px">
-                        <li><button @click="prevPage" :disabled="currentPage === 1" class="px-3 py-1 rounded-l-lg border hover:bg-gray-300 dark:hover:bg-slate-600">Previous</button></li>
-                        <li v-for="page in totalPages" :key="page">
-                            <button @click="goToPage(page)"
-                                :class="['px-3 py-1 border', currentPage === page ? 'bg-slate-500 text-white border-black' : 'hover:bg-gray-300 dark:hover:bg-slate-600']">
-                                {{ page }}
-                            </button>
-                        </li>
-                        <li><button @click="nextPage" :disabled="currentPage === totalPages" class="px-3 py-1 rounded-r-lg border hover:bg-gray-300 dark:hover:bg-slate-600">Next</button></li>
-                    </ul> -->
                     <ul class="inline-flex items-stretch -space-x-px">
                         <li>
                             <button @click="prevPage" :disabled="currentPage === 1"

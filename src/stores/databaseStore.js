@@ -7,6 +7,9 @@ export const useDatabaseStore = defineStore('database', {
     activeUsers: [], // container for fetched users
     archivedUsers: [],
     barangaysList: [],
+    reportsList: [],
+    classificationsList: [],
+    barangayData: [],
   }),
   actions: {
     async fetchData() {
@@ -16,11 +19,15 @@ export const useDatabaseStore = defineStore('database', {
         const [
           resActiveUsers,
           resArchivedUsers,
-          resBarangays
+          resBarangays,
+          resReports,
+          resBarangayData
         ] = await Promise.all([
           axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }),
           axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }),
-          axiosClient.get('/api/911/barangay', { headers: { 'x-api-key': API_KEY } })
+          axiosClient.get('/api/911/barangay', { headers: { 'x-api-key': API_KEY } }),
+          axiosClient.get('/api/911/report-display', { headers: { 'x-api-key': API_KEY } }),
+          
         ])
 
         this.activeUsers = resActiveUsers.data.filter(user => 
@@ -34,10 +41,11 @@ export const useDatabaseStore = defineStore('database', {
         );
 
         this.barangaysList = resBarangays.data;
-        console.log(this.barangaysList);
 
-        console.log(this.activeUsers);
-        console.log(this.archivedUsers);
+        this.reportsList = resReports.data[0];
+        this.classificationsList = resReports.data[1];
+        console.log(this.reportsList, 'reports');
+        console.log(this.classificationsList, 'classifications');
 
         // this.equipmentCopies = resEquipmentCopies.data
       } catch (error) {
