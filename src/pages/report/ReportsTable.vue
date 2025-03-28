@@ -47,11 +47,11 @@ let refreshInterval = null;
 //     intervalId = setInterval(fetchData, 5000);
 // });
 onMounted(() => {
-  databaseStore.fetchData();
-  
-  refreshInterval = setInterval(() => {
     databaseStore.fetchData();
-  }, 50000);
+
+    refreshInterval = setInterval(() => {
+        databaseStore.fetchData();
+    }, 50000);
 });
 
 const computedProperties = {
@@ -59,7 +59,7 @@ const computedProperties = {
     classifications: "classificationsList",
 };
 
-const { 
+const {
     reports,
     classifications,
 } = Object.fromEntries(
@@ -318,6 +318,27 @@ const isModalOpen = ref(false);
         <!-- Titleee -->
         <div class="mt-6 px-2 flex justify-between">
             <h1 class="text-2xl font-bold dark:text-white">Reports Management</h1>
+
+            <div class="flex items-center space-x-2">
+                <div>
+                    <PopupModal Title="Please select what type of report you want to add"
+                        ModalButton="Create Report" Icon="" Classes="" :show="isModalOpen"
+                        @update:show="isModalOpen = $event"
+                        ButtonClass="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
+                        <template #modalContent>
+                            <ChooseReportType />
+                        </template>
+                    </PopupModal>
+                </div>
+                <!-- report button -->
+                <div
+                    class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+                    <button @click="handlePrint"
+                        class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
+                        Print Reports
+                    </button>
+                </div>
+            </div>
         </div>
 
         <div class="mt-6 w-full">
@@ -340,24 +361,6 @@ const isModalOpen = ref(false);
                     </div>
                     <div
                         class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-                        <div>
-                            <PopupModal Title="Please select what type of report you want to add"
-                                ModalButton="Create Report" Icon="" Classes="" :show="isModalOpen"
-                                @update:show="isModalOpen = $event"
-                                ButtonClass="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
-                                <template #modalContent>
-                                    <ChooseReportType />
-                                </template>
-                            </PopupModal>
-                        </div>
-                        <!-- report button -->
-                        <div
-                            class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-                            <button @click="handlePrint"
-                                class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
-                                Print Reports
-                            </button>
-                        </div>
 
                         <div class="flex items-center space-x-3 md:w-auto relative">
                             <button @click="toggleFilterDropdown"
@@ -414,7 +417,8 @@ const isModalOpen = ref(false);
                             <td class="px-4 py-3">{{ report.assistance.assistance }}</td>
                             <td class="px-4 py-3">{{ report.incident.type }}</td>
                             <td class="px-4 py-3">{{ report.actions.actions }}</td>
-                            <td class="px-4 py-3" :class="[report.urgency.urgency === 'Emergent' ? 'text-red-500' : report.urgency.urgency === 'Urgent' ? 'text-orange-500' : report.urgency.urgency === 'Less Urgent' ? 'text-yellow-500' : 'text-green-500']">
+                            <td class="px-4 py-3"
+                                :class="[report.urgency.urgency === 'Emergent' ? 'text-red-500' : report.urgency.urgency === 'Urgent' ? 'text-orange-500' : report.urgency.urgency === 'Less Urgent' ? 'text-yellow-500' : 'text-green-500']">
                                 {{ report.urgency.urgency }}
                             </td>
                             <td class="px-4 py-3">{{ report.barangay.name }}</td>
