@@ -248,6 +248,7 @@ const handlePrint = async () => {
                             <th>Incident/Case</th>
                             <th>Assistance</th>
                             <th>Location</th>
+                            <th>Urgency</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -259,6 +260,7 @@ const handlePrint = async () => {
                                 <td>${report.incident.type}</td>
                                 <td>${report.actions.actions}</td>
                                 <td>${report.barangay.name}</td>
+                                <td>${report.urgency.urgency}</td>
                             </tr>
                         `).join('')}
                     </tbody>
