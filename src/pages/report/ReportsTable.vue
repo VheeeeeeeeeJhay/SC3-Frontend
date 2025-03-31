@@ -311,6 +311,22 @@ const formSubmit = async (report_Id) => {
 
 
 const isModalOpen = ref(false); 
+
+import { useArrayStore } from '../../stores/arrayStore';
+
+const store = useArrayStore();
+const storage = ref([]);
+const passingData = (report) => {
+  // store.setData(barangaysList.value);
+  store.setData(report);
+  console.log(store.getData());
+  
+  storage.value = store.getData();
+  console.log(storage.value);
+  alert('Data passed successfully', report);
+}
+
+
 </script>
 
 <template>
@@ -443,7 +459,7 @@ const isModalOpen = ref(false);
                                             </RouterLink>
                                         </li>
                                         <li>
-                                            <RouterLink :to="{ name: 'EditReport', params: { id: report.id } }"
+                                            <RouterLink @click="passingData(report)" :to="{ name: 'EditReport', params: { id: report.id } }"
                                                 class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
                                                 Edit Report
                                             </RouterLink>

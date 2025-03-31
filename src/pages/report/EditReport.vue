@@ -7,6 +7,8 @@ import { userMarker } from '../../stores/mapStore.js';
 import leaflet from 'leaflet';
 import useUserStore from '../../stores/user.js';
 import ReportFormSkeleton from '../../components/skeleton/ReportFormSkeleton.vue';
+import { useArrayStore } from '../../stores/arrayStore';  // Import the Pinia store
+import { useDatabaseStore } from '../../stores/databaseStore';
 
 // Get Auth User Information
 const userStore = useUserStore();
@@ -40,66 +42,20 @@ console.log("Data:", data.value.name);
 
 const originalData = shallowRef('');
 
-const sources = ref([]);
-const actions = ref([]);
-const incidents = ref([]);
-const assistance = ref([]);
-const barangays = ref([]);
-const urgencies = ref([]);
+// const sources = ref([]);
+// const actions = ref([]);
+// const incidents = ref([]);
+// const assistance = ref([]);
+// const barangays = ref([]);
+// const urgencies = ref([]);
 
 const errors = ref([]); // Define errors
 let map = null;
 let marker = null;
 
-// const fetchData = () => {
-//     isLoading.value = true;
-//     Promise.all([
-//         axiosClient.get(`/api/911/report-edit/${report_Id}`, {
-//             headers: {
-//                 'x-api-key': import.meta.env.VITE_API_KEY
-//             }
-//         })
-//         .then((response) => {
-//             console.log("API Response:", response.data);
-//             originalData.value = { ...response.data }; // Store original data
-//             data.value = { ...response.data };;
-//             // Ensure dropdown fields store the correct IDs
-//             data.value.source = response.data.source?.id ?? '';
-//             data.value.classification = response.data.assistance?.id ?? '';
-//             data.value.incident = response.data.incident?.id ?? '';
-//             data.value.barangay = response.data.barangay?.id ?? '';
-//             data.value.actions = response.data.actions?.id ?? '';
-//             data.value.details = response.data.landmark ?? '';
-//             data.value.latitude = response.data.latitude ?? '';
-//             data.value.longitude = response.data.longitude ?? '';
-//             data.value.receivedDate = response.data.date_received?.split('T')[0] ?? ''; // Extract YYYY-MM-DD
-//             data.value.arrival_on_site = response.data.arrival_on_site?.slice(0, 5) ?? ''; // Extract HH:mm
-//             data.value.time = response.data.time?.slice(0, 5) ?? ''; // Extract HH:mm
-//             // Initialize the map AFTER data is received
-//             // initMap();
-//         }),
-//         axiosClient.get('/api/911/report', {
-//             headers: {
-//                 'x-api-key': import.meta.env.VITE_API_KEY
-//             }
-//         })
-//         .then((response) => {
-//             sources.value = response.data.sources;
-//             actions.value = response.data.actions;
-//             incidents.value = response.data.incidents;
-//             assistance.value = response.data.assistance;
-//             barangays.value = response.data.barangays;
-//         })
-//     ])
-//     .catch(error => {
-//         console.error('Error fetching data:', error);
-//         errors.value = error.response?.data.error || 'Failed to load data. Please try again later.';
-//     })
-//     .finally(() => {
-//         isLoading.value = false;
-//         initMap();
-//     });
-// }
+const databaseStore = useDatabaseStore();
+
+let refreshInterval = null;
 
 const findData = async () => {
     try {
@@ -124,32 +80,41 @@ const findData = async () => {
         data.value.arrival_on_site = response.data.arrival_on_site?.slice(0, 5) ?? ''; // Extract HH:mm
         data.value.time = response.data.time?.slice(0, 5) ?? ''; // Extract HH:mm
         data.value.urgency = response.data.urgency?.id ?? '';
+        console.log(data.value);
         // Initialize the map AFTER data is received
-        initMap();
+        // initMap();
     } catch (error) {
         console.error('Error fetching data:', error);
         errors.value = error.response?.data.error || 'Failed to load data. Please try again later.';
     }
 }
 
-const fetchData = async () => {
-    try {
-        const response = await axiosClient.get('/api/911/report', {
-            headers: {
-                'x-api-key': import.meta.env.VITE_API_KEY
-            }
-        })
-        sources.value = response.data.sources;
-        actions.value = response.data.actions;
-        incidents.value = response.data.incidents;
-        assistance.value = response.data.assistance;
-        urgencies.value = response.data.urgencies;
-        barangays.value = response.data.barangays;
-    } catch (error) {
-        console.error('Error fetching data:', error);
-        errors.value = error.response?.data.error || 'Failed to load data. Please try again later.';
-    }
-}
+// =========================================================================================================================================================
+// =========================================================================================================================================================
+// =========================================================================================================================================================
+// =========================================================================================================================================================
+// =========================================================================================================================================================
+// =========================================================================================================================================================
+const store = useArrayStore();
+const storage = ref({});
+storage.value = store.getData();
+console.log(storage.value);
+console.log(storage.value.barangay.name);
+console.log(storage.value.barangay.longitude);
+console.log(storage.value.barangay.latitude);
+
+
+// storage.value = Object.values(store.getData());
+// console.log(storage.value);
+// storage.value = Object.entries(store.getData());
+// console.log(storage.value);
+
+// const computedArray = computed(() => Object.values(storage.value));
+// const report = computedArray()
+
+// const report = computed(() => Object.values(storage.value));
+// console.log(report.value);
+
 
 const updateForm = async () => {
     const payload = {
@@ -169,15 +134,6 @@ const updateForm = async () => {
         urgency_id: data.value.urgency
     };
     try {
-        // const response = await axiosClient.put(`/api/911/report/${report_Id}`, payload, {
-        //     headers: {
-        //         'x-api-key': import.meta.env.VITE_API_KEY,
-        //     }
-        // });
-        // console.log('Report updated successfully:', response.data);
-        // message.value = response.data.message;
-        // originalData.value = { ...data.value };
-        // router.push({ name: 'ReportTable' });
         axiosClient.put(`/api/911/report/${report_Id}`, payload, {
             headers: {
                 'x-api-key': import.meta.env.VITE_API_KEY,
@@ -195,12 +151,42 @@ const updateForm = async () => {
     }
 };
 
+console.log(data.value);
+
 onMounted(() => {
 
-        fetchData();
-        findData();
+    // fetchData();
+    findData();
+    // initMap();
+    databaseStore.fetchData();
+
+    initMap();
+
+    refreshInterval = setInterval(() => {
+        databaseStore.fetchData();
+    }, 50000);
     
 });
+
+const computedProperties = {
+    sources: "sources",
+    actions: "actions",
+    incidents: "incidents",
+    assistance: "assistance",
+    urgencies: "urgencies",
+    barangays: "barangays",
+};
+
+const { 
+    sources, 
+    actions, 
+    incidents, 
+    assistance, 
+    urgencies, 
+    barangays 
+} = Object.fromEntries(
+    Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
+);
 
 
 // Filter The Incident/Case Base On The Assistance Type
@@ -215,14 +201,14 @@ const filteredIncidents = computed(() => {
 const { coords } = useGeolocation();
 
 const initMap = () => {
-    if (!data.value.latitude || !data.value.longitude) {
+    if (!latitude || !longitude) {
         console.error("Latitude or Longitude is missing");
         return;
     }
 
     if (map) return; // Prevent reinitialization
 
-    map = leaflet.map('map').setView([data.value.latitude, data.value.longitude], 13);
+    map = leaflet.map('map').setView([storage.value.latitude, storage.value.longitude], 13);
 
     leaflet.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
@@ -340,21 +326,6 @@ const openDatePicker = () => {
 
 <template>
     <div>
-        <!-- <div v-if="isLoading" class="flex justify-center">
-            <div role="status">
-                <svg aria-hidden="true" class="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
-                    viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                        fill="currentColor" />
-                    <path
-                        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                        fill="currentFill" />
-                </svg>
-                <span class="sr-only">Loading...</span>
-            </div>
-        </div> -->
-        <!-- <div v-else> -->
         <div style="min-height: 100vh;" class="">
             <!-- Go Back Button -->
             <div class="mt-6 px-2 flex justify-between">
@@ -369,8 +340,7 @@ const openDatePicker = () => {
             </div>
 
 
-            <main v-if="sources.length > 0 && assistance.length > 0 && incidents.length > 0 && barangays.length > 0 && actions.length > 0" class="flex-1 my-2">
-
+            <main class="flex-1 my-2">
                 <form @submit.prevent="updateForm" class="space-y-6 mt-6 mx-auto max-w-6xl">
                     <div
                         class="p-6 rounded-lg shadow-lg flex bg-sky-50 text-gray-800 dark:bg-slate-800 dark:text-white">
@@ -560,7 +530,7 @@ const openDatePicker = () => {
                 </form>
             </main>
 
-            <ReportFormSkeleton v-else />
+            <!-- <ReportFormSkeleton v-else /> -->
         </div>
     </div>
     <!-- </div> -->

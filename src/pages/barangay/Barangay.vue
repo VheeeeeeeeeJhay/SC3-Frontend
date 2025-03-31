@@ -79,7 +79,6 @@ onMounted(() => {
 
 const searchQuery = ref("");
 
-
 // Computed property for dynamic search and filtering
 // const filteredBarangays = computed(() => {
 //   return barangaysList.value.filter(barangay => {
@@ -404,6 +403,7 @@ const handlePrint = () => {
                   </td>
                   <td class="px-4 py-3 flex items-center relative">
                     <!-- Dropdown Button -->
+
                     <button @click.stop="toggleDropdown(barangay.id)"
                       class="inline-flex items-center p-0.5 text-sm font-medium rounded-lg" type="button">
                       <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"

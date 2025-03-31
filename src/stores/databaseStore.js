@@ -9,6 +9,12 @@ export const useDatabaseStore = defineStore('database', {
     barangaysList: [],
     reportsList: [],
     classificationsList: [],
+    sources: [],
+    actions: [],
+    incidents: [],
+    assistance: [],
+    urgencies: [],
+    barangays: [],
   }),
   actions: {
     async fetchData() {
@@ -20,12 +26,13 @@ export const useDatabaseStore = defineStore('database', {
           resArchivedUsers,
           resBarangays,
           resReports,
+          resReportDatas,
         ] = await Promise.all([
           axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }),
           axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }),
           axiosClient.get('/api/911/barangay', { headers: { 'x-api-key': API_KEY } }),
           axiosClient.get('/api/911/report-display', { headers: { 'x-api-key': API_KEY } }),
-
+          axiosClient.get('/api/911/report', { headers: { 'x-api-key': API_KEY } }),
         ])
 
         this.activeUsers = resActiveUsers.data.filter(user => 
@@ -44,6 +51,20 @@ export const useDatabaseStore = defineStore('database', {
         this.classificationsList = resReports.data[1];
         console.log(this.reportsList, 'reports');
         console.log(this.classificationsList, 'classifications');
+
+        this.sources = resReportDatas.data.sources;
+        this.actions = resReportDatas.data.actions;
+        this.incidents = resReportDatas.data.incidents;
+        this.assistance = resReportDatas.data.assistance;
+        this.urgencies = resReportDatas.data.urgencies;
+        this.barangays = resReportDatas.data.barangays;
+        console.log(this.sources, 'sources');
+        console.log(this.actions, 'actions');
+        console.log(this.incidents, 'incidents');
+        console.log(this.assistance, 'assistance');
+        console.log(this.urgencies, 'urgencies');
+        console.log(this.barangays, 'barangays');
+
 
         // this.equipmentCopies = resEquipmentCopies.data
       } catch (error) {
