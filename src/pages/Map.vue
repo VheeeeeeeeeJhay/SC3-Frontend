@@ -10,6 +10,12 @@ import monthYearPicker from "../components/monthYearPicker.vue"; // Import month
 // Import map.json from assets folder (GeoJSON)
 import mapData from "../assets/map.json"; // Adjust the path as needed
 
+
+const props = defineProps({
+  startDate: String,  // Assuming the date is a string (format YYYY-MM-DD)
+  endDate: String
+});
+
 const { coords } = useGeolocation();
 const reports = ref([]);
 const heatmapLayer = ref(null);
@@ -113,22 +119,22 @@ onMounted(() => {
     map.setView(mapData.center, mapData.zoom);
   }
 
-  // ✅ Create heatmap ONCE
-  heatmapLayer.value = leaflet
-    .heatLayer([], {
-      radius: 15,
-      blur: 20,
-      maxZoom: 12,
-      minOpacity: 0.5,
-      gradient: {
-        0.2: "blue", // Low intensity
-        0.4: "green", // Medium-low intensity
-        0.6: "yellow", // Medium intensity
-        0.8: "orange", // Medium-high intensity
-        1.0: "red", // High intensity
-      },
-    })
-    .addTo(map);
+  // // ✅ Create heatmap ONCE
+  // heatmapLayer.value = leaflet
+  //   .heatLayer([], {
+  //     radius: 15,
+  //     blur: 20,
+  //     maxZoom: 12,
+  //     minOpacity: 0.5,
+  //     gradient: {
+  //       0.2: "blue", // Low intensity
+  //       0.4: "green", // Medium-low intensity
+  //       0.6: "yellow", // Medium intensity
+  //       0.8: "orange", // Medium-high intensity
+  //       1.0: "red", // High intensity
+  //     },
+  //   })
+  //   .addTo(map);
 
   // ✅ Add Custom Control for Toggle Button
   const toggleControl = leaflet.control({ position: "topleft" });
@@ -291,23 +297,29 @@ anotherControl.addTo(map);
 const addBarangayMarkers = () => {
   if (!map || !groupedReportsByBarangay.value) return;
 
+  // Get the min and max report counts to normalize
+  const minReports = Math.min(...groupedReportsByBarangay.value.map(b => b.totalReports));
+  const maxReports = Math.max(...groupedReportsByBarangay.value.map(b => b.totalReports));
+
   groupedReportsByBarangay.value.forEach((barangay) => {
     const totalReports = barangay.totalReports || 0;
 
-    let markerColor;
-    if (totalReports >= 10) {
-      markerColor = "red"; // High reports
-    } else if (totalReports === 0) {
-      markerColor = "green"; // No reports
-    } else {
-      markerColor = "yellow"; // Moderate reports
-    }
+    // Normalize the report count between 0 and 1
+    const normalized = (totalReports - minReports) / (maxReports - minReports);
 
+    // Interpolate marker size based on reports (e.g., size from 10px to 30px)
+    const markerSize = 10 + normalized * 20;  // Size varies from 10px to 30px
+
+    // Use HSL for smoother transition from yellow to red based on reports
+    const hue = 60 - normalized * 60;  // From yellow (60) to red (0)
+    const markerColor = `hsl(${hue}, 100%, 50%)`; // Gradient color based on reports
+
+    // Create the marker with dynamic size and color
     leaflet
       .marker([barangay.latitude, barangay.longitude], {
         icon: leaflet.divIcon({
           className: "custom-marker",
-          html: `<div style="width: 24px; height: 24px; background-color: ${markerColor}; border-radius: 50%; border: 2px solid white;"></div>`,
+          html: `<div style="width: ${markerSize}px; height: ${markerSize}px; background-color: ${markerColor}; border-radius: 50%; opacity: 0.7; border: 2px solid white;"></div>`,
         }),
       })
       .addTo(map)
@@ -316,6 +328,9 @@ const addBarangayMarkers = () => {
       );
   });
 };
+
+
+
 onMounted(() => {
   fetchData().then(() => {
     addBarangayMarkers(); // ✅ Add markers after fetching data
