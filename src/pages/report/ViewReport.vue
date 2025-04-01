@@ -1,11 +1,13 @@
 <script setup>
-import axiosClient from '../../axios';
-import { onMounted, ref, watchEffect, computed } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-// import PrimaryButton from '../../components/PrimaryButton.vue';
-import leaflet from 'leaflet';
 import viewMap from '../../components/Maps/viewMap.vue';
+import { useArrayStore } from '../../stores/arrayStore';
 
+const store = useArrayStore();
+const storage = ref({});
+storage.value = store.getData();
+console.log(storage.value);
 
 const route = useRoute();
 const router = useRouter();
@@ -30,19 +32,19 @@ const data = ref({
 let map = null;
 let marker = null; // Store the marker reference
 
-const fetchData = async () => {
-  try {
-    const response = await axiosClient.get(`/api/911/report-view/${report_Id}`, {
-      headers: {
-        'x-api-key': import.meta.env.VITE_API_KEY
-      }
-    })
-    data.value = response.data;
-    console.log(data.value);
-  } catch (error) {
-    console.error('Error fetching data:', error);
-  }
-};
+// const fetchData = async () => {
+//   try {
+//     const response = await axiosClient.get(`/api/911/report-view/${report_Id}`, {
+//       headers: {
+//         'x-api-key': import.meta.env.VITE_API_KEY
+//       }
+//     })
+//     data.value = response.data;
+//     console.log(data.value);
+//   } catch (error) {
+//     console.error('Error fetching data:', error);
+//   }
+// };
 
 
 onMounted(() => {

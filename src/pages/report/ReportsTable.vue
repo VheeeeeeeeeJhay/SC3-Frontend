@@ -5,6 +5,7 @@ import { RouterLink } from 'vue-router';
 import ChooseReportType from '../../components/modal/ChooseReportType.vue';
 import { useDatabaseStore } from '../../stores/databaseStore';
 import logo from '../../assets/baguio-logo.png';
+import { useArrayStore } from '../../stores/arrayStore';
 
 // const reports = ref([]);
 // const classifications = ref([]);
@@ -17,35 +18,6 @@ const databaseStore = useDatabaseStore();
 
 let refreshInterval = null;
 
-// const fetchData = async () => {
-//     try {
-//         const response = await axiosClient.get('/api/911/report-display', {
-//             headers: {
-//                 'x-api-key': import.meta.env.VITE_API_KEY
-//             }
-//         });
-//         console.log(response);
-//         setTimeout(() => {
-//             reports.value = response.data[0]; // Assuming reports are in the first index
-//             classifications.value = response.data[1]; // Assuming classifications are in the second index
-//             isLoading.value = false;
-//         });
-//     } catch (error) {
-//         isLoading.value = false;
-//         console.error('Error fetching data:', error);
-//         errors.value = error.response?.data.error || 'Failed to load barangays. Please try again later.';
-//     }
-// };
-
-// onMounted(() => {
-//     isLoading.value = true;
-
-//     // Initial data fetch
-//     fetchData();
-
-//     // Set interval to fetch data every 5 seconds
-//     intervalId = setInterval(fetchData, 5000);
-// });
 onMounted(() => {
     databaseStore.fetchData();
 
@@ -54,6 +26,7 @@ onMounted(() => {
     }, 50000);
 });
 
+// Computed properties
 const computedProperties = {
     reports: "reportsList",
     classifications: "classificationsList",
@@ -312,20 +285,13 @@ const formSubmit = async (report_Id) => {
 
 const isModalOpen = ref(false); 
 
-import { useArrayStore } from '../../stores/arrayStore';
 
+// Store 
 const store = useArrayStore();
-const storage = ref([]);
 const passingData = (report) => {
-  // store.setData(barangaysList.value);
   store.setData(report);
   console.log(store.getData());
-  
-  storage.value = store.getData();
-  console.log(storage.value);
-  alert('Data passed successfully', report);
 }
-
 
 </script>
 
@@ -453,7 +419,7 @@ const passingData = (report) => {
 
                                     <ul class=" text-sm">
                                         <li>
-                                            <RouterLink :to="{ name: 'ReportViewDetails', params: { id: report.id } }"
+                                            <RouterLink @click="passingData(report)" :to="{ name: 'ReportViewDetails', params: { id: report.id } }"
                                                 class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
                                                 View Details
                                             </RouterLink>

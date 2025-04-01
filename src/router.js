@@ -16,6 +16,7 @@ import AddReport from "./pages/report/AddReport.vue";
 import UsersTable from "./pages/user/UsersTable.vue";
 import ViewRelatedIncidents from "./pages/barangay/ViewRelatedIncidents.vue";
 import ImportFile from "./pages/report/ImportFile.vue";
+import Logs from "./pages/logs/logs.vue";
 
 const routes = [
   {
@@ -44,6 +45,9 @@ const routes = [
       // {path: '/incident-display', name: 'IncidentDisplay', component: Incident, meta: { title: 'Incident Display' }},
 
       {path: '/user', name: 'UsersTable', component: UsersTable, meta: { title: 'User Management' }},
+
+      // for super admin user
+      {path: '/logs', name: 'Logs', component: Logs, meta: { title: 'Logs Management' }},
     ],
     beforeEnter: async (to, from, next) => {
       try {

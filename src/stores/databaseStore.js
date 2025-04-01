@@ -49,8 +49,8 @@ export const useDatabaseStore = defineStore('database', {
 
         this.reportsList = resReports.data[0];
         this.classificationsList = resReports.data[1];
-        console.log(this.reportsList, 'reports');
-        console.log(this.classificationsList, 'classifications');
+        // console.log(this.reportsList, 'reports');
+        // console.log(this.classificationsList, 'classifications');
 
         this.sources = resReportDatas.data.sources;
         this.actions = resReportDatas.data.actions;
@@ -58,15 +58,14 @@ export const useDatabaseStore = defineStore('database', {
         this.assistance = resReportDatas.data.assistance;
         this.urgencies = resReportDatas.data.urgencies;
         this.barangays = resReportDatas.data.barangays;
-        console.log(this.sources, 'sources');
-        console.log(this.actions, 'actions');
-        console.log(this.incidents, 'incidents');
-        console.log(this.assistance, 'assistance');
-        console.log(this.urgencies, 'urgencies');
-        console.log(this.barangays, 'barangays');
+        // console.log(this.sources, 'sources');
+        // console.log(this.actions, 'actions');
+        // console.log(this.incidents, 'incidents');
+        // console.log(this.assistance, 'assistance');
+        // console.log(this.urgencies, 'urgencies');
+        // console.log(this.barangays, 'barangays');
 
 
-        // this.equipmentCopies = resEquipmentCopies.data
       } catch (error) {
         console.error('Error fetching data:', error)
       }

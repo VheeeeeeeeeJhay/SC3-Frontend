@@ -19,35 +19,33 @@ const route = useRoute();
 const router = useRouter();
 const report_Id = route.params.id;
 
+const store = useArrayStore();
+const storage = ref({});
+storage.value = store.getData();
+
 // Full Name of Auth User
 const fullName = computed(() => {
     return user.value.firstName + ' ' + user.value.lastName
 })
 const data = ref({
     name: fullName.value,
-    source: '',
-    assistance: '',
-    incident: '',
-    actions: '',
-    date_received: '',
-    arrival_on_site: '',
-    time: '',
-    barangay: '',
-    landmark: '',
-    longitude: '',
-    latitude: '',
-    urgency: '',
+    source: storage.value.source.id,
+    assistance: storage.value.assistance.id,
+    incident: storage.value.incident.id,
+    actions: storage.value.actions.id,
+    date_received: storage.value.date_received,
+    arrival_on_site: storage.value.arrival_on_site,
+    time: storage.value.time,
+    barangay: storage.value.barangay.id,
+    landmark: storage.value.landmark,
+    longitude: storage.value.barangay.longitude,
+    latitude: storage.value.barangay.latitude,
+    urgency: storage.value.urgency.id,
 });
-console.log("Data:", data.value.name);
+console.log("Data:", data.value.incident);
+console.log("Data:::::::::::::::::::::::::::::::::::");
 
 const originalData = shallowRef('');
-
-// const sources = ref([]);
-// const actions = ref([]);
-// const incidents = ref([]);
-// const assistance = ref([]);
-// const barangays = ref([]);
-// const urgencies = ref([]);
 
 const errors = ref([]); // Define errors
 let map = null;
@@ -55,65 +53,22 @@ let marker = null;
 
 const databaseStore = useDatabaseStore();
 
+
 let refreshInterval = null;
 
-const findData = async () => {
-    try {
-        const response = await axiosClient.get(`/api/911/report-edit/${report_Id}`, {
-        headers: {
-                'x-api-key': import.meta.env.VITE_API_KEY
-            }
-        })
-        console.log("API Response:", response.data);
-        originalData.value = { ...response.data }; // Store original data
-        data.value = { ...response.data };
-        // Ensure dropdown fields store the correct IDs
-        data.value.source = response.data.source?.id ?? '';
-        data.value.classification = response.data.assistance?.id ?? '';
-        data.value.incident = response.data.incident?.id ?? '';
-        data.value.barangay = response.data.barangay?.id ?? '';
-        data.value.actions = response.data.actions?.id ?? '';
-        data.value.details = response.data.landmark ?? '';
-        data.value.latitude = response.data.latitude ?? '';
-        data.value.longitude = response.data.longitude ?? '';
-        data.value.receivedDate = response.data.date_received?.split('T')[0] ?? ''; // Extract YYYY-MM-DD
-        data.value.arrival_on_site = response.data.arrival_on_site?.slice(0, 5) ?? ''; // Extract HH:mm
-        data.value.time = response.data.time?.slice(0, 5) ?? ''; // Extract HH:mm
-        data.value.urgency = response.data.urgency?.id ?? '';
-        console.log(data.value);
-        // Initialize the map AFTER data is received
-        // initMap();
-    } catch (error) {
-        console.error('Error fetching data:', error);
-        errors.value = error.response?.data.error || 'Failed to load data. Please try again later.';
-    }
-}
-
-// =========================================================================================================================================================
-// =========================================================================================================================================================
-// =========================================================================================================================================================
-// =========================================================================================================================================================
-// =========================================================================================================================================================
-// =========================================================================================================================================================
-const store = useArrayStore();
-const storage = ref({});
-storage.value = store.getData();
 console.log(storage.value);
+console.log(storage.value.arrival_on_site);
+console.log(storage.value.date_received);
+console.log(storage.value.time);
+console.log(storage.value.actions.actions);
+console.log(storage.value.assistance.id);
+console.log(storage.value.incident.id);
+console.log(storage.value.source.sources);
+console.log(storage.value.urgency.urgency);
+console.log(storage.value.landmark);
 console.log(storage.value.barangay.name);
-console.log(storage.value.barangay.longitude);
-console.log(storage.value.barangay.latitude);
-
-
-// storage.value = Object.values(store.getData());
-// console.log(storage.value);
-// storage.value = Object.entries(store.getData());
-// console.log(storage.value);
-
-// const computedArray = computed(() => Object.values(storage.value));
-// const report = computedArray()
-
-// const report = computed(() => Object.values(storage.value));
-// console.log(report.value);
+console.log(storage.value.barangay.longitude); 
+console.log(storage.value.barangay.latitude); 
 
 
 const updateForm = async () => {
@@ -122,17 +77,18 @@ const updateForm = async () => {
         source_id: data.value.source,
         time: data.value.time,
         incident_id: data.value.incident,
-        date_received: data.value.receivedDate,
+        date_received: data.value.date_received,
         arrival_on_site: data.value.arrival_on_site,
         name: data.value.name,
-        landmark: data.value.details,
+        landmark: data.value.landmark,
         barangay_id: data.value.barangay,
         actions_id: data.value.actions,
-        assistance_id: data.value.classification,
+        assistance_id: data.value.assistance,
         longitude: data.value.longitude,
         latitude: data.value.latitude,
         urgency_id: data.value.urgency
     };
+    console.log(payload);
     try {
         axiosClient.put(`/api/911/report/${report_Id}`, payload, {
             headers: {
@@ -151,13 +107,9 @@ const updateForm = async () => {
     }
 };
 
-console.log(data.value);
+// console.log(data.value);
 
 onMounted(() => {
-
-    // fetchData();
-    findData();
-    // initMap();
     databaseStore.fetchData();
 
     initMap();
@@ -191,8 +143,8 @@ const {
 
 // Filter The Incident/Case Base On The Assistance Type
 const filteredIncidents = computed(() => {
-    return data.value.classification
-        ? incidents.value.filter(incident => incident.assistance_id === data.value.classification)
+    return data.value.assistance
+        ? incidents.value.filter(incident => incident.assistance_id === data.value.assistance)
         : [];
 });
 
@@ -224,8 +176,8 @@ const initMap = () => {
     map.setMinZoom(12);
 
     // Place initial marker
-    marker = leaflet.marker([data.value.latitude, data.value.longitude]).addTo(map)
-        .bindPopup(`Original Marker: (${data.value.latitude}, ${data.value.longitude})`)
+    marker = leaflet.marker([storage.value.barangay.latitude, storage.value.barangay.longitude]).addTo(map)
+        .bindPopup(`Original Marker: (${storage.value.barangay.latitude}, ${storage.value.barangay.longitude})`)
         .openPopup();
 
     map.addEventListener("click", (e) => {
@@ -248,8 +200,8 @@ const initMap = () => {
             userMarker.value.longitude = newLng;
 
             // Update form inputs
-            data.value.latitude = newLat.toFixed(5);
-            data.value.longitude = newLng.toFixed(5);
+            storage.value.barangay.latitude = newLat.toFixed(5);
+            storage.value.barangay.longitude = newLng.toFixed(5);
         } else {
             alert("You cannot place markers outside Baguio City.");
         }
@@ -258,33 +210,33 @@ const initMap = () => {
 
 // Watch geolocation changes but don’t override manual marker selection
 watchEffect(() => {
-    if (data.value.latitude && data.value.longitude) {
-        console.log("Updated Coordinates:", data.value.latitude, data.value.longitude);
+    if (storage.value.barangay.latitude && storage.value.barangay.longitude) {
+        console.log("Updated Coordinates:", storage.value.barangay.latitude, storage.value.barangay.longitude);
     }
 
     if (coords.value.latitude && coords.value.longitude &&
         isFinite(coords.value.latitude) && isFinite(coords.value.longitude)) {
         // Only update if user hasn't set a marker
         if (!userMarker.value.latitude || !userMarker.value.longitude) {
-            data.value.latitude = coords.value.latitude.toFixed(5);
-            data.value.longitude = coords.value.longitude.toFixed(5);
+            storage.value.barangay.latitude = coords.value.latitude.toFixed(5);
+            storage.value.barangay.longitude = coords.value.longitude.toFixed(5);
         }
     } else {
         // If geolocation fails, default to Baguio City
         if (!userMarker.value.latitude || !userMarker.value.longitude) {
-            data.value.latitude = "16.404000";
-            data.value.longitude = "120.599000";
+            storage.value.barangay.latitude = "16.404000";
+            storage.value.barangay.longitude = "120.599000";
         }
     }
 });
 
 let singleMarker;
-watch(() => data.value.barangay, (newBarangayId) => {
+watch(() => storage.value.barangay.id, (newBarangayId) => {
     const selectedBarangay = barangays.value.find(b => b.id === newBarangayId);
 
     if (selectedBarangay) {
-        data.value.longitude = selectedBarangay.longitude || '';
-        data.value.latitude = selectedBarangay.latitude || '';
+        storage.value.barangay.longitude = selectedBarangay.longitude || '';
+        storage.value.barangay.latitude = selectedBarangay.latitude || '';
 
         // ✅ Remove Default Marker
         if (singleMarker) {
@@ -307,8 +259,8 @@ watch(() => data.value.barangay, (newBarangayId) => {
         // ✅ Center Map to New Marker
         map.setView([selectedBarangay.latitude, selectedBarangay.longitude], 15);
     } else {
-        data.value.longitude = '';
-        data.value.latitude = '';
+        storage.value.barangay.longitude = '';
+        storage.value.barangay.latitude = '';
     }
 });
 
@@ -353,7 +305,7 @@ const openDatePicker = () => {
                                         Case Classification
                                         <ToolTip Information="This is the type of assistance that is being reported." />
                                     </label>
-                                    <select id="incidentType" v-model="data.classification"
+                                    <select id="incidentType" v-model="data.assistance"
                                         class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
                                         <option disabled value="">Select classification</option>
                                         <option v-for="assistance in assistance" :key="assistance.id"
@@ -384,7 +336,7 @@ const openDatePicker = () => {
                                     </label>
                                     <select id="incident" v-model="data.incident"
                                         class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white"
-                                        :disabled="!data.classification || filteredIncidents.length === 0">
+                                        :disabled="!data.assistance || filteredIncidents.length === 0">
                                         <option disabled value="">Select incident</option>
                                         <option v-for="incident in filteredIncidents" :key="incident.id"
                                             :value="incident.id">
@@ -427,7 +379,7 @@ const openDatePicker = () => {
                                         Date Received
                                         <ToolTip Information="This is the date when the report was received." />
                                     </label>
-                                    <input type="date" id="receivedDate" v-model="data.receivedDate"
+                                    <input type="date" id="receivedDate" v-model="data.date_received"
                                         @click="openDatePicker"
                                         class=" appearance-none w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                                     <span @click="openDatePicker"
@@ -487,10 +439,10 @@ const openDatePicker = () => {
                                             Location Details
                                             <ToolTip Information="This is the location where the incident occurred." />
                                         </label>
-                                        <input id="details" v-model="data.details"
+                                        <input id="details" v-model="data.landmark"
                                             placeholder="Enter location details/landmarks"
                                             class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
-                                        <span class="text-sm text-red-500" v-if="errors.details && errors.details.length">{{ errors.details[0] }}</span>
+                                        <span class="text-sm text-red-500" v-if="errors.landmark && errors.landmark.length">{{ errors.landmark[0] }}</span>
                                     </div>
                                 </div>
 
