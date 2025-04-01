@@ -42,7 +42,6 @@ const data = ref({
     latitude: storage.value.barangay.latitude,
     urgency: storage.value.urgency.id,
 });
-console.log("Data:", data.value.incident);
 console.log("Data:::::::::::::::::::::::::::::::::::");
 
 const originalData = shallowRef('');
@@ -55,20 +54,6 @@ const databaseStore = useDatabaseStore();
 
 
 let refreshInterval = null;
-
-console.log(storage.value);
-console.log(storage.value.arrival_on_site);
-console.log(storage.value.date_received);
-console.log(storage.value.time);
-console.log(storage.value.actions.actions);
-console.log(storage.value.assistance.id);
-console.log(storage.value.incident.id);
-console.log(storage.value.source.sources);
-console.log(storage.value.urgency.urgency);
-console.log(storage.value.landmark);
-console.log(storage.value.barangay.name);
-console.log(storage.value.barangay.longitude); 
-console.log(storage.value.barangay.latitude); 
 
 
 const updateForm = async () => {
