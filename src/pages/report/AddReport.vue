@@ -7,6 +7,7 @@ import { userMarker } from '../../stores/mapStore.js';
 import { useRouter } from 'vue-router';
 import leaflet from 'leaflet';
 import useUserStore from '../../stores/user.js';
+import { useDatabaseStore } from '../../stores/databaseStore.js';
 
 // Get Auth User Information
 const userStore = useUserStore();
@@ -54,35 +55,68 @@ const data = ref({
 });
 
 // Store Fetch Data From Backend In An Array
-const sources = ref([]);
-const actions = ref([]);
-const incidents = ref([]);
-const assistance = ref([]);
-const barangays = ref([]);
-const urgencies = ref([]);
+// const sources = ref([]);
+// const actions = ref([]);
+// const incidents = ref([]);
+// const assistance = ref([]);
+// const barangays = ref([]);
+// const urgencies = ref([]);
 
-const fetchData = async () => {
-  await axiosClient.get('/api/911/report', {
-    headers: {
-      'x-api-key': import.meta.env.VITE_API_KEY
-    }
-  })
-    .then((res) => {
-      sources.value = res.data.sources;
-      actions.value = res.data.actions;
-      incidents.value = res.data.incidents;
-      assistance.value = res.data.assistance;
-      barangays.value = res.data.barangays;
-      urgencies.value = res.data.urgencies;
-    })
-    .catch((error) => {
-      console.error('Error fetching data:', error);
-      errors.value = 'Failed to load data. Please try again later.';
-    });
-}
+// const fetchData = async () => {
+//   await axiosClient.get('/api/911/report', {
+//     headers: {
+//       'x-api-key': import.meta.env.VITE_API_KEY
+//     }
+//   })
+//     .then((res) => {
+//       sources.value = res.data.sources;
+//       actions.value = res.data.actions;
+//       incidents.value = res.data.incidents;
+//       assistance.value = res.data.assistance;
+//       barangays.value = res.data.barangays;
+//       urgencies.value = res.data.urgencies;
+//     })
+//     .catch((error) => {
+//       console.error('Error fetching data:', error);
+//       errors.value = 'Failed to load data. Please try again later.';
+//     });
+// }
+// onMounted(() => {
+//   fetchData();
+// });
+
+const databaseStore = useDatabaseStore();
+
+let refreshInterval = null;
+
 onMounted(() => {
-  fetchData();
+    databaseStore.fetchData();
+
+    refreshInterval = setInterval(() => {
+        databaseStore.fetchData();
+    }, 50000);
+    
 });
+
+const computedProperties = {
+    sources: "sources",
+    actions: "actions",
+    incidents: "incidents",
+    assistance: "assistance",
+    urgencies: "urgencies",
+    barangays: "barangays",
+};
+
+const { 
+    sources, 
+    actions, 
+    incidents, 
+    assistance, 
+    urgencies, 
+    barangays 
+} = Object.fromEntries(
+    Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
+);
 
 const errors = ref([])
 const message = ref('')
