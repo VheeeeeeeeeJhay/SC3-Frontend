@@ -355,7 +355,7 @@ const openDatePicker = () => {
             </div>
         </div> -->
         <!-- <div v-else> -->
-        <div style="min-height: 100vh;" class="">
+        <div style="min-height: 100vh;" class="p-4">
             <!-- Go Back Button -->
             <div class="mt-6 px-2 flex justify-between">
                 <h1 class="text-2xl font-bold dark:text-white">Edit Report</h1>

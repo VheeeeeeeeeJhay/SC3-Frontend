@@ -166,7 +166,7 @@ const isModalOpen = ref(false);
 </script>
 
 <template>
-    <div class="mt-6 px-2 flex justify-between">
+    <div class="mt-6 flex justify-between p-4">
         <h1 class="text-2xl font-bold dark:text-white">View Barangay and Related Incidents</h1>
         <Button type="button" name="Back" @click.prevent="router.back()"
             class="px-3 py-1 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200 flex items-center">
@@ -174,11 +174,11 @@ const isModalOpen = ref(false);
             Back
         </Button>
     </div>
-    <div>
+    <div class="p-4">
 
         <!--  -->
         <div
-            class="mt-6 p-5 h-4/5 border border-gray-200 dark:border-black rounded-lg dark:bg-slate-800 dark:text-white p-1">
+            class="mt-6 p-4 h-4/5 border border-gray-200 dark:border-black rounded-lg dark:bg-slate-800 dark:text-white">
             <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Barangay Details</h2>
             <div class="flex justify-evenly">
                 <div><span class="font-semibold my-2">Name:</span> {{ barangay.name }}</div>
@@ -194,7 +194,7 @@ const isModalOpen = ref(false);
 
         <!--  -->
         <div>
-            <div class=" mt-6 px-2 relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white"
+            <div class=" mt-6 p-4 px-2 relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white"
                 :class="themeClasses">
                 <div
                     class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">

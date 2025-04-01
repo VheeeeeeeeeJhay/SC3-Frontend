@@ -44,7 +44,7 @@ const handleFileUpload = (event) => {
 </script>
 
 <template>
-    <div class="mt-6 px-2 flex justify-between">
+    <div class="mt-6 px-2 flex justify-between p-4">
         <h1 class="text-2xl font-bold dark:text-white mb-2">Add a New Report</h1>
         <Button type="button" name="Back" @click.prevent="router.back()"
             class="px-3 py-1 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200 flex items-center">

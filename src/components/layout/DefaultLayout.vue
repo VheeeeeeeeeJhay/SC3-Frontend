@@ -118,8 +118,8 @@ const closeSidebar = () => {
 </script>
 
 <template>
-    <div>
-        <nav class="fixed top-0 z-50 w-full border-b bg-sky-50 dark:bg-slate-800">
+    <div class="min-h-screen flex">
+        <nav class="flex-1 flex flex-col fixed top-0 z-50 w-full border-b bg-sky-50 dark:bg-slate-800">
             <div class="px-3 py-3 lg:px-5 lg:pl-3">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center justify-start rtl:justify-end">
@@ -234,7 +234,7 @@ const closeSidebar = () => {
                 </ul>
             </div>
         </aside>
-        <div class="pt-14 p-4 sm:ml-56">
+        <div class="pt-16 sm:ml-56 flex-1">
             <router-view />
         </div>
     </div>
