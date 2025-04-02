@@ -1,5 +1,13 @@
 <script setup>
-import { ref, computed, onMounted, watch, watchEffect, createApp, h } from "vue";
+import {
+  ref,
+  computed,
+  onMounted,
+  watch,
+  watchEffect,
+  createApp,
+  h,
+} from "vue";
 import axiosClient from "../axios";
 import leaflet from "leaflet";
 import "leaflet.heat";
@@ -10,11 +18,6 @@ import monthYearPicker from "../components/monthYearPicker.vue"; // Import month
 // Import map.json from assets folder (GeoJSON)
 import mapData from "../assets/map.json"; // Adjust the path as needed
 
-
-const props = defineProps({
-  startDate: String,  // Assuming the date is a string (format YYYY-MM-DD)
-  endDate: String
-});
 
 const { coords } = useGeolocation();
 const reports = ref([]);
@@ -55,45 +58,57 @@ onMounted(() => {
   fetchData();
 });
 
-// **Compute Grouped Reports**
-// **Store Reports Directly Based on Latitude & Longitude**
-const processedReports = computed(() => {
-  return reports.value
-    .filter((report) => report.barangay.latitude && report.barangay.longitude) // Ensure lat/lng exist
-    .map((report) => ({
-      id: report.id, // Keep track of report ID
-      latitude: report.barangay.latitude,
-      longitude: report.barangay.longitude,
-      type: report.incident.type,
-      details: report.incident.details || "No details available",
-      reportedBy: report.reportedBy || "Anonymous",
-      date: report.date || "Unknown",
-    }));
+const startDate = ref(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
+const endDate = ref(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0));
+console.log("Start Date:", startDate.value);
+console.log("End Date:", endDate.value);
+const updateDateRange = ({ start, end }) => {
+  startDate.value = start;
+  endDate.value = end;
+  console.log("📅 Date range updated:", start, "to", end);
+
+  addBarangayMarkers(); // Refresh markers based on the new date range
+};
+
+watch([startDate, endDate], () => {
+  addBarangayMarkers();
+  console.log("nacall naman date range");
 });
-const groupedReportsByBarangay = computed(() => {
-  const grouped = {}; // Object to store barangay data
 
-  reports.value.forEach((report) => {
-    const barangay = report.barangay;
-    if (!barangay || !barangay.id || !barangay.latitude || !barangay.longitude)
-      return; // Ensure valid data
+const groupedReportsByBarangay = computed(() => { 
+  if (!startDate.value || !endDate.value) return []; // If no date selected, return empty
 
-    const barangayId = barangay.id; // Group by Barangay ID
+  const startISO = new Date(startDate.value).toISOString().split("T")[0];
+  const endISO = new Date(endDate.value).toISOString().split("T")[0];
 
-    if (!grouped[barangayId]) {
-      grouped[barangayId] = {
-        id: barangayId,
-        name: barangay.name || "Unknown Barangay", // Optional: Display Barangay name
-        latitude: barangay.latitude,
-        longitude: barangay.longitude,
-        totalReports: 0,
-      };
-    }
+  const grouped = {};
 
-    grouped[barangayId].totalReports += 1; // Count total reports in that barangay
-  });
+  reports.value
+    .filter((report) => {
+      if (!report.date_received) return false;
 
-  return Object.values(grouped); // Convert object to array
+      const reportDate = new Date(report.date_received).toISOString().split("T")[0];
+
+      return reportDate >= startISO && reportDate <= endISO;
+    })
+    .forEach((report) => {
+      const barangay = report.barangay;
+      if (!barangay || !barangay.id || !barangay.latitude || !barangay.longitude) return;
+
+      const barangayId = barangay.id;
+      if (!grouped[barangayId]) {
+        grouped[barangayId] = {
+          id: barangayId,
+          name: barangay.name || "Unknown Barangay",
+          latitude: barangay.latitude,
+          longitude: barangay.longitude,
+          totalReports: 0,
+        };
+      }
+      grouped[barangayId].totalReports += 1;
+    });
+
+  return Object.values(grouped);
 });
 
 // Initialize the map
@@ -119,59 +134,211 @@ onMounted(() => {
     map.setView(mapData.center, mapData.zoom);
   }
 
-  // // ✅ Create heatmap ONCE
-  // heatmapLayer.value = leaflet
-  //   .heatLayer([], {
-  //     radius: 15,
-  //     blur: 20,
-  //     maxZoom: 12,
-  //     minOpacity: 0.5,
-  //     gradient: {
-  //       0.2: "blue", // Low intensity
-  //       0.4: "green", // Medium-low intensity
-  //       0.6: "yellow", // Medium intensity
-  //       0.8: "orange", // Medium-high intensity
-  //       1.0: "red", // High intensity
-  //     },
-  //   })
-  //   .addTo(map);
+  // ✅ Custom Control for Dropdown with Dark Mode and Borders Toggle
+const dropdownControl = leaflet.control({ position: "topleft" });
 
-  // ✅ Add Custom Control for Toggle Button
-  const toggleControl = leaflet.control({ position: "topleft" });
+dropdownControl.onAdd = function () {
+  const div = leaflet.DomUtil.create("div", "leaflet-bar leaflet-control leaflet-control-custom");
 
-  toggleControl.onAdd = function () {
-    const div = leaflet.DomUtil.create(
-      "div",
-      "leaflet-bar leaflet-control leaflet-control-custom"
-    );
-    div.innerHTML = `<button id="toggleBordersBtn" class="border-toggle-btn">Borders</button>`;
+  // Create the dropdown container
+  div.innerHTML = `
+    <div class="dropdown">
+      <button class="dropbtn">⚙️</button>
+      <div class="dropdown-content">
+        <button id="darkModeToggleBtn" class="dark-mode-toggle">🌙 Dark Mode</button>
+        <button id="toggleBordersBtn" class="border-toggle-btn">🥷Borders</button>
+      </div>
+    </div>
+  `;
 
-    div.onclick = () => {
-      mapStore.showGeoJSONBorders = !mapStore.showGeoJSONBorders; // Toggle the state
-    };
-
-    return div;
+  // Handle toggle events
+  div.querySelector("#darkModeToggleBtn").onclick = () => {
+    toggleDarkMode();
   };
-
-  toggleControl.addTo(map); // ✅ Add the control to the map
-
-  // Create another control for the new button
-  const anotherControl = leaflet.control({ position: "topright" });
-
-anotherControl.onAdd = function () {
-  const div = leaflet.DomUtil.create("div", "leaflet-bar leaflet-control-custom");
-  div.id = "date-picker-container"; // Unique ID for mounting Vue component
+  div.querySelector("#toggleBordersBtn").onclick = () => {
+    mapStore.showGeoJSONBorders = !mapStore.showGeoJSONBorders; // Toggle borders state
+  };
 
   return div;
 };
 
-anotherControl.addTo(map);
+dropdownControl.addTo(map);
 
+  /// ✅ Check the dark mode state on page load
+  const checkDarkMode = () => {
+    const isDarkMode = localStorage.getItem('darkMode') === 'true';
 
-  // ✅ Style the Buttons with CSS
+    // If dark mode is enabled, apply it
+    if (isDarkMode) {
+      document.querySelector("#map-wrapper").classList.add("dark-mode");
+      document.getElementById("darkModeToggleBtn").innerHTML = "☀️ Light Mode";
+    } else {
+      document.querySelector("#map-wrapper").classList.remove("dark-mode");
+      document.getElementById("darkModeToggleBtn").innerHTML = "🌙 Dark Mode";
+    }
+  };
+
+    // ✅ Add Custom Control for Dark Mode Toggle
+    const darkModeControl = leaflet.control({ position: "topleft" });
+
+    darkModeControl.onAdd = function () {
+      const div = leaflet.DomUtil.create(
+        "div",
+        "leaflet-bar leaflet-control leaflet-control-custom"
+      );
+      // div.innerHTML = `<button id="darkModeToggleBtn" class="dark-mode-toggle">🌙 Dark Mode</button>`;
+
+      div.onclick = () => {
+        toggleDarkMode();
+      };
+
+      return div;
+    };
+
+    darkModeControl.addTo(map);
+
+    // ✅ Call checkDarkMode to set the initial state when the map loads
+    checkDarkMode();
+
+    // ✅ Function to Toggle Dark Mode
+    const toggleDarkMode = () => {
+      const mapContainer = document.querySelector("#map-wrapper");
+      const isDarkMode = mapContainer.classList.toggle("dark-mode");
+
+      // Save dark mode state to localStorage
+      localStorage.setItem('darkMode', isDarkMode);
+      // Change button text dynamically
+      const button = document.getElementById("darkModeToggleBtn");
+      button.innerHTML = isDarkMode ? "☀️ Light Mode" : "🌙 Dark Mode";
+    };
+
+  
+      // // ✅ Add Custom Control for Toggle Button
+      // const toggleControl = leaflet.control({ position: "topleft" });
+
+      // toggleControl.onAdd = function () {
+      //   const div = leaflet.DomUtil.create(
+      //     "div",
+      //     "leaflet-bar leaflet-control leaflet-control-custom leaflet-left"
+      //   );
+      //   div.innerHTML = `<button id="toggleBordersBtn" class="border-toggle-btn">Borders</button>`;
+
+      //   div.onclick = () => {
+      //     mapStore.showGeoJSONBorders = !mapStore.showGeoJSONBorders; // Toggle the state
+      //   };
+
+      //   return div;
+      // };
+
+      // toggleControl.addTo(map);
+
+  // Create another control for the new button
+  const anotherControl = leaflet.control({ position: "topright" });
+
+  anotherControl.onAdd = function () {
+    const div = leaflet.DomUtil.create(
+      "div",
+      "leaflet-bar leaflet-control-custom"
+    );
+    div.id = "date-picker-container"; // Unique ID for mounting Vue component
+    return div;
+  };
+
+  anotherControl.addTo(map);
+
+  // Add legend control
+  const legendControl = leaflet.control({ position: "bottomleft" });
+
+  legendControl.onAdd = function () {
+    const div = leaflet.DomUtil.create("div", "legend leaflet-control");
+    const reportsArray = groupedReportsByBarangay.value
+      .map((b) => b.totalReports)
+      .filter((r) => !isNaN(r) && r !== undefined); // Ensure only valid numbers
+
+    const minReports = reportsArray.length ? Math.min(...reportsArray) : 1;
+    const maxReports = reportsArray.length ? Math.max(...reportsArray) : 10;
+
+    // Define legend steps (Low, Medium, High)
+    const legendSteps = [
+      { label: "Low", reports: minReports },
+      { label: "Medium", reports: Math.round((minReports + maxReports) / 2) },
+      { label: "High", reports: maxReports },
+    ];
+
+    // Generate legend dynamically based on marker size & color logic
+    let legendHTML = `<h4>Incident Reports</h4>`;
+
+    legendSteps.forEach((step) => {
+      const normalized =
+        (step.reports - minReports) / (maxReports - minReports);
+      const markerSize = 10 + normalized * 20; // Match marker size logic
+      const hue = 60 - normalized * 60; // Match marker color logic
+      const markerColor = `hsl(${hue}, 100%, 50%)`; // Match gradient color
+
+      legendHTML += `
+      <div class="legend-item">
+        <span class="legend-circle" style="background: ${markerColor}; width: ${markerSize}px; height: ${markerSize}px;"></span>
+        <span>${step.label} (${step.reports}+ reports)</span>
+      </div>
+    `;
+    });
+
+    div.innerHTML = legendHTML;
+    return div;
+  };
+
+  legendControl.addTo(map);
+
+  // ✅ Style the Buttons and Legend with CSS
   const style = document.createElement("style");
   style.innerHTML = `
-    .border-toggle-btn {
+  .dropdown {
+    position: relative;
+    display: inline-block;
+  }
+
+  .dropbtn {
+    background: white;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 4px;
+  }
+
+  .dropbtn:hover {
+    background: #007FFF;
+    color: white;
+  }
+
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 160px;
+    z-index: 1;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    padding: 5px 0;
+  }
+
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+
+  .dropdown-content button {
+    background: white;
+    border: none;
+    cursor: pointer;
+    padding: 8px 12px;
+    width: 100%;
+    text-align: left;
+  }
+
+  .dropdown-content button:hover {
+    background-color: #f1f1f1;
+  }
+    .border-toggle-btn, .dark-mode-toggle {
       background: white;
       border: none;
       cursor: pointer;
@@ -185,60 +352,50 @@ anotherControl.addTo(map);
       background: #007FFF;
       color: white;
     }
-  `;
-  document.head.appendChild(style);
 
-  let persistentPopup = null; // Store the last clicked popup
-  map.on("mousemove", (event) => {
-    const { lat, lng } = event.latlng;
-    let closestPoint = null;
-    let minDistance = Infinity;
-
-    heatmapPoints.value.forEach((point) => {
-      const distance = map.distance([lat, lng], [point.lat, point.lng]);
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestPoint = point;
-      }
-    });
-  });
-
-  // ✅ Click event for Heatmap Points (Keeps popup open)
-  map.on("click", (event) => {
-    const { lat, lng } = event.latlng;
-    let closestBarangay = null;
-    let minDistance = Infinity;
-
-    groupedReportsByBarangay.value.forEach((barangay) => {
-      const distance = map.distance(
-        [lat, lng],
-        [barangay.latitude, barangay.longitude]
-      );
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestBarangay = barangay;
-      }
-    });
-
-    if (closestBarangay && minDistance < 50) {
-      let popupContent = `<strong>${closestBarangay.name}</strong><br>`; // ✅ Show Barangay name
-      popupContent += `<strong>Total Reports:</strong> ${closestBarangay.totalReports}<br>`; // ✅ Show total reports
-
-      // ✅ Close previous popup
-      if (persistentPopup) {
-        map.closePopup(persistentPopup);
-      }
-
-      // ✅ Show new popup
-      persistentPopup = leaflet
-        .popup()
-        .setLatLng([closestBarangay.latitude, closestBarangay.longitude])
-        .setContent(popupContent)
-        .openOn(map);
-
-      event.originalEvent.stopPropagation(); // Prevent interference with other events
+    .legend {
+      background: white;
+      padding: 10px;
+      border-radius: 4px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+      font-size: 12px;
+      line-height: 1.5;
     }
-  });
+
+    .legend h4 {
+      margin: 0 0 5px;
+      font-size: 14px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin: 5px 0;
+    }
+
+    .legend-circle {
+      border-radius: 50%;
+      margin-right: 8px;
+      display: inline-block;
+      border: 1px solid #666;
+    }
+    .dark-mode-toggle {
+    background: white;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    padding: 5px 10px;
+    border-radius: 4px;
+  }
+
+  .dark-mode-toggle:hover {
+    background: #007FFF;
+    color: white;
+  }
+`;
+  document.head.appendChild(style);
 
   // ✅ Add GeoJSON Layer with hover effect for barangay names
   if (mapData && mapData.features) {
@@ -294,28 +451,49 @@ anotherControl.addTo(map);
   // updateHeatmap();
 });
 
-const addBarangayMarkers = () => {
-  if (!map || !groupedReportsByBarangay.value) return;
+//For the markers of each barangay setting the color and sizes
+let markers = []; // Store markers for clearing later
 
-  // Get the min and max report counts to normalize
-  const minReports = Math.min(...groupedReportsByBarangay.value.map(b => b.totalReports));
-  const maxReports = Math.max(...groupedReportsByBarangay.value.map(b => b.totalReports));
+const addBarangayMarkers = () => {
+  console.log("🟢 Running addBarangayMarkers...");
+  
+  if (!map || groupedReportsByBarangay.value.length === 0) {
+    console.warn("⚠️ No grouped reports available for markers.");
+    return;
+  }
+
+  console.log("📊 Total Barangays to Process:", groupedReportsByBarangay.value.length);
+
+  // Remove old markers
+  markers.forEach(marker => map.removeLayer(marker));
+  markers = [];
+
+  const reportsArray = groupedReportsByBarangay.value.map((b) => b.totalReports);
+  const minReports = Math.min(...reportsArray);
+  const maxReports = Math.max(...reportsArray);
 
   groupedReportsByBarangay.value.forEach((barangay) => {
+    console.log(
+      `📍 Processing Barangay: ${barangay.name}, Lat: ${barangay.latitude}, Lng: ${barangay.longitude}`
+    );
+
+    if (!barangay.latitude || !barangay.longitude) {
+      console.warn(`⚠️ Skipping ${barangay.name}: Missing coordinates`);
+      return;
+    }
+
     const totalReports = barangay.totalReports || 0;
 
-    // Normalize the report count between 0 and 1
-    const normalized = (totalReports - minReports) / (maxReports - minReports);
+    // Avoid division by zero if minReports === maxReports
+    const normalized = maxReports !== minReports
+      ? (totalReports - minReports) / (maxReports - minReports)
+      : 0.5; // Default to mid-value if all reports are the same
 
-    // Interpolate marker size based on reports (e.g., size from 10px to 30px)
-    const markerSize = 10 + normalized * 20;  // Size varies from 10px to 30px
+    const markerSize = 15 + normalized * 20; // Size varies from 15px to 30px
+    const hue = 60 - normalized * 60; // From yellow (60) to red (0)
+    const markerColor = `hsl(${hue}, 100%, 50%)`; // Gradient color
 
-    // Use HSL for smoother transition from yellow to red based on reports
-    const hue = 60 - normalized * 60;  // From yellow (60) to red (0)
-    const markerColor = `hsl(${hue}, 100%, 50%)`; // Gradient color based on reports
-
-    // Create the marker with dynamic size and color
-    leaflet
+    const marker = leaflet
       .marker([barangay.latitude, barangay.longitude], {
         icon: leaflet.divIcon({
           className: "custom-marker",
@@ -323,40 +501,52 @@ const addBarangayMarkers = () => {
         }),
       })
       .addTo(map)
-      .bindPopup(
-        `<strong>${barangay.name}</strong><br>Total Reports: ${totalReports}`
-      );
+      .bindPopup(`<strong>${barangay.name}</strong><br>Total Reports: ${totalReports}`);
+
+    markers.push(marker);
   });
+
+  console.log("✅ Markers added successfully.");
 };
 
 
-
+// onMounted(() => {
+//   fetchData().then(() => {
+//     addBarangayMarkers(); // ✅ Add markers after fetching data
+//   });
+// });
+// 🏁 Run when component is mounted
 onMounted(() => {
   fetchData().then(() => {
-    addBarangayMarkers(); // ✅ Add markers after fetching data
+    console.log("🔄 Data fetched, adding markers...");
+    addBarangayMarkers();
   });
 });
+// 🔄 Refresh markers when grouped reports change
+watch(groupedReportsByBarangay, () => {
+  console.log("🟡 Detected change in barangay reports, refreshing markers...");
+  addBarangayMarkers();
+}, { deep: true });
 
-watchEffect(() => {
-  if (reports.value.length > 0) {
-    addBarangayMarkers(); // ✅ Refresh markers when data changes
-  }
-});
+// watchEffect(() => {
+//   if (reports.value.length > 0) {
+//     addBarangayMarkers(); // ✅ Refresh markers when data changes
+//   }
+// });
 
 // ✅ Mount Vue Component in the Leaflet Control
 onMounted(() => {
   createApp({
-    render: () => h(DateRangePicker, { 
-      class: "max-w-xs",
-      onDateRangeSelected: updateDateRange, // Pass event handler
-    }),
+    render: () =>
+      h(DateRangePicker, {
+        class: "max-w-xs",
+        onDateRangeSelected: (range) => updateDateRange(range), // Capture selected range
+      }),
   }).mount("#date-picker-container");
 });
 
-const updateDateRange = (range) => {
-  console.log("Selected Date Range:", range);
-  // Add logic to filter reports based on date
-};
+
+
 // **Watch for changes in showGeoJSONBorders**
 watch(
   () => mapStore.showGeoJSONBorders, // Watch the showGeoJSONBorders state
@@ -379,47 +569,45 @@ const updateGeoJSONStyles = () => {
     });
   }
 };
-
-// **Extract Data for Heatmap (No Grouping)**
-const getHeatmapData = () => {
-  return processedReports.value.map(({ latitude, longitude }) => [
-    latitude,
-    longitude,
-    1,
-  ]); // ✅ Now uses barangay lat/lng
-};
-
-// **Update Heatmap Layer**
-const updateHeatmap = () => {
-  if (!map || !heatmapLayer.value) return;
-
-  const heatData = getHeatmapData();
-  heatmapPoints.value = heatData.map(([lat, lng, count]) => ({
-    lat,
-    lng,
-    count,
-  }));
-  heatmapLayer.value.setLatLngs(heatData);
-};
-
-// ✅ Refresh heatmap only when reports change (prevent excessive updates)
-watchEffect(() => {
-  if (reports.value.length > 0) {
-    // updateHeatmap();
-  }
-});
 </script>
-<!-- nawawala buttons pag nilalagay yung inset -->
 <template>
   <div class="h-full w-full">
-    <div id="map" class="h-full w-full"></div>
+    <div id="map-wrapper">
+      <div id="map"></div>
+    </div>
   </div>
 </template>
 
 <style scoped>
+/* Ensure wrapper has no filter */
+#map-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  filter: none;
+}
+
+/* Ensure the map itself fills the space */
 #map {
   height: 100%;
   width: 100%;
-  pointer-events: auto;
+}
+
+/* Prevent black background flickering */
+.leaflet-container {
+  background: #000 !important;
+}
+
+/* Dark Mode - Applied Dynamically */
+#map-wrapper.dark-mode ::v-deep(.leaflet-tile-pane) {
+  filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}
+
+/* Prevent markers, popups, and UI from inverting */
+#map-wrapper.dark-mode ::v-deep(.leaflet-marker-icon),
+#map-wrapper.dark-mode ::v-deep(.leaflet-popup),
+#map-wrapper.dark-mode ::v-deep(.leaflet-control),
+#map-wrapper.dark-mode ::v-deep(.leaflet-bar a) {
+  filter: none !important;
 }
 </style>

@@ -89,11 +89,16 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 const currentDate = ref(new Date());
 
-// Get the formatted date string (MM/DD/YYYY) for today and 6 days ago
-const formatDate = (date) => date.toLocaleDateString('en-US');
+// Get the first and last day of the current month in local time
+const firstDayOfMonth = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth(), 1);
+const lastDayOfMonth = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() + 1, 0);
 
-const selectedEndDate = ref(formatDate(currentDate.value));
-const selectedStartDate = ref(formatDate(new Date(currentDate.value.setDate(currentDate.value.getDate() - 6))));
+// Format the dates as YYYY-MM-DD without timezone shifting
+const formatDate = (date) => 
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
+const selectedStartDate = ref(formatDate(firstDayOfMonth));
+const selectedEndDate = ref(formatDate(lastDayOfMonth));
 
 const isOpen = ref(false)
 const datepickerRef = ref(null)
@@ -173,19 +178,26 @@ const toggleDatepicker = () => {
 //     console.log('Applied:', selectedStartDate.value, selectedEndDate.value)
 //     isOpen.value = false
 //   }
+const formatDateToISO = (date) => {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0"); // Ensure two digits
+  const day = String(d.getDate()).padStart(2, "0"); // Ensure two digits
+  return `${year}-${month}-${day}`; // Return YYYY-MM-DD
+};
 
 const handleApply = () => {
   if (selectedStartDate.value && selectedEndDate.value) {
-        // Convert to ISO format (YYYY-MM-DD)
-        const startISO = new Date(selectedStartDate.value).toISOString().split("T")[0];
-        const endISO = new Date(selectedEndDate.value).toISOString().split("T")[0];
+    const startISO = formatDateToISO(selectedStartDate.value);
+    const endISO = formatDateToISO(selectedEndDate.value);
 
-        emit('dateRangeSelected', { start: startISO, end: endISO });
-        console.log('📅 Applied Date Range:', startISO, 'to', endISO);
-        
-        isOpen.value = false;
-    }
-}
+    emit("dateRangeSelected", { start: startISO, end: endISO });
+    console.log("📅 Applied Date Range:", startISO, "to", endISO);
+
+    isOpen.value = false;
+  }
+};
+
 
 const handleClear = () => {
   selectedStartDate.value = null;
@@ -220,9 +232,9 @@ onUnmounted(() => {
     document.removeEventListener('click', handleDocumentClick)
 })
 
-onMounted(() => {
-  selectedEndDate.value = formatDate(new Date());
-  selectedStartDate.value = formatDate(new Date(new Date().setDate(new Date().getDate() - 6)));
-});
+// onMounted(() => {
+//   selectedEndDate.value = formatDate(new Date());
+//   selectedStartDate.value = formatDate(new Date(new Date().setDate(new Date().getDate() - 6)));
+// });
 
 </script>

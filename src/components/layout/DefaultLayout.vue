@@ -119,7 +119,7 @@ const closeSidebar = () => {
 
 <template>
     <div class="min-h-screen flex">
-        <nav class="flex-1 flex flex-col fixed top-0 z-50 w-full border-b bg-sky-50 dark:bg-slate-800">
+        <nav class="flex-1 flex flex-col fixed top-0 z-50 w-full shadow-md bg-sky-50 dark:bg-slate-800">
             <div class="px-3 py-3 lg:px-5 lg:pl-3">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center justify-start rtl:justify-end">
@@ -211,7 +211,7 @@ const closeSidebar = () => {
         </nav>
 
         <aside id="logo-sidebar"
-            class="fixed top-0 left-0 z-40 w-56 h-screen pt-20 transition-transform duration-300 border-r bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white"
+            class="fixed top-0 left-0 z-40 w-56 h-screen pt-20 transition-transform duration-300 shadow-md bg-sky-50 text-gray-800 dark:bg-slate-800 dark:text-white"
             :class="sidebarVisible ? 'translate-x-0' : '-translate-x-full sm:translate-x-0'"
             aria-label="Sidebar">
             <div class="h-full px-3 pb-4 overflow-y-auto">
