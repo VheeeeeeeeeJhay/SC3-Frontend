@@ -4,10 +4,7 @@ import axiosClient from "../../axios.js";
 import ApexCharts from 'apexcharts';
 
 
-const props = defineProps({
-  startDate: String,  // Assuming the date is a string (format YYYY-MM-DD)
-  endDate: String
-});
+
 
 const data = ref({
   incidentType: '',
@@ -40,12 +37,12 @@ onMounted(() => {
     });
 });
 
-// Filter The Incident/Case Base On The Assistance Type
-const filteredIncidents = computed(() => {
-  return data.value.incidentType
-    ? incidents.value.filter(incident => incident.assistance_id === data.value.incidentType)
-    : incidents.value;
-});
+// // Filter The Incident/Case Base On The Assistance Type
+// const filteredIncidents = computed(() => {
+//   return data.value.incidentType
+//     ? incidents.value.filter(incident => incident.assistance_id === data.value.incidentType)
+//     : incidents.value;
+// });
 
 const emit = defineEmits(['periodChange']);
 
@@ -85,85 +82,115 @@ const options = ref({
 
 
 
+const props = defineProps({
+  selectedYear: Number,
+  selectedMonth: Number,
+  startDate: String,  // Assuming format YYYY-MM-DD
+  endDate: String
+});
 
-
-// Reference for the chart container
 const pieChart = ref(null);
 let chart = null;
 
 const updateChart = () => {
-  console.log(assistance.value, 'assistance bs');
-  console.log(incidents.value);
+  let filteredReports = [];
+
+  if (props.startDate && props.endDate) {
+    // 🎯 **Filter by Date Range**
+    const startISO = new Date(props.startDate).toISOString().split("T")[0];
+    const endISO = new Date(props.endDate).toISOString().split("T")[0];
+
+    console.log("📅 Filtering reports from", startISO, "to", endISO);
+
+    filteredReports = report.value.filter(reportItem => {
+      if (!reportItem.date_received) return false;
+
+      const reportDate = new Date(reportItem.date_received).toISOString().split("T")[0];
+      return reportDate >= startISO && reportDate <= endISO;
+    });
+
+  } else if (props.selectedYear && props.selectedMonth) {
+    // 🎯 **Filter by Year & Month**
+    console.log("📆 Filtering reports for:", props.selectedYear, props.selectedMonth);
+
+    filteredReports = report.value.filter(reportItem => {
+      if (!reportItem.date_received) return false;
+
+      const reportDate = new Date(reportItem.date_received);
+      return (
+        reportDate.getFullYear() === props.selectedYear &&
+        reportDate.getMonth() + 1 === props.selectedMonth // Months are 0-based in JS
+      );
+    });
+  }
+
+  console.log("📊 Filtered Reports:", filteredReports);
 
   if (!data.value.incidentType) {
-    // 🚀 No filter applied, show all classifications with total report counts
-
-    // Step 1: **Group Reports by Assistance ID (Classification)**
-    const classificationCounts = report.value.reduce((acc, reportItem) => {
-      // Find the incident related to this report
+    // 🚀 No specific incident filter → Show all classifications
+    const classificationCounts = filteredReports.reduce((acc, reportItem) => {
       const incident = incidents.value.find(i => i.id === reportItem.incident_id);
       if (!incident) return acc;
 
-      // Use assistance_id as the classification key
       acc[incident.assistance_id] = (acc[incident.assistance_id] || 0) + 1;
       return acc;
     }, {});
 
-    console.log("Classification Counts:", classificationCounts);
+    console.log("📈 Classification Counts:", classificationCounts);
 
-    // Step 2: **Extract Labels (Classifications) and Counts**
     const classificationLabels = Object.keys(classificationCounts)
       .map(id => {
         const assist = assistance.value.find(a => a.id === Number(id));
         return assist ? assist.assistance : undefined;
       })
-      .filter(label => label !== undefined); // Remove undefined values
+      .filter(label => label !== undefined);
 
-    const classificationData = Object.keys(classificationCounts)
-      .map(id => classificationCounts[id]);
+    const classificationData = Object.values(classificationCounts);
 
-
-    // Step 3: **Update Chart Data**
+    // ✅ Update chart data
     options.value.series = classificationData;
     options.value.labels = classificationLabels;
-    console.log("Classification Labels:", classificationLabels);
+    console.log("📊 Final Chart Labels:", classificationLabels);
   } else {
-    // 🚀 Filter is applied, show incidents under the selected classification
-
-    // Step 1: **Filter incidents based on classification (`incidentType`)**
+    // 🚀 Filter incidents based on classification
     const selectedIncidents = incidents.value.filter(
       incident => incident.assistance_id === data.value.incidentType
     );
 
-    console.log("Filtered Incidents:", selectedIncidents);
+    console.log("📌 Filtered Incidents:", selectedIncidents);
 
-    // Step 2: **Recalculate `incidentCounts` but only for filtered incidents**
-    const incidentCounts = report.value.reduce((acc, reportItem) => {
+    // ✅ Count reports only for selected incidents
+    const incidentCounts = filteredReports.reduce((acc, reportItem) => {
       if (selectedIncidents.some(incident => incident.id === reportItem.incident_id)) {
         acc[reportItem.incident_id] = (acc[reportItem.incident_id] || 0) + 1;
       }
       return acc;
     }, {});
 
-    console.log("Filtered Incident Counts:", incidentCounts);
+    console.log("📊 Filtered Incident Counts:", incidentCounts);
 
-    // Step 3: **Map only valid incidents that have a count in reports**
     const validIncidents = selectedIncidents.filter(incident => incidentCounts[incident.id]);
-
-    // Step 4: **Extract labels and counts**
     const incidentCountsArray = validIncidents.map(incident => incidentCounts[incident.id] || 0);
     const incidentLabels = validIncidents.map(incident => incident.type);
 
-    // Step 5: **Update chart data**
+    // ✅ Update chart data
     options.value.series = incidentCountsArray;
     options.value.labels = incidentLabels;
   }
 
-  // Step 6: **Update the chart**
+  // ✅ Update the chart only if it's initialized
   if (chart) {
     chart.updateOptions(options.value);
   }
 };
+
+// 🔄 Watch for changes and update the chart accordingly
+watch([() => props.startDate, () => props.endDate, () => props.selectedYear, () => props.selectedMonth], () => {
+  console.log("🔄 Filters changed, updating chart...");
+  updateChart();
+});
+
+
 
 
 
@@ -187,7 +214,7 @@ onUnmounted(() => {
       <h2 class="text-xl font-semibold">Number of Cases</h2>
       <select id="incidentType" v-model="data.incidentType"
         class="px-1 py-0.5 text-xxs bg-white text-gray-800 border border-gray-300 rounded hover:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 w-32">
-        <option disabled value="">Select classification</option>
+        <option value="">All Categories</option>
         <option v-for="assistance in assistance" :key="assistance.id" :value="assistance.id">{{ assistance.assistance }}
         </option>
       </select>

@@ -76,65 +76,20 @@ watch(() => [props.selectedYear, props.selectedMonth], () => {
     countReports();
   }
 });
-// const countReports2 = () => {
-//    const { start, end } = dateStore.dateRange;
-
-//   totalReports.value.forEach((report) => {
-//     const reportDate = report.date_received.split("T")[0]; // Extract date part
-//     const reportYear = new Date(reportDate).getFullYear();
-//     const reportMonth = new Date(reportDate).getMonth() + 1;
-
-//     if (
-//       selectedOption.value === "day" &&
-//       reportDate === formatDate(new Date())
-//     ) {
-//       count++;
-//     } else if (
-//        selectedOption.value === "week" &&
-//        start && end
-//     ) {
-//       const startDate = convertToISODate(start);
-//       const endDate = convertToISODate(end);
-
-//       if (reportDate >= startDate && reportDate <= endDate) {
-//         count++;
-//       }
-//     } else if (
-//       selectedOption.value === "month" &&
-//       reportYear === props.selectedYear &&
-//       reportMonth === props.selectedMonth
-//     ) {
-//       count++; // Only count reports from the selected month and year
-//     }
-//   });
-
-//   reportCount.value = count;
-// };
-  // Update total count
-// };
-// Watch for changes in selected year/month and recalculate count
 
 // Fetch data on mount and refresh every 60s
 onMounted(() => {
   fetchData();
   setInterval(fetchData, 60000); // Refresh every 60 seconds
 });
-// Watch for filter changes
-// watch([selectedOption, selectedMonth1, selectedYear1], countReports);
-// watch([selectedStartDate, selectedEndDate, selectedOption], () => {
-//   countReports();
-// });
-// watch([selectedOption], countReports);
 
+// // Helpers
+// const formatDate = (date) => date.toISOString().split("T")[0]; // Format as YYYY-MM-DD
 
-
-// Helpers
-const formatDate = (date) => date.toISOString().split("T")[0]; // Format as YYYY-MM-DD
-
-const convertToISODate = (dateString) => {
-  const [month, day, year] = dateString.split("/");
-  return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-};
+// const convertToISODate = (dateString) => {
+//   const [month, day, year] = dateString.split("/");
+//   return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+// };
 </script>
 
 <template>
