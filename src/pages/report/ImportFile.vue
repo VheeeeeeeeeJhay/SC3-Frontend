@@ -126,75 +126,78 @@ const submitFileData = async () => {
 
 
 <template>
-    <div class="mt-6 px-2 flex justify-between">
-        <h1 class="text-2xl font-bold dark:text-white mb-2" >{{ contained_data.length === 0 ? 'Add a New Report' : 'Verifying Imported Reports List' }}</h1>
-        <Button type="button" name="Back" @click.prevent="router.back()"
-            class="px-3 py-1 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200 flex items-center">
-            <span class="material-icons mr-2"> arrow_back </span>
-            Back
-        </Button>
-    </div>
+    <div class="min-h-screen p-4">
+        <div class="mt-6 px-2 flex justify-between">
+            <h1 class="text-2xl font-bold dark:text-white mb-2" >{{ contained_data.length === 0 ? 'Add a New Report' : 'Verifying Imported Reports List' }}</h1>
+            <Button type="button" name="Back" @click.prevent="router.back()"
+                class="px-3 py-1 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200 flex items-center">
+                <span class="material-icons mr-2"> arrow_back </span>
+                Back
+            </Button>
+        </div>
 
-    <div>
-        <h2 class="text-lg font-bold dark:text-white mt-4 mx-2">Guidelines When Importing an Excel File:</h2>
-        <ul class="list-disc list-inside mx-2">
-            <li class="text-gray-800 dark:text-gray-300">Ensure the Excel file is formatted correctly with the required columns.</li>
-            <li class="text-gray-800 dark:text-gray-300">Verify that the data types match the expected format.</li>
-            <li class="text-gray-800 dark:text-gray-300">Check for any missing or invalid entries.</li>
-            <li class="text-gray-800 dark:text-gray-300">Confirm that the file size is within the allowed limit.</li>
-        </ul>
-    </div>
+        <div>
+            <h2 class="text-lg font-bold dark:text-white mt-4 mx-2">Guidelines When Importing an Excel File:</h2>
+            <ul class="list-disc list-inside mx-2">
+                <li class="text-gray-800 dark:text-gray-300">Ensure the Excel file is formatted correctly with the required columns.</li>
+                <li class="text-gray-800 dark:text-gray-300">Verify that the data types match the expected format.</li>
+                <li class="text-gray-800 dark:text-gray-300">Check for any missing or invalid entries.</li>
+                <li class="text-gray-800 dark:text-gray-300">Confirm that the file size is within the allowed limit.</li>
+            </ul>
+        </div>
 
-    <form v-if="contained_data.length === 0" @submit.prevent="verifyFileData" class="mt-6 space-y-6">
-        <div class="flex items-center justify-center w-full">
-            <label v-if="!uploadedFileName" for="dropzone-file"
-                class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
-                <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                    <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
-                    </svg>
-                    <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                        <span class="font-semibold">Click to upload</span> or drag and drop
-                    </p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Only Excel files (.xls, .xlsx) | Max: 2MB</p>
+        <form v-if="contained_data.length === 0" @submit.prevent="verifyFileData" class="mt-6 space-y-6">
+            <div class="flex items-center justify-center w-full">
+                <label v-if="!uploadedFileName" for="dropzone-file"
+                    class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                        <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+                        </svg>
+                        <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                            <span class="font-semibold">Click to upload</span> or drag and drop
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Only Excel files (.xls, .xlsx) | Max: 2MB</p>
+                    </div>
+                    <input id="dropzone-file" ref="fileInput" type="file" class="hidden" accept=".xls, .xlsx" @change="handleFileUpload" />
+                </label>
+
+                <div v-else class="mt-4 rounded-lg p-4 bg-gray-700 hover:bg-gray-600 border-l-10 border-l-green-700 flex items-center justify-between w-full">
+                    <p class="text-sm text-green-500">File uploaded: <strong>{{ uploadedFileName }}</strong></p>
+                    <button @click="removeFile" class="text-red-500 hover:text-red-700 ml-2">
+                        <span class="material-icons">close</span>
+                    </button>
                 </div>
-                <input id="dropzone-file" ref="fileInput" type="file" class="hidden" accept=".xls, .xlsx" @change="handleFileUpload" />
-            </label>
+            </div>
 
-            <div v-else class="mt-4 rounded-lg p-4 bg-gray-700 hover:bg-gray-600 border-l-10 border-l-green-700 flex items-center justify-between w-full">
-                <p class="text-sm text-green-500">File uploaded: <strong>{{ uploadedFileName }}</strong></p>
-                <button @click="removeFile" class="text-red-500 hover:text-red-700 ml-2">
-                    <span class="material-icons">close</span>
+            <p v-if="errorMessage" class="mt-2 text-sm text-red-500">{{ errorMessage }}</p>
+            <p v-if="successMessage" class="mt-2 text-sm text-green-500">{{ successMessage }}</p>
+
+            <div v-if="uploadedFileName" class="flex justify-between gap-4 w-full">
+                <button type="submit" @click.prevent="clearData" class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 w-1/2">
+                    Cancel Transaction
+                </button>
+                <button type="submit" class="px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 w-1/2">
+                    Verify Contents
                 </button>
             </div>
-        </div>
+        </form>
 
-        <p v-if="errorMessage" class="mt-2 text-sm text-red-500">{{ errorMessage }}</p>
-        <p v-if="successMessage" class="mt-2 text-sm text-green-500">{{ successMessage }}</p>
-
-        <div v-if="uploadedFileName" class="flex justify-between gap-4 w-full">
-            <button type="submit" @click.prevent="clearData" class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 w-1/2">
-                Cancel Transaction
-            </button>
-            <button type="submit" class="px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 w-1/2">
-                Verify Contents
-            </button>
+        <div v-else>
+            <div class="flex justify-between gap-4 py-4">
+                <button type="submit" @click.prevent="clearData" class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 w-1/2">
+                    Cancel Transaction
+                </button>
+                <button type="submit" @click.prevent="submitFileData" class="px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 w-1/2">
+                    Submit Report Data's
+                </button>
+            </div>
+            <UploadedFileTable :contained_data="contained_data"/>
         </div>
-    </form>
-
-    <div v-else>
-        <div class="flex justify-between gap-4 py-4">
-            <button type="submit" @click.prevent="clearData" class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 w-1/2">
-                Cancel Transaction
-            </button>
-            <button type="submit" @click.prevent="submitFileData" class="px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 w-1/2">
-                Submit Report Data's
-            </button>
-        </div>
-        <UploadedFileTable :contained_data="contained_data"/>
     </div>
+    
    
 </template>
 

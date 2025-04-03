@@ -10,6 +10,7 @@ export const useDatabaseStore = defineStore('database', {
     reportsList: [],
     classificationsList: [],
     urgenciesList: [],
+    actionsList: [],
     sources: [],
     actions: [],
     incidents: [],
@@ -51,6 +52,7 @@ export const useDatabaseStore = defineStore('database', {
         this.reportsList = resReports.data[0];
         this.classificationsList = resReports.data[1];
         this.urgenciesList = resReports.data[2];
+        this.actionsList = resReports.data[3];
         // console.log(this.reportsList, 'reports');
         // console.log(this.classificationsList, 'classifications');
 
