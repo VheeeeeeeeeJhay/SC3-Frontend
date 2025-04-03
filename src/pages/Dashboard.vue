@@ -133,11 +133,11 @@ const updateDateRange = ({ start, end }) => {
       <div class="grid grid-cols-3 gap-6">
         <div
           class="col-span-1 p-3 bg-gradient-to-b from-sky-50 dark:from-slate-800 to-transparent rounded-lg shadow-lg">
-          <IncidentGrowthRate :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" />
+          <!-- <IncidentGrowthRate :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" /> -->
         </div>
 
         <div class="col-span-1 p-3 bg-gradient-to-b from-sky-50 dark:from-slate-800 to-transparent rounded-lg shadow-lg">
-          <TotalReportsReceived :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate"/>
+          <!-- <TotalReportsReceived :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate"/> -->
         </div>
 
 
@@ -153,12 +153,12 @@ const updateDateRange = ({ start, end }) => {
         <!-- linechart -->
         <div
           class="p-6 bg-gradient-to-b from-sky-50 dark:from-slate-800 to-transparent rounded-lg shadow-lg">
-          <!-- <LineChart /> -->
+          <LineChart />
         </div>
 
         <div
           class="p-6 bg-gradient-to-b from-sky-50 dark:from-slate-800 to-transparent rounded-lg shadow-lg">
-          <!-- <BarChart :dateRange="selectedDateRange" class="w-full" /> -->
+          <BarChart :selectedYear="selectedYear1" class="w-full" />
         </div>
       </div>
 
@@ -167,7 +167,7 @@ const updateDateRange = ({ start, end }) => {
         <div
           class="p-6 bg-gradient-to-b from-sky-50 dark:from-slate-800 to-transparent rounded-lg shadow-lg">
           <!-- <LineChart /> -->
-           <PieChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate"/>
+           <!-- <PieChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate"/> -->
         </div>
 
         <div

@@ -13,10 +13,10 @@ onMounted(() => {
     }
   })
     .then((res) => {
-      console.log(res, 'bar chart');
+    //   console.log(res, 'bar chart');
       source.value = res.data.source;
       report.value = res.data.report;
-      console.log(source.value, 'sources data')
+    //   console.log(source.value, 'sources data')
 
       updateChart(); // Update the chart after fetching data
     })
@@ -26,8 +26,12 @@ onMounted(() => {
     });
 });
 
+const props = defineProps({
+  selectedYear: Number
+});
+
 const options = ref({
-    colors: ["#bf1029", "#3f8f29", "#4A90E2", "#50E3C2", "#B8E986", "#F5A623"],
+    colors: ["#bf1029", "#3f8f29", "#4A90E2", "#50E3C2"], // Different colors for each source
     series: [],
     chart: {
         type: "line",
@@ -42,12 +46,10 @@ const options = ref({
     },
     stroke: {
         show: true,
-        width: 2,  // Adjust line thickness
-        colors: ["#bf1029"],  // Line color
+        width: 2,  
     },
     markers: {
-        size: 5,  // Adjust marker size
-        colors: ["#bf1029"],  // Marker color
+        size: 5,  
         strokeColors: "#fff",
         strokeWidth: 2,
     },
@@ -55,40 +57,34 @@ const options = ref({
         shared: true,
         intersect: false,
         followCursor: true,
-        style: {
-            fontFamily: "Inter, sans-serif",
-        },
     },
     grid: {
         show: true,
         strokeDashArray: 4,
-        padding: {
-            left: 2,
-            right: 2,
-            top: -14
-        },
     },
     dataLabels: {
         enabled: false,
     },
     legend: {
         show: true,
+        position: "top",
+        markers: {
+            width: 12,
+            height: 12,
+        },
+        onItemClick: {
+            toggleDataSeries: true,
+        },
     },
     xaxis: {
-        floating: false,
-        categories: [],
+        categories: [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ],
         labels: {
-            show: true,
             style: {
                 fontFamily: "Inter, sans-serif",
-                cssClass: 'text-xs font-normal fill-gray-500 dark:fill-gray-400'
             }
-        },
-        axisBorder: {
-            show: false,
-        },
-        axisTicks: {
-            show: false,
         },
     },
     yaxis: {
@@ -103,30 +99,65 @@ const barChart = ref(null);
 let chart = null;
 
 const updateChart = () => {
+    console.log("🔍 Debugging Chart Update...");
+    console.log("📌 Source Data:", source.value);
+    console.log("📌 Report Data:", report.value);
+
+    if (!source.value.length) {
+        console.error("❌ ERROR: `source.value` is empty!");
+    }
+    if (!report.value.length) {
+        console.error("❌ ERROR: `report.value` is empty!");
+    }
     if (!source.value.length || !report.value.length) {
         console.log("No data to update the chart.");
         return;
     }
 
-    // Extract unique source names
-    const sourceNames = source.value.map(src => src.sources); // Ensure 'sources' is correct
+    // Extract unique sources (911, CDRRMO, etc.)
+    const sourceNames = [...new Set(source.value.map(src => src.sources))];
+    console.log("📌 Unique Source Names:", sourceNames);
 
-    // Count the number of reports per source
-    const reportCounts = source.value.map(src => {
-        return report.value.filter(rep => rep.source_id === src.id).length;
+    // Prepare series data
+    const seriesData = sourceNames.map(sourceName => {
+        return {
+            name: sourceName,
+            data: Array(12).fill(0) // Initialize 12 months with 0 reports
+        };
     });
+// Filter reports based on the selected year
+const filteredReports = report.value.filter(rep => {
+    const reportYear = new Date(rep.date_received).getFullYear();
+    return reportYear === props.selectedYear;
+});
 
-    console.log("Source Names:", sourceNames);
-    console.log("Report Counts:", reportCounts);
+console.log(`📅 Filtering reports for year: ${props.selectedYear}`);
+console.log("🔍 Filtered Reports:", filteredReports);
 
-    // Update chart data (ONE series with multiple data points)
-    options.value.series = [{
-        name: "Number of Reports",
-        data: reportCounts
-    }];
+// Populate data by month (only for the selected year)
+filteredReports.forEach(rep => {
+    const matchedSource = source.value.find(src => src.id === rep.source_id);
+    if (!matchedSource) {
+        console.warn(`⚠️ Report has unknown source_id: ${rep.source_id}`);
+        return; // Skip this report
+    }
 
-    // Assign source names to X-axis
-    options.value.xaxis.categories = sourceNames;
+    const sourceIndex = sourceNames.indexOf(matchedSource.sources);
+    const monthIndex = new Date(rep.date_received).getMonth();
+
+    console.log(`📅 Report Date: ${rep.date_received} | Month Index: ${monthIndex} | Source: ${matchedSource.sources}`);
+
+    if (sourceIndex !== -1 && monthIndex >= 0 && monthIndex < 12) {
+        seriesData[sourceIndex].data[monthIndex]++;
+        console.log(`✅ Incremented ${matchedSource.sources} count for month ${monthIndex + 1}`);
+    }
+});
+
+
+
+    console.log("📊 Final Series Data:", JSON.stringify(seriesData, null, 2));
+
+    options.value.series = seriesData;
 
     if (chart) {
         chart.updateOptions(options.value);
@@ -137,20 +168,37 @@ const updateChart = () => {
 
 
 
+
 onMounted(() => {
     if (barChart.value) {
         chart = new ApexCharts(barChart.value, options.value);
         chart.render();
+        // updateChart();
+    }
+});
+
+watch([source, report], ([newSource, newReport]) => {
+    if (newSource.length && newReport.length) {
+        console.log("🔄 Data updated! Running updateChart()");
         updateChart();
     }
 });
+
+watch(() => props.selectedYear, (newYear, oldYear) => {
+    console.log(`🔄 Year changed: ${oldYear} ➝ ${newYear}`);
+    
+    if (newYear) {
+        updateChart(); // Re-run updateChart when the year changes
+    }
+});
+
 onUnmounted(() => {
     if (chart) chart.destroy();
 });
 </script>
 
 <template>
-  <div class="w-full p-4 dark:bg-slate-800 dark:border-black dark:text-white bg-sky-50 border-gray-200 text-gray-800">   
+  <div class="w-full p-4 dark:text-white text-gray-800">   
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-semibold">Report per source SAUCED</h2>
       <!-- <select v-model="selectedDateFilter" class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600">
