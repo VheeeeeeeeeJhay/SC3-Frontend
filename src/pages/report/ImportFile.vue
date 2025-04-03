@@ -73,6 +73,7 @@ const submitForm = async () => {
         console.log('File uploaded successfully:', response.data);
         successMessage.value = 'File uploaded successfully!';
         errorMessage.value = ''; // Clear any previous errors
+        removeFile();
 
     } catch (error) {
         console.error('Error uploading file:', error);
@@ -126,6 +127,11 @@ const submitForm = async () => {
             </button>
         </div>
     </form>
+
+
+    <div>
+        
+    </div>
 </template>
 
 <style scoped>
