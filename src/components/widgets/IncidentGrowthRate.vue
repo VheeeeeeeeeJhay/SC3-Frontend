@@ -14,8 +14,8 @@ const incidents = ref([]);
 const reports = ref([]);
 
 const currentYear = new Date().getFullYear();
-const currentMonthIndex = new Date().getMonth(); // 0-based index (January = 0)
-const years = Array.from({ length: currentYear - 2019 + 1 }, (_, i) => 2020 + i); // Ensure inclusion of the current year
+// const currentMonthIndex = new Date().getMonth(); // 0-based index (January = 0)
+// const years = Array.from({ length: currentYear - 2019 + 1 }, (_, i) => 2020 + i); // Ensure inclusion of the current year
 
 const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -26,40 +26,25 @@ const months = [
 // const selectedMonth1 = ref(months[currentMonthIndex === 0 ? 11 : currentMonthIndex - 1]); // Previous month
 // const selectedMonth2 = ref(months[currentMonthIndex]); // Current month
 
+// 🎯 Adjust selected months and years correctly
 const selectedMonth2 = ref(months[props.selectedMonth - 1]); // Current month
 const selectedMonth1 = ref(
   props.selectedMonth === 1 ? months[11] : months[props.selectedMonth - 2] // Previous month
 );
 const selectedYear1 = ref(
-  props.selectedMonth === 1 ? props.selectedYear - 1 : props.selectedYear // Adjust year for December -> January transition
+  props.selectedMonth === 1 ? props.selectedYear - 1 : props.selectedYear // Adjust year for Dec → Jan transition
 );
+const selectedYear2 = ref(props.selectedYear); // Keep the current year
 
-console.log(`📆 selectedMonth1 (Previous): ${selectedMonth1.value}`);
-console.log(`📆 selectedMonth2 (Current): ${selectedMonth2.value}`);
+console.log(`📆 Previous Month: ${selectedMonth1.value}, Year: ${selectedYear1.value}`);
+console.log(`📆 Current Month: ${selectedMonth2.value}, Year: ${selectedYear2.value}`);
 
-//for month year picker component // replace select options with monthYearPicker component
-// const selectedYear1 = ref(currentYear);
-// const selectedMonth1 = ref(new Date().getMonth() + 1); // JS months are 0-based
-
-// const filteredMonths2 = computed(() => {
-//     if (!selectedYear1.value || !selectedMonth1.value) return [];
-
-//     const selectedDateIndex = months.indexOf(selectedMonth1.value);
-
-//     // If the same year, filter to exclude previous months
-//     if (selectedYear1.value === currentYear) {
-//         return months.slice(selectedDateIndex + 1);
-//     }
-
-//     // Different year, allow all months
-//     return months;
-// });
-
-// Watch for prop changes and update months accordingly
+// Update values when props change
 watch(() => [props.selectedYear, props.selectedMonth], () => {
-  selectedMonth2.value = months[props.selectedMonth - 1]; // Set current month
-  selectedMonth1.value = props.selectedMonth === 1 ? months[11] : months[props.selectedMonth - 2]; // Set previous month
+  selectedMonth2.value = months[props.selectedMonth - 1]; // Current month
+  selectedMonth1.value = props.selectedMonth === 1 ? months[11] : months[props.selectedMonth - 2]; // Previous month
   selectedYear1.value = props.selectedMonth === 1 ? props.selectedYear - 1 : props.selectedYear; // Adjust year if needed
+  selectedYear2.value = props.selectedYear; // Keep current year
 });
 
 let interval_id = null;
@@ -113,10 +98,10 @@ const getReportCountForMonth = (month, year) => {
 };
 
 
-// Compute percentage change dynamically
+// Compute Month over Month Growth Rate
 const percentageChange = computed(() => {
     const count1 = getReportCountForMonth(selectedMonth1.value, selectedYear1.value);
-    const count2 = getReportCountForMonth(selectedMonth2.value, selectedYear1.value);
+    const count2 = getReportCountForMonth(selectedMonth2.value, selectedYear2.value);
 
     if (count1 === 0) return count2 > 0 ? 100 : 0; // Avoid division by zero
 
