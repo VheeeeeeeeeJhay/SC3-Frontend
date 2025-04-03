@@ -1,26 +1,29 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import axiosClient from '../../axios.js';
+import UploadedFileTable from '../../components/tables/UploadedFileTable.vue';
 
 const router = useRouter();
-
 const errorMessage = ref('');
+const successMessage = ref('');
 const maxFileSize = 2 * 1024 * 1024; // 2MB max file size
+const uploadedFileName = ref(''); // Store the file name
+const fileInput = ref(null); // Ref for the file input
+
+let selectedFile = null; // Local variable to store the selected file
 
 const handleFileUpload = (event) => {
     const file = event.target.files[0];
+    console.log('Selected file:', file); // Log the selected file
 
-    // Check if file exists
     if (!file) {
         errorMessage.value = 'No file selected!';
         return;
     }
 
-    // Get file properties
     const fileType = file.type;
     const fileSize = file.size;
-
-    // Validate file type
     const allowedTypes = [
         'application/vnd.ms-excel',
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -31,21 +34,100 @@ const handleFileUpload = (event) => {
         return;
     }
 
-    // Validate file size
     if (fileSize > maxFileSize) {
         errorMessage.value = 'File size exceeds 2MB limit!';
         return;
     }
 
-    // If all checks pass
-    errorMessage.value = ''; // Clear any previous errors
-    console.log('File uploaded successfully:', file.name);
+    errorMessage.value = ''; // Clear previous errors
+    uploadedFileName.value = file.name; // Store the uploaded file name
+    selectedFile = file; // Store the selected file in the local variable
+};
+
+const removeFile = () => {
+    uploadedFileName.value = ''; // Clear the uploaded file name
+    if (fileInput.value) {
+        fileInput.value.value = ''; // Clear the file input
+    }
+};
+
+const clearData = () => {
+    contained_data.value = [];
+    successMessage.value = '';
+};
+
+const contained_data = ref([]);
+
+const verifyFileData = async () => {
+    try {
+        console.log('Selected file before submitting:', selectedFile); // Log the selected file
+        if (!selectedFile) {
+            errorMessage.value = 'Please upload a file before submitting.';
+            return;
+        }
+
+        // Create a FormData object and append the file
+        const uploadFile = new FormData();
+        uploadFile.append('file', selectedFile);  // Use the local variable
+
+        // Send the request using axios
+        const response = await axiosClient.post('/api/911/import-excel', uploadFile, {
+            headers: {
+                'x-api-key': import.meta.env.VITE_API_KEY,  // Optional if required
+            },
+        });
+
+        console.log('File uploaded successfully:', response.data);
+        successMessage.value = 'File uploaded successfully!';
+        errorMessage.value = ''; // Clear any previous errors
+        removeFile();
+        // Store the inserted records
+        contained_data.value = response.data.data;
+        console.log('Inserted records:', contained_data.value);
+    } catch (error) {
+        console.error('Error uploading file:', error);
+        errorMessage.value = error.response?.data?.message || 'Something went wrong!';
+    }
+}; 
+
+const submitFileData = async () => {
+    try {
+        const response = await axiosClient.post('/api/911/import-excel-data', {
+            data: contained_data.value, // Send the array directly
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': import.meta.env.VITE_API_KEY,
+            },
+        });
+
+        console.log('Data uploaded successfully:', response.data);
+        successMessage.value = 'Data uploaded successfully!';
+        errorMessage.value = '';
+
+        // Update contained_data with the inserted records
+        contained_data.value = response.data.inserted_records || [];
+        console.log('Inserted records:', contained_data.value);
+    } catch (error) {
+        console.error('Error uploading data:', error);
+        errorMessage.value = error.response?.data?.message || 'Something went wrong!';
+    }
 };
 </script>
 
+<!-- To Make the file upload work
+ uncomment the following code in the php.ini file:
+ 1. extension=zip
+ 2. extension=gd
+
+ to install packages run:
+ composer require phpoffice/phpspreadsheet
+-->
+
+
 <template>
-    <div class="mt-6 px-2 flex justify-between p-4">
-        <h1 class="text-2xl font-bold dark:text-white mb-2">Add a New Report</h1>
+    <div class="mt-6 px-2 flex justify-between">
+        <h1 class="text-2xl font-bold dark:text-white mb-2" >{{ contained_data.length === 0 ? 'Add a New Report' : 'Verifying Imported Reports List' }}</h1>
         <Button type="button" name="Back" @click.prevent="router.back()"
             class="px-3 py-1 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200 flex items-center">
             <span class="material-icons mr-2"> arrow_back </span>
@@ -53,28 +135,69 @@ const handleFileUpload = (event) => {
         </Button>
     </div>
 
-    <div class="flex items-center justify-center w-full mt-6">
-        <label for="dropzone-file"
-            class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
-            <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
-                </svg>
-                <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                    <span class="font-semibold">Click to upload</span> or drag and drop
-                </p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Only Excel files (.xls, .xlsx) | Max: 2MB</p>
-            </div>
-            <input id="dropzone-file" type="file" class="hidden" accept=".xls, .xlsx" @change="handleFileUpload" />
-        </label>
-
-
+    <div>
+        <h2 class="text-lg font-bold dark:text-white mt-4 mx-2">Guidelines When Importing an Excel File:</h2>
+        <ul class="list-disc list-inside mx-2">
+            <li class="text-gray-800 dark:text-gray-300">Ensure the Excel file is formatted correctly with the required columns.</li>
+            <li class="text-gray-800 dark:text-gray-300">Verify that the data types match the expected format.</li>
+            <li class="text-gray-800 dark:text-gray-300">Check for any missing or invalid entries.</li>
+            <li class="text-gray-800 dark:text-gray-300">Confirm that the file size is within the allowed limit.</li>
+        </ul>
     </div>
-    <!-- Error message display -->
-    <p v-if="errorMessage" class="mt-2 text-sm text-red-500">{{ errorMessage }}</p>
+
+    <form v-if="contained_data.length === 0" @submit.prevent="verifyFileData" class="mt-6 space-y-6">
+        <div class="flex items-center justify-center w-full">
+            <label v-if="!uploadedFileName" for="dropzone-file"
+                class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+                    </svg>
+                    <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                        <span class="font-semibold">Click to upload</span> or drag and drop
+                    </p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Only Excel files (.xls, .xlsx) | Max: 2MB</p>
+                </div>
+                <input id="dropzone-file" ref="fileInput" type="file" class="hidden" accept=".xls, .xlsx" @change="handleFileUpload" />
+            </label>
+
+            <div v-else class="mt-4 rounded-lg p-4 bg-gray-700 hover:bg-gray-600 border-l-10 border-l-green-700 flex items-center justify-between w-full">
+                <p class="text-sm text-green-500">File uploaded: <strong>{{ uploadedFileName }}</strong></p>
+                <button @click="removeFile" class="text-red-500 hover:text-red-700 ml-2">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+        </div>
+
+        <p v-if="errorMessage" class="mt-2 text-sm text-red-500">{{ errorMessage }}</p>
+        <p v-if="successMessage" class="mt-2 text-sm text-green-500">{{ successMessage }}</p>
+
+        <div v-if="uploadedFileName" class="flex justify-between gap-4 w-full">
+            <button type="submit" @click.prevent="clearData" class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 w-1/2">
+                Cancel Transaction
+            </button>
+            <button type="submit" class="px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 w-1/2">
+                Verify Contents
+            </button>
+        </div>
+    </form>
+
+    <div v-else>
+        <div class="flex justify-between gap-4 py-4">
+            <button type="submit" @click.prevent="clearData" class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 w-1/2">
+                Cancel Transaction
+            </button>
+            <button type="submit" @click.prevent="submitFileData" class="px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 w-1/2">
+                Submit Report Data's
+            </button>
+        </div>
+        <UploadedFileTable :contained_data="contained_data"/>
+    </div>
+   
 </template>
 
-
-<style scoped></style>
+<style scoped>
+/* Add any additional styles here */
+</style>

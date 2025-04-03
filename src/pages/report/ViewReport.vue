@@ -1,52 +1,30 @@
 <script setup>
-import axiosClient from '../../axios';
-import { onMounted, ref, watchEffect, computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-// import PrimaryButton from '../../components/PrimaryButton.vue';
-import leaflet from 'leaflet';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import viewMap from '../../components/Maps/viewMap.vue';
+import { useArrayStore } from '../../stores/arrayStore';
 
-
-const route = useRoute();
 const router = useRouter();
-const report_Id = route.params.id;
+
+const store = useArrayStore();
+const storage = ref({});
+storage.value = store.getData();
+console.log(storage.value);
 
 const data = ref({
-  name: '',
-  source: '',
-  assistance: '',
-  incident: '',
-  actions: '',
-  date_received: '',
-  arrival_on_site: '',
-  time: '',
-  barangay: '',
-  landmark: '',
-  longitude: '',
-  latitude: '',
-  urgency: '',
-});
-
-let map = null;
-let marker = null; // Store the marker reference
-
-const fetchData = async () => {
-  try {
-    const response = await axiosClient.get(`/api/911/report-view/${report_Id}`, {
-      headers: {
-        'x-api-key': import.meta.env.VITE_API_KEY
-      }
-    })
-    data.value = response.data;
-    console.log(data.value);
-  } catch (error) {
-    console.error('Error fetching data:', error);
-  }
-};
-
-
-onMounted(() => {
-  fetchData();
+  name: storage.value.name,
+  source: storage.value.source.sources,
+  assistance: storage.value.assistance.assistance,
+  incident: storage.value.incident.type,
+  actions: storage.value.actions.actions,
+  date_received: storage.value.date_received,
+  arrival_on_site: storage.value.arrival_on_site,
+  time: storage.value.time,
+  barangay: storage.value.barangay.name,
+  landmark: storage.value.landmark,
+  longitude: storage.value.barangay.longitude,
+  latitude: storage.value.barangay.latitude,
+  urgency: storage.value.urgency.urgency,
 });
 </script>
 
@@ -63,93 +41,119 @@ onMounted(() => {
     </div>
 
     <!-- Content Wrapper -->
-    <div class="container mx-auto mt-6 bg-sky-50 dark:bg-slate-800  shadow-md rounded-lg" :class="themeClasses">
+    <div class="container mx-auto mt-6 bg-sky-50 dark:bg-slate-800 shadow-md rounded-lg">
       <div class="flex flex-col md:flex-row">
         <!-- Left Side: Text Information -->
         <div class="w-full md:w-1/2 p-6 rounded-lg text-gray-800 dark:text-gray-200">
           <h2 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Incident Details</h2>
-          <!-- <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3"> -->
+          
           <div class="grid grid-cols-2 grid-rows-1 gap-4">
             <div>
               <div>
-                <span class="font-semibold ">Name:</span> 
-                <div class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">{{ data.name }}</div>
+                <span class="font-semibold ">Name:</span>
+                <div
+                  class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">
+                  {{ data.name }}</div>
               </div>
               <div>
-                <span class="font-semibold ">Incident Type:</span> 
-                <div class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">{{ data.assistance?.assistance }}</div>
+                <span class="font-semibold ">Incident Type:</span>
+                <div
+                  class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">
+                  {{ data.incident }}</div>
               </div>
               <div>
-                <span class="font-semibold ">Action:</span> 
-                <div class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">{{ data.actions?.actions }}</div>
+                <span class="font-semibold ">Action:</span>
+                <div
+                  class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">
+                  {{ data.actions }}</div>
               </div>
             </div>
             <div>
               <div>
-                <span class="font-semibold ">Source:</span> 
-                <div class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">{{ data.source?.sources }}</div>
+                <span class="font-semibold ">Source:</span>
+                <div
+                  class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">
+                  {{ data.source }}</div>
               </div>
               <div>
-                <span class="font-semibold ">Incident:</span> 
-                <div class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">{{ data.incident?.type }}</div>
+                <span class="font-semibold ">Incident:</span>
+                <div
+                  class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">
+                  {{ data.incident }}</div>
               </div>
               <div>
-                <span class="font-semibold ">Urgency:</span> 
-                <div class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">{{ data.urgency?.urgency }}</div>
+                <span class="font-semibold ">Urgency:</span>
+                <div
+                  class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">
+                  {{ data.urgency }}</div>
               </div>
             </div>
           </div>
 
           <br>
-
-          <div class="grid grid-cols-2 grid-rows-1 gap-4">
-            <div>
-              <div>
-                <span class="font-semibold ">Received Date:</span> 
-                <div class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">{{ data.date_received }}</div>
-              </div>
-              <div>
-                <span class="font-semibold ">Arrival Time:</span> 
-                <div class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">{{ data.arrival_on_site }}</div>
-              </div>
-            </div>
-            <div>
-              <div>
-                <span class="font-semibold ">Incident Time:</span> 
-                <div class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">{{ data.time }}</div>
-              </div>
-            </div>
-          </div>
-
+          <hr class="border-gray-300 dark:border-gray-700">
           <br>
 
           <div class="grid grid-cols-2 grid-rows-1 gap-4">
             <div>
               <div>
-                <span class="font-semibold ">Barangay:</span> 
-                <div class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">{{ data.barangay?.name }}</div>
+                <span class="font-semibold ">Received Date:</span>
+                <div
+                  class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">
+                  {{ data.date_received }}</div>
               </div>
               <div>
-                <span class="font-semibold ">Details:</span> 
-                <div class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">{{ data.landmark }}</div>
+                <span class="font-semibold ">Arrival Time:</span>
+                <div
+                  class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">
+                  {{ data.arrival_on_site }}</div>
               </div>
             </div>
             <div>
-
               <div>
-                <span class="font-semibold ">Longitude:</span> 
-                <div class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">{{ data.longitude }}</div>
-              </div>
-              <div>
-                <span class="font-semibold ">Latitude:</span> 
-                <div class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">{{ data.latitude }}</div>
+                <span class="font-semibold ">Incident Time:</span>
+                <div
+                  class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">
+                  {{ data.time }}</div>
               </div>
             </div>
           </div>
 
-          <!-- </div> -->
+          <br>
+          <hr class="border-gray-300 dark:border-gray-700">
+          <br>
+
+          <div class="grid grid-cols-2 grid-rows-1 gap-4">
+            <div>
+              <div>
+                <span class="font-semibold ">Barangay:</span>
+                <div
+                  class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">
+                  {{ data.barangay }}</div>
+              </div>
+              <div>
+                <span class="font-semibold ">Details:</span>
+                <div
+                  class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">
+                  {{ data.landmark }}</div>
+              </div>
+            </div>
+            <div>
+              <div>
+                <span class="font-semibold ">Longitude:</span>
+                <div
+                  class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">
+                  {{ data.longitude }}</div>
+              </div>
+              <div>
+                <span class="font-semibold ">Latitude:</span>
+                <div
+                  class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">
+                  {{ data.latitude }}</div>
+              </div>
+            </div>
+          </div>
         </div>
-
 
         <!-- Right Side: Map -->
         <div class="w-full md:w-1/2 flex justify-center items-center mt-6 md:mt-0">

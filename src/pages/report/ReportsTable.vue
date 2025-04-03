@@ -5,47 +5,21 @@ import { RouterLink } from 'vue-router';
 import ChooseReportType from '../../components/modal/ChooseReportType.vue';
 import { useDatabaseStore } from '../../stores/databaseStore';
 import logo from '../../assets/baguio-logo.png';
+import { useArrayStore } from '../../stores/arrayStore';
 
-// const reports = ref([]);
-// const classifications = ref([]);
 const searchQuery = ref("");
 const isLoading = ref(false);
-
 const selectedClassifications = ref([]);
+const selectedUrgencies = ref([]);
 
 const databaseStore = useDatabaseStore();
+const store = useArrayStore();
+const passingData = (report) => {
+    store.setData(report);
+    console.log(store.getData());
+}
 
 let refreshInterval = null;
-
-// const fetchData = async () => {
-//     try {
-//         const response = await axiosClient.get('/api/911/report-display', {
-//             headers: {
-//                 'x-api-key': import.meta.env.VITE_API_KEY
-//             }
-//         });
-//         console.log(response);
-//         setTimeout(() => {
-//             reports.value = response.data[0]; // Assuming reports are in the first index
-//             classifications.value = response.data[1]; // Assuming classifications are in the second index
-//             isLoading.value = false;
-//         });
-//     } catch (error) {
-//         isLoading.value = false;
-//         console.error('Error fetching data:', error);
-//         errors.value = error.response?.data.error || 'Failed to load barangays. Please try again later.';
-//     }
-// };
-
-// onMounted(() => {
-//     isLoading.value = true;
-
-//     // Initial data fetch
-//     fetchData();
-
-//     // Set interval to fetch data every 5 seconds
-//     intervalId = setInterval(fetchData, 5000);
-// });
 onMounted(() => {
     databaseStore.fetchData();
 
@@ -54,14 +28,17 @@ onMounted(() => {
     }, 50000);
 });
 
+// Computed properties
 const computedProperties = {
     reports: "reportsList",
     classifications: "classificationsList",
+    urgencies: "urgenciesList",
 };
 
 const {
     reports,
     classifications,
+    urgencies,
 } = Object.fromEntries(
     Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
 );
@@ -79,7 +56,10 @@ const filteredReports = computed(() => {
         const matchesClassification = selectedClassifications.value.length === 0 ||
             selectedClassifications.value.includes(report.assistance_id);
 
-        return matchesSearch && matchesClassification;
+        const matchesUrgency = selectedUrgencies.value.length === 0 ||
+            selectedUrgencies.value.includes(report.urgency_id);
+
+        return matchesSearch && matchesClassification && matchesUrgency;
     });
 });
 
@@ -107,12 +87,13 @@ const toggleDropdown = (transactionId) => {
 };
 
 
-const filterDropdown = ref(false);
+// const filterDropdown = ref(false);
 
 
 // -----------------------
 const isActionsDropdownOpen = ref(false);
 const isFilterDropdownOpen = ref(false);
+const isUrgencyFilterDropdownOpen = ref(false);
 
 const toggleActionsDropdown = () => {
     isActionsDropdownOpen.value = !isActionsDropdownOpen.value;
@@ -120,6 +101,9 @@ const toggleActionsDropdown = () => {
 
 const toggleFilterDropdown = () => {
     isFilterDropdownOpen.value = !isFilterDropdownOpen.value;
+};
+const toggleUrgencyFilterDropdown = () => {
+    isUrgencyFilterDropdownOpen.value = !isUrgencyFilterDropdownOpen.value;
 };
 
 const closeDropdowns = (event) => {
@@ -298,7 +282,7 @@ const formSubmit = async (report_Id) => {
     })
         .then(() => {
             // Remove the deleted barangay from the list without refreshing the page
-            reports.value = reports.value.filter(b => b.id !== report_Id);
+            // reports.value = reports.value.filter(b => b.id !== report_Id); // ================================================================ revise
             success.value = 'Report deleted successfully';
         })
         .catch(error => {
@@ -310,7 +294,15 @@ const formSubmit = async (report_Id) => {
 
 
 
-const isModalOpen = ref(false); 
+const isModalOpen = ref(false);
+const isDeleteModalOpen = ref(false);
+
+
+// show all filter
+const isFilterContainerOpen = ref(false);
+const toggleFilters = () => {
+    isFilterContainerOpen.value = !isFilterContainerOpen.value;
+};
 </script>
 
 <template>
@@ -321,9 +313,8 @@ const isModalOpen = ref(false);
 
             <div class="flex items-center space-x-2">
                 <div>
-                    <PopupModal Title="Please select what type of report you want to add"
-                        ModalButton="Create Report" Icon="" Classes="" :show="isModalOpen"
-                        @update:show="isModalOpen = $event"
+                    <PopupModal Title="Please select what type of report you want to add" ModalButton="Create Report"
+                        Icon="" Classes="" :show="isModalOpen" @update:show="isModalOpen = $event"
                         ButtonClass="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
                         <template #modalContent>
                             <ChooseReportType />
@@ -359,44 +350,94 @@ const isModalOpen = ref(false);
                             </div>
                         </form>
                     </div>
+
                     <div
                         class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+                        <button @click="toggleFilters"
+                        class="w-full md:w-auto flex items-center justify-center py-2 px-4  text-sm font-medium rounded-lg border bg-white hover:bg-gray-200 dark:bg-slate-700 dark:border-black dark:text-white dark:hover:bg-slate-600"
+                        id="filterDropdownButton">
+                        <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2"
+                            viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        Filters
+                    </button>
+                    </div>
+                </div>
 
-                        <div class="flex items-center space-x-3 md:w-auto relative">
-                            <button @click="toggleFilterDropdown"
-                                class="w-full md:w-auto flex items-center justify-center py-2 px-4  text-sm font-medium rounded-lg border bg-white hover:bg-gray-200 dark:bg-slate-700 dark:border-black dark:text-white dark:hover:bg-slate-600"
-                                id="filterDropdownButton">
-                                <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2"
-                                    viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd"
-                                        d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                                Filter by Classification
-                            </button>
+                <!-- Filter Button -->
+                <div>
 
-                            <div id="filterDropdown" v-show="isFilterDropdownOpen"
-                                class="absolute top-full right-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-slate-700 dark:text-white overflow-hidden">
-                                <h6 class="mb-3 text-sm font-medium">Choose Classification</h6>
-                                <ul class="space-y-2 text-sm">
-                                    <li v-for="classification in classifications" :key="classification.id"
-                                        class="flex items-center">
-                                        <input type="checkbox" :id="classification.id" :value="classification.id"
-                                            v-model="selectedClassifications" class="w-4 h-4" />
-                                        <label :for="classification.id" class="ml-2 text-sm font-medium">{{
-                                            classification.assistance }}</label>
-                                    </li>
-                                </ul>
+                    <div v-show="isFilterContainerOpen" class="flex justify-end mb-3">
+                        <div
+                            class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+
+                            <div class="flex items-center space-x-3 md:w-auto relative">
+                                <button @click="toggleFilterDropdown"
+                                    class="w-full md:w-auto flex items-center justify-center py-2 px-4  text-sm font-medium rounded-lg border bg-white hover:bg-gray-200 dark:bg-slate-700 dark:border-black dark:text-white dark:hover:bg-slate-600"
+                                    id="filterDropdownButton">
+                                    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2"
+                                        viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    Filter by Classification
+                                </button>
+
+                                <div id="filterDropdown" v-show="isFilterDropdownOpen"
+                                    class="absolute top-full right-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-slate-700 dark:text-white overflow-hidden">
+                                    <h6 class="mb-3 text-sm font-medium">Choose Classification</h6>
+                                    <ul class="space-y-2 text-sm">
+                                        <li v-for="classification in classifications" :key="classification.id"
+                                            class="flex items-center">
+                                            <input type="checkbox" :id="classification.id" :value="classification.id"
+                                                v-model="selectedClassifications" class="w-4 h-4" />
+                                            <label :for="classification.id" class="ml-2 text-sm font-medium">{{
+                                                classification.assistance }}</label>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Urgency Filter -->
+                        <div
+                            class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+
+                            <div class="flex items-center space-x-3 md:w-auto relative">
+                                <button @click="toggleUrgencyFilterDropdown"
+                                    class="w-full md:w-auto flex items-center justify-center py-2 px-4  text-sm font-medium rounded-lg border bg-white hover:bg-gray-200 dark:bg-slate-700 dark:border-black dark:text-white dark:hover:bg-slate-600"
+                                    id="urgencyFilterDropdownButton">
+                                    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2"
+                                        viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    Filter by Urgency
+                                </button>
+
+                                <div id="urgencyFilterDropdown" v-show="isUrgencyFilterDropdownOpen"
+                                    class="absolute top-full right-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-slate-700 dark:text-white overflow-hidden">
+                                    <h6 class="mb-3 text-sm font-medium">Choose Urgency</h6>
+                                    <ul class="space-y-2 text-sm">
+                                        <li v-for="urgency in urgencies" :key="urgency.id" class="flex items-center">
+                                            <input type="checkbox" :id="'urgency-' + urgency.id" :value="urgency.id"
+                                                v-model="selectedUrgencies" class="w-4 h-4" />
+                                            <label :for="'urgency-' + urgency.id" class="ml-2 text-sm font-medium">{{
+                                                urgency.urgency }}</label>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div v-if="isLoading" class="flex justify-center">
-                    <Loader1 />
-                </div>
-
-                <table v-else class="w-full text-sm text-left">
+                <table class="w-full text-sm text-left">
                     <thead class="text-xs uppercase bg-teal-300 text-gray-800 dark:bg-slate-950 dark:text-gray-300">
                         <tr>
                             <th scope="col" class="px-4 py-3">ID</th>
@@ -437,19 +478,22 @@ const isModalOpen = ref(false);
 
                                     <ul class=" text-sm">
                                         <li>
-                                            <RouterLink :to="{ name: 'ReportViewDetails', params: { id: report.id } }"
+                                            <RouterLink @click="passingData(report)"
+                                                :to="{ name: 'ReportViewDetails', params: { id: report.id } }"
                                                 class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
                                                 View Details
                                             </RouterLink>
                                         </li>
                                         <li>
-                                            <RouterLink :to="{ name: 'EditReport', params: { id: report.id } }"
+                                            <RouterLink @click="passingData(report)"
+                                                :to="{ name: 'EditReport', params: { id: report.id } }"
                                                 class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
                                                 Edit Report
                                             </RouterLink>
                                         </li>
                                         <PopupModal Title="Are you sure you want to delete this report?"
-                                            ModalButton="Delete" Icon="cancel" Classes=""
+                                            ModalButton="Delete" Icon="cancel" Classes="" :show="isDeleteModalOpen"
+                                            @update:show="isDeleteModalOpen = $event"
                                             ButtonClass="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
                                             <template #modalContent>
                                                 <div class="p-6 space-x-2">

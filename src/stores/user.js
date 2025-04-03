@@ -13,7 +13,7 @@ const useUserStore = defineStore('user', {
         }
       })
       .then(({data}) => {
-        console.log(data)
+        // console.log(data)
         this.user = data
       })
     }

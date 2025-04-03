@@ -66,6 +66,7 @@ const navigation = [
     { name: 'Report', to: { name: 'ReportTable' }, icon: 'report' },
     { name: 'Barangays', to: { name: 'Barangay' }, icon: 'home' },
     { name: 'Users', to: { name: 'UsersTable' }, icon: 'people' },
+    { name: 'Logs', to: { name: 'Logs' }, icon: 'lock' },
 ];
 
 const isActive = (item) => {
