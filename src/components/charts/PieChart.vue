@@ -3,7 +3,11 @@ import { ref, onMounted, computed, onUnmounted, watch } from 'vue';
 import axiosClient from "../../axios.js";
 import ApexCharts from 'apexcharts';
 
-const selectedCaseFilter = ref("");
+
+const props = defineProps({
+  startDate: String,  // Assuming the date is a string (format YYYY-MM-DD)
+  endDate: String
+});
 
 const data = ref({
   incidentType: '',
@@ -88,36 +92,80 @@ const pieChart = ref(null);
 let chart = null;
 
 const updateChart = () => {
-  console.log(assistance.value);
+  console.log(assistance.value, 'assistance bs');
   console.log(incidents.value);
 
-  // Count occurrences of each incident_id in report
-  const incidentCounts = report.value.reduce((acc, reportItem) => {
-    const incidentId = reportItem.incident_id;
-    acc[incidentId] = (acc[incidentId] || 0) + 1;
-    return acc;
-  }, {});
+  if (!data.value.incidentType) {
+    // 🚀 No filter applied, show all classifications with total report counts
 
-  console.log(incidentCounts, "Incident ID Counts in Reports");
+    // Step 1: **Group Reports by Assistance ID (Classification)**
+    const classificationCounts = report.value.reduce((acc, reportItem) => {
+      // Find the incident related to this report
+      const incident = incidents.value.find(i => i.id === reportItem.incident_id);
+      if (!incident) return acc;
 
-  // **Use filteredIncidents when filtering is applied, otherwise use all incidents**
-  const selectedIncidents = data.value.incidentType ? filteredIncidents.value : incidents.value;
+      // Use assistance_id as the classification key
+      acc[incident.assistance_id] = (acc[incident.assistance_id] || 0) + 1;
+      return acc;
+    }, {});
 
-  // **Filter incidents that have a count of 1 or more**
-  const validIncidents = selectedIncidents.filter(incident => incidentCounts[incident.id] && incidentCounts[incident.id] > 0);
+    console.log("Classification Counts:", classificationCounts);
 
-  // Map valid incidents to their labels and counts
-  const incidentCountsArray = validIncidents.map(incident => incidentCounts[incident.id] || 0);
-  const incidentLabels = validIncidents.map(incident => incident.type);
+    // Step 2: **Extract Labels (Classifications) and Counts**
+    const classificationLabels = Object.keys(classificationCounts)
+      .map(id => {
+        const assist = assistance.value.find(a => a.id === Number(id));
+        return assist ? assist.assistance : undefined;
+      })
+      .filter(label => label !== undefined); // Remove undefined values
 
-  // Update chart data
-  options.value.series = incidentCountsArray;
-  options.value.labels = incidentLabels;
+    const classificationData = Object.keys(classificationCounts)
+      .map(id => classificationCounts[id]);
 
+
+    // Step 3: **Update Chart Data**
+    options.value.series = classificationData;
+    options.value.labels = classificationLabels;
+    console.log("Classification Labels:", classificationLabels);
+  } else {
+    // 🚀 Filter is applied, show incidents under the selected classification
+
+    // Step 1: **Filter incidents based on classification (`incidentType`)**
+    const selectedIncidents = incidents.value.filter(
+      incident => incident.assistance_id === data.value.incidentType
+    );
+
+    console.log("Filtered Incidents:", selectedIncidents);
+
+    // Step 2: **Recalculate `incidentCounts` but only for filtered incidents**
+    const incidentCounts = report.value.reduce((acc, reportItem) => {
+      if (selectedIncidents.some(incident => incident.id === reportItem.incident_id)) {
+        acc[reportItem.incident_id] = (acc[reportItem.incident_id] || 0) + 1;
+      }
+      return acc;
+    }, {});
+
+    console.log("Filtered Incident Counts:", incidentCounts);
+
+    // Step 3: **Map only valid incidents that have a count in reports**
+    const validIncidents = selectedIncidents.filter(incident => incidentCounts[incident.id]);
+
+    // Step 4: **Extract labels and counts**
+    const incidentCountsArray = validIncidents.map(incident => incidentCounts[incident.id] || 0);
+    const incidentLabels = validIncidents.map(incident => incident.type);
+
+    // Step 5: **Update chart data**
+    options.value.series = incidentCountsArray;
+    options.value.labels = incidentLabels;
+  }
+
+  // Step 6: **Update the chart**
   if (chart) {
     chart.updateOptions(options.value);
   }
 };
+
+
 
 watch(() => data.value.incidentType, updateChart);
 
@@ -134,7 +182,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="w-full p-4 bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
+  <div class="w-full p-4 text-gray-800 dark:text-white">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-semibold">Number of Cases</h2>
       <select id="incidentType" v-model="data.incidentType"

@@ -133,11 +133,11 @@ const updateDateRange = ({ start, end }) => {
       <div class="grid grid-cols-3 gap-6">
         <div
           class="col-span-1 p-3 bg-gradient-to-b from-sky-50 dark:from-slate-800 to-transparent rounded-lg shadow-lg">
-          <IncidentGrowthRate :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" />
+          <!-- <IncidentGrowthRate :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" /> -->
         </div>
 
         <div class="col-span-1 p-3 bg-gradient-to-b from-sky-50 dark:from-slate-800 to-transparent rounded-lg shadow-lg">
-          <TotalReportsReceived :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate"/>
+          <!-- <TotalReportsReceived :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate"/> -->
         </div>
 
 
@@ -152,26 +152,26 @@ const updateDateRange = ({ start, end }) => {
       <div class="mt-6 grid grid-cols-2 gap-6">
         <!-- linechart -->
         <div
-          class="p-6 rounded-lg shadow  bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
-          <LineChart />
+          class="p-6 bg-gradient-to-b from-sky-50 dark:from-slate-800 to-transparent rounded-lg shadow-lg">
+          <!-- <LineChart /> -->
         </div>
 
         <div
-          class="p-6 rounded-lg shadow  bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
-          <BarChart :dateRange="selectedDateRange" class="w-full" />
+          class="p-6 bg-gradient-to-b from-sky-50 dark:from-slate-800 to-transparent rounded-lg shadow-lg">
+          <!-- <BarChart :dateRange="selectedDateRange" class="w-full" /> -->
         </div>
       </div>
 
       <div class="mt-6 grid grid-cols-2 gap-6">
         <!-- linechart -->
         <div
-          class="p-6 rounded-lg shadow  bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
+          class="p-6 bg-gradient-to-b from-sky-50 dark:from-slate-800 to-transparent rounded-lg shadow-lg">
           <!-- <LineChart /> -->
-           <!-- <PieChart /> -->
+           <PieChart />
         </div>
 
         <div
-          class="p-6 rounded-lg shadow  bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
+          class="p-6 bg-gradient-to-b from-sky-50 dark:from-slate-800 to-transparent rounded-lg shadow-lg">
           <!-- <RecentIncident /> -->
           
         </div>
