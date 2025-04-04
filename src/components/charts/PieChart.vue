@@ -72,6 +72,10 @@ const options = ref({
     position: "bottom",
     fontSize: "12px",
     floating: false,
+    labels: {
+        colors: "white", // Set legend text color to white
+        useSeriesColors: false, // Ensure it does not override with series colors
+    },
     itemMargin: { horizontal: 5, vertical: 5 },
     markers: { width: 10, height: 10 },
     maxHeight: 100, // Prevent legend from shrinking chart

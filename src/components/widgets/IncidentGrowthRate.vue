@@ -58,7 +58,7 @@ const fetchData = async () => {
         })
         incidents.value = response.data;
         reports.value = response.data.report;
-        console.log(reports.value, 'report data')
+        // console.log(reports.value, 'report data')
     } catch (error) {
         console.error('Error fetching data:', error);
     }
@@ -80,25 +80,25 @@ const getReportCountForMonth = (month, year) => {
 
     const monthIndex = months.indexOf(month) + 1; // Convert to 1-based index (Jan = 1)
     
-    console.log(`🔍 Checking reports for ${month} ${year} (Index: ${monthIndex})`);
+    // console.log(`🔍 Checking reports for ${month} ${year} (Index: ${monthIndex})`);
 
     const filteredReports = reports.value.filter(report => {
         const reportDate = new Date(report.date_received);
         const reportMonth = reportDate.getMonth() + 1;
         const reportYear = reportDate.getFullYear();
 
-        console.log(`📅 Report Date: ${report.date_received} (Month: ${reportMonth}, Year: ${reportYear})`);
+        // console.log(`📅 Report Date: ${report.date_received} (Month: ${reportMonth}, Year: ${reportYear})`);
 
         return reportMonth === monthIndex && reportYear === year;
     });
 
-    console.log(`✅ Found ${filteredReports.length} reports for ${month} ${year}`);
+    // console.log(`✅ Found ${filteredReports.length} reports for ${month} ${year}`);
 
     return filteredReports.length;
 };
 
 
-// Compute Month over Month Growth Rate
+// Compute Month over Month Growth Rate == value2 - value1 / value1 * 100
 const percentageChange = computed(() => {
     const count1 = getReportCountForMonth(selectedMonth1.value, selectedYear1.value);
     const count2 = getReportCountForMonth(selectedMonth2.value, selectedYear2.value);
