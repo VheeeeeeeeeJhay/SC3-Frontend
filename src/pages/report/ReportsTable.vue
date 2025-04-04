@@ -319,7 +319,36 @@ const isFilterContainerOpen = ref(false);
 const toggleFilters = () => {
     isFilterContainerOpen.value = !isFilterContainerOpen.value;
 };
-</script>
+
+
+// store multiple id's
+const selectedReports = ref([]);
+
+const checkboxDelete = async (selectedReports) => {
+    console.log('%cMultiple IDs', 'color: blue', selectedReports);
+
+    try {
+        // Make sure selectedReports is an array of IDs (you may want to sanitize this before sending)
+        const response = await axiosClient.delete('/api/911/report-delete', {
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': import.meta.env.VITE_API_KEY,
+            },
+            data: { data: selectedReports }, // Wrap the IDs in a `data` key
+        });
+
+        // Handle success message
+        console.log(response.data.message); // You can show this success message in the UI
+        success.value = 'Reports deleted successfully!';
+    } catch (error) {
+        // Handle error message
+        console.error('Error deleting data:', error);
+        errors.value = error.response?.data?.message || 'Something went wrong!';
+    }
+};
+
+
+</script>   
 
 <template>
     <section class="w-full min-h-screen p-4">
@@ -327,6 +356,8 @@ const toggleFilters = () => {
         <div class="mt-6 px-2 flex justify-between">
             <h1 class="text-2xl font-bold dark:text-white">Reports Management</h1>
         </div>
+
+        <div>{{ selectedReports }}</div>
 
         <div class="mt-6 w-full">
             <div
@@ -350,6 +381,14 @@ const toggleFilters = () => {
                     <div
                         class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
                         
+                        <div v-if="selectedReports.length > 0">
+                            <button @click="checkboxDelete(selectedReports)" class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-red-500 text-white hover:bg-red-600 dark:bg-red-700 dark:hover:bg-red-600">
+                                <span class="material-icons">
+                                    delete
+                                </span>
+                            </button>
+                        </div>
+
                         <div class="flex items-center space-x-2">
                             <div>
                                 <PopupModal Title="Please select what type of report you want to add" ModalButton="Create Report"
@@ -381,6 +420,8 @@ const toggleFilters = () => {
                             </svg>
                             Filters
                         </button>
+
+                        
                     </div>
                 </div>
 
@@ -486,30 +527,32 @@ const toggleFilters = () => {
                 <table class="w-full text-sm text-left">
                     <thead class="text-xs uppercase bg-teal-300 text-gray-800 dark:bg-slate-950 dark:text-gray-300">
                         <tr>
-                            <th scope="col" class="px-4 py-3">ID</th>
-                            <th scope="col" class="px-4 py-3">Source</th>
-                            <th scope="col" class="px-4 py-3">Assistance</th>
-                            <th scope="col" class="px-4 py-3">Incident/Case</th>
-                            <th scope="col" class="px-4 py-3">Actions Taken</th>
-                            <th scope="col" class="px-4 py-3">Urgency</th>
-                            <th scope="col" class="px-4 py-3">Location</th>
-                            <th scope="col" class="px-4 py-3">Actions</th>
+                            <th scope="col" class="px-4 py-3 text-center"></th>
+                            <th scope="col" class="px-4 py-3 text-center">ID</th>
+                            <th scope="col" class="px-4 py-3 text-center">Source</th>
+                            <th scope="col" class="px-4 py-3 text-center">Assistance</th>
+                            <th scope="col" class="px-4 py-3 text-center">Incident/Case</th>
+                            <th scope="col" class="px-4 py-3 text-center">Actions Taken</th>
+                            <th scope="col" class="px-4 py-3 text-center">Urgency</th>
+                            <th scope="col" class="px-4 py-3 text-center">Location</th>
+                            <th scope="col" class="px-4 py-3 text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="report in paginatedReports" :key="report.id"
                             class="bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700">
-                            <td class="px-4 py-3">{{ report.id }}</td>
-                            <td class="px-4 py-3">{{ report.source.sources }}</td>
-                            <td class="px-4 py-3">{{ report.assistance.assistance }}</td>
-                            <td class="px-4 py-3">{{ report.incident.type }}</td>
-                            <td class="px-4 py-3">{{ report.actions.actions }}</td>
-                            <td class="px-4 py-3"
+                            <td class="px-4 py-3 text-center"><input type="checkbox" :value="report.id" v-model="selectedReports" class="w-4 h-4" /></td>
+                            <td class="px-4 py-3 text-center">{{ report.id }}</td>
+                            <td class="px-4 py-3 text-center">{{ report.source.sources }}</td>
+                            <td class="px-4 py-3 text-center">{{ report.assistance.assistance }}</td>
+                            <td class="px-4 py-3 text-center">{{ report.incident.type }}</td>
+                            <td class="px-4 py-3 text-center">{{ report.actions.actions }}</td>
+                            <td class="px-4 py-3 text-center"
                                 :class="[report.urgency.urgency === 'Emergent' ? 'text-red-500' : report.urgency.urgency === 'Urgent' ? 'text-orange-500' : report.urgency.urgency === 'Less Urgent' ? 'text-yellow-500' : 'text-green-500']">
                                 {{ report.urgency.urgency }}
                             </td>
-                            <td class="px-4 py-3">{{ report.barangay.name }}</td>
-                            <td class="px-4 py-3 flex items-center relative">
+                            <td class="px-4 py-3 text-center">{{ report.barangay.name }}</td>
+                            <td class="px-4 py-3 text-center flex items-center relative">
                                 <button @click.stop="toggleDropdown(report.id)"
                                     class="inline-flex items-center p-0.5 text-sm font-medium rounded-lg">
                                     <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
