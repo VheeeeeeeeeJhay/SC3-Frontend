@@ -278,7 +278,7 @@ dropdownControl.addTo(map);
       legendHTML += `
       <div class="legend-item">
         <span class="legend-circle" style="background: ${markerColor}; width: ${markerSize}px; height: ${markerSize}px;"></span>
-        <span>${step.label} (${step.reports}+ reports)</span>
+        <span>${step.label}</span>
       </div>
     `;
     });
