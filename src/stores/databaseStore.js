@@ -7,9 +7,11 @@ export const useDatabaseStore = defineStore('database', {
     activeUsers: [], // container for fetched users
     archivedUsers: [],
     barangaysList: [],
+    reportsPerBarangay: [],
     reportsList: [],
     classificationsList: [],
     urgenciesList: [],
+    actionsList: [],
     sources: [],
     actions: [],
     incidents: [],
@@ -36,37 +38,38 @@ export const useDatabaseStore = defineStore('database', {
           axiosClient.get('/api/911/report', { headers: { 'x-api-key': API_KEY } }),
         ])
 
+        // axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }),
         this.activeUsers = resActiveUsers.data.filter(user => 
             (user.for_911 === 1 && user.for_inventory === 1) || 
             (user.for_911 === 1 && user.for_inventory === 0) || 
             (user.for_911 === 0 && user.for_inventory === 1)
         );
 
+        // axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }),
         this.archivedUsers = resArchivedUsers.data.filter(user => 
             (user.for_911 === 0 && user.for_inventory === 0)
         );
 
-        this.barangaysList = resBarangays.data;
+        // axiosClient.get('/api/911/barangay', { headers: { 'x-api-key': API_KEY } }),
+        this.barangaysList = resBarangays.data.barangays;
+        // console.log(this.barangaysList, 'barangays');
+        this.reportsPerBarangay = resBarangays.data.reportsPerBarangay;
+        // console.log(this.reportsPerBarangay, 'count per barangay');
+        // console.log(resBarangays.data)
 
+        // axiosClient.get('/api/911/report-display', { headers: { 'x-api-key': API_KEY } }),
         this.reportsList = resReports.data[0];
         this.classificationsList = resReports.data[1];
         this.urgenciesList = resReports.data[2];
-        // console.log(this.reportsList, 'reports');
-        // console.log(this.classificationsList, 'classifications');
+        this.actionsList = resReports.data[3];
 
+        // axiosClient.get('/api/911/report', { headers: { 'x-api-key': API_KEY } }),
         this.sources = resReportDatas.data.sources;
         this.actions = resReportDatas.data.actions;
         this.incidents = resReportDatas.data.incidents;
         this.assistance = resReportDatas.data.assistance;
         this.urgencies = resReportDatas.data.urgencies;
         this.barangays = resReportDatas.data.barangays;
-        // console.log(this.sources, 'sources');
-        // console.log(this.actions, 'actions');
-        // console.log(this.incidents, 'incidents');
-        // console.log(this.assistance, 'assistance');
-        // console.log(this.urgencies, 'urgencies');
-        // console.log(this.barangays, 'barangays');
-
 
       } catch (error) {
         console.error('Error fetching data:', error)

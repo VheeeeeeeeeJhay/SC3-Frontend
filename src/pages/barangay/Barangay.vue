@@ -1,57 +1,66 @@
 <script setup>
-import { ref, onMounted, computed, watch, onBeforeUnmount, inject } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import AddBarangay from './AddBarangay.vue';
 import EditBarangay from './EditBarangay.vue';
 import axiosClient from '../../axios.js';
-import { RouterLink, useRouter } from 'vue-router';
+import { RouterLink } from 'vue-router';
 import Badge from '../../components/Badge.vue';
 import { useDatabaseStore } from '../../stores/databaseStore';
 
-const barangaysList = ref([]);
+// Initialize database store
+const databaseStore = useDatabaseStore();
+// Initialize variables
+let refreshInterval = null;
+
 const message = ref('');
 const errors = ref('');
 
-const databaseStore = useDatabaseStore();
+const barangaysList = ref([]);
+const reportsPerBarangay = ref([]);
 
-let refreshInterval = null;
-
-// const fetchData = async () => {
-//   try {
-//     if (barangays.value.length === 0) {
-//       isLoading.value = true;
-//     }
-//     const response = await axiosClient.get('/api/911/barangay', {
-//       headers: {
-//         'x-api-key': import.meta.env.VITE_API_KEY
-//       }
-//     });
-//     barangays.value = response.data.barangays;
-//   } catch (error) {
-//     console.error('Error fetching data:', error);
-//     message.value = error.response.data.message;
-//     errors.value = error.response.data.error;
-//   } finally {
-//     isLoading.value = false;
-//   }
-// };
-
-
-// watch(() => databaseStore.barangaysList, () => {
-//   barangaysList.value = databaseStore.barangaysList;
-//   console.log('barangays', barangaysList.value);
-// });
+// Watch databaseStore.barangaysList
 watch(() => databaseStore.barangaysList, () => {
-  if (databaseStore.barangaysList && Array.isArray(databaseStore.barangaysList.barangays)) {
-    barangaysList.value = databaseStore.barangaysList.barangays;
+  if (databaseStore.barangaysList && Array.isArray(databaseStore.barangaysList)) {
+    barangaysList.value = databaseStore.barangaysList;
   } else {
     barangaysList.value = []; // Prevent errors if data is not an array
   }
 });
 
+// Watch databaseStore.reportsPerBarangay
+watch(() => databaseStore.reportsPerBarangay, () => {
+  if (databaseStore.reportsPerBarangay && Array.isArray(databaseStore.reportsPerBarangay)) {
+    reportsPerBarangay.value = databaseStore.reportsPerBarangay;
+  } else {
+    reportsPerBarangay.value = []; // Prevent errors if data is not an array
+  }
+});
+
+// ====================
+
+// Create a new computed property for the combined list
+const combinedList = computed(() => {
+  // Ensure both arrays are valid
+  if (Array.isArray(barangaysList.value) && Array.isArray(reportsPerBarangay.value)) {
+
+    return barangaysList.value.map(barangay => {
+      // Find the corresponding report based on matching id/barangay_id
+      const matchingReport = reportsPerBarangay.value.find(report => report.barangay_id === barangay.id);
+
+      return {
+        ...barangay, // Spread the barangay properties
+        report: matchingReport || null // If found, add report; otherwise, null
+      };
+    });
+  }
+  return []; // Return an empty array if data isn't valid
+});
+
+// ===========================
 
 onMounted(() => {
   databaseStore.fetchData();
-  
+
   refreshInterval = setInterval(() => {
     databaseStore.fetchData();
   }, 50000);
@@ -67,78 +76,26 @@ onMounted(() => {
   });
 });
 
-// const computedProperties = {
-//     barangays: "barangaysList",
-// };
-
-// const { 
-//     barangays,
-// } = Object.fromEntries(
-//     Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
-// );
-
 const searchQuery = ref("");
 
-// Computed property for dynamic search and filtering
 // const filteredBarangays = computed(() => {
-//   return barangaysList.value.filter(barangay => {
-//     const barangayName = barangay.name?.toLowerCase() || "";
-//     const barangayId = String(barangay.id)?.toLowerCase() || "";
-//     const barangayLat = String(barangay.latitude)?.toLowerCase() || "";
-//     const barangayLong = String(barangay.longitude)?.toLowerCase() || "";
-//     const query = searchQuery.value.toLowerCase();
-
-//     // Match search query
-//     const matchesSearch = query
-//       ? barangayId.includes(query) ||
-//       barangayName.includes(query) ||
-//       barangayLat.includes(query) ||
-//       barangayLong.includes(query)
-//       : true;
-
-//     return matchesSearch;
-//   });
-// });
-
-
-// const filteredBarangays = computed(() => {
-//   if (!Array.isArray(barangaysList.value)) {
-//     console.error("barangaysList is not an array:", barangaysList.value);
-//     return []; // Prevent errors
-//   }
-//   return barangaysList.value.filter(barangay => {
-//     const query = searchQuery.value.toLowerCase();
-//     return (
-//       barangay.name?.toLowerCase().includes(query) ||
-//       String(barangay.id).toLowerCase().includes(query) ||
-//       String(barangay.latitude || "").toLowerCase().includes(query) ||
-//       String(barangay.longitude || "").toLowerCase().includes(query)
+//   return barangaysList.value
+//     .filter(barangay =>
+//       barangay.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+//       barangay.id.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+//       barangay.latitude.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+//       barangay.longitude.toLowerCase().includes(searchQuery.value.toLowerCase())
 //     );
-//   });
 // });
-
 const filteredBarangays = computed(() => {
-  return barangaysList.value
-    .filter(barangay =>
-      barangay.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      barangay.id.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      barangay.latitude.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      barangay.longitude.toLowerCase().includes(searchQuery.value.toLowerCase())
-    );
+  const query = searchQuery.value.toLowerCase();
+  return combinedList.value.filter(barangay =>
+    (barangay.name ?? "").toLowerCase().includes(query) ||
+    String(barangay.id ?? "").toLowerCase().includes(query) ||
+    String(barangay.latitude ?? "").toLowerCase().includes(query) ||
+    String(barangay.longitude ?? "").toLowerCase().includes(query)
+  );
 });
-// const filteredBarangays = computed(() => {
-//   if (!Array.isArray(databaseStore.barangays)) {
-//     console.error("barangays is NOT an array:", databaseStore.barangays);
-//     return []; // Return an empty array if barangays is not an array
-//   }
-//   return databaseStore.barangays.filter(barangays =>
-//     barangay.name?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-//     barangay.id?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-//     barangay.latitude?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-//     barangay.longitude?.toLowerCase().includes(searchQuery.value.toLowerCase())
-//   );
-// });
-
 
 // Pass The ID To Delete
 const formSubmit = (barangay_Id) => {
@@ -314,6 +271,7 @@ const handlePrint = () => {
     printWindow.close();
   };
 };
+
 </script>
 
 <template>
@@ -348,6 +306,7 @@ const handlePrint = () => {
             <div
               class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
 
+              <!-- Add Barangay Button -->
               <PopupModal Title="Add a new Barangay" ModalButton="Add Barangay" Icon="home" Classes=""
                 :show="isModalOpen" @update:show="isModalOpen = $event"
                 ButtonClass="w-full md:w-auto rounded-lg flex items-center justify-center py-2 px-4 text-sm font-medium focus:outline-none bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
@@ -357,6 +316,8 @@ const handlePrint = () => {
                   </div>
                 </template>
               </PopupModal>
+
+              <!--Generate PDF File Button -->
               <div
                 class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
                 <button @click="handlePrint"
@@ -364,14 +325,23 @@ const handlePrint = () => {
                   Print Barangay
                 </button>
               </div>
+
+              <!-- Filter Button -->
+              <!-- <button @click="toggleFilters"
+                :class="[!isFilterContainerOpen ? 'w-full md:w-auto flex items-center justify-center py-2 px-4  text-sm font-medium rounded-lg border bg-white hover:bg-gray-200 dark:bg-slate-700 dark:border-black dark:text-white dark:hover:bg-slate-600' : 'w-full md:w-auto flex items-center justify-center py-2 px-4  text-sm font-medium rounded-lg border bg-white hover:bg-gray-500 dark:bg-slate-900 dark:border-black dark:text-white dark:hover:bg-slate-600']"
+                id="filterDropdownButton">
+                <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2" viewBox="0 0 20 20"
+                  fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+                    clip-rule="evenodd" />
+                </svg>
+                Date Filter
+              </button> -->
             </div>
           </div>
 
           <div class="">
-            <!-- render loading animation before displaying datatable -->
-             <!-- <div v-if="isLoading" class="flex justify-center">
-              <Loader1 />
-            </div> -->
             <table class="w-full text-sm text-left">
               <thead class="text-xs uppercase dark:bg-slate-900 dark:text-gray-300 bg-teal-300 text-gray-800">
                 <tr>
@@ -379,6 +349,7 @@ const handlePrint = () => {
                   <th scope="col" class="px-4 py-3">Name</th>
                   <th scope="col" class="px-4 py-3">Longitude</th>
                   <th scope="col" class="px-4 py-3">Latitude</th>
+                  <th scope="col" class="px-4 py-3">No. of Cases</th>
                   <th scope="col" class="px-4 py-3">Visit Barangay</th>
                   <th scope="col" class="px-4 py-3">Actions</th>
                 </tr>
@@ -389,13 +360,17 @@ const handlePrint = () => {
 
                   <td class="px-4 py-3 ">{{ barangay.id }}</td>
                   <td class="px-4 py-3 ">{{ barangay.name }}</td>
-                  <td class="px-4 py-3 " v-if="barangay.longitude">{{ barangay.longitude }}</td>
-                  <td class="px-4 py-3 " v-if="!barangay.longitude">
-                    <Badge Message="No Data for Longitude" />
+                  <td class="px-4 py-3">
+                    <span v-if="barangay.longitude">{{ barangay.longitude }}</span>
+                    <Badge v-else Message="No Data for Longitude" />
                   </td>
-                  <td class="px-4 py-3" v-if="barangay.latitude">{{ barangay.latitude }}</td>
-                  <td class="px-4 py-3" v-if="!barangay.latitude">
-                    <Badge Message="No Data for Latitude" />
+                  <td class="px-4 py-3">
+                    <span v-if="barangay.latitude">{{ barangay.latitude }}</span>
+                    <Badge v-else Message="No Data for Latitude" />
+                  </td>
+                  <td class="px-4 py-3">
+                    <span v-if="barangay.report.total_reports">{{ barangay.report.total_reports }}</span>
+                    <Badge v-else Message="No Data for No. of Cases" />
                   </td>
                   <td class="px-4 py-3 text-blue-800 hover:text-blue-600 hover:underline font-bold">
                     <RouterLink :to="`/barangay-statistics/${barangay.id}`">View Incidents</RouterLink>
@@ -425,7 +400,7 @@ const handlePrint = () => {
                           ButtonClass="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
                           <template #modalContent>
                             <div>
-                              <EditBarangay :barangay="barangay" @close="isModalOpen = false"/>
+                              <EditBarangay :barangay="barangay" @close="isModalOpen = false" />
                             </div>
                           </template>
                         </PopupModal>

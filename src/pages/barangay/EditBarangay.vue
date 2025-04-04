@@ -117,7 +117,7 @@ const formSubmit = () => {
         <div class="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-lg w-96">
             <!-- <h2 class="text-xl font-semibold text-gray-900 dark:text-white text-center mb-4">Update Barangay</h2> -->
 
-            <form @submit.prevent="formSubmit" class="space-y-4"><div class="dark:text-white">{{ barangay }}</div><div class="dark:text-white">{{ barangayData }}</div>
+            <form @submit.prevent="formSubmit" class="space-y-4">
                 <!-- Barangay Name -->
                 <div class="space-y-1">
                     <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Barangay Name</label>

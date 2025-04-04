@@ -11,6 +11,7 @@ const searchQuery = ref("");
 const isLoading = ref(false);
 const selectedClassifications = ref([]);
 const selectedUrgencies = ref([]);
+const selectedActions = ref([]);
 
 const databaseStore = useDatabaseStore();
 const store = useArrayStore();
@@ -33,12 +34,14 @@ const computedProperties = {
     reports: "reportsList",
     classifications: "classificationsList",
     urgencies: "urgenciesList",
+    actions: "actionsList",
 };
 
 const {
     reports,
     classifications,
     urgencies,
+    actions,
 } = Object.fromEntries(
     Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
 );
@@ -59,7 +62,10 @@ const filteredReports = computed(() => {
         const matchesUrgency = selectedUrgencies.value.length === 0 ||
             selectedUrgencies.value.includes(report.urgency_id);
 
-        return matchesSearch && matchesClassification && matchesUrgency;
+        const matchesAction = selectedActions.value.length === 0 ||
+            selectedActions.value.includes(report.actions_id);
+
+        return matchesSearch && matchesClassification && matchesUrgency && matchesAction;
     });
 });
 
@@ -93,6 +99,7 @@ const toggleDropdown = (transactionId) => {
 // -----------------------
 const isActionsDropdownOpen = ref(false);
 const isFilterDropdownOpen = ref(false);
+const isActionsFilterDropdownOpen = ref(false);
 const isUrgencyFilterDropdownOpen = ref(false);
 
 const toggleActionsDropdown = () => {
@@ -105,6 +112,9 @@ const toggleFilterDropdown = () => {
 const toggleUrgencyFilterDropdown = () => {
     isUrgencyFilterDropdownOpen.value = !isUrgencyFilterDropdownOpen.value;
 };
+const toggleActionsFilterDropdown = () => {
+    isActionsFilterDropdownOpen.value = !isActionsFilterDropdownOpen.value;
+};
 
 const closeDropdowns = (event) => {
     if (!event.target.closest("#actionsDropdownButton") && !event.target.closest("#actionsDropdown")) {
@@ -112,6 +122,12 @@ const closeDropdowns = (event) => {
     }
     if (!event.target.closest("#filterDropdownButton") && !event.target.closest("#filterDropdown")) {
         isFilterDropdownOpen.value = false;
+    }
+    if (!event.target.closest("#actionsFilterDropdownButton") && !event.target.closest("#actionsFilterDropdown")) {
+        isActionsFilterDropdownOpen.value = false;
+    }
+    if (!event.target.closest("#urgencyFilterDropdownButton") && !event.target.closest("#urgencyFilterDropdown")) {
+        isUrgencyFilterDropdownOpen.value = false;
     }
 };
 
@@ -228,9 +244,9 @@ const handlePrint = async () => {
                         <tr>
                             <th>ID</th>
                             <th>Source</th>
-                            <th>Case Classification</th>
-                            <th>Incident/Case</th>
                             <th>Assistance</th>
+                            <th>Incident/Case</th>
+                            <th>Actions Taken</th>
                             <th>Location</th>
                             <th>Urgency</th>
                         </tr>
@@ -310,26 +326,6 @@ const toggleFilters = () => {
         <!-- Titleee -->
         <div class="mt-6 px-2 flex justify-between">
             <h1 class="text-2xl font-bold dark:text-white">Reports Management</h1>
-
-            <div class="flex items-center space-x-2">
-                <div>
-                    <PopupModal Title="Please select what type of report you want to add" ModalButton="Create Report"
-                        Icon="" Classes="" :show="isModalOpen" @update:show="isModalOpen = $event"
-                        ButtonClass="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
-                        <template #modalContent>
-                            <ChooseReportType />
-                        </template>
-                    </PopupModal>
-                </div>
-                <!-- report button -->
-                <div
-                    class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-                    <button @click="handlePrint"
-                        class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
-                        Print Reports
-                    </button>
-                </div>
-            </div>
         </div>
 
         <div class="mt-6 w-full">
@@ -353,27 +349,45 @@ const toggleFilters = () => {
 
                     <div
                         class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+                        
+                        <div class="flex items-center space-x-2">
+                            <div>
+                                <PopupModal Title="Please select what type of report you want to add" ModalButton="Create Report"
+                                    Icon="" Classes="" :show="isModalOpen" @update:show="isModalOpen = $event"
+                                    ButtonClass="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
+                                    <template #modalContent>
+                                        <ChooseReportType />
+                                    </template>
+                                </PopupModal>
+                            </div>
+                            <!-- report button -->
+                            <div
+                                class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+                                <button @click="handlePrint"
+                                    class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
+                                    Print Reports
+                                </button>
+                            </div>
+                        </div>
+                        
                         <button @click="toggleFilters"
-                        class="w-full md:w-auto flex items-center justify-center py-2 px-4  text-sm font-medium rounded-lg border bg-white hover:bg-gray-200 dark:bg-slate-700 dark:border-black dark:text-white dark:hover:bg-slate-600"
-                        id="filterDropdownButton">
-                        <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2"
-                            viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        Filters
-                    </button>
+                            :class="[!isFilterContainerOpen ? 'w-full md:w-auto flex items-center justify-center py-2 px-4  text-sm font-medium rounded-lg border bg-white hover:bg-gray-200 dark:bg-slate-700 dark:border-black dark:text-white dark:hover:bg-slate-600' : 'w-full md:w-auto flex items-center justify-center py-2 px-4  text-sm font-medium rounded-lg border bg-white hover:bg-gray-500 dark:bg-slate-900 dark:border-black dark:text-white dark:hover:bg-slate-600']"
+                            id="filterDropdownButton">
+                            <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2"
+                                viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            Filters
+                        </button>
                     </div>
                 </div>
 
                 <!-- Filter Button -->
                 <div>
-
                     <div v-show="isFilterContainerOpen" class="flex justify-end mb-3">
-                        <div
-                            class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-
+                        <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
                             <div class="flex items-center space-x-3 md:w-auto relative">
                                 <button @click="toggleFilterDropdown"
                                     class="w-full md:w-auto flex items-center justify-center py-2 px-4  text-sm font-medium rounded-lg border bg-white hover:bg-gray-200 dark:bg-slate-700 dark:border-black dark:text-white dark:hover:bg-slate-600"
@@ -384,12 +398,12 @@ const toggleFilters = () => {
                                             d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
                                             clip-rule="evenodd" />
                                     </svg>
-                                    Filter by Classification
+                                    Assistance
                                 </button>
 
                                 <div id="filterDropdown" v-show="isFilterDropdownOpen"
                                     class="absolute top-full right-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-slate-700 dark:text-white overflow-hidden">
-                                    <h6 class="mb-3 text-sm font-medium">Choose Classification</h6>
+                                    <h6 class="mb-3 text-sm font-medium">Choose Assistance</h6>
                                     <ul class="space-y-2 text-sm">
                                         <li v-for="classification in classifications" :key="classification.id"
                                             class="flex items-center">
@@ -417,7 +431,7 @@ const toggleFilters = () => {
                                             d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
                                             clip-rule="evenodd" />
                                     </svg>
-                                    Filter by Urgency
+                                    Urgency
                                 </button>
 
                                 <div id="urgencyFilterDropdown" v-show="isUrgencyFilterDropdownOpen"
@@ -434,6 +448,38 @@ const toggleFilters = () => {
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Assistance Filter -->
+                        <div
+                            class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+
+                            <div class="flex items-center space-x-3 md:w-auto relative">
+                                <button @click="toggleActionsFilterDropdown"
+                                    class="w-full md:w-auto flex items-center justify-center py-2 px-4  text-sm font-medium rounded-lg border bg-white hover:bg-gray-200 dark:bg-slate-700 dark:border-black dark:text-white dark:hover:bg-slate-600"
+                                    id="actionsFilterDropdownButton">
+                                    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2"
+                                        viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    Actions Taken
+                                </button>
+
+                                <div id="actionsFilterDropdown" v-show="isActionsFilterDropdownOpen"
+                                    class="absolute top-full right-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-slate-700 dark:text-white overflow-hidden">
+                                    <h6 class="mb-3 text-sm font-medium">Choose Actions Taken</h6>
+                                    <ul class="space-y-2 text-sm">
+                                        <li v-for="action in actions" :key="action.id" class="flex items-center">
+                                            <input type="checkbox" :id="'action-' + action.id" :value="action.id"
+                                                v-model="selectedActions" class="w-4 h-4" />
+                                            <label :for="'action-' + action.id" class="ml-2 text-sm font-medium">{{
+                                                action.actions }}</label>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -442,9 +488,9 @@ const toggleFilters = () => {
                         <tr>
                             <th scope="col" class="px-4 py-3">ID</th>
                             <th scope="col" class="px-4 py-3">Source</th>
-                            <th scope="col" class="px-4 py-3">Case Classification</th>
-                            <th scope="col" class="px-4 py-3">Incident/Case</th>
                             <th scope="col" class="px-4 py-3">Assistance</th>
+                            <th scope="col" class="px-4 py-3">Incident/Case</th>
+                            <th scope="col" class="px-4 py-3">Actions Taken</th>
                             <th scope="col" class="px-4 py-3">Urgency</th>
                             <th scope="col" class="px-4 py-3">Location</th>
                             <th scope="col" class="px-4 py-3">Actions</th>
