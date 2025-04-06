@@ -61,12 +61,12 @@ const submit = () => {
         </h1>
       </div>
       <!-- Login Form -->
-      <div class="bg-white p-6 rounded-xl shadow-lg w-80">
+      <div class="bg-white/30 backdrop-blur-[4px] backdrop-saturate-[200%] p-6 rounded-xl shadow-lg w-120 shadow-black">
         <h2 class="text-gray-800 text-lg text-center font-semibold mb-4">Login to your account</h2>
         <Toast v-if="errors.length > 0" :message="errors" />
         <form @submit.prevent="submit" class="flex flex-col gap-4">
           <div>
-            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+            <label for="email" class="block text-sm font-medium text-slate-900">Email</label>
             <input type="email" id="email" v-model="data.email"
               class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
             <p class="text-sm mt-1 text-red-600">
@@ -74,7 +74,7 @@ const submit = () => {
             </p>
           </div>
           <div>
-            <label for="password" class="block text-sm font-medium text-gray-700">
+            <label for="password" class="block text-sm font-medium text-slate-900">
               Password
             </label>
             <input type="password" id="password" v-model="data.password"
@@ -84,7 +84,7 @@ const submit = () => {
             </p>
           </div>
           <button type="submit"
-            :class="[!submitLoading ? 'w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700' : 'w-full bg-blue-900 text-white py-2 rounded-md']"
+            :class="[!submitLoading ? 'w-full shadow-lg bg-teal-600 text-white py-2 rounded-md hover:bg-teal-700' : 'w-full bg-teal-900 text-white py-2 rounded-md']"
             :disabled="submitLoading">
             {{ submitLoading ? 'Logging in...' : 'Login In' }}
           </button>
