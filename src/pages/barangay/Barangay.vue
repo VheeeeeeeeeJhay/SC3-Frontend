@@ -42,10 +42,15 @@ watch(() => databaseStore.reportsPerBarangay, () => {
 const combinedList = computed(() => {
   // Ensure both arrays are valid
   if (Array.isArray(barangaysList.value) && Array.isArray(reportsPerBarangay.value)) {
+    if (!reportsPerBarangay.value || reportsPerBarangay.value.length === 0) {
+      console.log(barangaysList.value)
+      return barangaysList.value;
+    }
 
     return barangaysList.value.map(barangay => {
       // Find the corresponding report based on matching id/barangay_id
       const matchingReport = reportsPerBarangay.value.find(report => report.barangay_id === barangay.id);
+      console.log(matchingReport)
 
       return {
         ...barangay, // Spread the barangay properties
@@ -55,6 +60,13 @@ const combinedList = computed(() => {
   }
   return []; // Return an empty array if data isn't valid
 });
+// console.log(combinedList.value)
+// watch(combinedList, (newCombinedList) => {
+//   combinedList.value = newCombinedList;
+//   console.log(combinedList.value);
+// });
+// console.log(combinedList.value)
+
 
 // ===========================
 
@@ -369,7 +381,7 @@ const handlePrint = () => {
                     <Badge v-else Message="No Data for Latitude" />
                   </td>
                   <td class="px-4 py-3">
-                    <span v-if="barangay.report.total_reports">{{ barangay.report.total_reports }}</span>
+                    <span v-if="barangay.report && barangay.report.total_reports">{{ barangay.report.total_reports }}</span>
                     <Badge v-else Message="No Data for No. of Cases" />
                   </td>
                   <td class="px-4 py-3 text-blue-800 hover:text-blue-600 hover:underline font-bold">

@@ -31,12 +31,27 @@ export const useDatabaseStore = defineStore('database', {
           resReports,
           resReportDatas,
         ] = await Promise.all([
-          axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }),
-          axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }),
-          axiosClient.get('/api/911/barangay', { headers: { 'x-api-key': API_KEY } }),
-          axiosClient.get('/api/911/report-display', { headers: { 'x-api-key': API_KEY } }),
-          axiosClient.get('/api/911/report', { headers: { 'x-api-key': API_KEY } }),
-        ])
+          axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }).catch(error => {
+            console.error('Error fetching active users:', error);
+            return { data: [] }; // Default empty data in case of error
+          }),
+          axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }).catch(error => {
+            console.error('Error fetching archived users:', error);
+            return { data: [] }; // Default empty data in case of error
+          }),
+          axiosClient.get('/api/911/barangay', { headers: { 'x-api-key': API_KEY } }).catch(error => {
+            console.error('Error fetching barangays:', error);
+            return { data: { barangays: [], reportsPerBarangay: [] } }; // Default empty data in case of error
+          }),
+          axiosClient.get('/api/911/report-display', { headers: { 'x-api-key': API_KEY } }).catch(error => {
+            console.error('Error fetching report-display:', error);
+            return { data: [] }; // Default empty data in case of error
+          }),
+          axiosClient.get('/api/911/report', { headers: { 'x-api-key': API_KEY } }).catch(error => {
+            console.error('Error fetching report data:', error);
+            return { data: { sources: [], actions: [], incidents: [], assistance: [], urgencies: [], barangays: [] } }; // Default empty data in case of error
+          }),
+        ]);
 
         // axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }),
         this.activeUsers = resActiveUsers.data.filter(user => 
@@ -58,18 +73,18 @@ export const useDatabaseStore = defineStore('database', {
         // console.log(resBarangays.data)
 
         // axiosClient.get('/api/911/report-display', { headers: { 'x-api-key': API_KEY } }),
-        this.reportsList = resReports.data[0];
-        this.classificationsList = resReports.data[1];
-        this.urgenciesList = resReports.data[2];
-        this.actionsList = resReports.data[3];
+        this.reportsList = resReports.data[0] || [];
+        this.classificationsList = resReports.data[1] || [];
+        this.urgenciesList = resReports.data[2] || [];
+        this.actionsList = resReports.data[3] || [];
 
         // axiosClient.get('/api/911/report', { headers: { 'x-api-key': API_KEY } }),
-        this.sources = resReportDatas.data.sources;
-        this.actions = resReportDatas.data.actions;
-        this.incidents = resReportDatas.data.incidents;
-        this.assistance = resReportDatas.data.assistance;
-        this.urgencies = resReportDatas.data.urgencies;
-        this.barangays = resReportDatas.data.barangays;
+        this.sources = resReportDatas.data.sources || [];
+        this.actions = resReportDatas.data.actions || [];
+        this.incidents = resReportDatas.data.incidents || [];
+        this.assistance = resReportDatas.data.assistance || [];
+        this.urgencies = resReportDatas.data.urgencies || [];
+        this.barangays = resReportDatas.data.barangays || [];
 
       } catch (error) {
         console.error('Error fetching data:', error)
