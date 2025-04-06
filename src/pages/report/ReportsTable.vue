@@ -292,6 +292,10 @@ const errors = ref('');
 const success = ref('');
 
 const formSubmit = async (report_Id) => {
+
+    // Close modal
+    isModalOpen.value = false;
+    
     // errors.value = ''; // 🔹 Reset errors before making a request
     await axiosClient.delete(`/api/911/report-delete/${report_Id}`, {
         headers: {
@@ -302,6 +306,7 @@ const formSubmit = async (report_Id) => {
             // Remove the deleted barangay from the list without refreshing the page
             // reports.value = reports.value.filter(b => b.id !== report_Id); // ================================================================ revise
             success.value = 'Report deleted successfully';
+            databaseStore.fetchData();
         })
         .catch(error => {
             console.error('Error deleting report:', error.response?.data);
