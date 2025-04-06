@@ -139,7 +139,7 @@ const closeSidebar = () => {
                             <img src="../../assets/baguio-logo.png" class="h-10 me-3" alt="Smart City Baguio" />
                             <span
                                 class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap text-gray-800 dark:text-white">
-                                SCCC-911 Dashboard
+                                SC3-911 Dashboard
                             </span>
                         </a>
                     </div>

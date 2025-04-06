@@ -6,9 +6,9 @@ import ChooseReportType from '../../components/modal/ChooseReportType.vue';
 import { useDatabaseStore } from '../../stores/databaseStore';
 import logo from '../../assets/baguio-logo.png';
 import { useArrayStore } from '../../stores/arrayStore';
+import DeleteModal from '../../components/modal/DeleteModal.vue';
 
 const searchQuery = ref("");
-const isLoading = ref(false);
 const selectedClassifications = ref([]);
 const selectedUrgencies = ref([]);
 const selectedActions = ref([]);
@@ -324,30 +324,57 @@ const toggleFilters = () => {
 // store multiple id's
 const selectedReports = ref([]);
 
-const checkboxDelete = async (selectedReports) => {
-    console.log('%cMultiple IDs', 'color: blue', selectedReports);
+const removedSplice = (id) => {
+    // Check if there are items in the selectedReports array
+    if (selectedReports.value.length === 1) {
+        const index = selectedReports.value.findIndex(report => report.id === id);
+        
+        if (index > -1) {
+            selectedReports.value.splice(index, 1);
+            
+            // After removing the last item, close the delete modal
+            isDeleteModalOpen.value = false;
+        }
+    } else if (selectedReports.value.length > 1) {
+        const index = selectedReports.value.findIndex(report => report.id === id);
+        
+        if (index > -1) {
+            selectedReports.value.splice(index, 1);
+        }
+    }
+};
+
+const checkboxDelete = async () => {
+    // Close the delete modal
+    isDeleteModalOpen.value = false;
+
+    const selectedIds = selectedReports.value.map(report => report.id);
 
     try {
         // Make sure selectedReports is an array of IDs (you may want to sanitize this before sending)
         const response = await axiosClient.delete('/api/911/report-delete', {
             headers: {
                 'Content-Type': 'application/json',
-                'x-api-key': import.meta.env.VITE_API_KEY,
+                'x-api-key': import.meta.env.VITE_API_KEY
             },
-            data: { data: selectedReports }, // Wrap the IDs in a `data` key
+            data: { data: selectedIds }, // Wrap the IDs in a `data` key
         });
 
         // Handle success message
         console.log(response.data.message); // You can show this success message in the UI
         success.value = 'Reports deleted successfully!';
+
+        // Clear selected reports
+        selectedReports.value = [];
+
+        // Refresh the reports list
+        databaseStore.fetchData();
     } catch (error) {
         // Handle error message
         console.error('Error deleting data:', error);
         errors.value = error.response?.data?.message || 'Something went wrong!';
     }
 };
-
-
 </script>   
 
 <template>
@@ -356,8 +383,6 @@ const checkboxDelete = async (selectedReports) => {
         <div class="mt-6 px-2 flex justify-between">
             <h1 class="text-2xl font-bold dark:text-white">Reports Management</h1>
         </div>
-
-        <div>{{ selectedReports }}</div>
 
         <div class="mt-6 w-full">
             <div
@@ -382,11 +407,45 @@ const checkboxDelete = async (selectedReports) => {
                         class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
                         
                         <div v-if="selectedReports.length > 0">
-                            <button @click="checkboxDelete(selectedReports)" class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-red-500 text-white hover:bg-red-600 dark:bg-red-700 dark:hover:bg-red-600">
-                                <span class="material-icons">
-                                    delete
-                                </span>
-                            </button>
+                            <!-- modal delete -->
+                            <DeleteModal Title="Delete Report" ModalButton="Delete" Icon="delete" Classes=""
+                                :show="isDeleteModalOpen" @update:show="isDeleteModalOpen = $event"
+                                ButtonClass="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-red-500 text-white hover:bg-red-600 dark:bg-red-700 dark:hover:bg-red-600">
+                                <template #modalContent>
+                                    <div class="p-6">
+                                        <p class="text-gray-500 dark:text-gray-300">Are you sure you want to delete the following report/s?</p>
+                                    </div>
+                                    <div class="overflow-x-auto">
+                                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 rounded-lg">
+                                            <thead class="bg-gray-50 dark:bg-gray-900">
+                                                <tr>
+                                                    <th class="px-4 py-1 text-left text-[10px] font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ID</th>
+                                                    <th class="px-4 py-1 text-left text-[10px] font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Source</th>
+                                                    <th class="px-4 py-1 text-left text-[10px] font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Assistance</th>
+                                                    <th class="px-4 py-1 text-left text-[10px] font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Incident Type</th>
+                                                    <th class="px-4 py-1 text-left text-[10px] font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                                                    <th class="px-4 py-1 text-left text-[10px] font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Barangay</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                                <tr v-for="report in selectedReports" :key="report.id" class="dark:bg-gray-700">
+                                                    <td class="px-4 py-1 whitespace-nowrap text-[10px] text-gray-500 dark:text-gray-300">{{ report.id }}</td>
+                                                    <td class="px-4 py-1 whitespace-nowrap text-[10px] text-gray-500 dark:text-gray-300">{{ report.source.sources }}</td>
+                                                    <td class="px-4 py-1 whitespace-nowrap text-[10px] text-gray-500 dark:text-gray-300">{{ report.assistance.assistance }}</td>
+                                                    <td class="px-4 py-1 whitespace-nowrap text-[10px] text-gray-500 dark:text-gray-300">{{ report.incident.type }}</td>
+                                                    <td class="px-4 py-1 whitespace-nowrap text-[10px] text-gray-500 dark:text-gray-300">{{ report.actions.actions }}</td>
+                                                    <td class="px-4 py-1 whitespace-nowrap text-[10px] text-gray-500 dark:text-gray-300">{{ report.barangay.name }}</td>
+                                                    <button @click.prevent="removedSplice(report.id)" class="px-4 py-1 whitespace-nowrap"><span class="hover:text-red-600 text-red-500 text-[10px] material-icons">cancel</span></button>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="flex justify-end gap-2 mt-4">
+                                        <button @click="isDeleteModalOpen = false" class="w-1/2 px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 dark:bg-slate-600 dark:hover:bg-slate-700 dark:text-white">Cancel</button>
+                                        <button @click="checkboxDelete" class="w-1/2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 dark:bg-red-700 dark:hover:bg-red-600">Delete</button>
+                                    </div>
+                                </template>
+                            </DeleteModal>
                         </div>
 
                         <div class="flex items-center space-x-2">
@@ -541,7 +600,7 @@ const checkboxDelete = async (selectedReports) => {
                     <tbody>
                         <tr v-for="report in paginatedReports" :key="report.id"
                             class="bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700">
-                            <td class="px-4 py-3 text-center"><input type="checkbox" :value="report.id" v-model="selectedReports" class="w-4 h-4" /></td>
+                            <td class="px-4 py-3 text-center"><input type="checkbox" :value="report" v-model="selectedReports" class="w-4 h-4" /></td>
                             <td class="px-4 py-3 text-center">{{ report.id }}</td>
                             <td class="px-4 py-3 text-center">{{ report.source.sources }}</td>
                             <td class="px-4 py-3 text-center">{{ report.assistance.assistance }}</td>
@@ -602,7 +661,7 @@ const checkboxDelete = async (selectedReports) => {
 
                 <nav
                     class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">
-                    <span class="text-sm font-normal">Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{
+                    <span class="text-sm font-normal">Showing {{ filteredReports.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }} to {{
                         Math.min(currentPage *
                             itemsPerPage, filteredReports.length) }} of {{ filteredReports.length }}</span>
                     <ul class="inline-flex items-stretch -space-x-px">
