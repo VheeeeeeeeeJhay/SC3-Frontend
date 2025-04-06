@@ -53,7 +53,9 @@ const filteredReports = computed(() => {
             ? report.source.sources.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
             report.assistance.assistance.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
             report.incident.type.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            report.actions.actions.toLowerCase().includes(searchQuery.value.toLowerCase())
+            report.actions.actions.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+            report.barangay.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+            report.urgency.urgency.toLowerCase().includes(searchQuery.value.toLowerCase())
             : true;
 
         const matchesClassification = selectedClassifications.value.length === 0 ||
