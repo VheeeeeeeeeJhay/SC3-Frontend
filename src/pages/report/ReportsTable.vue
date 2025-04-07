@@ -46,7 +46,7 @@ const {
 } = Object.fromEntries(
     Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
 );
-
+console.log('%c', 'color: red', reports, 'reports');
 // Computed property for dynamic search and filtering
 const filteredReports = computed(() => {
     return reports.value.filter(report => {

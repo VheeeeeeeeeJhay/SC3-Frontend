@@ -1,32 +1,36 @@
 <script setup>
-import { ref, onMounted, onUnmounted, watch} from "vue";
-import axiosClient from "../../axios.js";
+import { ref, onMounted, onUnmounted, watch, computed} from "vue";
 import ApexCharts from 'apexcharts';
+import { useDatabaseStore } from '../../stores/databaseStore';
 
-const source = ref([]);
-const report = ref([]);
+let refreshInterval = null;
+const databaseStore = useDatabaseStore();
 
 onMounted(() => {
-  axiosClient.get('/api/911/dashboard', {
-    headers: {
-      'x-api-key': import.meta.env.VITE_API_KEY
-    }
-  })
-    .then((res) => {
-    //   console.log(res, 'bar chart');
-      source.value = res.data.source;
-      report.value = res.data.report;
-    //   console.log(source.value, 'sources data')
-
-      updateChart(); // Update the chart after fetching data
-    })
-    .catch((error) => {
-      console.error('Error fetching data:', error);
-    //   errorMessage.value = 'Failed to load data. Please try again later.';
-    });
+    databaseStore.fetchData();
+    refreshInterval = setInterval(() => {
+        databaseStore.fetchData();
+    }, 50000);
 });
 
+onUnmounted(() => {
+  // Clear the interval when the component is unmounted or page is reloaded
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+  }
+});
 
+const computedProperties = {
+    report: "reportsList",
+    source: "sources",
+};
+
+const {
+    report,
+    source,
+} = Object.fromEntries(
+    Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
+);
 
 const options = ref({
     colors: ["#4A90E2", "#E24A4A", "#4AE24A", "#E2E24A"], // Blue, Red, Green, Yellow
