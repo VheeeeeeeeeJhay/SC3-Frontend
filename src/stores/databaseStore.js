@@ -18,6 +18,7 @@ export const useDatabaseStore = defineStore('database', {
     assistance: [],
     urgencies: [],
     barangays: [],
+    dashboard: [],
   }),
   actions: {
     async fetchData() {
@@ -30,6 +31,7 @@ export const useDatabaseStore = defineStore('database', {
           resBarangays,
           resReports,
           resReportDatas,
+          resDashboard
         ] = await Promise.all([
           axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }).catch(error => {
             console.error('Error fetching active users:', error);
@@ -51,6 +53,10 @@ export const useDatabaseStore = defineStore('database', {
             console.error('Error fetching report data:', error);
             return { data: { sources: [], actions: [], incidents: [], assistance: [], urgencies: [], barangays: [] } }; // Default empty data in case of error
           }),
+          axiosClient.get('/api/911/dashboard', { headers: { 'x-api-key': API_KEY } }).catch(error => {
+            console.error('Error fetching dashboard data:', error);
+            return { data: [] }; // Default empty data in case of error
+          })
         ]);
 
         // axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }),
