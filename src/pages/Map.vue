@@ -573,7 +573,7 @@ const updateGeoJSONStyles = () => {
 <template>
   <div class="h-full w-full">
     <div id="map-wrapper">
-      <div id="map"></div>
+      <div id="map" class="z-10"></div>
     </div>
   </div>
 </template>
