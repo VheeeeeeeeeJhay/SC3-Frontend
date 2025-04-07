@@ -146,7 +146,7 @@ const closeSidebar = () => {
 
                     <!-- user icon -->
                     <div class="flex items-center">
-                        <div class="flex items-center ms-3 relative user-menu">
+                        <div class="flex items-center ms-3 relative z-[99999] user-menu">
                         <button @click.stop="toggleDropdown" type="button"
                             class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-sky-600"
                             aria-expanded="false">
@@ -157,8 +157,9 @@ const closeSidebar = () => {
                         </button>
 
                         <!-- Dropdown Menu -->
+                        <Teleport to="body">
                         <div v-show="dropdownOpen"
-                            class="absolute right-0 top-full mt-2 z-50 w-48 text-base list-none divide-y divide-gray-100 rounded-lg shadow-lg bg-white dark:bg-slate-700 dark:text-white">
+                        class="absolute right-0 top-[60px] mt-2 z-[99999] w-48 text-base list-none divide-y divide-gray-100 rounded-lg shadow-lg bg-white dark:bg-slate-700 dark:text-white">
                             <div class="px-4 py-3">
                             <p class="text-sm text-gray-800 dark:text-white">
                                 {{ user?.firstname || 'Guest' }}
@@ -186,7 +187,9 @@ const closeSidebar = () => {
                             </li>
                             </ul>
                         </div>
+                    </Teleport>
                         </div>
+                        
 
                         <!-- Sign Out Confirmation Modal -->
                         <div v-if="signoutConfirmationVisible" class="fixed inset-0 flex items-center justify-center">
