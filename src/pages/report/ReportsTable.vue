@@ -7,11 +7,15 @@ import { useDatabaseStore } from '../../stores/databaseStore';
 import logo from '../../assets/baguio-logo.png';
 import { useArrayStore } from '../../stores/arrayStore';
 import DeleteModal from '../../components/modal/DeleteModal.vue';
+import DateRangePicker from "../../components/DateRangePicker.vue";
+import monthYearPicker from "../../components/monthYearPicker.vue";
 
 const searchQuery = ref("");
 const selectedClassifications = ref([]);
 const selectedUrgencies = ref([]);
 const selectedActions = ref([]);
+const startDate = ref(null);
+const endDate = ref(null);
 
 const databaseStore = useDatabaseStore();
 const store = useArrayStore();
@@ -67,7 +71,13 @@ const filteredReports = computed(() => {
         const matchesAction = selectedActions.value.length === 0 ||
             selectedActions.value.includes(report.actions_id);
 
-        return matchesSearch && matchesClassification && matchesUrgency && matchesAction;
+        const reportDate = new Date(report.date_received); // Replace `report.date` with your actual date field
+
+        const matchesDateRange =
+            (!startDate.value || reportDate >= new Date(startDate.value)) &&
+            (!endDate.value || reportDate <= new Date(endDate.value));
+
+        return matchesSearch && matchesClassification && matchesUrgency && matchesAction && matchesDateRange;
     });
 });
 
@@ -382,6 +392,12 @@ const checkboxDelete = async () => {
         errors.value = error.response?.data?.message || 'Something went wrong!';
     }
 };
+
+const updateDateRange = ({ start, end }) => {
+  startDate.value = start;
+  endDate.value = end;
+  console.log("Date Range:", startDate.value, endDate.value);
+};
 </script>   
 
 <template>
@@ -442,7 +458,9 @@ const checkboxDelete = async () => {
                                                     <td class="px-4 py-1 whitespace-nowrap text-[10px] text-gray-500 dark:text-gray-300">{{ report.incident.type }}</td>
                                                     <td class="px-4 py-1 whitespace-nowrap text-[10px] text-gray-500 dark:text-gray-300">{{ report.actions.actions }}</td>
                                                     <td class="px-4 py-1 whitespace-nowrap text-[10px] text-gray-500 dark:text-gray-300">{{ report.barangay.name }}</td>
-                                                    <button @click.prevent="removedSplice(report.id)" class="px-4 py-1 whitespace-nowrap"><span class="hover:text-red-600 text-red-500 text-[10px] material-icons">cancel</span></button>
+                                                    <td class="px-4 py-1 whitespace-nowrap">
+                                                        <button @click.prevent="removedSplice(report.id)"><span class="hover:text-red-600 text-red-500 text-[10px] material-icons">cancel</span></button>
+                                                    </td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -493,11 +511,18 @@ const checkboxDelete = async () => {
 
                 <!-- Filter Button -->
                 <div>
-                    <div v-show="isFilterContainerOpen" class="flex justify-end mb-3">
-                        <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-                            <div class="flex items-center space-x-3 md:w-auto relative">
+                    <div v-show="isFilterContainerOpen" class="flex flex-wrap justify-end mb-3 space-x-2">
+
+                        <!-- Date Range Filter -->
+                        <div class="w-full md:w-auto flex flex-col md:flex-row items-stretch md:items-center justify-end flex-shrink-0">
+                            <DateRangePicker class="max-w-xs"  @dateRangeSelected="updateDateRange"/>
+                        </div>
+
+                        <!-- Assistance Filter -->
+                        <div class="w-full md:w-auto flex flex-col md:flex-row items-stretch md:items-center justify-end flex-shrink-0">
+                            <div class="flex items-center md:w-auto relative">
                                 <button @click="toggleFilterDropdown"
-                                    class="w-full md:w-auto flex items-center justify-center py-2 px-4  text-sm font-medium rounded-lg border bg-white hover:bg-gray-200 dark:bg-slate-700 dark:border-black dark:text-white dark:hover:bg-slate-600"
+                                    class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
                                     id="filterDropdownButton">
                                     <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2"
                                         viewBox="0 0 20 20" fill="currentColor">
@@ -509,7 +534,7 @@ const checkboxDelete = async () => {
                                 </button>
 
                                 <div id="filterDropdown" v-show="isFilterDropdownOpen"
-                                    class="absolute top-full right-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-slate-700 dark:text-white overflow-hidden">
+                                    class="absolute top-full right-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-hidden">
                                     <h6 class="mb-3 text-sm font-medium">Choose Assistance</h6>
                                     <ul class="space-y-2 text-sm">
                                         <li v-for="classification in classifications" :key="classification.id"
@@ -526,11 +551,11 @@ const checkboxDelete = async () => {
 
                         <!-- Urgency Filter -->
                         <div
-                            class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+                            class="w-full md:w-auto flex flex-col md:flex-row items-stretch md:items-center justify-end flex-shrink-0">
 
-                            <div class="flex items-center space-x-3 md:w-auto relative">
+                            <div class="flex items-center md:w-auto relative">
                                 <button @click="toggleUrgencyFilterDropdown"
-                                    class="w-full md:w-auto flex items-center justify-center py-2 px-4  text-sm font-medium rounded-lg border bg-white hover:bg-gray-200 dark:bg-slate-700 dark:border-black dark:text-white dark:hover:bg-slate-600"
+                                    class="w-full md:w-auto flex items-center justify-center py-2 px-4  text-sm font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
                                     id="urgencyFilterDropdownButton">
                                     <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2"
                                         viewBox="0 0 20 20" fill="currentColor">
@@ -542,7 +567,7 @@ const checkboxDelete = async () => {
                                 </button>
 
                                 <div id="urgencyFilterDropdown" v-show="isUrgencyFilterDropdownOpen"
-                                    class="absolute top-full right-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-slate-700 dark:text-white overflow-hidden">
+                                    class="absolute top-full right-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-hidden">
                                     <h6 class="mb-3 text-sm font-medium">Choose Urgency</h6>
                                     <ul class="space-y-2 text-sm">
                                         <li v-for="urgency in urgencies" :key="urgency.id" class="flex items-center">
@@ -558,11 +583,11 @@ const checkboxDelete = async () => {
 
                         <!-- Assistance Filter -->
                         <div
-                            class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+                            class="w-full md:w-auto flex flex-col md:flex-row items-stretch md:items-center justify-end flex-shrink-0">
 
-                            <div class="flex items-center space-x-3 md:w-auto relative">
+                            <div class="flex items-center md:w-auto relative">
                                 <button @click="toggleActionsFilterDropdown"
-                                    class="w-full md:w-auto flex items-center justify-center py-2 px-4  text-sm font-medium rounded-lg border bg-white hover:bg-gray-200 dark:bg-slate-700 dark:border-black dark:text-white dark:hover:bg-slate-600"
+                                    class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
                                     id="actionsFilterDropdownButton">
                                     <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2"
                                         viewBox="0 0 20 20" fill="currentColor">
@@ -574,7 +599,7 @@ const checkboxDelete = async () => {
                                 </button>
 
                                 <div id="actionsFilterDropdown" v-show="isActionsFilterDropdownOpen"
-                                    class="absolute top-full right-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-slate-700 dark:text-white overflow-hidden">
+                                    class="absolute top-full right-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-hidden">
                                     <h6 class="mb-3 text-sm font-medium">Choose Actions Taken</h6>
                                     <ul class="space-y-2 text-sm">
                                         <li v-for="action in actions" :key="action.id" class="flex items-center">
@@ -608,7 +633,7 @@ const checkboxDelete = async () => {
                         <tr v-for="report in paginatedReports" :key="report.id"
                             class="bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700">
                             <td class="px-4 py-3 text-center"><input type="checkbox" :value="report" v-model="selectedReports" class="w-4 h-4" /></td>
-                            <td class="px-4 py-3 text-center">{{ report.id }}</td>
+                            <td class="px-4 py-3 text-center">{{ report.date_received }}</td>
                             <td class="px-4 py-3 text-center">{{ report.source.sources }}</td>
                             <td class="px-4 py-3 text-center">{{ report.assistance.assistance }}</td>
                             <td class="px-4 py-3 text-center">{{ report.incident.type }}</td>
@@ -635,14 +660,14 @@ const checkboxDelete = async () => {
                                         <li>
                                             <RouterLink @click="passingData(report)"
                                                 :to="{ name: 'ReportViewDetails', params: { id: report.id } }"
-                                                class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
+                                                class="block px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-slate-600">
                                                 View Details
                                             </RouterLink>
                                         </li>
                                         <li>
                                             <RouterLink @click="passingData(report)"
                                                 :to="{ name: 'EditReport', params: { id: report.id } }"
-                                                class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
+                                                class="block px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-slate-600">
                                                 Edit Report
                                             </RouterLink>
                                         </li>

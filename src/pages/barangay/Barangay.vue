@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed, watch, inject } from 'vue';
 import AddBarangay from './AddBarangay.vue';
 import EditBarangay from './EditBarangay.vue';
 import axiosClient from '../../axios.js';
@@ -17,6 +17,9 @@ const errors = ref('');
 
 const barangaysList = ref([]);
 const reportsPerBarangay = ref([]);
+
+//for toast
+const addToast = inject('addToast');
 
 // Watch databaseStore.barangaysList
 watch(() => databaseStore.barangaysList, () => {
@@ -123,8 +126,9 @@ const formSubmit = (barangay_Id) => {
 
     })
     .catch(error => {
-      addToast(error.response.data.message, 'error', 'error'); // Add error toast
-      console.error(error.response?.data?.errors || 'Failed to delete barangay.', error.response?.data);
+      // addToast(error.response.data.message, 'error', 'error'); // Add error toast
+      // console.error(error.response?.data?.errors || 'Failed to delete barangay.', error.response?.data);
+      console.log('Full error object:', error);
       // errors.value = error.response?.data?.errors || 'Failed to delete barangay.';
     });
 };

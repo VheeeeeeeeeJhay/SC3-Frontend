@@ -33,7 +33,7 @@
     <Teleport to="body">
         <div v-if="show" tabindex="-1" @click.stop
             class="overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 flex justify-center items-center w-full h-full md:inset-0 h-[calc(100%-1rem)] max-h-full bg-black/50 backdrop-blur-md">
-            <div class="relative p-4 w-full max-w-2xl max-h-full">
+            <div class="relative p-4 w-full max-w-4xl max-h-full">
                 <div class="relative bg-sky-50 rounded-lg shadow-sm dark:bg-gray-700">
                     <!-- Close button -->
                     <button @click="closeModal" type="button"
@@ -48,7 +48,7 @@
 
                     <!-- Modal content -->
                     <div
-                        class="p-4 md:p-5 text-center max-w-2xl mx-auto bg-sky-50 dark:bg-slate-900 p-6 rounded-lg shadow-md ">
+                        class="p-4 md:p-5 text-center max-w-4xl mx-auto bg-sky-50 dark:bg-slate-900 p-6 rounded-lg shadow-md ">
                         <span class="mx-auto mb-2 text-gray-400 w-12 h-6 dark:text-gray-200 material-icons"
                             :class="Classes">{{ Icon }}</span>
                         <h2 class="text-2xl font-semibold text-gray-700 dark:text-white mb-4">{{ Title }}</h2>
