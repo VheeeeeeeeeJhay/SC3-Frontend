@@ -185,8 +185,8 @@ const initMap = () => {
             userMarker.value.longitude = newLng;
 
             // Update form inputs
-            storage.value.barangay.latitude = newLat.toFixed(5);
-            storage.value.barangay.longitude = newLng.toFixed(5);
+            data.value.latitude = newLat.toFixed(5);
+            data.value.longitude = newLng.toFixed(5);
         } else {
             alert("You cannot place markers outside Baguio City.");
         }
@@ -390,7 +390,7 @@ const openDatePicker = () => {
                                         Time of Incident
                                         <ToolTip Information="This is the time when the incident occurred." />
                                     </label>
-                                    <input type="time" id="time" v-model="data.time" @click="openTimePicker2"
+                                    <input type="time" id="time" v-model="data.time" @click="openTimePicker2" step="60"
                                         class="appearance-none w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 
                                         bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white pr-10" />
 
@@ -442,7 +442,7 @@ const openDatePicker = () => {
                                             <ToolTip
                                                 Information="This is the longitude of the location where the incident occurred." />
                                         </label>
-                                        <input id="longitude" v-model="data.longitude" placeholder="Enter Longitude"
+                                        <input disabled id="longitude" v-model="data.longitude" placeholder="Enter Longitude"
                                             class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                                     </div>
                                     <div class="form-group">
@@ -451,7 +451,7 @@ const openDatePicker = () => {
                                             <ToolTip
                                                 Information="This is the latitude of the location where the incident occurred." />
                                         </label>
-                                        <input id="latitude" v-model="data.latitude" placeholder="Enter Latitude"
+                                        <input disabled id="latitude" v-model="data.latitude" placeholder="Enter Latitude"
                                             class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                                     </div>
                                 </div>
