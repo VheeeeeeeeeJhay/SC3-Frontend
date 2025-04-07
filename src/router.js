@@ -16,8 +16,8 @@ import AddReport from "./pages/report/AddReport.vue";
 import UsersTable from "./pages/user/UsersTable.vue";
 import ViewRelatedIncidents from "./pages/barangay/ViewRelatedIncidents.vue";
 import ImportFile from "./pages/report/ImportFile.vue";
-import Logs from "./pages/logs/logs.vue";
 import Profile from "./pages/profile/Profile.vue";
+import Tracking from "./pages/tracking/Tracking.vue";
 
 const routes = [
   {
@@ -47,7 +47,7 @@ const routes = [
 
       {path: '/user', name: 'UsersTable', component: UsersTable, meta: { title: 'User Management' }},
 
-      {path: '/logs', name: 'Logs', component: Logs, meta: { title: 'Logs Management' }},
+      {path: '/tracking', name: 'Logs', component: Tracking, meta: { title: 'Logs Management' }},
 
       {path: '/profile', name: 'Profile', component: Profile, meta: { title: 'Profile' }},
     ],

@@ -74,6 +74,7 @@ onMounted(() => {
 
   refreshInterval = setInterval(() => {
     databaseStore.fetchData();
+    console.log(combinedList.value, '%cBookmark', 'color: blue')
   }, 50000);
 
   // Handle click event to close dropdown

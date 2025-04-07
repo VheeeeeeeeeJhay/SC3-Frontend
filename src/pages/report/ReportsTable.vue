@@ -14,6 +14,7 @@ const selectedUrgencies = ref([]);
 const selectedActions = ref([]);
 
 const databaseStore = useDatabaseStore();
+
 const store = useArrayStore();
 const passingData = (report) => {
     store.setData(report);
