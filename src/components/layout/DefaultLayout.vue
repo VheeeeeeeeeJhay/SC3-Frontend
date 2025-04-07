@@ -22,8 +22,6 @@ const toggleTheme = () => {
     }
 };
 
-
-
 onMounted(() => {
     if (localStorage.getItem("theme") === "dark") {
         document.documentElement.classList.add("dark");
@@ -39,15 +37,13 @@ const closeDropdown = (event) => {
     const userMenu = document.querySelector(".user-menu");
     const themeToggle = document.querySelector(".theme-toggle");
 
-    // If the click is inside the menu OR on the theme toggle, do nothing
     if (userMenu.contains(event.target) && !themeToggle.contains(event.target)) {
         return;
     }
 
-    dropdownOpen.value = false; // Close dropdown otherwise
+    dropdownOpen.value = false;
 };
 
-// Attach and remove event listeners when component is mounted/unmounted
 onMounted(() => {
     document.addEventListener("click", closeDropdown);
 });
@@ -59,21 +55,20 @@ const userStore = useUserStore();
 const user = computed(() => userStore.user);
 const route = useRoute();
 
-
+// Define the navigation items
 const navigation = [
     { name: 'Overview', to: { name: 'Overview' }, icon: 'bar_chart' },
     { name: 'Map', to: { name: 'Map' }, icon: 'map' },
     { name: 'Report', to: { name: 'ReportTable' }, icon: 'report' },
     { name: 'Barangays', to: { name: 'Barangay' }, icon: 'home' },
-    { name: 'Users', to: { name: 'UsersTable' }, icon: 'people' },
-    // { name: 'Logs', to: { name: 'Logs' }, icon: 'lock' },
+    { name: 'Users', to: { name: 'UsersTable' }, icon: 'people', requiredRole: 1 }, // Add a requiredRole property for role-based access
+    { name: 'Logs', to: { name: 'Logs' }, icon: 'lock', requiredRole: 1 },
 ];
 
+// Function to check if the item is active
 const isActive = (item) => {
-    // Check if the current route is the exact match
     if (route.name === item.to.name) return true;
     
-    // Check if the route belongs to the parent category (e.g., "ReportTable" includes "ReportAdd")
     if (item.to.name === 'ReportTable' && ['AddReport', 'ReportViewDetails', 'EditReport'].includes(route.name)) {
         return true;
     }
@@ -85,6 +80,15 @@ const isActive = (item) => {
     return false;
 };
 
+// Filter the navigation items based on the user's role
+const filteredNavigation = computed(() => {
+    return navigation.filter(item => {
+        // If no required role, show the item; otherwise, check if the user's role matches
+        if (!item.requiredRole) return true;
+        return user.value?.role === item.requiredRole;
+    });
+});
+
 const logout = () => {
     axiosClient.post('/logout').then(() => {
         router.push({ name: 'Login' });
@@ -92,21 +96,13 @@ const logout = () => {
 };
 
 const signoutConfirmationVisible = ref(false);
-
 const showSignoutConfirmation = () => {
     signoutConfirmationVisible.value = true;
 };
-
 const cancelSignout = () => {
     signoutConfirmationVisible.value = false;
 };
 
-// const toggleSidebar = () => {
-//     sidebarVisible.value = !sidebarVisible.value;
-// };
-// const closeSidebar = () => {
-//     sidebarVisible.value = false;
-// };
 const sidebarVisible = ref(false); // Sidebar state
 
 const toggleSidebar = () => {
@@ -217,12 +213,12 @@ const closeSidebar = () => {
             aria-label="Sidebar">
             <div class="h-full px-3 pb-4 overflow-y-auto">
                 <ul class="space-y-2 font-medium">
-                    <li v-for='item in navigation' :key="item.name">
-                        <RouterLink :to="item.to" :class="[
-                            'flex my-2 items-center p-2 rounded-lg group',
+                    <li v-for='item in filteredNavigation' :key="item.name">
+                        <RouterLink :to="item.to" :class="[ 
+                            'flex my-2 items-center p-2 rounded-lg group', 
                             isActive(item) 
                                 ? 'bg-[#FFFFF0] dark:bg-slate-600 shadow-md'
-                                : 'hover:bg-[#D9D9B3] dark:hover:bg-slate-600'
+                                : 'hover:bg-[#D9D9B3] dark:hover:bg-slate-600' 
                         ]">
                             <span class="material-icons w-5 h-5 transition duration-75" :class="isActive(item)
                                 ? 'text-gray-800 dark:!text-white'

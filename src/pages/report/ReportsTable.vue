@@ -442,6 +442,7 @@ const updateDateRange = ({ start, end }) => {
                                         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 rounded-lg">
                                             <thead class="bg-gray-50 dark:bg-gray-900">
                                                 <tr>
+                                                    <th></th>
                                                     <th class="px-4 py-1 text-left text-[10px] font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ID</th>
                                                     <th class="px-4 py-1 text-left text-[10px] font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Source</th>
                                                     <th class="px-4 py-1 text-left text-[10px] font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Assistance</th>
@@ -452,6 +453,7 @@ const updateDateRange = ({ start, end }) => {
                                             </thead>
                                             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                                 <tr v-for="report in selectedReports" :key="report.id" class="dark:bg-gray-700">
+                                                    <button @click.prevent="removedSplice(report.id)" class="px-4 py-1 whitespace-nowrap"><span class="hover:text-red-600 text-red-500 text-[10px] material-icons">cancel</span></button>
                                                     <td class="px-4 py-1 whitespace-nowrap text-[10px] text-gray-500 dark:text-gray-300">{{ report.id }}</td>
                                                     <td class="px-4 py-1 whitespace-nowrap text-[10px] text-gray-500 dark:text-gray-300">{{ report.source.sources }}</td>
                                                     <td class="px-4 py-1 whitespace-nowrap text-[10px] text-gray-500 dark:text-gray-300">{{ report.assistance.assistance }}</td>

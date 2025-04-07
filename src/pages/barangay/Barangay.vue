@@ -53,7 +53,6 @@ const combinedList = computed(() => {
     return barangaysList.value.map(barangay => {
       // Find the corresponding report based on matching id/barangay_id
       const matchingReport = reportsPerBarangay.value.find(report => report.barangay_id === barangay.id);
-      console.log(matchingReport)
 
       return {
         ...barangay, // Spread the barangay properties
