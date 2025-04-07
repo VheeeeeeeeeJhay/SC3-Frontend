@@ -49,7 +49,7 @@ const {
         </div>
         <RouterLink :to="{ name: 'ReportViewDetails', params: { id: recent.id } }"
             class="block  py-2 hover:italic dark:hover:text-blue-600">
-            View Details
+            View Details>>>
         </RouterLink>
         </div>
     </div>

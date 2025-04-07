@@ -1,7 +1,6 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import ToolTip from '../../components/ToolTip.vue';
-import monthYearPicker from "../monthYearPicker.vue";
 import { useDatabaseStore } from '../../stores/databaseStore';
 
 // Props
