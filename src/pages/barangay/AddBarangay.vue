@@ -16,11 +16,11 @@ const clearData = () => {
   data.value.latitude = '';
 }
 
-const message = ref('');
+// const message = ref('');
 const errors = ref([]);
-const type = ref('');
-const icon = ref('');
-const classes = ref('');
+// const type = ref('');
+// const icon = ref('');
+// const classes = ref('');
 
 const addToast = inject('addToast'); // Inject global toast function
 const emit = defineEmits(['close']);

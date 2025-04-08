@@ -226,12 +226,17 @@ onMounted(() => {
         map.removeLayer(singleMarker);
       }
 
+      if (marker) {
+      map.removeLayer(marker);
+      marker = null;
+    }
+
       // Add a new marker
       singleMarker = leaflet
         .marker([newLat, newLng])
         .addTo(map)
         .bindPopup(
-          `Selected Marker at (<strong>${newLat.toFixed(5)}, ${newLng.toFixed(5)}</strong>)`
+          `Selected Marker at (<strong>${newLat.toFixed(4)}, ${newLng.toFixed(4)}</strong>)`
         )
         .openPopup();
 
@@ -239,8 +244,8 @@ onMounted(() => {
       userMarker.value.latitude = newLat;
       userMarker.value.longitude = newLng;
       // Update form inputs
-      data.value.latitude = newLat.toFixed(6);
-      data.value.longitude = newLng.toFixed(6);
+      data.value.latitude = newLat.toFixed(4);
+      data.value.longitude = newLng.toFixed(4);
 
     } else {
       alert("You cannot place markers outside Baguio City.");

@@ -38,8 +38,8 @@ const data = ref({
     time: storage.value.time,
     barangay: storage.value.barangay.id,
     landmark: storage.value.landmark,
-    longitude: storage.value.barangay.longitude,
-    latitude: storage.value.barangay.latitude,
+    longitude: storage.value.longitude,
+    latitude: storage.value.latitude,
     urgency: storage.value.urgency.id,
 });
 console.log("Data:::::::::::::::::::::::::::::::::::");
@@ -73,7 +73,8 @@ const updateForm = async () => {
         latitude: data.value.latitude,
         urgency_id: data.value.urgency
     };
-    console.log(payload);
+    console.log(data.value.longitude, 'lngitude');
+    console.log(data.value.latitude, 'latitude');
     try {
         axiosClient.put(`/api/911/report/${report_Id}`, payload, {
             headers: {
@@ -161,8 +162,8 @@ const initMap = () => {
     map.setMinZoom(12);
 
     // Place initial marker
-    marker = leaflet.marker([storage.value.barangay.latitude, storage.value.barangay.longitude]).addTo(map)
-        .bindPopup(`Original Marker: (${storage.value.barangay.latitude}, ${storage.value.barangay.longitude})`)
+    marker = leaflet.marker([storage.value.latitude, storage.value.longitude]).addTo(map)
+        .bindPopup(`Original Marker: (${storage.value.latitude}, ${storage.value.longitude})`)
         .openPopup();
 
     map.addEventListener("click", (e) => {
@@ -177,7 +178,7 @@ const initMap = () => {
             // Add a new marker
             marker = leaflet.marker([newLat, newLng])
                 .addTo(map)
-                .bindPopup(`Selected Marker at (<strong>${newLat.toFixed(5)}, ${newLng.toFixed(5)}</strong>)`)
+                .bindPopup(`Selected Marker at (<strong>${newLat.toFixed(4)}, ${newLng.toFixed(4)}</strong>)`)
                 .openPopup();
 
             // Update the stored user marker
@@ -185,8 +186,8 @@ const initMap = () => {
             userMarker.value.longitude = newLng;
 
             // Update form inputs
-            data.value.latitude = newLat.toFixed(5);
-            data.value.longitude = newLng.toFixed(5);
+            data.value.latitude = newLat.toFixed(4);
+            data.value.longitude = newLng.toFixed(4);
         } else {
             alert("You cannot place markers outside Baguio City.");
         }
@@ -222,6 +223,7 @@ watch(() => storage.value.barangay.id, (newBarangayId) => {
     if (selectedBarangay) {
         storage.value.barangay.longitude = selectedBarangay.longitude || '';
         storage.value.barangay.latitude = selectedBarangay.latitude || '';
+
 
         // ✅ Remove Default Marker
         if (singleMarker) {
@@ -442,7 +444,7 @@ const openDatePicker = () => {
                                             <ToolTip
                                                 Information="This is the longitude of the location where the incident occurred." />
                                         </label>
-                                        <input disabled id="longitude" v-model="data.longitude" placeholder="Enter Longitude"
+                                        <input readonly id="longitude" v-model="data.longitude" placeholder="Enter Longitude"
                                             class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                                     </div>
                                     <div class="form-group">
@@ -451,7 +453,7 @@ const openDatePicker = () => {
                                             <ToolTip
                                                 Information="This is the latitude of the location where the incident occurred." />
                                         </label>
-                                        <input disabled id="latitude" v-model="data.latitude" placeholder="Enter Latitude"
+                                        <input readonly id="latitude" v-model="data.latitude" placeholder="Enter Latitude"
                                             class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                                     </div>
                                 </div>
