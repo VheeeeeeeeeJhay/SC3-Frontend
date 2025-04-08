@@ -356,16 +356,17 @@ const checkboxDelete = async () => {
     // Close the delete modal
     isDeleteModalOpen.value = false;
 
-    const selectedIds = selectedReports.value.map(report => report.id);
+    // Get the selected report objects (instead of just IDs)
+    const selectedReportsData = selectedReports.value;
 
     try {
-        // Make sure selectedReports is an array of IDs (you may want to sanitize this before sending)
+        // Send the full reports data
         const response = await axiosClient.delete('/api/911/report-delete', {
             headers: {
                 'Content-Type': 'application/json',
                 'x-api-key': import.meta.env.VITE_API_KEY
             },
-            data: { data: selectedIds }, // Wrap the IDs in a `data` key
+            data: { data: selectedReportsData }, // Pass the full report objects
         });
 
         // Handle success message
