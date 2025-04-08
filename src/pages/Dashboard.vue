@@ -118,71 +118,59 @@ const updateDateRange = ({ start, end }) => {
 
 <template>
   <div class="min-h-screen p-4">
-    <!-- Titleee -->
+    <!-- Title -->
     <div class="mt-6 px-2 flex items-center justify-between">
       <h1 class="text-2xl font-bold dark:text-white">Overview</h1>
       <div class="flex items-center space-x-6">
-      <monthYearPicker class="flex-1" v-model:selectedMonth="selectedMonth1" v-model:selectedYear="selectedYear1"/>
-      <DateRangePicker class="max-w-xs"  @dateRangeSelected="updateDateRange"/>
+        <monthYearPicker class="flex-1" v-model:selectedMonth="selectedMonth1" v-model:selectedYear="selectedYear1" />
+        <DateRangePicker class="max-w-xs" @dateRangeSelected="updateDateRange" />
       </div>
     </div>
-    
 
     <main class="mx-auto my-6 max-w-7xl px-4 sm:px-6 lg:px-8">
 
-      <div class="grid grid-cols-3 gap-6">
-        <div
-          class="col-span-1 p-3 bg-gradient-to-b from-sky-50 dark:from-slate-800 to-transparent rounded-lg shadow-lg">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Incident Growth Rate Card -->
+        <div class="p-4 bg-white dark:bg-black border-4 border-gray-950 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500">
           <IncidentGrowthRate :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" />
         </div>
 
-        <div class="col-span-1 p-3 bg-gradient-to-b from-sky-50 dark:from-slate-800 to-transparent rounded-lg shadow-lg">
-          <TotalReportsReceived :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate"/>
+        <!-- Total Reports Card -->
+        <div class="p-4 bg-white dark:bg-black border-4 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500">
+          <TotalReportsReceived :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" />
         </div>
 
-
-        <div class="col-span-1 p-3 bg-gradient-to-b from-sky-50 dark:from-slate-800 to-transparent rounded-lg shadow-lg">
+        <!-- Top Performing Card -->
+        <div class="p-4 bg-white dark:bg-black border-4 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500">
           <TopPerforming />
         </div>
-        <!-- <div class="col-span-1 p-3 rounded-lg shadow-md bg-sky-50 border border-gray-300 text-gray-800 dark:bg-slate-800 dark:border-gray-700 dark:text-white h-[260px] flex flex-col justify-between">
-          
-        </div> -->
       </div>
 
-      <div class="mt-6 grid grid-cols-2 gap-6">
-        <!-- linechart -->
-        <div
-          class="p-6 bg-gradient-to-b from-sky-50 dark:from-slate-800 to-transparent rounded-lg shadow-lg">
-          <LineChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate"/>
+      <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <!-- Line Chart Card -->
+        <div class="p-4 bg-white dark:bg-black border-4 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500">
+          <LineChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" />
         </div>
 
-        <div
-          class="p-6 bg-gradient-to-b from-sky-50 dark:from-slate-800 to-transparent rounded-lg shadow-lg">
+        <!-- Bar Chart Card -->
+        <div class="p-4 bg-white dark:bg-black border-4 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-400">
           <BarChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" class="w-full h-full" />
-
         </div>
       </div>
 
-      <div class="mt-6 grid grid-cols-2 gap-6">
-        <!-- linechart -->
-        <div
-          class="p-6 bg-gradient-to-b from-sky-50 dark:from-slate-800 to-transparent rounded-lg shadow-lg">
-          <!-- <LineChart /> -->
-           <PieChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate"/>
-
+      <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <!-- Pie Chart Card -->
+        <div class="p-4 bg-white dark:bg-black border-4 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500">
+          <PieChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" />
         </div>
 
-        <div
-          class="p-6 bg-gradient-to-b from-sky-50 dark:from-slate-800 to-transparent rounded-lg shadow-lg text-gray-800 dark:text-white">
+        <!-- Recent Incident Card -->
+        <div class="p-4 bg-white dark:bg-black border-4 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500 text-gray-800 dark:text-white">
           <RecentIncident />
-          
         </div>
       </div>
     </main>
   </div>
-
-
-  
 </template>
 
 <style scoped>
@@ -192,19 +180,14 @@ const updateDateRange = ({ start, end }) => {
 
 .apexcharts-toolbar {
   background-color: black !important;
-  /* Background color */
   color: white !important;
-  /* Text color */
   border-radius: 5px;
-  /* Rounded corners */
   padding: 5px;
 }
 
 .apexcharts-menu {
   background-color: black !important;
-  /* Dropdown menu background */
   color: white !important;
-  /* Dropdown text color */
 }
 
 .apexcharts-menu-item {
@@ -213,5 +196,12 @@ const updateDateRange = ({ start, end }) => {
 
 .apexcharts-menu-item:hover {
   background-color: gray !important;
+}
+
+/* Responsive Design Adjustments */
+@media (max-width: 768px) {
+  .grid-cols-1 {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
