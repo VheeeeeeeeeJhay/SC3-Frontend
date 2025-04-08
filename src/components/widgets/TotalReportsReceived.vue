@@ -86,6 +86,12 @@ watch(() => [props.selectedYear, props.selectedMonth], () => {
   }
 });
 
+watch(reports, (newReports) => {
+  if (newReports && newReports.length) {
+    countReports();
+  }
+});
+
 </script>
 
 <template>
