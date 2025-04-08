@@ -112,8 +112,6 @@ const filteredBarangays = computed(() => {
   );
 });
 
-const addToast = inject('addToast');
-
 // Pass The ID To Delete
 const formSubmit = (barangay_Id) => {
   axiosClient.delete(`/api/911/barangay-delete/${barangay_Id}`, {
