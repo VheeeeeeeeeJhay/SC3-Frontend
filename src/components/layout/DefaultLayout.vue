@@ -58,7 +58,7 @@ const navigation = [
     { name: 'Map', to: { name: 'Map' }, icon: 'map' },
     { name: 'Report', to: { name: 'ReportTable' }, icon: 'report' },
     { name: 'Barangays', to: { name: 'Barangay' }, icon: 'home' },
-    { name: 'Users', to: { name: 'UsersTable' }, icon: 'people', requiredRole: 1 },
+    { name: 'Users', to: { name: 'UsersTable' }, icon: 'people', requiredRole: 1 }, // Add a requiredRole property for role-based access
     { name: 'Logs', to: { name: 'Logs' }, icon: 'lock', requiredRole: 1 },
 ];
 
