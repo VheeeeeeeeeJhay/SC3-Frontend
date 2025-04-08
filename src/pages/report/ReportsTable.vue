@@ -18,6 +18,7 @@ const startDate = ref(null);
 const endDate = ref(null);
 
 const databaseStore = useDatabaseStore();
+
 const store = useArrayStore();
 const passingData = (report) => {
     store.setData(report);
@@ -49,7 +50,7 @@ const {
 } = Object.fromEntries(
     Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
 );
-
+console.log('%c', 'color: red', reports, 'reports');
 // Computed property for dynamic search and filtering
 const filteredReports = computed(() => {
     return reports.value.filter(report => {
@@ -365,16 +366,17 @@ const checkboxDelete = async () => {
     // Close the delete modal
     isDeleteModalOpen.value = false;
 
-    const selectedIds = selectedReports.value.map(report => report.id);
+    // Get the selected report objects (instead of just IDs)
+    const selectedReportsData = selectedReports.value;
 
     try {
-        // Make sure selectedReports is an array of IDs (you may want to sanitize this before sending)
+        // Send the full reports data
         const response = await axiosClient.delete('/api/911/report-delete', {
             headers: {
                 'Content-Type': 'application/json',
                 'x-api-key': import.meta.env.VITE_API_KEY
             },
-            data: { data: selectedIds }, // Wrap the IDs in a `data` key
+            data: { data: selectedReportsData }, // Pass the full report objects
         });
 
         // Handle success message
