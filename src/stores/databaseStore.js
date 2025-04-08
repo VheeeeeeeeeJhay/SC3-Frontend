@@ -18,6 +18,7 @@ export const useDatabaseStore = defineStore('database', {
     assistance: [],
     urgencies: [],
     barangays: [],
+    recents: [],
   }),
   actions: {
     async fetchData() {
@@ -30,6 +31,7 @@ export const useDatabaseStore = defineStore('database', {
           resBarangays,
           resReports,
           resReportDatas,
+          resRecents,
         ] = await Promise.all([
           axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }).catch(error => {
             console.error('Error fetching active users:', error);
@@ -51,6 +53,10 @@ export const useDatabaseStore = defineStore('database', {
             console.error('Error fetching report data:', error);
             return { data: { sources: [], actions: [], incidents: [], assistance: [], urgencies: [], barangays: [] } }; // Default empty data in case of error
           }),
+          axiosClient.get('/api/911/recent', { headers: { 'x-api-key': API_KEY } }).catch(error => {
+            console.error('Error fetching recent data:', error);
+            return { data: [] }; // Default empty data in case of error
+          })
         ]);
 
         // axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }),
@@ -67,10 +73,7 @@ export const useDatabaseStore = defineStore('database', {
 
         // axiosClient.get('/api/911/barangay', { headers: { 'x-api-key': API_KEY } }),
         this.barangaysList = resBarangays.data.barangays;
-        // console.log(this.barangaysList, 'barangays');
         this.reportsPerBarangay = resBarangays.data.reportsPerBarangay;
-        // console.log(this.reportsPerBarangay, 'count per barangay');
-        // console.log(resBarangays.data)
 
         // axiosClient.get('/api/911/report-display', { headers: { 'x-api-key': API_KEY } }),
         this.reportsList = resReports.data[0] || [];
@@ -86,6 +89,13 @@ export const useDatabaseStore = defineStore('database', {
         this.urgencies = resReportDatas.data.urgencies || [];
         this.barangays = resReportDatas.data.barangays || [];
 
+        // axiosClient.get('/api/911/recent', { headers: { 'x-api-key': API_KEY } }),
+        // this.recents = resRecents.data.recents || [];
+        // console.log(this.recents);
+        console.log('Fetched recents:', resRecents.data); // Log the fetched recents data
+
+       this.recents = resRecents.data.recents || [];
+       console.log('Updated recents state:', this.recents); 
       } catch (error) {
         console.error('Error fetching data:', error)
       }

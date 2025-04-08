@@ -77,6 +77,7 @@ onMounted(() => {
 
   refreshInterval = setInterval(() => {
     databaseStore.fetchData();
+    console.log(combinedList.value, '%cBookmark', 'color: blue')
   }, 50000);
 
   // Handle click event to close dropdown
@@ -111,6 +112,8 @@ const filteredBarangays = computed(() => {
   );
 });
 
+const addToast = inject('addToast');
+
 // Pass The ID To Delete
 const formSubmit = (barangay_Id) => {
   axiosClient.delete(`/api/911/barangay-delete/${barangay_Id}`, {
@@ -119,17 +122,16 @@ const formSubmit = (barangay_Id) => {
     }
   })
     .then(response => {
-      fetchData();
       console.log('Barangay deleted successfully');
       addToast(response.data.message, 'success', 'check_circle');
-
+      databaseStore.fetchData();
+      isDeleteModalOpen.value = false;
     })
     .catch(error => {
-      // addToast(error.response.data.message, 'error', 'error'); // Add error toast
-      // console.error(error.response?.data?.errors || 'Failed to delete barangay.', error.response?.data);
-      console.log('Full error object:', error);
-      // errors.value = error.response?.data?.errors || 'Failed to delete barangay.';
-    });
+      console.error('Error deleting data:', error);
+      addToast(error.response.data.message, 'error', 'error'); // Add error toast
+      errors.value = error.response?.data?.message || 'Something went wrong!';
+    })
 };
 
 //for dropdown

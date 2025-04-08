@@ -1,8 +1,7 @@
 <script setup>
-import axiosClient from '../../axios.js';
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import ToolTip from '../../components/ToolTip.vue';
-import monthYearPicker from "../monthYearPicker.vue";
+import { useDatabaseStore } from '../../stores/databaseStore';
 
 // Props
 const props = defineProps({
@@ -10,8 +9,8 @@ const props = defineProps({
   selectedMonth: Number
 });
 
-const incidents = ref([]);
-const reports = ref([]);
+// const incidents = ref([]);
+// const reports = ref([]);
 
 const currentYear = new Date().getFullYear();
 // const currentMonthIndex = new Date().getMonth(); // 0-based index (January = 0)
@@ -47,32 +46,27 @@ watch(() => [props.selectedYear, props.selectedMonth], () => {
   selectedYear2.value = props.selectedYear; // Keep current year
 });
 
-let interval_id = null;
-
-const fetchData = async () => {
-    try {
-        const response = await axiosClient.get('/api/911/dashboard', {
-            headers: {
-                'x-api-key': import.meta.env.VITE_API_KEY
-            }
-        })
-        incidents.value = response.data;
-        reports.value = response.data.report;
-        // console.log(reports.value, 'report data')
-    } catch (error) {
-        console.error('Error fetching data:', error);
-    }
-};
-
+let refreshInterval = null;
+const databaseStore = useDatabaseStore();
 
 onMounted(() => {
-    fetchData();
-    // interval_id = setInterval(fetchData, 5000);
+
+    databaseStore.fetchData();
+    refreshInterval = setInterval(() => {
+        databaseStore.fetchData();
+    }, 50000);
+
 });
 
-onBeforeUnmount(() => {
-    clearInterval(interval_id);
-});
+const computedProperties = {
+    reports: "reportsList",
+};
+
+const {
+    reports,
+} = Object.fromEntries(
+    Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
+);
 
 // Function to count reports for a given month
 const getReportCountForMonth = (month, year) => { 

@@ -1,11 +1,9 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
-import axiosClient from "../../axios.js";
-import DateRangePicker from "../DateRangePicker.vue";
-import monthYearPicker from "../monthYearPicker.vue";
-const totalReports = ref([]); // All reports from API
+import { ref, onMounted, watch } from "vue";
+import { computed } from "vue";
+import { useDatabaseStore } from '../../stores/databaseStore';
+// const totalReports = ref([]); // All reports from API
 const reportCount = ref(0); // Total reports count based on date filter
-const selectedOption = ref("day");
 // const currentYear = new Date().getFullYear();
 // Props
 const props = defineProps({
@@ -20,18 +18,29 @@ const props = defineProps({
 // Watch for prop changes and recalculate reports
 
 // Fetch Data
-const fetchData = async () => {
-  try {
-    const response = await axiosClient.get("/api/911/report-display", {
-      headers: { "x-api-key": import.meta.env.VITE_API_KEY },
-    });
-    totalReports.value = response.data[0]; // Store all reports
-    console.log(totalReports.value.length, "✅ Total Reports Loaded");
-    countReports(); // Count reports after fetching
-  } catch (error) {
-    console.error("Error fetching data:", error);
-  }
+let refreshInterval = null;
+const databaseStore = useDatabaseStore();
+
+onMounted(() => {
+
+    databaseStore.fetchData();
+    refreshInterval = setInterval(() => {
+        databaseStore.fetchData();
+    }, 50000);
+
+});
+
+const computedProperties = {
+    reports: "reportsList",
 };
+
+const {
+    reports,
+} = Object.fromEntries(
+    Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
+);
+
+const totalReports = computed(() => reports.value);
 
 // Function to count reports based on selected filter
 const countReports = () => {
@@ -77,19 +86,6 @@ watch(() => [props.selectedYear, props.selectedMonth], () => {
   }
 });
 
-// Fetch data on mount and refresh every 60s
-onMounted(() => {
-  fetchData();
-  setInterval(fetchData, 60000); // Refresh every 60 seconds
-});
-
-// // Helpers
-// const formatDate = (date) => date.toISOString().split("T")[0]; // Format as YYYY-MM-DD
-
-// const convertToISODate = (dateString) => {
-//   const [month, day, year] = dateString.split("/");
-//   return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-// };
 </script>
 
 <template>
