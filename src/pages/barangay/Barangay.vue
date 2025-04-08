@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, watch, inject } from 'vue';
+import { ref, onMounted, computed, watch, inject, onUnmounted } from 'vue';
 import AddBarangay from './AddBarangay.vue';
 import EditBarangay from './EditBarangay.vue';
 import axiosClient from '../../axios.js';
@@ -11,33 +11,70 @@ import { useDatabaseStore } from '../../stores/databaseStore';
 const databaseStore = useDatabaseStore();
 // Initialize variables
 let refreshInterval = null;
+onMounted(() => {
+  databaseStore.fetchData();
+
+  refreshInterval = setInterval(() => {
+    databaseStore.fetchData();
+    console.log(combinedList.value, '%cBookmark', 'color: blue')
+  }, 50000);
+
+  // Handle click event to close dropdown
+  document.addEventListener("click", (event) => {
+    if (
+      openDropdownId.value !== null &&
+      !dropdownRefs.value[openDropdownId.value]?.contains(event.target)
+    ) {
+      closeDropdown();
+    }
+  });
+});
+
+onUnmounted(() => {
+  // Clear the interval when the component is unmounted or page is reloaded
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+  }
+});
 
 const message = ref('');
 const errors = ref('');
 
-const barangaysList = ref([]);
-const reportsPerBarangay = ref([]);
+// const barangaysList = ref([]);
+// const reportsPerBarangay = ref([]);
 
 //for toast
 const addToast = inject('addToast');
 
-// Watch databaseStore.barangaysList
-watch(() => databaseStore.barangaysList, () => {
-  if (databaseStore.barangaysList && Array.isArray(databaseStore.barangaysList)) {
-    barangaysList.value = databaseStore.barangaysList;
-  } else {
-    barangaysList.value = []; // Prevent errors if data is not an array
-  }
-});
+const computedProperties = {
+  barangaysList: "barangaysList",
+  reportsPerBarangay: "reportsPerBarangay",
+};
 
-// Watch databaseStore.reportsPerBarangay
-watch(() => databaseStore.reportsPerBarangay, () => {
-  if (databaseStore.reportsPerBarangay && Array.isArray(databaseStore.reportsPerBarangay)) {
-    reportsPerBarangay.value = databaseStore.reportsPerBarangay;
-  } else {
-    reportsPerBarangay.value = []; // Prevent errors if data is not an array
-  }
-});
+const {
+  barangaysList,
+  reportsPerBarangay,
+} = Object.fromEntries(
+    Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
+);
+
+// Watch databaseStore.barangaysList
+// watch(() => databaseStore.barangaysList, () => {
+//   if (databaseStore.barangaysList && Array.isArray(databaseStore.barangaysList)) {
+//     barangaysList.value = databaseStore.barangaysList;
+//   } else {
+//     barangaysList.value = []; // Prevent errors if data is not an array
+//   }
+// });
+
+// // Watch databaseStore.reportsPerBarangay
+// watch(() => databaseStore.reportsPerBarangay, () => {
+//   if (databaseStore.reportsPerBarangay && Array.isArray(databaseStore.reportsPerBarangay)) {
+//     reportsPerBarangay.value = databaseStore.reportsPerBarangay;
+//   } else {
+//     reportsPerBarangay.value = []; // Prevent errors if data is not an array
+//   }
+// });
 
 // ====================
 
@@ -72,14 +109,8 @@ const combinedList = computed(() => {
 
 // ===========================
 
+
 onMounted(() => {
-  databaseStore.fetchData();
-
-  refreshInterval = setInterval(() => {
-    databaseStore.fetchData();
-    console.log(combinedList.value, '%cBookmark', 'color: blue')
-  }, 50000);
-
   // Handle click event to close dropdown
   document.addEventListener("click", (event) => {
     if (
@@ -90,6 +121,8 @@ onMounted(() => {
     }
   });
 });
+
+
 
 const searchQuery = ref("");
 

@@ -6,6 +6,7 @@ import {
   watch,
   watchEffect,
   createApp,
+  onUnmounted,
   h,
 } from "vue";
 import axiosClient from "../axios";
@@ -17,46 +18,75 @@ import DateRangePicker from "../components/DateRangePicker.vue";
 import monthYearPicker from "../components/monthYearPicker.vue"; // Import monthYearPicker component
 // Import map.json from assets folder (GeoJSON)
 import mapData from "../assets/map.json"; // Adjust the path as needed
+import { useDatabaseStore } from "../stores/databaseStore";
 
 
 const { coords } = useGeolocation();
-const reports = ref([]);
+// const reports = ref([]);
 const heatmapLayer = ref(null);
 const geojsonLayer = ref(null); // Reference for GeoJSON layer
 let map = null;
 const heatmapPoints = ref([]); // Store report locations
 
+
+let refreshInterval = null;
+const databaseStore = useDatabaseStore();
+
+onMounted(() => {
+    databaseStore.fetchData();
+    refreshInterval = setInterval(() => {
+        databaseStore.fetchData();
+    }, 50000);
+});
+
+onUnmounted(() => {
+  // Clear the interval when the component is unmounted or page is reloaded
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+  }
+});
+
+const computedProperties = {
+    reports: "reportsList",
+};
+
+const {
+    reports,
+} = Object.fromEntries(
+    Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
+);
+
 // Access Pinia store for GeoJSON border visibility
 const mapStore = useMapStore();
 const errors = ref("");
 
-const fetchData = async () => {
-  try {
-    const response = await axiosClient.get("/api/911/report-display", {
-      headers: {
-        "x-api-key": import.meta.env.VITE_API_KEY,
-      },
-    });
-    reports.value = response.data[0] || []; // Ensure reports is an array even if empty
-    console.log("Fetched Reports:", reports.value);
+// const fetchData = async () => {
+//   try {
+//     const response = await axiosClient.get("/api/911/report-display", {
+//       headers: {
+//         "x-api-key": import.meta.env.VITE_API_KEY,
+//       },
+//     });
+//     reports.value = response.data[0] || []; // Ensure reports is an array even if empty
+//     console.log("Fetched Reports:", reports.value);
 
-    // Check if reports have latitude/longitude
-    reports.value.forEach((report) => {
-      if (!report.barangay.latitude || !report.barangay.longitude) {
-        console.warn(`Report missing lat/long: ${JSON.stringify(report)}`);
-      }
-    });
+//     // Check if reports have latitude/longitude
+//     reports.value.forEach((report) => {
+//       if (!report.barangay.latitude || !report.barangay.longitude) {
+//         console.warn(`Report missing lat/long: ${JSON.stringify(report)}`);
+//       }
+//     });
 
-    // updateHeatmap();
-  } catch (error) {
-    console.error("Error fetching reports:", error);
-    errors.value = error.response.data.error;
-  }
-};
+//     // updateHeatmap();
+//   } catch (error) {
+//     console.error("Error fetching reports:", error);
+//     errors.value = error.response.data.error;
+//   }
+// };
 
-onMounted(() => {
-  fetchData();
-});
+// onMounted(() => {
+//   fetchData();
+// });
 
 const startDate = ref(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
 const endDate = ref(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0));
@@ -517,7 +547,7 @@ const addBarangayMarkers = () => {
 // });
 // 🏁 Run when component is mounted
 onMounted(() => {
-  fetchData().then(() => {
+  databaseStore.fetchData().then(() => {
     console.log("🔄 Data fetched, adding markers...");
     addBarangayMarkers();
   });

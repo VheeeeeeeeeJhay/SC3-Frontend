@@ -33,30 +33,37 @@ export const useDatabaseStore = defineStore('database', {
           resReportDatas,
           resRecents,
         ] = await Promise.all([
+
           axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }).catch(error => {
             console.error('Error fetching active users:', error);
             return { data: [] }; // Default empty data in case of error
           }),
+
           axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }).catch(error => {
             console.error('Error fetching archived users:', error);
             return { data: [] }; // Default empty data in case of error
           }),
+
           axiosClient.get('/api/911/barangay', { headers: { 'x-api-key': API_KEY } }).catch(error => {
             console.error('Error fetching barangays:', error);
             return { data: { barangays: [], reportsPerBarangay: [] } }; // Default empty data in case of error
           }),
+
           axiosClient.get('/api/911/report-display', { headers: { 'x-api-key': API_KEY } }).catch(error => {
             console.error('Error fetching report-display:', error);
             return { data: [] }; // Default empty data in case of error
           }),
+
           axiosClient.get('/api/911/report', { headers: { 'x-api-key': API_KEY } }).catch(error => {
             console.error('Error fetching report data:', error);
             return { data: { sources: [], actions: [], incidents: [], assistance: [], urgencies: [], barangays: [] } }; // Default empty data in case of error
           }),
+
           axiosClient.get('/api/911/recent', { headers: { 'x-api-key': API_KEY } }).catch(error => {
             console.error('Error fetching recent data:', error);
             return { data: [] }; // Default empty data in case of error
           })
+
         ]);
 
         // axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }),
@@ -65,6 +72,7 @@ export const useDatabaseStore = defineStore('database', {
             (user.for_911 === 1 && user.for_inventory === 0) || 
             (user.for_911 === 0 && user.for_inventory === 1)
         );
+        console.log(this.activeUsers , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is activeUsers', 'color: blue');
 
         // axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }),
         this.archivedUsers = resArchivedUsers.data.filter(user => 
@@ -73,7 +81,9 @@ export const useDatabaseStore = defineStore('database', {
 
         // axiosClient.get('/api/911/barangay', { headers: { 'x-api-key': API_KEY } }),
         this.barangaysList = resBarangays.data.barangays;
+        console.log(this.barangaysList , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is barangaysList', 'color: yellow');
         this.reportsPerBarangay = resBarangays.data.reportsPerBarangay;
+        console.log(this.reportsPerBarangay , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is reportsPerBarangay', 'color: green');
 
         // axiosClient.get('/api/911/report-display', { headers: { 'x-api-key': API_KEY } }),
         this.reportsList = resReports.data[0] || [];
