@@ -3,13 +3,56 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import viewMap from '../../components/Maps/viewMap.vue';
 import { useArrayStore } from '../../stores/arrayStore';
+import { computed } from 'vue';
 
 const router = useRouter();
-
 const store = useArrayStore();
 const storage = ref({});
 storage.value = store.getData();
 console.log(storage.value);
+
+const props = defineProps({
+  data: Object
+});
+
+const urgencyBannerColor = computed(() => {
+  switch (data.value.urgency) {
+    case 'Emergent':
+      return 'bg-red-600';
+    case 'Urgent':
+      return 'bg-orange-500';
+    case 'Less Urgent':
+      return 'bg-yellow-400 text-black';
+    default:
+      return 'bg-green-600';
+  }
+});
+
+const urgencyBorderColor = computed(() => {
+  switch (data.value.urgency) {
+    case 'Emergent':
+      return 'border-red-600';
+    case 'Urgent':
+      return 'border-orange-500';
+    case 'Less Urgent':
+      return 'border-yellow-400';
+    default:
+      return 'border-green-600';
+  }
+});
+
+const urgencyShadowColor = computed(() => {
+  switch (data.value.urgency) {
+    case 'Emergent':
+      return 'shadow-red-600';
+    case 'Urgent':
+      return 'shadow-orange-500';
+    case 'Less Urgent':
+      return 'shadow-yellow-400';
+    default:
+      return 'shadow-green-600';
+  }
+});
 
 const data = ref({
   name: storage.value.name,
@@ -29,141 +72,84 @@ const data = ref({
 </script>
 
 <template>
-  <div class="min-h-screen p-4">
-    <!-- Titleee -->
-    <div class="mt-6 px-2 flex justify-between">
-      <h1 class="text-2xl font-bold dark:text-white">Report View of Case {{ data.id }}</h1>
-      <Button type="button" name="Back" @click.prevent="router.back()"
-        class="px-3 py-1 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200 flex items-center">
-        <span class="material-icons mr-2"> arrow_back </span>
-        Back
-      </Button>
+ <div class="min-h-screen p-4 text-black dark:text-white bg-white dark:bg-gray-950">
+
+    
+    <!-- Banner Header -->
+    <div
+      :class="[ 
+        'relative w-full h-36 rounded-lg shadow-lg overflow-hidden mb-6 transition-all duration-300', 
+        urgencyBannerColor
+      ]"
+    >
+      <!-- Circuit Background -->
+      <div class="absolute left-0 top-0 w-full h-full bg-cover opacity-20"></div>
+
+      <!-- Angled Accent -->
+      <div class="absolute left-0 top-0 w-250 h-full bg-gradient-to-r from-black/100 to-transparent backdrop-blur-sm"></div>
+
+      <!-- Headline Content -->
+      <div class="relative z-10 p-6">
+        <h1 class="text-7xl font-extrabold uppercase tracking-wide">
+          <span class="text-white">{{ data.incident }}</span>
+        </h1>
+        <p class="mt-2 text-lg text-blue-200">{{ data.barangay }}</p>
+      </div>
     </div>
 
-    <!-- Content Wrapper -->
-    <div class="container mx-auto mt-6 bg-sky-50 dark:bg-slate-800 shadow-md rounded-lg">
-      <div class="flex flex-col md:flex-row">
-        <!-- Left Side: Text Information -->
-        <div class="w-full md:w-1/2 p-6 rounded-lg text-gray-800 dark:text-gray-200">
-          <h2 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Incident Details</h2>
-          
-          <div class="grid grid-cols-2 grid-rows-1 gap-4">
+    <!-- Incident Card -->
+    <div 
+      :class="[
+        'bg-white dark:bg-black/60 text-gray-900 dark:text-white rounded-xl p-6 shadow-xl border-l-4 transition-all duration-300',
+        urgencyBorderColor,
+        urgencyShadowColor
+      ]"
+    >
+      <div class="flex flex-col md:flex-row gap-6">
+        
+        <!-- Left Side: Incident Details -->
+        <div class="md:w-1/2">
+          <h2 class="text-xl font-bold mb-4 border-b border-blue-400 pb-2">Incident Details</h2>
+          <div class="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <div>
-                <span class="font-semibold ">Name:</span>
-                <div
-                  class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">
-                  {{ data.name }}</div>
-              </div>
-              <div>
-                <span class="font-semibold ">Incident Type:</span>
-                <div
-                  class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">
-                  {{ data.incident }}</div>
-              </div>
-              <div>
-                <span class="font-semibold ">Action:</span>
-                <div
-                  class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">
-                  {{ data.actions }}</div>
-              </div>
+              <p><span class="font-semibold text-blue-500 dark:text-blue-300">Name:</span> {{ data.name }}</p>
+              <p><span class="font-semibold text-blue-500 dark:text-blue-300">Incident Type:</span> {{ data.incident }}</p>
+              <p><span class="font-semibold text-blue-500 dark:text-blue-300">Action:</span> {{ data.actions }}</p>
+              <p><span class="font-semibold text-blue-500 dark:text-blue-300">Source:</span> {{ data.source }}</p>
             </div>
             <div>
-              <div>
-                <span class="font-semibold ">Source:</span>
-                <div
-                  class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">
-                  {{ data.source }}</div>
-              </div>
-              <div>
-                <span class="font-semibold ">Incident:</span>
-                <div
-                  class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">
-                  {{ data.incident }}</div>
-              </div>
-              <div>
-                <span class="font-semibold ">Urgency:</span>
-                <div
-                  class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">
-                  {{ data.urgency }}</div>
-              </div>
+              <p><span class="font-semibold text-blue-500 dark:text-blue-300">Urgency:</span> {{ data.urgency }}</p>
+              <p><span class="font-semibold text-blue-500 dark:text-blue-300">Date Received:</span> {{ data.date_received }}</p>
+              <p><span class="font-semibold text-blue-500 dark:text-blue-300">Arrival Time:</span> {{ data.arrival_on_site }}</p>
+              <p><span class="font-semibold text-blue-500 dark:text-blue-300">Incident Time:</span> {{ data.time }}</p>
             </div>
           </div>
 
-          <br>
-          <hr class="border-gray-300 dark:border-gray-700">
-          <br>
+          <div class="border-t border-gray-300 dark:border-gray-600 my-4"></div>
 
-          <div class="grid grid-cols-2 grid-rows-1 gap-4">
+          <div class="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <div>
-                <span class="font-semibold ">Received Date:</span>
-                <div
-                  class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">
-                  {{ data.date_received }}</div>
-              </div>
-              <div>
-                <span class="font-semibold ">Arrival Time:</span>
-                <div
-                  class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">
-                  {{ data.arrival_on_site }}</div>
-              </div>
+              <p><span class="font-semibold text-blue-500 dark:text-blue-300">Barangay:</span> {{ data.barangay }}</p>
+              <p><span class="font-semibold text-blue-500 dark:text-blue-300">Details:</span> {{ data.landmark }}</p>
             </div>
             <div>
-              <div>
-                <span class="font-semibold ">Incident Time:</span>
-                <div
-                  class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">
-                  {{ data.time }}</div>
-              </div>
-            </div>
-          </div>
-
-          <br>
-          <hr class="border-gray-300 dark:border-gray-700">
-          <br>
-
-          <div class="grid grid-cols-2 grid-rows-1 gap-4">
-            <div>
-              <div>
-                <span class="font-semibold ">Barangay:</span>
-                <div
-                  class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">
-                  {{ data.barangay }}</div>
-              </div>
-              <div>
-                <span class="font-semibold ">Details:</span>
-                <div
-                  class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">
-                  {{ data.landmark }}</div>
-              </div>
-            </div>
-            <div>
-              <div>
-                <span class="font-semibold ">Longitude:</span>
-                <div
-                  class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">
-                  {{ data.longitude }}</div>
-              </div>
-              <div>
-                <span class="font-semibold ">Latitude:</span>
-                <div
-                  class="relative p-2 rounded bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-700 dark:to-transparent">
-                  {{ data.latitude }}</div>
-              </div>
+              <p><span class="font-semibold text-blue-500 dark:text-blue-300">Longitude:</span> {{ data.longitude }}</p>
+              <p><span class="font-semibold text-blue-500 dark:text-blue-300">Latitude:</span> {{ data.latitude }}</p>
             </div>
           </div>
         </div>
 
         <!-- Right Side: Map -->
-        <div class="w-full md:w-1/2 flex justify-center items-center mt-6 md:mt-0">
-          <!-- <div id="map" class="rounded-lg shadow-md"></div> -->
-          <viewMap v-if="data.latitude && data.longitude" id="map" class=" z-10 rounded-lg shadow-md"
-            :reportLat="data.latitude" :reportLong="data.longitude" />
+        <div class="md:w-1/2 flex justify-center items-center bg-gray-100 dark:bg-[#0f172a] rounded-lg p-4">
+          <viewMap
+            v-if="data.latitude && data.longitude"
+            :reportLat="data.latitude"
+            :reportLong="data.longitude"
+            class="w-full h-64 rounded-lg shadow-lg"
+          />
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
