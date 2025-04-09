@@ -3,9 +3,10 @@
     import { useRoute, useRouter } from 'vue-router';
     import axiosClient from "../../axios.js";
     
+    const router = useRouter();
     const route = useRoute();
-const token = ref(route.params.token);
-const email = ref(route.query.email);
+    const token = ref(route.params.token);
+    const email = ref(route.query.email);
     
     const dataNewPassword = ref({
         token: token.value,
