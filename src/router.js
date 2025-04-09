@@ -1,6 +1,5 @@
 import {createRouter, createWebHistory} from "vue-router";
 import DefaultLayout from "./components/layout/DefaultLayout.vue";
-import GuestLayout from "./components/layout/GuestLayout.vue";
 import Login from "./pages/auth/Login.vue";
 import Signup from "./pages/auth/Signup.vue";
 import NotFound from "./pages/auth/NotFound.vue";
@@ -18,6 +17,8 @@ import ViewRelatedIncidents from "./pages/barangay/ViewRelatedIncidents.vue";
 import ImportFile from "./pages/report/ImportFile.vue";
 import Profile from "./pages/profile/Profile.vue";
 import Tracking from "./pages/tracking/Tracking.vue";
+import ForgotPassword from "./pages/auth/ForgotPassword.vue";
+import ResetPassword from "./pages/auth/ResetPassword.vue";
 
 const routes = [
   {
@@ -72,6 +73,18 @@ const routes = [
     name: 'Signup',
     component: Signup,
     meta: { title: 'Signup' }
+  },
+  {
+    path: '/forgot-password',
+    name: 'ForgotPassword',
+    component: ForgotPassword,
+    meta: { title: 'Forgot Password' }
+  },
+  {
+    path: '/password-reset/:token',
+    name: 'NewPassword',
+    component: ResetPassword, // ResetPassword for new password form
+    meta: { title: 'New Password' }
   },
   {
     path: '/:pathMatch(.*)*',

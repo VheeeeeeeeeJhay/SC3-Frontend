@@ -95,9 +95,9 @@ const submit = () => {
           </RouterLink>
         </div>
         <div class="text-sm text-center mt-2">
-          <button @click="handleForgotPassword" class="text-blue-600 hover:underline">
+          <RouterLink :to="{ name: 'ForgotPassword' }" class="text-blue-600 hover:underline">
             Forgot Password?
-          </button>
+          </RouterLink>
         </div>
       </div>
     </div>

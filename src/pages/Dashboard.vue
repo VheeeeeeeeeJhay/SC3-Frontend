@@ -114,13 +114,234 @@ const updateDateRange = ({ start, end }) => {
   endDate.value = end;
   console.log("Date Range:", startDate.value, endDate.value);
 };
+
+//for image capture
+// import domtoimage from 'dom-to-image'
+
+// const captureTarget = ref(null)
+// const exportedImageUrl = ref(null)
+
+// const exportAsImage = () => {
+//   if (!captureTarget.value) return;
+
+//   const now = new Date()
+//   const timestamp = now.toISOString().replace(/[:.]/g, '-')
+//   const filename = `Barchart-${timestamp}.png`
+
+//   domtoimage.toPng(captureTarget.value)
+//     .then((dataUrl) => {
+//       // Save dataUrl for preview
+//       exportedImageUrl.value = dataUrl
+
+//       // Trigger download
+//       const link = document.createElement('a')
+//       link.download = filename
+//       link.href = dataUrl
+//       link.click()
+//     })
+//     .catch((error) => {
+//       console.error('oops, something went wrong!', error)
+//     })
+// }
+
+import domtoimage from 'dom-to-image';
+
+// Refs for capture targets
+const captureTarget1 = ref(null);
+const captureTarget2 = ref(null);
+
+// Array to hold the exported image URLs
+const exportedImageUrls = ref([]);
+
+// Export the images from specific capture targets
+const exportAsImage = (chartNumber) => {
+  let captureTarget;
+  
+  // Choose the capture target based on the chartNumber (1 for BarChart, 2 for LineChart)
+  if (chartNumber === 1) {
+    captureTarget = captureTarget1;
+  } else if (chartNumber === 2) {
+    captureTarget = captureTarget2;
+  }
+
+  if (!captureTarget.value) return;
+
+  const now = new Date();
+  const timestamp = now.toISOString().replace(/[:.]/g, '-');
+  const filename = `Chart-${chartNumber}-${timestamp}.png`;
+
+  domtoimage.toPng(captureTarget.value)
+    .then((dataUrl) => {
+      // Store the exported image URL
+      exportedImageUrls.value.push(dataUrl);
+    })
+    .catch((error) => {
+      console.error('Error exporting image:', error);
+    });
+};
+
+// Download specific image from the preview
+const downloadImage = (imageUrl, index) => {
+  const now = new Date();
+  const timestamp = now.toISOString().replace(/[:.]/g, '-');
+  const filename = `Chart-${index + 1}-${timestamp}.png`;
+
+  const link = document.createElement('a');
+  link.download = filename;
+  link.href = imageUrl;
+  link.click();
+};
+
+// Download all images individually
+const downloadAll = () => {
+  if (exportedImageUrls.value.length === 0) return;
+
+  // Loop through each image and download them one by one
+  exportedImageUrls.value.forEach((imageUrl, index) => {
+    const now = new Date();
+    const timestamp = now.toISOString().replace(/[:.]/g, '-');
+    const filename = `Chart-${index + 1}-${timestamp}.png`;
+
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = imageUrl;
+    link.click(); // Trigger the download
+  });
+};
+
+// Handle print functionality (Save as PDF)
+const handlePrint = () => {
+  if (exportedImageUrls.value.length === 0) return;
+
+  const printWindow = window.open('', '_blank', 'width=800,height=600');
+
+  // Construct HTML for the print preview with all images
+  let imagesHtml = exportedImageUrls.value
+    .map((imageUrl) => `<img src="${imageUrl}" alt="Chart" style="width: 100%; max-height: 600px; margin-bottom: 20px;" />`)
+    .join('');
+
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Charts PDF</title>
+        <style>
+          body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+          }
+          img {
+            max-width: 80%;
+            margin-bottom: 20px;
+          }
+        </style>
+      </head>
+      <body>
+        ${imagesHtml}
+      </body>
+    </html>
+  `);
+
+  printWindow.document.close();
+
+  // Wait for images to load before printing
+  printWindow.onload = () => {
+    printWindow.focus();
+    printWindow.print();
+    printWindow.onafterprint = () => {
+      printWindow.close();
+    };
+  };
+};
+
+// Remove a specific image from the preview
+const removeImage = (index) => {
+  exportedImageUrls.value.splice(index, 1);
+};
+
+// Clear all images from the preview
+const clearAllImages = () => {
+  exportedImageUrls.value = [];
+};
 </script>
 
 <template>
+  <div>
+
+    <!-- Separate Export Buttons for Each Chart -->
+    <button 
+      @click="exportAsImage(1)" 
+      class="mt-4 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors duration-300"
+    >
+      Export Bar Chart as Image
+    </button>
+    <button 
+      @click="exportAsImage(2)" 
+      class="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-300"
+    >
+      Export Line Chart as Image
+    </button>
+
+    <!-- Preview Section -->
+    <div v-if="exportedImageUrls.length" class="preview-box">
+      <h3>Preview:</h3>
+      <div class="flex flex-wrap gap-4">
+        <div v-for="(image, index) in exportedImageUrls" :key="index" class="relative">
+          <img 
+            :src="image" 
+            alt="Exported Chart Preview" 
+            class="cursor-pointer transition-transform duration-300 ease-in-out w-24 h-24"
+          />
+          <!-- Download Button for Each Image -->
+          <button 
+            @click="downloadImage(image, index)" 
+            class="absolute top-0 right-0 bg-gray-700 text-white p-1 rounded-full text-xs hover:bg-gray-800 transition-all"
+          >
+            Download
+          </button>
+          <!-- Remove Button for Each Image -->
+          <button 
+            @click="removeImage(index)" 
+            class="absolute top-0 left-0 bg-red-500 text-white p-1 rounded-full text-xs hover:bg-red-600 transition-all"
+          >
+            X
+          </button>
+        </div>
+      </div>
+
+      <!-- Download All Button -->
+      <button 
+        @click="downloadAll" 
+        class="mt-4 bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors duration-300"
+      >
+        Download All Images
+      </button>
+
+      <!-- Save All Images as PDF -->
+      <button 
+        @click="handlePrint" 
+        class="mt-4 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors duration-300" 
+        :disabled="!exportedImageUrls.length"
+      >
+        Save All as PDF
+      </button>
+
+      <!-- Cancel Button to Remove All Images -->
+      <button 
+        @click="clearAllImages" 
+        class="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors duration-300"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
   <div class="min-h-screen p-4">
 
     <TestMail />
-    
+
     <!-- Title -->
     <div class="mt-6 px-2 flex items-center justify-between">
       <h1 class="text-2xl font-bold dark:text-white">Overview</h1>
@@ -151,13 +372,28 @@ const updateDateRange = ({ start, end }) => {
 
       <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
         <!-- Line Chart Card -->
-        <div class="p-4 bg-white dark:bg-black border-4 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500">
-          <LineChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" />
+        <div ref="captureTarget" class="capture-box">
+          <div class="p-4 bg-white dark:bg-black border-4 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500">
+            <LineChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" />
+          </div>
         </div>
 
         <!-- Bar Chart Card -->
-        <div class="p-4 bg-white dark:bg-black border-4 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-400">
-          <BarChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" class="w-full h-full" />
+
+        <!-- 1st -->
+        
+        <div ref="captureTarget1" class="capture-box">
+          <div class="p-4 bg-white dark:bg-black border-4 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-400">
+            <BarChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" class="w-full h-full" />
+          </div>
+        </div>
+        
+        
+        <!-- 2nd -->
+        <div ref="captureTarget2" class="capture-box">
+          <div class="p-4 bg-white dark:bg-black border-4 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-400">
+            <LineChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" />
+          </div>
         </div>
       </div>
 
