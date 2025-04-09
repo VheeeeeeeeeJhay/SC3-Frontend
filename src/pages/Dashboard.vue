@@ -11,7 +11,7 @@ import TotalReportsReceived from "../components/widgets/TotalReportsReceived.vue
 import TopPerforming from "../components/widgets/TopPerforming.vue";
 import DateRangePicker from "../components/DateRangePicker.vue";
 import monthYearPicker from "../components/monthYearPicker.vue";
-
+import TestMail from "../mail/TestMail.vue";
 //import MonthPicker from "vue-month-picker";
 
 // /👾👾👾👾👾👾👾👾/ //
@@ -118,6 +118,9 @@ const updateDateRange = ({ start, end }) => {
 
 <template>
   <div class="min-h-screen p-4">
+
+    <TestMail />
+    
     <!-- Title -->
     <div class="mt-6 px-2 flex items-center justify-between">
       <h1 class="text-2xl font-bold dark:text-white">Overview</h1>
