@@ -1,6 +1,6 @@
 <script setup>
 
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch, } from "vue";
 import axiosClient from "../axios.js";
 import PieChart from "../components/charts/PieChart.vue";
 import LineChart from "../components/charts/LineChart.vue";
@@ -266,25 +266,25 @@ const removeImage = (index) => {
 const clearAllImages = () => {
   exportedImageUrls.value = [];
 };
+
+const showExportMenu = ref(false)
+
+// Toggle the dropdown
+function toggleExportMenu() {
+  showExportMenu.value = !showExportMenu.value
+}
+
+// Optional: Close dropdown if clicked outside
+const dropdownRef = ref(null)
+
+// onClickOutside(dropdownRef, () => {
+//   showExportMenu.value = false
+// })
+
 </script>
 
 <template>
   <div>
-
-    <!-- Separate Export Buttons for Each Chart -->
-    <button 
-      @click="exportAsImage(1)" 
-      class="mt-4 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors duration-300"
-    >
-      Export Bar Chart as Image
-    </button>
-    <button 
-      @click="exportAsImage(2)" 
-      class="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-300"
-    >
-      Export Line Chart as Image
-    </button>
-
     <!-- Preview Section -->
     <div v-if="exportedImageUrls.length" class="preview-box">
       <h3>Preview:</h3>
@@ -340,7 +340,7 @@ const clearAllImages = () => {
   </div>
   <div class="min-h-screen p-4">
 
-    <TestMail />
+    <!-- <TestMail /> -->
 
     <!-- Title -->
     <div class="mt-6 px-2 flex items-center justify-between">
@@ -348,6 +348,31 @@ const clearAllImages = () => {
       <div class="flex items-center space-x-6">
         <monthYearPicker class="flex-1" v-model:selectedMonth="selectedMonth1" v-model:selectedYear="selectedYear1" />
         <DateRangePicker class="max-w-xs" @dateRangeSelected="updateDateRange" />
+        <div class="relative" ref="dropdownRef">
+          <button 
+            @click="toggleExportMenu" 
+            class="bg-gray-700 text-white px-3 py-2 rounded-lg text-sm hover:bg-gray-800"
+          >
+            Export
+          </button>
+
+          <div 
+            v-if="showExportMenu" 
+            class="absolute right-0 mt-2 z-10 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 
+          border border-gray-300 dark:border-gray-700 rounded-lg shadow flex flex-col space-y-1 min-w-[160px"
+          >
+            <button @click="exportAsImage(1)" class="w-full text-left text-sm flex items-center gap-2 px-3 py-2 rounded-md 
+           hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+              <span class="material-icons">bar_chart</span>
+              Bar Chart
+            </button>
+            <button @click="exportAsImage(2)" class="w-full text-left text-sm flex items-center gap-2 px-3 py-2 rounded-md 
+           hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+              <span class="material-icons">show_chart</span>
+              Line Chart
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
