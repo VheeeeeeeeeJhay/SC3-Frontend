@@ -302,8 +302,10 @@ dropdownControl.addTo(map);
       const normalized =
         (step.reports - minReports) / (maxReports - minReports);
       const markerSize = 10 + normalized * 20; // Match marker size logic
-      const hue = 60 - normalized * 60; // Match marker color logic
-      const markerColor = `hsl(${hue}, 100%, 50%)`; // Match gradient color
+      const hue = normalized <= 0.5 
+        ? 120 - normalized * 120 // Green to orange (120 to 60)
+        : 60 - (normalized - 0.5) * 120; // Orange to red (60 to 0)
+      const markerColor = `hsl(${hue}, 100%, 50%)`;
 
       legendHTML += `
       <div class="legend-item">
@@ -520,14 +522,16 @@ const addBarangayMarkers = () => {
       : 0.5; // Default to mid-value if all reports are the same
 
     const markerSize = 15 + normalized * 20; // Size varies from 15px to 30px
-    const hue = 60 - normalized * 60; // From yellow (60) to red (0)
-    const markerColor = `hsl(${hue}, 100%, 50%)`; // Gradient color
+    const hue = 120 - normalized * 120; // From green (120) to red (0)
+    const markerColor = normalized <= 0.5 
+      ? `hsl(${120 - normalized * 120}, 100%, 50%)` // Green to orange
+      : `hsl(${60 - (normalized - 0.5) * 120}, 100%, 50%)`; // Orange to red
 
     const marker = leaflet
       .marker([barangay.latitude, barangay.longitude], {
         icon: leaflet.divIcon({
           className: "custom-marker",
-          html: `<div style="width: ${markerSize}px; height: ${markerSize}px; background-color: ${markerColor}; border-radius: 50%; opacity: 0.7; border: 2px solid white;"></div>`,
+          html: `<div style="width: ${markerSize}px; height: ${markerSize}px; background-color: ${markerColor}; border-radius: 50%; opacity: 0.7; border: 1px solid black;"></div>`,
         }),
       })
       .addTo(map)
