@@ -58,9 +58,6 @@
               <h2 class="text-gray-800 text-lg text-center font-semibold mb-4">
                 Forgot Your Password?
               </h2>
-              <p class="text-sm text-gray-600 mb-4 text-center">
-                Enter your email address to receive a password reset link.
-              </p>
               <form @submit.prevent="submit" class="flex flex-col gap-4">
                 <div>
                   <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
