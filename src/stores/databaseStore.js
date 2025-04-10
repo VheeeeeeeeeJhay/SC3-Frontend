@@ -19,6 +19,7 @@ export const useDatabaseStore = defineStore('database', {
     urgencies: [],
     barangays: [],
     recents: [],
+    logs: [],
   }),
   actions: {
     async fetchData() {
@@ -32,6 +33,7 @@ export const useDatabaseStore = defineStore('database', {
           resReports,
           resReportDatas,
           resRecents,
+          resLogs
         ] = await Promise.all([
 
           axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }).catch(error => {
@@ -62,8 +64,12 @@ export const useDatabaseStore = defineStore('database', {
           axiosClient.get('/api/911/recent', { headers: { 'x-api-key': API_KEY } }).catch(error => {
             console.error('Error fetching recent data:', error);
             return { data: [] }; // Default empty data in case of error
-          })
+          }),
 
+          axiosClient.get('/api/911/tracking', { headers: { 'x-api-key': API_KEY } }).catch(error => {
+            console.error('Error fetching recent data:', error);
+            return { data: [] }; // Default empty data in case of error
+          })
         ]);
 
         // axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }),
@@ -100,12 +106,13 @@ export const useDatabaseStore = defineStore('database', {
         this.barangays = resReportDatas.data.barangays || [];
 
         // axiosClient.get('/api/911/recent', { headers: { 'x-api-key': API_KEY } }),
-        // this.recents = resRecents.data.recents || [];
-        // console.log(this.recents);
-        console.log('Fetched recents:', resRecents.data); // Log the fetched recents data
+        this.recents = resRecents.data.recents || [];
 
-       this.recents = resRecents.data.recents || [];
-       console.log('Updated recents state:', this.recents); 
+        // axiosClient.get('/api/911/tracking', { headers: { 'x-api-key': API_KEY } }),
+        console.log(resLogs.data, '%c++++++++++++++++++++++++++++++++++++++++++++++ this is logs', 'color: red');
+        this.logs = resLogs.data || [];
+        console.log(this.logs , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is logs', 'color: red');
+
       } catch (error) {
         console.error('Error fetching data:', error)
       }

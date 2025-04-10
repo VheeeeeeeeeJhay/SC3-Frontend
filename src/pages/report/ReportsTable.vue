@@ -8,7 +8,6 @@ import logo from '../../assets/baguio-logo.png';
 import { useArrayStore } from '../../stores/arrayStore';
 import DeleteModal from '../../components/modal/DeleteModal.vue';
 import DateRangePicker from "../../components/DateRangePicker.vue";
-import monthYearPicker from "../../components/monthYearPicker.vue";
 
 const searchQuery = ref("");
 const selectedClassifications = ref([]);
