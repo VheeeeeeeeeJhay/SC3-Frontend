@@ -9,21 +9,12 @@ const props = defineProps({
   selectedMonth: Number
 });
 
-// const incidents = ref([]);
-// const reports = ref([]);
-
-const currentYear = new Date().getFullYear();
-// const currentMonthIndex = new Date().getMonth(); // 0-based index (January = 0)
-// const years = Array.from({ length: currentYear - 2019 + 1 }, (_, i) => 2020 + i); // Ensure inclusion of the current year
 
 const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
-// const selectedYear1 = ref(2025);
-// const selectedMonth1 = ref(months[currentMonthIndex === 0 ? 11 : currentMonthIndex - 1]); // Previous month
-// const selectedMonth2 = ref(months[currentMonthIndex]); // Current month
 
 // 🎯 Adjust selected months and years correctly
 const selectedMonth2 = ref(months[props.selectedMonth - 1]); // Current month
@@ -35,8 +26,8 @@ const selectedYear1 = ref(
 );
 const selectedYear2 = ref(props.selectedYear); // Keep the current year
 
-console.log(`📆 Previous Month: ${selectedMonth1.value}, Year: ${selectedYear1.value}`);
-console.log(`📆 Current Month: ${selectedMonth2.value}, Year: ${selectedYear2.value}`);
+// console.log(`📆 Previous Month: ${selectedMonth1.value}, Year: ${selectedYear1.value}`);
+// console.log(`📆 Current Month: ${selectedMonth2.value}, Year: ${selectedYear2.value}`);
 
 // Update values when props change
 watch(() => [props.selectedYear, props.selectedMonth], () => {
@@ -101,15 +92,6 @@ const percentageChange = computed(() => {
 
     return ((count2 - count1) / count1) * 100;
 });
-
-
-
-// const formatDate = (date) => date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
-
-// const currentDate = ref(new Date());
-// const selectedEndDate = ref(formatDate(new Date())); // Current day
-// const selectedStartDate = ref(formatDate(new Date(new Date().setDate(new Date().getDate() - 6)))); // 6 days ago
-// const selectedDateRange = ref({ start: selectedStartDate.value, end: selectedEndDate.value });
 </script>
 
 <template>
