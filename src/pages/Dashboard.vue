@@ -353,18 +353,18 @@ const clearAllImages = () => {
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- Incident Growth Rate Card -->
-        <div class="p-4 bg-white dark:bg-black border-4 border-gray-950 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500">
-          <IncidentGrowthRate :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" />
+        <div class="p-4 bg-white dark:bg-black border-2 border-gray-950 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500">
+          <!-- <IncidentGrowthRate :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" /> -->
         </div>
 
         <!-- Total Reports Card -->
-        <div class="p-4 bg-white dark:bg-black border-4 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500">
+        <div class="p-4 bg-white dark:bg-black border-2 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500">
           <TotalReportsReceived :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" />
         </div>
 
         <!-- Top Performing Card -->
-        <div class="p-4 bg-white dark:bg-black border-4 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500">
-          <TopPerforming />
+        <div class="p-4 bg-white dark:bg-black border-2 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500">
+          <TopPerforming :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" />
         </div>
       </div>
 
@@ -378,21 +378,21 @@ const clearAllImages = () => {
 
         <!-- Bar Chart Card -->
         <div ref="captureTarget1" class="capture-box">
-          <div class="p-4 bg-white dark:bg-black border-4 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-400">
-            <BarChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" class="w-full h-full" />
+          <div class="p-4 bg-white dark:bg-black border-2 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-400">
+            <!-- <BarChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" class="w-full h-full" /> -->
           </div>
         </div>
       </div>
 
       <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
         <!-- Pie Chart Card -->
-        <div class="p-4 bg-white dark:bg-black border-4 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500">
-          <PieChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" />
+        <div class="p-4 bg-white dark:bg-black border-2 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500">
+          <!-- <PieChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" /> -->
         </div>
 
         <!-- Recent Incident Card -->
-        <div class="p-4 bg-white dark:bg-black border-4 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500 text-gray-800 dark:text-white">
-          <RecentIncident />
+        <div class="p-4 bg-white dark:bg-black border-2 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500 text-gray-800 dark:text-white">
+          <!-- <RecentIncident /> -->
         </div>
       </div>
     </main>
