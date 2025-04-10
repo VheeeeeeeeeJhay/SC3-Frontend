@@ -340,8 +340,6 @@ const clearAllImages = () => {
   </div>
   <div class="min-h-screen p-4">
 
-    <TestMail />
-
     <!-- Title -->
     <div class="mt-6 px-2 flex items-center justify-between">
       <h1 class="text-2xl font-bold dark:text-white">Overview</h1>
@@ -372,27 +370,16 @@ const clearAllImages = () => {
 
       <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
         <!-- Line Chart Card -->
-        <div ref="captureTarget" class="capture-box">
+        <div ref="captureTarget2" class="capture-box">
           <div class="p-4 bg-white dark:bg-black border-4 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500">
             <LineChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" />
           </div>
         </div>
 
         <!-- Bar Chart Card -->
-
-        <!-- 1st -->
-        
         <div ref="captureTarget1" class="capture-box">
           <div class="p-4 bg-white dark:bg-black border-4 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-400">
             <BarChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" class="w-full h-full" />
-          </div>
-        </div>
-        
-        
-        <!-- 2nd -->
-        <div ref="captureTarget2" class="capture-box">
-          <div class="p-4 bg-white dark:bg-black border-4 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-400">
-            <LineChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" />
           </div>
         </div>
       </div>

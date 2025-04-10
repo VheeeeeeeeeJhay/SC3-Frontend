@@ -599,10 +599,159 @@ const updateGeoJSONStyles = () => {
     });
   }
 };
+
+import domtoimage from 'dom-to-image';
+
+// Refs
+const captureTarget = ref(null);
+const exportedImageUrl = ref(null);
+
+// Capture the map area as an image
+const exportAsImage = () => {
+  if (!captureTarget.value) return;
+
+  const now = new Date();
+  const timestamp = now.toISOString().replace(/[:.]/g, '-');
+  const filename = `Map-Capture-${timestamp}.png`;
+
+  domtoimage.toPng(captureTarget.value)
+    .then((dataUrl) => {
+      // Save the data URL for preview
+      exportedImageUrl.value = dataUrl;
+    })
+    .catch((error) => {
+      console.error('Error capturing image!', error);
+    });
+};
+
+// Capture the image when the button is clicked
+const captureImage = () => {
+  exportAsImage();
+};
+
+// Remove the captured image
+const removeImage = (event) => {
+  event.stopPropagation();  // Prevent the button click from firing
+  exportedImageUrl.value = null;
+};
+
+// Download the captured image
+const downloadImage = () => {
+  if (!exportedImageUrl.value) return;
+
+  const now = new Date();
+  const timestamp = now.toISOString().replace(/[:.]/g, '-');
+  const filename = `Map-Capture-${timestamp}.png`;
+
+  const link = document.createElement('a');
+  link.download = filename;
+  link.href = exportedImageUrl.value;
+  link.click();
+};
+
+// Generate PDF with the captured image
+const generatePdf = () => {
+  if (!exportedImageUrl.value) return;
+
+  const printWindow = window.open('', '_blank', 'width=800,height=600');
+
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Print Map as PDF</title>
+        <style>
+          body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+          }
+          img {
+            max-width: 100%;
+            max-height: 100%;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>Captured Map</h1>
+        <img src="${exportedImageUrl.value}" />
+      </body>
+    </html>
+  `);
+
+  printWindow.document.close();
+
+  // Wait for the content to load before printing
+  printWindow.onload = () => {
+    printWindow.focus();
+    printWindow.print();
+    printWindow.onafterprint = () => {
+      printWindow.close();
+    };
+  };
+};
 </script>
 <template>
-  <div class="h-full w-full">
+  <!-- <div class="h-full w-full">
     <div id="map-wrapper">
+      <div id="map" class="z-10"></div>
+    </div>
+  </div> --><!-- Button to trigger image export -->
+  <!-- Button to trigger image capture -->
+  <button 
+    v-if="!exportedImageUrl" 
+    @click="captureImage" 
+    class="bg-blue-500 text-white p-4 rounded hover:bg-blue-600 transition duration-300 w-full relative"
+  >
+    Capture Map
+  </button>
+
+  <!-- Button with image preview and close icon inside -->
+  <button 
+    v-if="exportedImageUrl" 
+    @click="captureImage" 
+    class="bg-blue-500 text-white p-4 rounded hover:bg-blue-600 transition duration-300 relative"
+  >
+    <!-- Image preview -->
+    <div class="flex items-center justify-center">
+      <!-- Image with fixed width and height of 150px -->
+      <img 
+        :src="exportedImageUrl" 
+        alt="Captured Map" 
+        class="w-36 h-36 object-cover rounded-md"
+      />
+      <!-- Close button inside the image -->
+      <div 
+        class="absolute top-0 right-0 text-white text-3xl cursor-pointer bg-black bg-opacity-50 rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-500 transition duration-200"
+        @click="removeImage"
+      >
+        &times;
+      </div>
+    </div>
+  </button>
+
+  <!-- Buttons for download and PDF generation -->
+  <div v-if="exportedImageUrl" class="mt-4 text-center">
+    <button 
+      @click="downloadImage" 
+      class="bg-green-500 text-white p-2 rounded hover:bg-green-600 transition duration-300 mx-2"
+    >
+      Download Image
+    </button>
+    <button 
+      @click="generatePdf" 
+      class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition duration-300 mx-2"
+    >
+      Generate PDF
+    </button> 
+  </div>
+
+  <!-- Map wrapper -->
+  <div class="h-full w-full mt-6">
+    <div id="map-wrapper" ref="captureTarget">
       <div id="map" class="z-10"></div>
     </div>
   </div>
