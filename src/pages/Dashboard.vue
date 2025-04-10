@@ -148,6 +148,129 @@ const componentMap = {
 const fullscreenCardComponent = computed(() => {
   return componentMap[fullscreenCard.value] || null;
 });
+
+import domtoimage from 'dom-to-image';
+
+// Refs for capture targets
+const captureTarget1 = ref(null);
+const captureTarget2 = ref(null);
+
+// Array to hold the exported image URLs
+const exportedImageUrls = ref([]);
+
+// Export the images from specific capture targets
+const exportAsImage = (chartNumber) => {
+  let captureTarget;
+  
+  // Choose the capture target based on the chartNumber (1 for BarChart, 2 for LineChart)
+  if (chartNumber === 1) {
+    captureTarget = captureTarget1;
+  } else if (chartNumber === 2) {
+    captureTarget = captureTarget2;
+  }
+
+  if (!captureTarget.value) return;
+
+  const now = new Date();
+  const timestamp = now.toISOString().replace(/[:.]/g, '-');
+  const filename = `Chart-${chartNumber}-${timestamp}.png`;
+
+  domtoimage.toPng(captureTarget.value)
+    .then((dataUrl) => {
+      // Store the exported image URL
+      exportedImageUrls.value.push(dataUrl);
+    })
+    .catch((error) => {
+      console.error('Error exporting image:', error);
+    });
+};
+
+// Download specific image from the preview
+const downloadImage = (imageUrl, index) => {
+  const now = new Date();
+  const timestamp = now.toISOString().replace(/[:.]/g, '-');
+  const filename = `Chart-${index + 1}-${timestamp}.png`;
+
+  const link = document.createElement('a');
+  link.download = filename;
+  link.href = imageUrl;
+  link.click();
+};
+
+// Download all images individually
+const downloadAll = () => {
+  if (exportedImageUrls.value.length === 0) return;
+
+  // Loop through each image and download them one by one
+  exportedImageUrls.value.forEach((imageUrl, index) => {
+    const now = new Date();
+    const timestamp = now.toISOString().replace(/[:.]/g, '-');
+    const filename = `Chart-${index + 1}-${timestamp}.png`;
+
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = imageUrl;
+    link.click(); // Trigger the download
+  });
+};
+
+// Handle print functionality (Save as PDF)
+const handlePrint = () => {
+  if (exportedImageUrls.value.length === 0) return;
+
+  const printWindow = window.open('', '_blank', 'width=800,height=600');
+
+  // Construct HTML for the print preview with all images
+  let imagesHtml = exportedImageUrls.value
+    .map((imageUrl) => `<img src="${imageUrl}" alt="Chart" style="width: 100%; max-height: 600px; margin-bottom: 20px;" />`)
+    .join('');
+
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Charts PDF</title>
+        <style>
+          body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+          }
+          img {
+            max-width: 80%;
+            margin-bottom: 20px;
+          }
+        </style>
+      </head>
+      <body>
+        ${imagesHtml}
+      </body>
+    </html>
+  `);
+
+  printWindow.document.close();
+
+  // Wait for images to load before printing
+  printWindow.onload = () => {
+    printWindow.focus();
+    printWindow.print();
+    printWindow.onafterprint = () => {
+      printWindow.close();
+    };
+  };
+};
+
+// Remove a specific image from the preview
+const removeImage = (index) => {
+  exportedImageUrls.value.splice(index, 1);
+};
+
+// Clear all images from the preview
+const clearAllImages = () => {
+  exportedImageUrls.value = [];
+};
 </script>
 
 <template>
