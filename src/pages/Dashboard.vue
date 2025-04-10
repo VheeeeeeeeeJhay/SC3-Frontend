@@ -115,157 +115,39 @@ const updateDateRange = ({ start, end }) => {
   console.log("Date Range:", startDate.value, endDate.value);
 };
 
-//for image capture
-// import domtoimage from 'dom-to-image'
+// Fullscreen card logic
+const fullscreenCard = ref(null);
+const expandCard = (cardName) => {
+  fullscreenCard.value = cardName;
+};
+const closeFullscreen = () => {
+  fullscreenCard.value = null;
+};
 
-// const captureTarget = ref(null)
-// const exportedImageUrl = ref(null)
-
-// const exportAsImage = () => {
-//   if (!captureTarget.value) return;
-
-//   const now = new Date()
-//   const timestamp = now.toISOString().replace(/[:.]/g, '-')
-//   const filename = `Barchart-${timestamp}.png`
-
-//   domtoimage.toPng(captureTarget.value)
-//     .then((dataUrl) => {
-//       // Save dataUrl for preview
-//       exportedImageUrl.value = dataUrl
-
-//       // Trigger download
-//       const link = document.createElement('a')
-//       link.download = filename
-//       link.href = dataUrl
-//       link.click()
-//     })
-//     .catch((error) => {
-//       console.error('oops, something went wrong!', error)
-//     })
-// }
-
-import domtoimage from 'dom-to-image';
-
-// Refs for capture targets
-const captureTarget1 = ref(null);
-const captureTarget2 = ref(null);
-
-// Array to hold the exported image URLs
-const exportedImageUrls = ref([]);
-
-// Export the images from specific capture targets
-const exportAsImage = (chartNumber) => {
-  let captureTarget;
-  
-  // Choose the capture target based on the chartNumber (1 for BarChart, 2 for LineChart)
-  if (chartNumber === 1) {
-    captureTarget = captureTarget1;
-  } else if (chartNumber === 2) {
-    captureTarget = captureTarget2;
+// Handle Escape key to exit fullscreen
+const handleKeydown = (e) => {
+  if (e.key === "Escape") {
+    closeFullscreen();
   }
+};
+onMounted(() => {
+  window.addEventListener("keydown", handleKeydown);
+});
 
-  if (!captureTarget.value) return;
-
-  const now = new Date();
-  const timestamp = now.toISOString().replace(/[:.]/g, '-');
-  const filename = `Chart-${chartNumber}-${timestamp}.png`;
-
-  domtoimage.toPng(captureTarget.value)
-    .then((dataUrl) => {
-      // Store the exported image URL
-      exportedImageUrls.value.push(dataUrl);
-    })
-    .catch((error) => {
-      console.error('Error exporting image:', error);
-    });
+// Map string identifiers to components
+const componentMap = {
+  IncidentGrowthRate,
+  TotalReportsReceived,
+  TopPerforming,
+  LineChart,
+  BarChart,
+  PieChart,
+  RecentIncident,
 };
 
-// Download specific image from the preview
-const downloadImage = (imageUrl, index) => {
-  const now = new Date();
-  const timestamp = now.toISOString().replace(/[:.]/g, '-');
-  const filename = `Chart-${index + 1}-${timestamp}.png`;
-
-  const link = document.createElement('a');
-  link.download = filename;
-  link.href = imageUrl;
-  link.click();
-};
-
-// Download all images individually
-const downloadAll = () => {
-  if (exportedImageUrls.value.length === 0) return;
-
-  // Loop through each image and download them one by one
-  exportedImageUrls.value.forEach((imageUrl, index) => {
-    const now = new Date();
-    const timestamp = now.toISOString().replace(/[:.]/g, '-');
-    const filename = `Chart-${index + 1}-${timestamp}.png`;
-
-    const link = document.createElement('a');
-    link.download = filename;
-    link.href = imageUrl;
-    link.click(); // Trigger the download
-  });
-};
-
-// Handle print functionality (Save as PDF)
-const handlePrint = () => {
-  if (exportedImageUrls.value.length === 0) return;
-
-  const printWindow = window.open('', '_blank', 'width=800,height=600');
-
-  // Construct HTML for the print preview with all images
-  let imagesHtml = exportedImageUrls.value
-    .map((imageUrl) => `<img src="${imageUrl}" alt="Chart" style="width: 100%; max-height: 600px; margin-bottom: 20px;" />`)
-    .join('');
-
-  printWindow.document.write(`
-    <html>
-      <head>
-        <title>Charts PDF</title>
-        <style>
-          body {
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-          }
-          img {
-            max-width: 80%;
-            margin-bottom: 20px;
-          }
-        </style>
-      </head>
-      <body>
-        ${imagesHtml}
-      </body>
-    </html>
-  `);
-
-  printWindow.document.close();
-
-  // Wait for images to load before printing
-  printWindow.onload = () => {
-    printWindow.focus();
-    printWindow.print();
-    printWindow.onafterprint = () => {
-      printWindow.close();
-    };
-  };
-};
-
-// Remove a specific image from the preview
-const removeImage = (index) => {
-  exportedImageUrls.value.splice(index, 1);
-};
-
-// Clear all images from the preview
-const clearAllImages = () => {
-  exportedImageUrls.value = [];
-};
+const fullscreenCardComponent = computed(() => {
+  return componentMap[fullscreenCard.value] || null;
+});
 </script>
 
 <template>
@@ -339,95 +221,139 @@ const clearAllImages = () => {
     </div>
   </div>
   <div class="min-h-screen p-4">
-
-    <!-- Title -->
+    <!-- Title and Filters -->
     <div class="mt-6 px-2 flex items-center justify-between">
       <h1 class="text-2xl font-bold dark:text-white">Overview</h1>
-      <div class="flex items-center space-x-6">
-        <monthYearPicker class="flex-1" v-model:selectedMonth="selectedMonth1" v-model:selectedYear="selectedYear1" />
-        <DateRangePicker class="max-w-xs" @dateRangeSelected="updateDateRange" />
-      </div>
+      <div class="fixed top-4 right-17 z-[999] flex items-center gap-4 bg-white dark:bg-slate-900 px-4 py-2 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+      <monthYearPicker v-model:selectedMonth="selectedMonth1" v-model:selectedYear="selectedYear1" />
+      <DateRangePicker class="max-w-sm min-w-[200px] flex-grow" @dateRangeSelected="updateDateRange" />
+    </div>
     </div>
 
     <main class="mx-auto my-6 max-w-7xl px-4 sm:px-6 lg:px-8">
-
+      <!-- First Row -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Incident Growth Rate Card -->
-        <div class="p-4 bg-white dark:bg-black border-2 border-gray-950 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500">
+        <div class="relative p-4 card">
+          <button @click="expandCard('IncidentGrowthRate')" class="expand-btn">⛶</button>
           <IncidentGrowthRate :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" />
         </div>
 
-        <!-- Total Reports Card -->
-        <div class="p-4 bg-white dark:bg-black border-2 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500">
+        <div class="relative p-4 card">
+          <button @click="expandCard('TotalReportsReceived')" class="expand-btn">⛶</button>
           <TotalReportsReceived :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" />
         </div>
 
-        <!-- Top Performing Card -->
-        <div class="p-4 bg-white dark:bg-black border-2 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500">
-          <TopPerforming :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" />
+        <div class="relative p-4 card">
+          <button @click="expandCard('TopPerforming')" class="expand-btn">⛶</button>
+          <TopPerforming />
         </div>
       </div>
 
-      <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <!-- Line Chart Card -->
-        <div ref="captureTarget2" class="capture-box">
-          <div class="p-4 bg-white dark:bg-black border-4 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500">
-            <LineChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" />
-          </div>
+      <!-- Second Row -->
+      <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="relative p-4 card">
+          <button @click="expandCard('LineChart')" class="expand-btn">⛶</button>
+          <LineChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" />
         </div>
 
-        <!-- Bar Chart Card -->
-        <div ref="captureTarget1" class="capture-box">
-          <div class="p-4 bg-white dark:bg-black border-2 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-400">
-            <BarChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" class="w-full h-full" />
-          </div>
+        <div class="relative p-4 card">
+          <button @click="expandCard('BarChart')" class="expand-btn">⛶</button>
+          <BarChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" class="w-full h-full" />
         </div>
-      </div>
-
-      <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <!-- Pie Chart Card -->
-        <div class="p-4 bg-white dark:bg-black border-2 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500">
-          <PieChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" />
-        </div>
-
-        <!-- Recent Incident Card -->
-        <div class="p-4 bg-white dark:bg-black border-2 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500 text-gray-800 dark:text-white">
+      
+        <div class="relative p-4 card text-gray-800 dark:text-white">
+          <button @click="expandCard('RecentIncident')" class="expand-btn">⛶</button>
           <RecentIncident />
         </div>
       </div>
+
+      <!-- Third Row -->
+      <div class="mt-6 grid grid-cols-1 sm:grid-cols-1 gap-6">
+        <div class="relative p-4 card">
+          <button @click="expandCard('PieChart')" class="expand-btn">⛶</button>
+          <PieChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" />
+        </div>
+      </div>
     </main>
+
+    <!-- Fullscreen Modal -->
+    <transition name="modal-fade">
+      <div v-if="fullscreenCard" class="fixed inset-0 z-50 bg-white dark:bg-gray-900 p-6 overflow-auto">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-semibold text-gray-800 dark:text-white">
+            {{ fullscreenCard }}
+          </h2>
+          <button @click="closeFullscreen" class="text-2xl close-btn">✕</button>
+        </div>
+
+        <component
+          :is="fullscreenCardComponent"
+          :selectedYear="selectedYear1"
+          :selectedMonth="selectedMonth1"
+          :startDate="startDate"
+          :endDate="endDate"
+          class="w-full h-[80vh]"
+        />
+      </div>
+    </transition>
   </div>
 </template>
 
 <style scoped>
-#pie-chart {
-  background-color: white !important;
+.card {
+  background-color: white;
+  border-width: 4px;
+  border-radius: 1rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 255, 135, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-color: rgba(59, 130, 246, 0.2);
 }
 
-.apexcharts-toolbar {
-  background-color: black !important;
-  color: white !important;
-  border-radius: 5px;
-  padding: 5px;
+.dark .card {
+  background-color: black;
+  border-color: #1e3a8a;
+  box-shadow: inset 0 0 10px rgba(0, 255, 135, 0.3);
 }
 
-.apexcharts-menu {
-  background-color: black !important;
-  color: white !important;
+.card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(34, 197, 94, 0.5);
 }
 
-.apexcharts-menu-item {
-  color: white !important;
+.expand-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 10;
+  font-size: 1rem;
+  color: #a7a7a7;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
 }
 
-.apexcharts-menu-item:hover {
-  background-color: gray !important;
+.expand-btn:hover {
+  color: #ffffff;
 }
 
-/* Responsive Design Adjustments */
-@media (max-width: 768px) {
-  .grid-cols-1 {
-    grid-template-columns: 1fr;
-  }
+.close-btn {
+  color: white;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
+
+.close-btn:hover {
+  color: red;
+}
+
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+
 </style>
