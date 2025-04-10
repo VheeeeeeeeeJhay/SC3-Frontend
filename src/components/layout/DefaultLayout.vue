@@ -64,8 +64,8 @@ const navigation = [
 
 const isActive = (item) => {
     if (route.name === item.to.name) return true;
-    if (item.to.name === 'ReportTable' && ['AddReport', 'ReportViewDetails', 'EditReport'].includes(route.name)) return true;
-    if (item.to.name === 'Barangay' && ['EditBarangay', 'UpdateBarangay', 'DeleteBarangay', 'BarangayStatistics', 'ImportFile'].includes(route.name)) return true;
+    if (item.to.name === 'ReportTable' && ['AddReport', 'ReportViewDetails', 'EditReport', 'ImportFile'].includes(route.name)) return true;
+    if (item.to.name === 'Barangay' && ['EditBarangay', 'UpdateBarangay', 'DeleteBarangay', 'BarangayStatistics'].includes(route.name)) return true;
     return false;
 };
 
@@ -104,7 +104,7 @@ const closeSidebar = () => {
       <!-- Sidebar (Main) -->
       <aside
   id="logo-sidebar"
-  class="fixed top-0 left-0 z-40 w-56 h-screen pt-6 transition-transform duration-300
+  class="fixed top-0 left-0 z-40 w-56 h-screen transition-transform duration-300
          bg-white dark:bg-black dark:text-white 
          shadow-[rgba(0,0,255,0.3)_0px_15px_25px,_rgba(255,0,0,0.22)_0px_10px_10px] 
          border-r-10 border-solid dark:border-gray-950 
@@ -112,46 +112,24 @@ const closeSidebar = () => {
          backdrop-blur-md overflow-hidden"
   :class="sidebarVisible ? 'translate-x-0' : '-translate-x-full sm:translate-x-0'"
 >
-  <div class="h-full px-3 pb-4 overflow-y-auto flex flex-col justify-between relative z-10">
-    <div>
-      <!-- Logo -->
-      <a href="#" class="flex items-center justify-center mb-6">
-        <img src="../../assets/baguio-logo.png" class="h-10" alt="Smart City Baguio" />
-        <span class="text-xl font-semibold sm:text-2xl text-gray-800 dark:text-white ml-2">
-          SC3-911 Dashboard
-        </span>
-      </a>
+  <div class="h-full flex flex-col justify-between relative z-10 px-3 pb-4 overflow-y-auto">
 
-      <!-- User Profile -->
-      <div class="flex justify-center items-center ms-3 relative user-menu">
-        <button
-          @click.stop="dropdownOpen = !dropdownOpen"
-          type="button"
-          class="flex justify-center items-center text-sm bg-gray-800 rounded-full hover:ring-4 hover:ring-green-500 focus:outline-none transition-all duration-300"
-          aria-expanded="false"
-        >
-          <span class="sr-only">Open user menu</span>
-          <img
-            class="w-24 h-24 rounded-full"
-            src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
-            alt="user photo"
-          />
-        </button>
-      </div>
-
-      <p class="flex justify-center items-center mt-2 text-sm text-gray-600 dark:text-gray-400">
-        {{ user?.email || 'No email' }}
-      </p>
+    <!-- Logo Section (Less Top Padding + Separated Logo/Text) -->
+    <div class="pt-11 flex flex-col items-center">
+      <span class="text-center text-lg font-semibold sm:text-xl text-gray-800 dark:text-white">
+        SC3-911 Dashboard
+      </span>
+      <img src="../../assets/baguio-logo.png" class="h-40 mb-2" alt="Smart City Baguio" />
     </div>
 
     <!-- Navigation Links -->
-    <div class="flex-grow">
+    <div class="flex-1 mt-6">
       <ul class="space-y-2 font-medium">
         <li v-for="item in filteredNavigation" :key="item.name">
           <RouterLink
             :to="item.to"
             :class="[ 
-              'flex my-2 items-center p-2 rounded-lg group', 
+              'flex items-center p-2 rounded-lg group', 
               isActive(item) 
                 ? 'bg-[#FFFFF0] dark:bg-slate-600 shadow-md' 
                 : 'hover:bg-[#D9D9B3] dark:hover:bg-slate-600' 
@@ -168,55 +146,81 @@ const closeSidebar = () => {
         </li>
       </ul>
     </div>
+
+    <!-- User Profile at Bottom -->
+    <div class="mt-auto pt-6 border-t border-gray-300 dark:border-slate-700">
+      <div class="flex items-center gap-3 px-2">
+        <button
+          @click.stop="dropdownOpen = !dropdownOpen"
+          type="button"
+          class="flex justify-center items-center bg-gray-800 rounded-full hover:ring-4 hover:ring-green-500 transition-all duration-300"
+        >
+          <img
+            class="w-10 h-10 rounded-full"
+            src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+            alt="user photo"
+          />
+        </button>
+        <div class="flex flex-col">
+          <p class="text-xs font-medium text-gray-800 dark:text-white">
+            {{ user?.firstname || 'Guest' }}
+          </p>
+          <p class="text-xs truncate text-gray-600 dark:text-gray-400">
+            {{ user?.email || 'No email' }}
+          </p>
+        </div>
+      </div>
+    </div>
+
   </div>
 </aside>
 
-  
-      <!-- Right Sidebar Modal with Slide Animation -->
-      <transition name="slide">
-        <div
-          v-show="dropdownOpen"
-          ref="dropdownModalRef"
-          class="fixed top-4 left-[15.5rem] z-50 w-64 rounded-xl bg-white dark:bg-slate-700 shadow-lg text-gray-800 dark:text-white p-4 transition-all duration-300"
+<!-- Right Sidebar Modal with Bottom-Up Slide Animation -->
+<transition name="slide">
+  <div
+    v-show="dropdownOpen"
+    ref="dropdownModalRef"
+    class="fixed bottom-[6rem] left-4 z-50 w-45 rounded-xl bg-white dark:bg-slate-700 shadow-lg text-gray-800 dark:text-white p-4 transition-all duration-300"
+  >
+    <div class="px-4 py-3">
+      <p class="text-sm text-gray-800 dark:text-white">
+        {{ user?.firstname || 'Guest' }}
+      </p>
+      <p class="text-sm font-medium truncate text-gray-600 dark:text-gray-300">
+        {{ user?.email || 'No email' }}
+      </p>
+    </div>
+
+    <ul class="py-1">
+      <li>
+        <button
+          @click.stop="toggleTheme"
+          class="theme-toggle block w-full text-start px-4 py-2 text-sm hover:bg-gray-300 dark:hover:bg-slate-600 dark:hover:text-white"
         >
-          <div class="px-4 py-3">
-            <p class="text-sm text-gray-800 dark:text-white">
-              {{ user?.firstname || 'Guest' }}
-            </p>
-            <p class="text-sm font-medium truncate text-gray-600 dark:text-gray-300">
-              {{ user?.email || 'No email' }}
-            </p>
-          </div>
-  
-          <ul class="py-1">
-            <li>
-              <button
-                @click.stop="toggleTheme"
-                class="theme-toggle block w-full text-start px-4 py-2 text-sm hover:bg-gray-300 dark:hover:bg-slate-600 dark:hover:text-white"
-              >
-                <div v-if="theme === 'light'">🌞 Light Mode</div>
-                <div v-else>🌙 Dark Mode</div>
-              </button>
-            </li>
-            <li>
-              <RouterLink
-                to="/profile"
-                class="block px-4 py-2 text-sm hover:bg-gray-300 dark:hover:bg-slate-600 dark:hover:text-white"
-              >
-                Profile
-              </RouterLink>
-            </li>
-            <li>
-              <a
-                @click="showSignoutConfirmation"
-                class="block px-4 py-2 text-sm hover:bg-gray-300 dark:hover:bg-slate-600 dark:hover:text-white"
-              >
-                Sign Out
-              </a>
-            </li>
-          </ul>
-        </div>
-      </transition>
+          <div v-if="theme === 'light'">🌞 Light Mode</div>
+          <div v-else>🌙 Dark Mode</div>
+        </button>
+      </li>
+      <li>
+        <RouterLink
+          to="/profile"
+          class="block px-4 py-2 text-sm hover:bg-gray-300 dark:hover:bg-slate-600 dark:hover:text-white"
+        >
+          Profile
+        </RouterLink>
+      </li>
+      <li>
+        <a
+          @click="showSignoutConfirmation"
+          class="block px-4 py-2 text-sm hover:bg-gray-300 dark:hover:bg-slate-600 dark:hover:text-white"
+        >
+          Sign Out
+        </a>
+      </li>
+    </ul>
+  </div>
+</transition>
+
   
       <!-- Content Area -->
       <div class="sm:ml-56 flex-1 bg-white dark:bg-gray-950 transition-all duration-300">
@@ -250,30 +254,13 @@ const closeSidebar = () => {
 
 .slide-enter-from,
 .slide-leave-to {
-  transform: translateX(-50px); /* Start from the left */
+  transform: translateX(50px); /* Start from the left */
   opacity: 0;
 }
 
 .slide-enter-to,
 .slide-leave-from {
   transform: translateX(0); /* End at the normal position */
-  opacity: 1;
-}
-
-.slide-enter-active,
-.slide-leave-active {
-  transition: all 0.3s ease;
-}
-
-.slide-enter-from,
-.slide-leave-to {
-  transform: translateX(-50px);
-  opacity: 0;
-}
-
-.slide-enter-to,
-.slide-leave-from {
-  transform: translateX(0);
   opacity: 1;
 }
 

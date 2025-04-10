@@ -73,6 +73,18 @@ const data = ref({
 
 <template>
  <div class="min-h-screen p-4 text-black dark:text-white bg-white dark:bg-gray-950">
+  <!-- Back Button -->
+  <div class="mb-4 flex justify-end">
+  <Button
+    type="button"
+    name="Back"
+    @click.prevent="router.back()"
+    class="px-4 py-2 bg-gray-300 text-gray-800 dark:bg-gray-800 dark:text-white rounded-lg hover:bg-gray-400 dark:hover:bg-gray-700 transition duration-200 flex items-center shadow-md"
+  >
+    <span class="material-icons mr-2">arrow_back</span>
+    Back
+  </Button>
+</div>
 
     
     <!-- Banner Header -->
