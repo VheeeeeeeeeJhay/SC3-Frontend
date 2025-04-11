@@ -66,6 +66,7 @@ const isActive = (item) => {
     if (route.name === item.to.name) return true;
     if (item.to.name === 'ReportTable' && ['AddReport', 'ReportViewDetails', 'EditReport', 'ImportFile'].includes(route.name)) return true;
     if (item.to.name === 'Barangay' && ['EditBarangay', 'UpdateBarangay', 'DeleteBarangay', 'BarangayStatistics'].includes(route.name)) return true;
+    if (item.to.name === 'Logs' && ['LogViewDetails'].includes(route.name)) return true;
     return false;
 };
 

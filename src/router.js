@@ -44,9 +44,6 @@ const routes = [
       {path: '/barangay-delete/:id', name: 'DeleteBarangay', component: Barangay, meta: { title: 'Delete Barangay' }},
       {path: '/barangay-statistics/:id', name: 'BarangayStatistics', component: ViewRelatedIncidents, meta: { title: 'Barangay Statistics' }},
 
-      // {path: '/incident', name: 'Incident', component: Incident, meta: { title: 'Incident' }},
-      // {path: '/incident-display', name: 'IncidentDisplay', component: Incident, meta: { title: 'Incident Display' }},
-
       {path: '/user', name: 'UsersTable', component: UsersTable, meta: { title: 'User Management' }},
 
       {path: '/log', name: 'Logs', component: Tracking, meta: { title: 'Logs Management' }},
