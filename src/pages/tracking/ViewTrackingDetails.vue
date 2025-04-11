@@ -8,85 +8,98 @@ const router = useRouter();
 const storage = ref([]);
 const store = useArrayStore();
 storage.value = store.getData();
-console.log(storage.value);
 
 const parsedInnerData = computed(() => {
   if (!storage.value.data) return [];
 
   try {
     const data = JSON.parse(storage.value.data);
-    return Array.isArray(data) ? data : [data];  // wrapping in array so you can `v-for` it
+    return Array.isArray(data) ? data : [data];
   } catch (error) {
     console.error("Invalid JSON in storage.data", error);
     return [];
   }
 });
 
-
 const searchQuery = ref("");
-const reports = ref([]);
+
 // Pagination
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
-// Total pages based on filtered results
-const totalPages = computed(() => {
-    return Math.ceil(storage.value.length / itemsPerPage.value);
+
+// 1. Filtered reports based on search query
+const filteredReports = computed(() => {
+  if (!searchQuery.value.trim()) return parsedInnerData.value;
+
+  const query = searchQuery.value.toLowerCase();
+  return parsedInnerData.value.filter((item) => {
+    return (
+      String(item.id).includes(query) ||
+      item.name?.toLowerCase().includes(query) ||
+      item.date_received?.toLowerCase().includes(query) ||
+      item.incident?.type?.toLowerCase().includes(query) ||
+      item.barangay?.name?.toLowerCase().includes(query)
+    );
+  });
 });
-// Get paginated reports
+
+// 2. Total pages based on filtered results
+const totalPages = computed(() => {
+  return Math.ceil(filteredReports.value.length / itemsPerPage.value);
+});
+
+// 3. Paginated reports based on filtered data
 const paginatedReports = computed(() => {
-    const start = (currentPage.value - 1) * itemsPerPage.value;
-    const end = start + itemsPerPage.value;
-    return reports.value.slice(start, end);
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredReports.value.slice(start, end);
 });
 
 // Pagination controls
 const nextPage = () => {
-    if (currentPage.value < totalPages.value) {
-        currentPage.value++;
-    }
+  if (currentPage.value < totalPages.value) currentPage.value++;
 };
 const prevPage = () => {
-    if (currentPage.value > 1) {
-        currentPage.value--;
-    }
+  if (currentPage.value > 1) currentPage.value--;
 };
 const goToPage = (page) => {
-    if (page >= 1 && page <= totalPages.value) {
-        currentPage.value = page;
-    }
+  if (page >= 1 && page <= totalPages.value) currentPage.value = page;
 };
+
 // Reset to first page when searching
 watch(searchQuery, () => {
-    currentPage.value = 1;
+  currentPage.value = 1;
 });
 
-// Pagination logic for limiting visible pages
+// Visible pages for pagination
 const maxVisiblePages = 3;
 
 const paginationStart = computed(() => {
-    if (currentPage.value <= Math.floor(maxVisiblePages / 2)) {
-        return 1;
-    } else if (currentPage.value + Math.floor(maxVisiblePages / 2) >= totalPages.value) {
-        return Math.max(1, totalPages.value - maxVisiblePages + 1);
-    } else {
-        return currentPage.value - Math.floor(maxVisiblePages / 2);
-    }
+  if (currentPage.value <= Math.floor(maxVisiblePages / 2)) {
+    return 1;
+  } else if (currentPage.value + Math.floor(maxVisiblePages / 2) >= totalPages.value) {
+    return Math.max(1, totalPages.value - maxVisiblePages + 1);
+  } else {
+    return currentPage.value - Math.floor(maxVisiblePages / 2);
+  }
 });
 
 const paginationEnd = computed(() => {
-    return Math.min(totalPages.value, paginationStart.value + maxVisiblePages - 1);
+  return Math.min(totalPages.value, paginationStart.value + maxVisiblePages - 1);
 });
 
 const visiblePages = computed(() => {
-    return Array.from({ length: paginationEnd.value - paginationStart.value + 1 }, (_, i) => paginationStart.value + i);
+  return Array.from(
+    { length: paginationEnd.value - paginationStart.value + 1 },
+    (_, i) => paginationStart.value + i
+  );
 });
-
 </script>
 
 <template>
     <div class="w-full min-h-screen p-4">
         <div class="mt-6 px-2 flex justify-between">
-            <h1 class="text-2xl font-bold dark:text-white">Logs Management</h1>
+            <h1 class="text-2xl font-bold dark:text-white">Detailed Logs View</h1>
             <Button type="button" name="Back" @click.prevent="router.back()"
                 class="px-3 py-1 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200 flex items-center">
                 <span class="material-icons mr-2">
@@ -96,11 +109,27 @@ const visiblePages = computed(() => {
             </Button>
         </div>
 
-        <div class="dark:text-white mt-6">   
-            <div>{{ storage.category }}</div>
-            <div>{{ storage.action }}</div>
-            <div>{{ storage.description }}</div>
-            <div>{{ storage.created_at }}</div>
+        <div class="mt-6 relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white mb-6">
+            <table class="w-full text-sm text-left">
+                <thead class="text-xs uppercase bg-teal-300 text-gray-800 dark:bg-slate-950 dark:text-gray-300">
+                    <tr>
+                        <th scope="col" class="px-4 py-3 text-center">ID</th>
+                        <th scope="col" class="px-4 py-3 text-center">Category</th>
+                        <th scope="col" class="px-4 py-3 text-center">Action</th>
+                        <th scope="col" class="px-4 py-3 text-center">Description</th>
+                        <th scope="col" class="px-4 py-3 text-center">Created At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700">
+                        <td class="px-4 py-3 text-center">{{ storage.id }}</td>
+                        <td class="px-4 py-3 text-center">{{ storage.category }}</td>
+                        <td class="px-4 py-3 text-center">{{ storage.action }}</td>
+                        <td class="px-4 py-3 text-center">{{ storage.description }}</td>
+                        <td class="px-4 py-3 text-center">{{ storage.created_at }}</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
         <div class="relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
@@ -139,14 +168,14 @@ const visiblePages = computed(() => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="item in parsedInnerData" :key="item.id" class="bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700">
+                    <tr v-for="item in paginatedReports" :key="item.id" class="bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700">
                         <td class="px-4 py-3 text-center">{{ item.id }}</td>
                         <td class="px-4 py-3 text-center">{{ item.name }}</td>
                         <td class="px-4 py-3 text-center">{{ item.time }}</td>
                         <td class="px-4 py-3 text-center">{{ item.date_received }}</td>
                         <td class="px-4 py-3 text-center">{{ item.arrival_on_site }}</td>
                         <td class="px-4 py-3 text-center">{{ item.incident?.type || item.incident_id }}</td>
-                        <td class="px-4 py-3 text-center">{{ item.actions?.action || item.actions_id }}</td>
+                        <td class="px-4 py-3 text-center">{{ item.actions?.actions || item.actions_id }}</td>
                         <td class="px-4 py-3 text-center">{{ item.assistance?.assistance || item.assistance_id }}</td>
                         <td class="px-4 py-3 text-center">{{ item.urgency?.urgency || item.urgency_id }}</td>
                         <td class="px-4 py-3 text-center">{{ item.barangay?.name || item.barangay_id }}</td>
@@ -159,7 +188,14 @@ const visiblePages = computed(() => {
 
             <!-- Pagination control goes here -->
             <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">
-                <span class="text-sm font-normal">Showing {{ paginatedReports.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }} to {{ Math.min(currentPage * itemsPerPage, paginatedReports.length) }} of {{ paginatedReports.length }}</span>
+                <span class="text-sm font-normal">
+                Showing
+                {{ filteredReports.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}
+                to
+                {{ Math.min(currentPage * itemsPerPage, filteredReports.length) }}
+                of
+                {{ filteredReports.length }} entries
+                </span>
                 <ul class="inline-flex items-stretch -space-x-px">
                     <li>
                         <button @click="prevPage" :disabled="currentPage === 1" class="px-3 py-1 rounded-l-lg border hover:bg-gray-300 dark:hover:bg-slate-600">
