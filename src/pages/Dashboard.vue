@@ -403,12 +403,12 @@ const fullscreenCardComponent = computed(() => {
 
       <!-- Second Row -->
       <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div class="relative p-4 card" >
+        <div class="relative p-4 card" ref="captureTarget1">
           <button @click="expandCard('LineChart')" class="expand-btn">⛶</button>
           <LineChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" />
         </div>
 
-        <div class="relative p-4 card">
+        <div class="relative p-4 card" ref="captureTarget2">
           <button @click="expandCard('BarChart')" class="expand-btn">⛶</button>
           <BarChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" class="w-full h-full" />
         </div>
