@@ -20,17 +20,20 @@ onUnmounted(() => {
   }
 });
 
-const computedProperties = {
-    report: "reportsList",
-    source: "sources",
-};
+// const computedProperties = {
+//     report: "reportsList",
+//     source: "sources",
+// };
 
-const {
-    report,
-    source,
-} = Object.fromEntries(
-    Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
-);
+// const {
+//     report,
+//     source,
+// } = Object.fromEntries(
+//     Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
+// );
+const report = computed(() => databaseStore.reportsList);
+const source = computed(() => databaseStore.sources);
+
 
 const options = ref({
     colors: ["#4A90E2", "#E24A4A", "#4AE24A", "#E2E24A"], // Blue, Red, Green, Yellow

@@ -22,7 +22,7 @@
         })
         .then(response => {
             console.log('Password reset link sent');
-            router.push({ name: 'ForgotPasswordSuccess' }); // Redirect to success page or message
+            // router.push({ name: 'ForgotPasswordSuccess' }); // Redirect to success page or message
         })
         .catch(error => {
             console.log(error.response.data.message);
