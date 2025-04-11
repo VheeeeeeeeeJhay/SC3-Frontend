@@ -349,7 +349,7 @@ const closeDropdown = () => {
 </script>
 
 <template>
-  <div class="min-h-screen p-4">
+  <div class="min-h-screen p-1">
     <!-- Titleee -->
     <div class="mt-6 px-2 flex justify-between">
       <h1 class="text-2xl font-bold dark:text-white mb-2">Add a New Report</h1>
@@ -363,7 +363,8 @@ const closeDropdown = () => {
     <main class="flex-1 px-2">
 
       <form @submit.prevent="submitForm" class="space-y-6 mt-6 mx-auto max-w-6xl">
-        <div class="p-6 rounded-lg shadow-lg flex bg-sky-50 text-gray-800 dark:bg-slate-800 dark:text-white">
+        <div class="p-6 rounded-lg shadow-lg shadow-blue-500/40 ring-2 ring-blue-500/90 flex bg-sky-50 text-gray-800 dark:bg-black dark:text-white">
+
           <div class="w-1/2 pr-4">
             <h2 class="text-2xl font-bold mb-6 ">Report Information</h2>
             <div class="grid grid-cols-2 gap-4 mb-8">
