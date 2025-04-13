@@ -29,7 +29,7 @@ onMounted(() => {
       assistance.value = res.data.assistance;
       report.value = res.data.report;
 
-      updateChart(); // Update the chart after fetching data
+      // updateChart(); // Update the chart after fetching data
     })
     .catch((error) => {
       console.error('Error fetching data:', error);
@@ -37,6 +37,14 @@ onMounted(() => {
     });
 });
 
+// Run updateChart whenever reports change
+watch(
+  () => [report.value, incidents.value, assistance.value],
+  () => {
+    updateChart();
+    console.log("%cData updated, chart re-rendered.", "color: red; font-weight: bold;");
+  }
+);
 // // Filter The Incident/Case Base On The Assistance Type
 // const filteredIncidents = computed(() => {
 //   return data.value.incidentType

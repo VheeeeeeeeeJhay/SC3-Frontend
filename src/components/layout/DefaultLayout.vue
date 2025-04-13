@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from "vue";
-import { RouterLink, useRoute } from 'vue-router';
+import { RouterLink, useRoute } from "vue-router";
 import useUserStore from "../../stores/user.js";
 import axiosClient from "../../axios.js";
 import router from "../../router.js";
@@ -12,41 +12,44 @@ const dropdownModalRef = ref(null);
 // Close modal when clicking outside of it
 const closeDropdownOnClickOutside = (event) => {
   // Check if the click is outside the dropdown modal
-  if (dropdownModalRef.value && !dropdownModalRef.value.contains(event.target)) {
+  if (
+    dropdownModalRef.value &&
+    !dropdownModalRef.value.contains(event.target)
+  ) {
     dropdownOpen.value = false;
   }
 };
 
 onMounted(() => {
   // Add event listener to document
-  document.addEventListener('click', closeDropdownOnClickOutside);
+  document.addEventListener("click", closeDropdownOnClickOutside);
 });
 
 onUnmounted(() => {
   // Cleanup event listener when component unmounts
-  document.removeEventListener('click', closeDropdownOnClickOutside);
+  document.removeEventListener("click", closeDropdownOnClickOutside);
 });
 
 // Other setup code
 const theme = ref(localStorage.getItem("theme") || "light");
 const signout_visible = ref(false);
 const toggleTheme = () => {
-    if (theme.value === "light") {
-        document.documentElement.classList.add("dark");
-        localStorage.setItem("theme", "dark");
-        theme.value = "dark";
-    } else {
-        document.documentElement.classList.remove("dark");
-        localStorage.setItem("theme", "light");
-        theme.value = "light";
-    }
+  if (theme.value === "light") {
+    document.documentElement.classList.add("dark");
+    localStorage.setItem("theme", "dark");
+    theme.value = "dark";
+  } else {
+    document.documentElement.classList.remove("dark");
+    localStorage.setItem("theme", "light");
+    theme.value = "light";
+  }
 };
 
 onMounted(() => {
-    if (localStorage.getItem("theme") === "dark") {
-        document.documentElement.classList.add("dark");
-        theme.value = "dark";
-    }
+  if (localStorage.getItem("theme") === "dark") {
+    document.documentElement.classList.add("dark");
+    theme.value = "dark";
+  }
 });
 
 const userStore = useUserStore();
@@ -54,12 +57,17 @@ const user = computed(() => userStore.user);
 const route = useRoute();
 
 const navigation = [
-    { name: 'Overview', to: { name: 'Overview' }, icon: 'bar_chart' },
-    { name: 'Map', to: { name: 'Map' }, icon: 'map' },
-    { name: 'Report', to: { name: 'ReportTable' }, icon: 'report' },
-    { name: 'Barangays', to: { name: 'Barangay' }, icon: 'home' },
-    { name: 'Users', to: { name: 'UsersTable' }, icon: 'people', requiredRole: 1 }, // Add a requiredRole property for role-based access
-    { name: 'Logs', to: { name: 'Logs' }, icon: 'lock', requiredRole: 1 },
+  { name: "Overview", to: { name: "Overview" }, icon: "bar_chart" },
+  { name: "Map", to: { name: "Map" }, icon: "map" },
+  { name: "Report", to: { name: "ReportTable" }, icon: "report" },
+  { name: "Barangays", to: { name: "Barangay" }, icon: "home" },
+  {
+    name: "Users",
+    to: { name: "UsersTable" },
+    icon: "people",
+    requiredRole: 1,
+  }, // Add a requiredRole property for role-based access
+  { name: "Logs", to: { name: "Logs" }, icon: "lock", requiredRole: 1 },
 ];
 
 const isActive = (item) => {
@@ -71,32 +79,32 @@ const isActive = (item) => {
 };
 
 const filteredNavigation = computed(() => {
-    return navigation.filter(item => {
-        if (!item.requiredRole) return true;
-        return user.value?.role === item.requiredRole;
-    });
+  return navigation.filter((item) => {
+    if (!item.requiredRole) return true;
+    return user.value?.role === item.requiredRole;
+  });
 });
 
 const logout = () => {
-    axiosClient.post('/logout').then(() => {
-        router.push({ name: 'Login' });
-    });
+  axiosClient.post("/logout").then(() => {
+    router.push({ name: "Login" });
+  });
 };
 
 const signoutConfirmationVisible = ref(false);
 const showSignoutConfirmation = () => {
-    signoutConfirmationVisible.value = true;
+  signoutConfirmationVisible.value = true;
 };
 const cancelSignout = () => {
-    signoutConfirmationVisible.value = false;
+  signoutConfirmationVisible.value = false;
 };
 
 const sidebarVisible = ref(false);
 const toggleSidebar = () => {
-    sidebarVisible.value = !sidebarVisible.value;
+  sidebarVisible.value = !sidebarVisible.value;
 };
 const closeSidebar = () => {
-    sidebarVisible.value = false;
+  sidebarVisible.value = false;
 };
 </script>
 
@@ -269,7 +277,10 @@ const closeSidebar = () => {
 #logo-sidebar::before {
   content: "";
   position: absolute;
-  top: 0; left: 0; bottom: 0; right: 0;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
   border-right: 2px solid transparent;
   border-radius: 0 1rem 1rem 0;
   pointer-events: none;
@@ -278,5 +289,4 @@ const closeSidebar = () => {
   filter: blur(12px);
   opacity: 0.8;
 }
-
 </style>
