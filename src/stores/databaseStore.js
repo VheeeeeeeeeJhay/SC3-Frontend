@@ -74,22 +74,23 @@ export const useDatabaseStore = defineStore('database', {
 
         // axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }),
         this.activeUsers = resActiveUsers.data.filter(user => 
-            (user.for_911 === 1 && user.for_inventory === 1) || 
+            ((user.for_911 === 1 && user.for_inventory === 1) || 
             (user.for_911 === 1 && user.for_inventory === 0) || 
-            (user.for_911 === 0 && user.for_inventory === 1)
+            (user.for_911 === 0 && user.for_inventory === 1)) && 
+            (user.is_deleted === 0) 
         );
-        console.log(this.activeUsers , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is activeUsers', 'color: blue');
+        // console.log(this.activeUsers , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is activeUsers', 'color: blue');
 
         // axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }),
         this.archivedUsers = resArchivedUsers.data.filter(user => 
-            (user.for_911 === 0 && user.for_inventory === 0)
+            (user.is_deleted === 1)
         );
 
         // axiosClient.get('/api/911/barangay', { headers: { 'x-api-key': API_KEY } }),
         this.barangaysList = resBarangays.data.barangays;
-        console.log(this.barangaysList , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is barangaysList', 'color: yellow');
+        // console.log(this.barangaysList , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is barangaysList', 'color: yellow');
         this.reportsPerBarangay = resBarangays.data.reportsPerBarangay;
-        console.log(this.reportsPerBarangay , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is reportsPerBarangay', 'color: green');
+        // console.log(this.reportsPerBarangay , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is reportsPerBarangay', 'color: green');
 
         // axiosClient.get('/api/911/report-display', { headers: { 'x-api-key': API_KEY } }),
         this.reportsList = resReports.data[0] || [];
@@ -109,9 +110,8 @@ export const useDatabaseStore = defineStore('database', {
         this.recents = resRecents.data.recents || [];
 
         // axiosClient.get('/api/911/tracking', { headers: { 'x-api-key': API_KEY } }),
-        console.log(resLogs.data, '%c++++++++++++++++++++++++++++++++++++++++++++++ this is logs', 'color: red');
         this.logs = resLogs.data || [];
-        console.log(this.logs , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is logs', 'color: red');
+        // console.log(this.logs , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is logs', 'color: red');
 
       } catch (error) {
         console.error('Error fetching data:', error)

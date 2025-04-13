@@ -355,7 +355,7 @@ const handlePrint = () => {
               class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
 
               <!-- Add Barangay Button -->
-              <PopupModal Title="Add a new Barangay" ModalButton="Add Barangay" Icon="home" Classes=""
+              <!-- <PopupModal Title="Add a new Barangay" ModalButton="Add Barangay" Icon="home" Classes=""
                 :show="isModalOpen" @update:show="isModalOpen = $event"
                 ButtonClass="w-full md:w-auto rounded-lg flex items-center justify-center py-2 px-4 text-sm font-medium focus:outline-none bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
                 <template #modalContent>
@@ -363,7 +363,7 @@ const handlePrint = () => {
                     <AddBarangay @close="isModalOpen = false" />
                   </div>
                 </template>
-              </PopupModal>
+              </PopupModal> -->
 
               <!--Generate PDF File Button -->
               <div
@@ -395,8 +395,9 @@ const handlePrint = () => {
                 <tr>
                   <th scope="col" class="px-4 py-3 ">ID</th>
                   <th scope="col" class="px-4 py-3">Name</th>
-                  <th scope="col" class="px-4 py-3">Longitude</th>
-                  <th scope="col" class="px-4 py-3">Latitude</th>
+                  <!-- <th scope="col" class="px-4 py-3">Longitude</th>
+                  <th scope="col" class="px-4 py-3">Latitude</th> -->
+                  <th scope="col" class="px-4 py-3">Coordinates</th>
                   <th scope="col" class="px-4 py-3">No. of Cases</th>
                   <th scope="col" class="px-4 py-3">Visit Barangay</th>
                   <th scope="col" class="px-4 py-3">Actions</th>
@@ -408,13 +409,18 @@ const handlePrint = () => {
 
                   <td class="px-4 py-3 ">{{ barangay.id }}</td>
                   <td class="px-4 py-3 ">{{ barangay.name }}</td>
-                  <td class="px-4 py-3">
+                  <!-- <td class="px-4 py-3">
                     <span v-if="barangay.longitude">{{ barangay.longitude }}</span>
                     <Badge v-else Message="No Data for Longitude" />
                   </td>
                   <td class="px-4 py-3">
                     <span v-if="barangay.latitude">{{ barangay.latitude }}</span>
                     <Badge v-else Message="No Data for Latitude" />
+                  </td> -->
+                  <td class="px-4 py-3">
+                    Long: <span v-if="barangay.longitude" class="font-bold">{{ barangay.longitude }}</span>
+                    <br>
+                    Lat: <span v-if="barangay.latitude" class="font-bold">{{ barangay.latitude }}</span>
                   </td>
                   <td class="px-4 py-3">
                     <span v-if="barangay.report && barangay.report.total_reports">{{ barangay.report.total_reports }}</span>

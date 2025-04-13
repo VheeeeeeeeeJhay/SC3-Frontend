@@ -54,37 +54,6 @@ const data = ref({
   urgency_id: '',
 });
 
-// Store Fetch Data From Backend In An Array
-// const sources = ref([]);
-// const actions = ref([]);
-// const incidents = ref([]);
-// const assistance = ref([]);
-// const barangays = ref([]);
-// const urgencies = ref([]);
-
-// const fetchData = async () => {
-//   await axiosClient.get('/api/911/report', {
-//     headers: {
-//       'x-api-key': import.meta.env.VITE_API_KEY
-//     }
-//   })
-//     .then((res) => {
-//       sources.value = res.data.sources;
-//       actions.value = res.data.actions;
-//       incidents.value = res.data.incidents;
-//       assistance.value = res.data.assistance;
-//       barangays.value = res.data.barangays;
-//       urgencies.value = res.data.urgencies;
-//     })
-//     .catch((error) => {
-//       console.error('Error fetching data:', error);
-//       errors.value = 'Failed to load data. Please try again later.';
-//     });
-// }
-// onMounted(() => {
-//   fetchData();
-// });
-
 const databaseStore = useDatabaseStore();
 
 let refreshInterval = null;
@@ -149,14 +118,8 @@ const submitForm = async () => {
         clearForm();
         errors.value = [];
         console.log(message.value)
-        fetchData();
+        databaseStore.fetchData();
       })
-    // .catch(error => {
-    //   console.log('Error:', error.response.data);
-    //     errors.value = error.response.data.errors;
-    //     // errors.value = error.response.data;
-    //     // console.log(errors.value)
-    // })
   } catch (error) {
     console.error(error.response.data);
     errors.value = `An error occurred: ${error.response.data}`;
@@ -349,21 +312,22 @@ const closeDropdown = () => {
 </script>
 
 <template>
-  <div class="min-h-screen p-4">
+  <div class="min-h-screen p-1">
     <!-- Titleee -->
     <div class="mt-6 px-2 flex justify-between">
       <h1 class="text-2xl font-bold dark:text-white mb-2">Add a New Report</h1>
-      <Button type="button" name="Back" @click.prevent="router.back()"
+      <PrimaryButton type="button" name="Back" @click.prevent="router.back()"
         class="px-3 py-1 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200 flex items-center">
         <span class="material-icons mr-2"> arrow_back </span>
         Back
-      </Button>
+      </PrimaryButton>
     </div>
 
     <main class="flex-1 px-2">
 
       <form @submit.prevent="submitForm" class="space-y-6 mt-6 mx-auto max-w-6xl">
-        <div class="p-6 rounded-lg shadow-lg flex bg-sky-50 text-gray-800 dark:bg-slate-800 dark:text-white">
+        <div class="p-6 rounded-lg shadow-lg shadow-blue-500/40 ring-2 ring-blue-500/90 flex bg-sky-50 text-gray-800 dark:bg-black dark:text-white">
+
           <div class="w-1/2 pr-4">
             <h2 class="text-2xl font-bold mb-6 ">Report Information</h2>
             <div class="grid grid-cols-2 gap-4 mb-8">

@@ -38,11 +38,11 @@ const dashboardRole = async (user) => {
                 'x-api-key': import.meta.env.VITE_API_KEY
             }
         });
-        console.log('Role updated successfully');
         // Update local state instantly
         user.for_911 = newRoleStatus;
         type.value = 'success';
         message.value = response.data.message;
+        databaseStore.fetchData();
     } catch (error) {
         type.value = 'error';
         console.error(error.response?.data?.error);
@@ -74,6 +74,7 @@ const inventoryRole = async (user) => {
         type.value = 'success';
         user.for_inventory = newRoleStatus;
         message.value = response.data.message;
+        databaseStore.fetchData();
     } catch (error) {
         type.value = 'error';
         console.error(error.response?.data?.message || error.message);
@@ -84,18 +85,17 @@ const inventoryRole = async (user) => {
 // Archive User
 const archiveUser = async (user) => {
     try {
-        const response = await axiosClient.patch(`/api/911/user-archive/${user.id}`, { for_911: 0, for_inventory: 0 },
-            {
-                headers: {
-                    'x-api-key': import.meta.env.VITE_API_KEY,
-                }
-            });
-
+        const response = await axiosClient.patch(`/api/911/user-archive/${user.id}`, { is_deleted: 1 },
+        {
+            headers: {
+                'x-api-key': import.meta.env.VITE_API_KEY,
+            }
+        });
         // Update local state instantly
         type.value = 'success';
         message.value = response.data.message;
-        user.for_911 = 0;
-        user.for_inventory = 0;
+        user.is_deleted = 1;
+        databaseStore.fetchData();
     } catch (error) {
         type.value = 'error';
         console.error(error.response?.data?.message || error.message);
@@ -378,8 +378,8 @@ const handlePrint = () => {
                             <th scope="col" class="px-4 py-3">ID</th>
                             <th scope="col" class="px-4 py-3">Name</th>
                             <th scope="col" class="px-4 py-3">Email</th>
-                            <th scope="col" class="px-4 py-3">Dashboard</th>
-                            <th scope="col" class="px-4 py-3">Inventory</th>
+                            <th scope="col" class="px-4 py-3">Roles</th>
+                            <!-- <th scope="col" class="px-4 py-3">Inventory</th> -->
                             <th scope="col" class="px-4 py-3">Actions</th>
                         </tr>
                     </thead>
@@ -390,11 +390,9 @@ const handlePrint = () => {
                             <td class="px-4 py-3">{{ user.firstName }} {{ user.middleName }} {{ user.lastName }}</td>
                             <td class="px-4 py-3">{{ maskEmail(user.email) }}</td>
                             <td class="px-4 py-3">
-                                <Badge :Message="user.for_911 ? `Has Access` : `No Access`"
-                                    :class="[user.for_911 ? 'bg-green-700' : 'bg-red-700']" />
-                            </td>
-                            <td class="px-4 py-3">
-                                <Badge :Message="user.for_inventory ? `Has Access` : `No Access`"
+                                911: <Badge :Message="user.for_911 ? `Has Access` : `No Access`"
+                                    :class="[user.for_911 ? 'bg-green-700' : 'bg-red-700']" /> 
+                                Inventory: <Badge :Message="user.for_inventory ? `Has Access` : `No Access`"
                                     :class="[user.for_inventory ? 'bg-green-700' : 'bg-red-700']" />
                             </td>
                             <td class="px-4 py-3 flex items-center relative">

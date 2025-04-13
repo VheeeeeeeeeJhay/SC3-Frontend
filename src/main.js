@@ -21,4 +21,5 @@ createApp(App)
   .component('Loader1', Loader1)
   .component('ToolTip', ToolTip)
   .component('Toast', Toast)
+  .component('Badge', Badge)
   .mount("#app");
