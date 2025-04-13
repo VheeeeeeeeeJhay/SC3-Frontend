@@ -157,7 +157,7 @@ const maskEmail = (email) => {
 // Role
 const archiveUser = async (user) => {
     try {
-        const response = await axiosClient.patch(`/api/911/user-archive/${user.id}`, { for_911: 1, for_inventory: 1 },
+        const response = await axiosClient.patch(`/api/911/user-archive/${user.id}`, { is_deleted: 0 },
             {
                 headers: {
                     'x-api-key': import.meta.env.VITE_API_KEY,
@@ -166,8 +166,7 @@ const archiveUser = async (user) => {
         type.value = 'success';
         message.value = response.data.message;
         // Update local state instantly
-        user.for_911 = 1;
-        user.for_inventory = 1;
+        user.is_deleted = 0;
     } catch (error) {
         console.error(error.response?.data?.message || 'Failed to re-activate user');
         type.value = 'error';
@@ -230,8 +229,7 @@ const visiblePages = computed(() => {
                             <th scope="col" class="px-4 py-3">ID</th>
                             <th scope="col" class="px-4 py-3">Name</th>
                             <th scope="col" class="px-4 py-3">Email</th>
-                            <th scope="col" class="px-4 py-3">Dashboard</th>
-                            <th scope="col" class="px-4 py-3">Inventory</th>
+                            <th scope="col" class="px-4 py-3">Access</th>
                             <th scope="col" class="px-4 py-3">Actions</th>
                         </tr>
                     </thead>
@@ -242,12 +240,7 @@ const visiblePages = computed(() => {
                             <td class="px-4 py-3">{{ user.firstName }} {{ user.middleName }} {{ user.lastName }}</td>
                             <td class="px-4 py-3">{{ maskEmail(user.email) }}</td>
                             <td class="px-4 py-3">
-                                <Badge :Message="user.for_911 ? `Has Access` : `No Access`"
-                                    :class="[user.for_911 ? 'bg-green-700' : 'bg-red-700']" />
-                            </td>
-                            <td class="px-4 py-3">
-                                <Badge :Message="user.for_inventory ? `Has Access` : `No Access`"
-                                    :class="[user.for_inventory ? 'bg-green-700' : 'bg-red-700']" />
+                                <Badge :Message="'User is archived'" class="bg-red-700" />
                             </td>
                             <td class="px-4 py-3 flex items-center relative">
                                 <button @click.stop="toggleDropdown(user.id)"
