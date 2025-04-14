@@ -445,7 +445,7 @@ const showPreviewDrawer = ref(false)
 
         <!-- Top Performing Card -->
         <div class="p-4 bg-white dark:bg-black border-2 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500">
-          <!-- <TopPerforming :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" /> -->
+          <TopPerforming :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" />
         </div>
       </div>
 
