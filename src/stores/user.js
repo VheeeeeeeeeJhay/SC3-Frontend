@@ -15,6 +15,11 @@ const useUserStore = defineStore('user', {
       .then(({data}) => {
         // console.log(data)
         this.user = data
+
+        if (!this.user.for_911) {
+          router.push({ name: 'Login', query: { message: 'Access denied: This feature is only available for 911 personnel.' } });
+          // return;
+        }
       })
     }
   }

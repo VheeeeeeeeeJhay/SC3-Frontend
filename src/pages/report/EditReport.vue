@@ -41,8 +41,8 @@ const data = ref({
     longitude: storage.value.longitude,
     latitude: storage.value.latitude,
     urgency: storage.value.urgency.id,
+    description: storage.value.description,
 });
-console.log("Data:::::::::::::::::::::::::::::::::::");
 
 const originalData = shallowRef('');
 
@@ -71,7 +71,8 @@ const updateForm = async () => {
         assistance_id: data.value.assistance,
         longitude: data.value.longitude,
         latitude: data.value.latitude,
-        urgency_id: data.value.urgency
+        urgency_id: data.value.urgency,
+        description: data.value.description
     };
     console.log(data.value.longitude, 'lngitude');
     console.log(data.value.latitude, 'latitude');
@@ -284,83 +285,101 @@ const openDatePicker = () => {
                     <div
                         class="p-6 rounded-lg shadow-lg flex bg-sky-50 text-gray-800 dark:bg-slate-800 dark:text-white">
                         <div class="w-1/2 pr-4">
-                            <h2 class="text-2xl font-bold mb-6">Report Information</h2>
-                            <div class="grid grid-cols-2 gap-4 mb-8">
+                            <h2 class="text-2xl font-bold mb-4 ">Report Information</h2>
+                            <div class="grid grid-cols-2 grid-rows-1 gap-2">
 
-                                <div class="form-group">
-                                    <label for="incidentType" class="block text-sm font-medium mb-2">
-                                        Case Classification
-                                        <ToolTip Information="This is the type of assistance that is being reported." />
-                                    </label>
-                                    <select id="incidentType" v-model="data.assistance"
-                                        class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
-                                        <option disabled value="">Select classification</option>
-                                        <option v-for="assistance in assistance" :key="assistance.id"
-                                            :value="assistance.id">{{ assistance.assistance }}</option>
-                                    </select>
-                                    <span class="text-sm text-red-500" v-if="errors.classification && errors.classification.length">{{ errors.classification[0] }}</span>
-                                </div>
-
-                                <div class="form-group">
-                                    <!-- <FormInput name="source" class="px-4 py-2 border rounded-md mr-2 text-white bg-gray-600" v-model="data.source.sources" /> -->
-                                    <label for="source" class="block text-sm font-medium mb-2">
-                                        Source of Report
-                                        <ToolTip Information="This is the type of assistance that is being reported." />
-                                    </label>
-                                    <select id="source" v-model="data.source"
-                                        class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
-                                        <option disabled value="">Select source</option>
-                                        <option v-for="source in sources" :key="source.id" :value="source.id">
-                                            {{ source.sources || "No Source Available" }}
-                                        </option>
-                                    </select>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="incident" class="block text-sm font-medium mb-2">
-                                        Incident/Case
-                                        <ToolTip Information="This is the type of incident that is being reported." />
-                                    </label>
-                                    <select id="incident" v-model="data.incident"
-                                        class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white"
-                                        :disabled="!data.assistance || filteredIncidents.length === 0">
-                                        <option disabled value="">Select incident</option>
-                                        <option v-for="incident in filteredIncidents" :key="incident.id"
-                                            :value="incident.id">
-                                            {{ incident.type }}
-                                        </option>
-                                    </select>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="actionType" class="block text-sm font-medium mb-2">
-                                        Type of Action
-                                        <ToolTip Information="This is the type of action that is being reported." />
-                                    </label>
-                                    <select id="actionType" v-model="data.actions"
-                                        class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
-                                        <option disabled value="">Select action</option>
-                                        <option v-for="action in actions" :key="action.id" :value="action.id">{{
-                                            action.actions }}</option>
-                                    </select>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="urgency" class="block text-sm font-medium mb-2">
-                                        Urgency
-                                        <ToolTip Information="This is the urgency of the report." />
-                                    </label>
-                                    <select id="urgency" v-model="data.urgency"
-                                        class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
-                                        <option disabled value="">Select urgency</option>
-                                        <option v-for="urgency in urgencies" :key="urgency.id" :value="urgency.id">
-                                            {{ urgency.urgency }}</option>
-                                    </select>
-                                </div>
+                            <div class="form-group">
+                                <label for="source_id" class="block text-sm font-medium mb-2">Source of
+                                Report
+                                <ToolTip Information="This is the source of the report." />
+                                </label>
+                                <select id="source_id" v-model="data.source"
+                                class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
+                                <option disabled value="">Select source</option>
+                                <option v-for="source in sources" :key="source.id" :value="source.id">
+                                    {{ source.sources || "No Source Available" }}
+                                </option>
+                                </select>
+                                <span class="text-sm text-red-500" v-if="errors.source && errors.source.length">{{
+                                errors.source[0] }}</span>
                             </div>
 
-                            <h2 class="text-2xl font-bold mb-6 mt-12">Time Information</h2>
-                            <div class="space-y-4 grid grid-cols-2 gap-4 mb-8">
+                            <div class="form-group">
+                                <label for="actions_id" class="block text-sm font-medium mb-2">Type of
+                                Action
+                                <ToolTip Information="This is the type of action that is being reported." />
+                                </label>
+                                <select id="actions_id" v-model="data.actions"
+                                class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
+                                <option disabled value="">Select action</option>
+                                <option v-for="action in actions" :key="action.id" :value="action.id">{{ action.actions }}</option>
+                                </select>
+                                <span class="text-sm text-red-500" v-if="errors.actions && errors.actions.length">{{
+                                errors.actions[0] }}</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="assistance_id" class="block text-sm font-medium mb-2">Case
+                                Classification
+                                <ToolTip Information="This is the type of assistance that is being reported." />
+                                </label>
+                                <select id="assistance_id" v-model="data.assistance"
+                                class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
+                                <option disabled value="">Select classification</option>
+                                <option v-for="assistance in assistance" :key="assistance.id" :value="assistance.id">{{
+                                    assistance.assistance }}</option>
+                                </select>
+                                <span class="text-sm text-red-500" v-if="errors.assistance && errors.assistance.length">{{
+                                errors.assistance[0] }}</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="incident_id" class="block text-sm font-medium mb-2">
+                                Incident/Case
+                                <ToolTip Information="This is the incident or case that is being reported." />
+                                </label>
+                                <select id="incident_id" v-model="data.incident" :class="[
+                                'w-full p-3 rounded-lg border focus:ring-2 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white',
+                                (!data.assistance || filteredIncidents.length === 0)
+                                    ? 'opacity-50 cursor-not-allowed'
+                                    : 'focus:ring-blue-500'
+                                ]" :disabled="!data.assistance || filteredIncidents.length === 0">
+                                <option disabled value="">Select incident</option>
+                                <option v-for="incident in filteredIncidents" :key="incident.id" :value="incident.id">
+                                    {{ incident.type }}
+                                </option>
+                                </select>
+                                <span class="text-sm text-red-500" v-if="errors.incident && errors.incident.length">{{
+                                errors.incident[0] }}</span>
+                            </div>
+
+                            <div class="form-group col-span-2">
+                                <label for="description" class="block text-sm font-medium mb-2">Description
+                                <ToolTip Information="This is the description of the report." />
+                                </label>
+                                <textarea id="description" v-model="data.description" placeholder="Enter description of case"
+                                class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white"></textarea>
+                            </div>
+
+                            <div class="form-group row-start-4">
+                                <label for="urgency_id" class="block text-sm font-medium mb-2">Urgency
+                                <ToolTip Information="This is the urgency of the report." />
+                                </label>
+                                <select id="urgency_id" v-model="data.urgency"
+                                class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
+                                <option disabled value="">Select urgency</option>
+                                <option v-for="urgency in urgencies" :key="urgency.id" :value="urgency.id">
+                                    {{ urgency.urgency }}
+                                </option>
+                                </select>
+                                <span class="text-sm text-red-500" v-if="errors.urgency && errors.urgency.length">{{
+                                errors.urgency[0] }}</span>
+                            </div>
+                            </div>
+                            
+
+                            <h2 class="text-2xl font-bold mb-4 mt-6">Time Information</h2>
+                            <div class="grid grid-cols-2 grid-rows-1 gap-2">
                                 <div class="form-group relative">
                                     <label for="receivedDate" class="block text-sm font-medium mb-2">
                                         Date Received
@@ -374,7 +393,7 @@ const openDatePicker = () => {
                                 </div>
                                 <div class="form-group relative">
                                     <label for="arrival_on_site" class="block text-sm font-medium mb-2">
-                                        Time of Arrival on Site {{ arrival_on_site }}
+                                        Time of Arrival on Site
                                         <ToolTip Information="This is the time when the report was received." />
                                     </label>
 
@@ -461,7 +480,7 @@ const openDatePicker = () => {
                                     <!-- <PrimaryButton type="button" name="Clear" @click="clearForm"
                               class="px-6 py-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200" /> -->
                                     <PrimaryButton type="submit" name="Update Report"
-                                        class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200" />
+                                        class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200" />
                                 </div>
                             </div>
                         </div>

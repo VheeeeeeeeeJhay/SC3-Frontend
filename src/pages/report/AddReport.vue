@@ -30,6 +30,7 @@ const clearForm = () => {
     longitude: '',
     latitude: '',
     urgency_id: '',
+    description: '',
   }
 };
 
@@ -52,6 +53,7 @@ const data = ref({
   actions_id: '',
   barangay_id: '',
   urgency_id: '',
+  description: '',
 });
 
 const databaseStore = useDatabaseStore();
@@ -59,32 +61,32 @@ const databaseStore = useDatabaseStore();
 let refreshInterval = null;
 
 onMounted(() => {
-    databaseStore.fetchData();
+  databaseStore.fetchData();
 
-    refreshInterval = setInterval(() => {
-        databaseStore.fetchData();
-    }, 50000);
-    
+  refreshInterval = setInterval(() => {
+    databaseStore.fetchData();
+  }, 50000);
+
 });
 
 const computedProperties = {
-    sources: "sources",
-    actions: "actions",
-    incidents: "incidents",
-    assistance: "assistance",
-    urgencies: "urgencies",
-    barangays: "barangays",
+  sources: "sources",
+  actions: "actions",
+  incidents: "incidents",
+  assistance: "assistance",
+  urgencies: "urgencies",
+  barangays: "barangays",
 };
 
-const { 
-    sources, 
-    actions, 
-    incidents, 
-    assistance, 
-    urgencies, 
-    barangays 
+const {
+  sources,
+  actions,
+  incidents,
+  assistance,
+  urgencies,
+  barangays
 } = Object.fromEntries(
-    Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
+  Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
 );
 
 const errors = ref([])
@@ -106,6 +108,7 @@ const submitForm = async () => {
     formData.append('longitude', data.value.longitude)
     formData.append('latitude', data.value.latitude)
     formData.append('urgency_id', data.value.urgency_id)
+    formData.append('description', data.value.description)
     console.log(formData)
     await axiosClient.post('/api/911/report', formData, {
       headers: {
@@ -127,7 +130,6 @@ const submitForm = async () => {
     errors.value = error.response.data.errors;
   }
 };
-
 
 
 // Filter The Incident/Case Base On The Assistance Type
@@ -190,9 +192,9 @@ onMounted(() => {
       }
 
       if (marker) {
-      map.removeLayer(marker);
-      marker = null;
-    }
+        map.removeLayer(marker);
+        marker = null;
+      }
 
       // Add a new marker
       singleMarker = leaflet
@@ -326,26 +328,12 @@ const closeDropdown = () => {
     <main class="flex-1 px-2">
 
       <form @submit.prevent="submitForm" class="space-y-6 mt-6 mx-auto max-w-6xl">
-        <div class="p-6 rounded-lg shadow-lg shadow-blue-500/40 ring-2 ring-blue-500/90 flex bg-sky-50 text-gray-800 dark:bg-black dark:text-white">
+        <div
+          class="p-6 rounded-lg shadow-lg shadow-blue-500/40 ring-2 ring-blue-500/90 flex bg-sky-50 text-gray-800 dark:bg-black dark:text-white">
 
           <div class="w-1/2 pr-4">
-            <h2 class="text-2xl font-bold mb-6 ">Report Information</h2>
-            <div class="grid grid-cols-2 gap-4 mb-8">
-
-              <div class="form-group">
-                <label for="assistance_id" class="block text-sm font-medium mb-2">Case
-                  Classification
-                  <ToolTip Information="This is the type of assistance that is being reported." />
-                </label>
-                <select id="assistance_id" v-model="data.assistance_id"
-                  class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
-                  <option disabled value="">Select classification</option>
-                  <option v-for="assistance in assistance" :key="assistance.id" :value="assistance.id">{{
-                    assistance.assistance }}</option>
-                </select>
-                <span class="text-sm text-red-500" v-if="errors.assistance_id && errors.assistance_id.length">{{
-                  errors.assistance_id[0] }}</span>
-              </div>
+            <h2 class="text-2xl font-bold mb-4 ">Report Information</h2>
+            <div class="grid grid-cols-2 grid-rows-1 gap-2">
 
               <div class="form-group">
                 <label for="source_id" class="block text-sm font-medium mb-2">Source of
@@ -361,6 +349,35 @@ const closeDropdown = () => {
                 </select>
                 <span class="text-sm text-red-500" v-if="errors.source_id && errors.source_id.length">{{
                   errors.source_id[0] }}</span>
+              </div>
+
+              <div class="form-group">
+                <label for="actions_id" class="block text-sm font-medium mb-2">Type of
+                  Action
+                  <ToolTip Information="This is the type of action that is being reported." />
+                </label>
+                <select id="actions_id" v-model="data.actions_id"
+                  class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
+                  <option disabled value="">Select action</option>
+                  <option v-for="action in actions" :key="action.id" :value="action.id">{{ action.actions }}</option>
+                </select>
+                <span class="text-sm text-red-500" v-if="errors.actions_id && errors.actions_id.length">{{
+                  errors.actions_id[0] }}</span>
+              </div>
+
+              <div class="form-group">
+                <label for="assistance_id" class="block text-sm font-medium mb-2">Case
+                  Classification
+                  <ToolTip Information="This is the type of assistance that is being reported." />
+                </label>
+                <select id="assistance_id" v-model="data.assistance_id"
+                  class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
+                  <option disabled value="">Select classification</option>
+                  <option v-for="assistance in assistance" :key="assistance.id" :value="assistance.id">{{
+                    assistance.assistance }}</option>
+                </select>
+                <span class="text-sm text-red-500" v-if="errors.assistance_id && errors.assistance_id.length">{{
+                  errors.assistance_id[0] }}</span>
               </div>
 
               <div class="form-group">
@@ -383,21 +400,15 @@ const closeDropdown = () => {
                   errors.incident_id[0] }}</span>
               </div>
 
-              <div class="form-group">
-                <label for="actions_id" class="block text-sm font-medium mb-2">Type of
-                  Action
-                  <ToolTip Information="This is the type of action that is being reported." />
+              <div class="form-group col-span-2">
+                <label for="description" class="block text-sm font-medium mb-2">Description
+                  <ToolTip Information="This is the description of the report." />
                 </label>
-                <select id="actions_id" v-model="data.actions_id"
-                  class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white">
-                  <option disabled value="">Select action</option>
-                  <option v-for="action in actions" :key="action.id" :value="action.id">{{ action.actions }}</option>
-                </select>
-                <span class="text-sm text-red-500" v-if="errors.actions_id && errors.actions_id.length">{{
-                  errors.actions_id[0] }}</span>
+                <textarea id="description" v-model="data.description" placeholder="Enter description of case"
+                  class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white"></textarea>
               </div>
 
-              <div class="form-group">
+              <div class="form-group row-start-4">
                 <label for="urgency_id" class="block text-sm font-medium mb-2">Urgency
                   <ToolTip Information="This is the urgency of the report." />
                 </label>
@@ -413,8 +424,8 @@ const closeDropdown = () => {
               </div>
             </div>
 
-            <h2 class="text-2xl font-bold mb-6 mt-12">Time Information</h2>
-            <div class="space-y-4 grid grid-cols-2 gap-4 mb-8">
+            <h2 class="text-2xl font-bold mb-4 mt-6">Time Information</h2>
+            <div class="grid grid-cols-2 grid-rows-1 gap-2">
               <div class="form-group relative">
                 <label for="date_received" class="block text-sm font-medium mb-2">
                   Date Received
@@ -528,9 +539,9 @@ const closeDropdown = () => {
               </div>
               <div class="flex justify-end space-x-4 mt-8">
                 <PrimaryButton type="button" name="Clear" @click="clearForm"
-                  class="px-6 py-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200" />
+                  class="w-1/2 px-6 py-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200" />
                 <PrimaryButton type="submit" name="Add Report"
-                  class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200" />
+                  class="w-1/2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200" />
               </div>
             </div>
           </div>

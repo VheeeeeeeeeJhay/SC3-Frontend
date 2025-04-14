@@ -17,40 +17,52 @@ const props = defineProps({
 
 const urgencyBannerColor = computed(() => {
   switch (data.value.urgency) {
-    case 'Emergent':
-      return 'bg-red-600';
-    case 'Urgent':
+    case 'Life-Saving':
+      return 'bg-red-500';
+    case 'Critical':
       return 'bg-orange-500';
-    case 'Less Urgent':
-      return 'bg-yellow-400 text-black';
+    case 'High Priority':
+      return 'bg-yellow-500 text-black';
+    case 'Moderate':
+      return 'bg-green-500 text-white';
+    case 'Low Priority':
+      return 'bg-gray-500 text-white';
     default:
-      return 'bg-green-600';
+      return 'bg-gray-500 text-white';
   }
 });
 
 const urgencyBorderColor = computed(() => {
   switch (data.value.urgency) {
-    case 'Emergent':
-      return 'border-red-600';
-    case 'Urgent':
+    case 'Life-Saving':
+      return 'border-red-500';
+    case 'Critical':
       return 'border-orange-500';
-    case 'Less Urgent':
-      return 'border-yellow-400';
+    case 'High Priority':
+      return 'border-yellow-500';
+    case 'Moderate':
+      return 'border-green-500';
+    case 'Low Priority':
+      return 'border-gray-500';
     default:
-      return 'border-green-600';
+      return 'border-gray-500';
   }
 });
 
 const urgencyShadowColor = computed(() => {
   switch (data.value.urgency) {
-    case 'Emergent':
-      return 'shadow-red-600';
-    case 'Urgent':
+    case 'Life-Saving':
+      return 'shadow-red-500';
+    case 'Critical':
       return 'shadow-orange-500';
-    case 'Less Urgent':
-      return 'shadow-yellow-400';
+    case 'High Priority':
+      return 'shadow-yellow-500';
+    case 'Moderate':
+      return 'shadow-green-500';
+    case 'Low Priority':
+      return 'shadow-gray-500';
     default:
-      return 'shadow-green-600';
+      return 'shadow-gray-500';
   }
 });
 
@@ -68,6 +80,7 @@ const data = ref({
   longitude: storage.value.barangay.longitude,
   latitude: storage.value.barangay.latitude,
   urgency: storage.value.urgency.urgency,
+  description: storage.value.description,
 });
 </script>
 
@@ -75,7 +88,7 @@ const data = ref({
  <div class="min-h-screen p-4 text-black dark:text-white bg-white dark:bg-gray-950">
   <!-- Back Button -->
   <div class="mb-4 flex justify-end">
-  <Button
+  <PrimaryButton
     type="button"
     name="Back"
     @click.prevent="router.back()"
@@ -83,7 +96,7 @@ const data = ref({
   >
     <span class="material-icons mr-2">arrow_back</span>
     Back
-  </Button>
+  </PrimaryButton>
 </div>
 
     
@@ -134,6 +147,9 @@ const data = ref({
               <p><span class="font-semibold text-blue-500 dark:text-blue-300">Date Received:</span> {{ data.date_received }}</p>
               <p><span class="font-semibold text-blue-500 dark:text-blue-300">Arrival Time:</span> {{ data.arrival_on_site }}</p>
               <p><span class="font-semibold text-blue-500 dark:text-blue-300">Incident Time:</span> {{ data.time }}</p>
+            </div>
+            <div class="col-span-2">
+              <p><span class="font-semibold text-blue-500 dark:text-blue-300">Description:</span> {{ data.description }}</p>
             </div>
           </div>
 
