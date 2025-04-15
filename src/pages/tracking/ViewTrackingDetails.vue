@@ -96,6 +96,18 @@ const visiblePages = computed(() => {
   );
 });
 
+const formattedStorageDate = computed(() => {
+  if (!storage.value?.created_at) return '';
+  const date = new Date(storage.value.created_at);
+  return date.toLocaleString('en-PH', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+});
 
 //Restore axios
 const restoredReports = ref(new Set());
@@ -159,7 +171,7 @@ const restoreReport = async (event, report) => {
                         <td class="px-4 py-3 text-center">{{ storage.category }}</td>
                         <td class="px-4 py-3 text-center">{{ storage.action }}</td>
                         <td class="px-4 py-3 text-center">{{ storage.description }}</td>
-                        <td class="px-4 py-3 text-center">{{ storage.created_at }}</td>
+                        <td class="px-4 py-3 text-center">{{ formattedStorageDate }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -191,7 +203,7 @@ const restoreReport = async (event, report) => {
                         <th scope="col" class="px-4 py-3 text-center">Incident/Case</th>
                         <th scope="col" class="px-4 py-3 text-center">Description</th>
                         <th scope="col" class="px-4 py-3 text-center">Location</th>
-                        <th v-if="storage.action === 'restore'" scope="col" class="px-4 py-3 text-center">Action</th>
+                        <th v-if="storage.action === 'Deleted' || storage.action === 'Multiple Delete'" scope="col" class="px-4 py-3 text-center">Action</th>
                     </tr>
                 </thead>
                 <tbody>

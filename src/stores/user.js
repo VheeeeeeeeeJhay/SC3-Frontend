@@ -15,10 +15,21 @@ const useUserStore = defineStore("user", {
             "x-api-key": import.meta.env.VITE_API_KEY
           }
         });
+        
+        // Check if user is allowed to login (for_911 must be true)
+        if (!data.for_911) {
+          // Clear any existing user data
+          this.user = null;
+          // Redirect to login page
+          this.$router.push('/login');
+          throw new Error('Access denied: User is not authorized for 911 system');
+        }
+        
         this.user = data; // Store the fetched user data in the state
       } catch (error) {
         console.error("Error fetching user:", error);
         // Optionally, handle the error here (e.g., show an error message in the UI)
+        this.user = null; // Clear user data on error
       }
     },
 
@@ -34,11 +45,6 @@ const useUserStore = defineStore("user", {
       } catch (error) {
         console.error("Error updating user:", error);
         throw error;
-
-        if (!this.user.for_911) {
-          router.push({ name: 'Login', query: { message: 'Access denied: This feature is only available for 911 personnel.' } });
-          // return;
-        }
       }
     }    
   }

@@ -27,16 +27,40 @@ const submit = () => {
         'x-api-key': import.meta.env.VITE_API_KEY
       }
     })
-      .then(response => {
-        router.push({ name: 'Overview' })
+    .then(response => {
+      // Check if user is allowed to login (for_911 must be true)
+      return axiosClient.get("/api/user", {
+        headers: {
+          'x-api-key': import.meta.env.VITE_API_KEY
+        }
       })
-      .catch(error => {
-        console.log(error.response.data.message)
+    })
+    .then(response => {
+      if (!response.data.for_911) {
+        throw new Error('Access denied: User is not authorized for 911 system');
+      }
+      // Only proceed to dashboard if user is authorized
+      router.push({ name: 'Overview' })
+    })
+    .catch(error => {
+      // Clear any existing user session if login fails
+      axiosClient.post('/logout', {}, {
+        headers: {
+          'x-api-key': import.meta.env.VITE_API_KEY
+        }
+      }).catch(() => {})
+      
+      if (error.response?.data?.message) {
         errors.value = error.response.data.errors;
-      })
-      .finally(() => {
-        submitLoading.value = false
-      })
+      } else {
+        errors.value = {
+          email: ['Access denied: User is not authorized for 911 system']
+        }
+      }
+    })
+    .finally(() => {
+      submitLoading.value = false
+    })
   });
 }
 </script>
@@ -117,4 +141,3 @@ const submit = () => {
     </div>
   </div>
 </template>
-

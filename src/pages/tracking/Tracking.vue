@@ -105,6 +105,21 @@ onMounted(() => {
 const passingData = (log) => {
     store.setData(log);
 };
+
+const formattedDate = computed(() => {
+  return (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleString('en-PH', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+});
 </script>
 
 <template>
@@ -147,7 +162,7 @@ const passingData = (log) => {
                         <td class="px-4 py-3 text-center">{{ log.category }}</td>
                         <td class="px-4 py-3 text-center">{{ log.action }}</td>
                         <td class="px-4 py-3 text-center">{{ log.description }}</td>
-                        <td class="px-4 py-3 text-center">{{ log.created_at }}</td>
+                        <td class="px-4 py-3 text-center">{{ formattedDate(log.created_at) }}</td>
                         <td class="px-4 py-3 text-center relative">
                             <button @click.stop="toggleDropdown(log.id)"
                                 class="inline-flex items-center p-0.5 text-sm font-medium rounded-lg">
