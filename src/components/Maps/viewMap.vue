@@ -43,7 +43,7 @@ const fetchData = () => {
 };
 
 // **Import GeoJSON Data**
-import mapData from "../../assets/map.json";
+import mapData from "../../assets/updated-map.json";
 
 const { coords } = useGeolocation();
 const reports = ref([]);

@@ -17,7 +17,7 @@ import { useMapStore } from "../stores/mapStore"; // Import Pinia store for mana
 import DateRangePicker from "../components/DateRangePicker.vue";
 import monthYearPicker from "../components/monthYearPicker.vue"; // Import monthYearPicker component
 // Import map.json from assets folder (GeoJSON)
-import mapData from "../assets/map.json"; // Adjust the path as needed
+import mapData from "../assets/updated-map.json"; // Adjust the path as needed
 import { useDatabaseStore } from "../stores/databaseStore";
 
 
