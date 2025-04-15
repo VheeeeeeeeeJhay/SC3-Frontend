@@ -115,34 +115,39 @@ const updateDateRange = ({ start, end }) => {
   console.log("Date Range:", startDate.value, endDate.value);
 };
 
-//for image capture
-// import domtoimage from 'dom-to-image'
+// Fullscreen card logic
+const fullscreenCard = ref(null);
+const expandCard = (cardName) => {
+  fullscreenCard.value = cardName;
+};
+const closeFullscreen = () => {
+  fullscreenCard.value = null;
+};
 
-// const captureTarget = ref(null)
-// const exportedImageUrl = ref(null)
+// Handle Escape key to exit fullscreen
+const handleKeydown = (e) => {
+  if (e.key === "Escape") {
+    closeFullscreen();
+  }
+};
+onMounted(() => {
+  window.addEventListener("keydown", handleKeydown);
+});
 
-// const exportAsImage = () => {
-//   if (!captureTarget.value) return;
+// Map string identifiers to components
+const componentMap = {
+  IncidentGrowthRate,
+  TotalReportsReceived,
+  TopPerforming,
+  LineChart,
+  BarChart,
+  PieChart,
+  RecentIncident,
+};
 
-//   const now = new Date()
-//   const timestamp = now.toISOString().replace(/[:.]/g, '-')
-//   const filename = `Barchart-${timestamp}.png`
-
-//   domtoimage.toPng(captureTarget.value)
-//     .then((dataUrl) => {
-//       // Save dataUrl for preview
-//       exportedImageUrl.value = dataUrl
-
-//       // Trigger download
-//       const link = document.createElement('a')
-//       link.download = filename
-//       link.href = dataUrl
-//       link.click()
-//     })
-//     .catch((error) => {
-//       console.error('oops, something went wrong!', error)
-//     })
-// }
+const fullscreenCardComponent = computed(() => {
+  return componentMap[fullscreenCard.value] || null;
+});
 
 import domtoimage from 'dom-to-image';
 

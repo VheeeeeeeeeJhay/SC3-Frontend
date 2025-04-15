@@ -85,7 +85,7 @@ const data = ref({
 </script>
 
 <template>
- <div class="min-h-screen p-4 text-black dark:text-white bg-white dark:bg-gray-950">
+ <div class="min-h-screen p-4 text-black dark:text-white bg-white dark:bg-gradient-to-br from-gray-900 via-gray-950 to-black ">
   <!-- Back Button -->
   <div class="mb-4 flex justify-end">
   <PrimaryButton
