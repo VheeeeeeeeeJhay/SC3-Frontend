@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import axiosClient from "../../axios";
 import leaflet from "leaflet";
 import "leaflet.heat";
@@ -33,6 +33,7 @@ const fetchData = () => {
       barangay_lat.value = data.value.latitude;
       barangay_long.value = data.value.longitude;
       barangay_name.value = data.value.name;
+      console.log("📍 Barangay marker:", barangay_lat.value, barangay_long.value);
 
       fetchReports();
       addGeoJSONLayer();
@@ -68,10 +69,18 @@ const fetchReports = () => {
       reports.value = allReports.filter(
         (report) => report.barangay?.name === barangay_name.value
       );
+      const reportCount = reports.value.length;
+      console.log("📦 Reports Count:", reportCount);
 
       console.log(`Filtered Reports for '${barangay_name.value}':`, reports.value); //2 
 
-      updateHeatmap();
+      // ✅ Call marker update with lat/lng/name/count
+      updateBarangayMarkers(
+        barangay_lat.value,
+        barangay_long.value,
+        barangay_name.value,
+        reportCount
+      );
     })
     .catch((error) => console.error("Error fetching reports:", error));
 };
@@ -109,77 +118,27 @@ onMounted(() => {
       }
     }
 
-  watch([barangay_lat, barangay_long], ([lat, lng]) => {
-  if (lat !== 0 && lng !== 0) {
-    console.log("📌 Updating marker position:", lat, lng);
-    map.setView([lat, lng], 16);
-    if (!viewId.value) {
-        console.log("📍 Adding marker...", viewId);
-        addMarker(barangay_lat.value, barangay_long.value);
-      }
-  }
-});
+    watch([barangay_lat, barangay_long], ([lat, lng]) => {
+    if (lat !== 0 && lng !== 0) {
+      console.log("📌 Updating marker position:", lat, lng);
+      map.setView([lat, lng], 16);
+      if (!viewId.value) {
+          console.log("📍 Adding marker...", viewId);
+          addMarker(barangay_lat.value, barangay_long.value);
+        }
+    }
+  });
 
   if (mapData && mapData.center && mapData.zoom) {
     map.setView(mapData.center, mapData.zoom);
   }
-  // ✅ **Heatmap Layer**
-  heatmapLayer.value = leaflet.heatLayer([], {
-    radius: 15,
-    blur: 20,
-    maxZoom: 12,
-    minOpacity: 0.5,
-    gradient: { 0.2: "blue", 0.4: "green", 0.6: "yellow", 0.8: "orange", 1.0: "red" },
-  }).addTo(map);
-
-  // ✅ Add Click Event for Heatmap Popups
-  map.on("click", (event) => {
-    const { lat, lng } = event.latlng;
-
-    let closestPoint = null;
-    let minDistance = Infinity;
-
-    // ✅ Find the closest heatmap point
-    heatmapPoints.value.forEach((point) => {
-      const distance = map.distance([lat, lng], [point[0], point[1]]);
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestPoint = { lat: point[0], lng: point[1] };
-      }
-    });
-
-    // ✅ If a close point is found within 50 meters, show popup
-    if (closestPoint && minDistance < 50) {
-      const matchingReport = reports.value.find(
-        (report) =>
-          report.latitude === closestPoint.lat &&
-          report.longitude === closestPoint.lng
-      );
-
-      let popupContent = "<strong>Reported Case</strong><br>";
-
-      if (matchingReport) {
-        popupContent += `<strong>Type:</strong> ${matchingReport.incident?.type || "Unknown"} <br>`;
-        popupContent += `<strong>Landmark:</strong> ${matchingReport.landmark || "N/A"} <br>`;
-        popupContent += `<strong>Reported By:</strong> ${matchingReport.name || "Anonymous"} <br>`;
-        popupContent += `<strong>Date:</strong> ${matchingReport.date_received || "Unknown"} <br>`;
-      } else {
-        popupContent += "No details available.";
-      }
-
-      // ✅ Close the previous persistent popup
-      if (persistentPopup) {
-        map.closePopup(persistentPopup);
-      }
-
-      // ✅ Create new persistent popup
-      persistentPopup = leaflet
-        .popup()
-        .setLatLng([closestPoint.lat, closestPoint.lng])
-        .setContent(popupContent)
-        .openOn(map);
-    }
-  });
+  if (viewId.value) {
+ 
+    const lat = data.value.latitude;
+    const lng = data.value.longitude;
+    // const name = barangay.name;
+    console.log("📍 Barangay marker:", lat, lng);
+}
 });
 
 const addMarker = (lat, lng) => {
@@ -193,27 +152,52 @@ const addMarker = (lat, lng) => {
   // Create a new marker
   marker.value = leaflet.marker([lat, lng])
     .addTo(map)
-    .bindPopup(`📍 Reported Location: (${lat}, ${lng})`)
+    .bindPopup(`📍 Reported Location: (${lat}, ${lng})`) //view map for view report
     .openPopup();
 };
 
 
-// ✅ **Update Heatmap with Data**
-const updateHeatmap = () => {
-  if (!map || !heatmapLayer.value) return;
+// const barangayMarkers = ref([]);
+// const barangayID = ref(props.viewID);
 
-  heatmapPoints.value = reports.value
-    .filter((r) => r.latitude && r.longitude)
-    .map((r) => [r.latitude, r.longitude, 1]);
+const updateBarangayMarkers = (lat, lng, name, count) => {
+  if (!map) return;
 
-  if (heatmapPoints.value.length === 0) {
-    console.warn("❌ No valid report locations found!");
-  } else {
-    console.log("✅ Updating heatmap with points:", heatmapPoints.value);
+  // Remove old marker if it exists
+  if (marker.value) {
+    map.removeLayer(marker.value);
   }
 
-  heatmapLayer.value.setLatLngs(heatmapPoints.value);
+  // Use a Leaflet circleMarker with fixed blue color
+  marker.value = leaflet
+    .circleMarker([lat, lng], {
+      radius: 12,
+      color: '#fff', // white border
+      weight: 3,
+      fillColor: '#007FFF', // blue fill
+      fillOpacity: 0.8,
+    })
+    .addTo(map)
+    .bindPopup(`
+      <strong>Barangay:</strong> ${name}<br/>
+      <strong>Total Reports:</strong> ${count}
+    `);
+
+  // Manually set the popup's anchor point
+  marker.value.on('popupopen', () => {
+    const popup = marker.value.getPopup();
+    const offset = leaflet.point(0, -15); // 15px above marker
+    popup.setLatLng(marker.value.getLatLng()).setOffset(offset);
+  });
+
+  // Open the popup immediately
+  marker.value.openPopup();
 };
+
+
+
+
+
 
 // ✅ **Function to Add Barangay Border + Dark Outside Effect**
 const addGeoJSONLayer = () => {

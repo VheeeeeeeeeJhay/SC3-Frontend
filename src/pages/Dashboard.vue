@@ -419,7 +419,7 @@ const showPreviewDrawer = ref(false)
         <!-- Line Chart Card -->
         <div ref="captureTarget" class="capture-box">
           <div class="p-4 bg-white dark:bg-black border-2 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500">
-            <!-- <LineChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" /> -->
+            <LineChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" />
           </div>
         </div>
 
@@ -429,7 +429,7 @@ const showPreviewDrawer = ref(false)
         
         <div ref="captureTarget1" class="capture-box">
           <div class="p-4 bg-white dark:bg-black border-2 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-400">
-            <!-- <BarChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" class="w-full h-full" /> -->
+            <BarChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" class="w-full h-full" />
           </div>
         </div>
         
@@ -437,7 +437,7 @@ const showPreviewDrawer = ref(false)
         <!-- 2nd -->
         <div ref="captureTarget2" class="capture-box">
           <div class="p-4 bg-white dark:bg-black border-2 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-400">
-            <!-- <LineChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" /> -->
+            <LineChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" />
           </div>
         </div>
       </div>
@@ -450,7 +450,7 @@ const showPreviewDrawer = ref(false)
 
         <!-- Recent Incident Card -->
         <div class="p-4 bg-white dark:bg-black border-2 border-gray-200 dark:border-blue-950 rounded-2xl shadow-xl dark:shadow-inner transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-green-500 text-gray-800 dark:text-white">
-          <!-- <RecentIncident /> -->
+          <RecentIncident />
         </div>
       </div>
     </main>

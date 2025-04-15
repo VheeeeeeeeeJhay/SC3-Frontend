@@ -58,35 +58,6 @@ const {
 
 // Access Pinia store for GeoJSON border visibility
 const mapStore = useMapStore();
-const errors = ref("");
-
-// const fetchData = async () => {
-//   try {
-//     const response = await axiosClient.get("/api/911/report-display", {
-//       headers: {
-//         "x-api-key": import.meta.env.VITE_API_KEY,
-//       },
-//     });
-//     reports.value = response.data[0] || []; // Ensure reports is an array even if empty
-//     console.log("Fetched Reports:", reports.value);
-
-//     // Check if reports have latitude/longitude
-//     reports.value.forEach((report) => {
-//       if (!report.barangay.latitude || !report.barangay.longitude) {
-//         console.warn(`Report missing lat/long: ${JSON.stringify(report)}`);
-//       }
-//     });
-
-//     // updateHeatmap();
-//   } catch (error) {
-//     console.error("Error fetching reports:", error);
-//     errors.value = error.response.data.error;
-//   }
-// };
-
-// onMounted(() => {
-//   fetchData();
-// });
 
 const startDate = ref(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
 const endDate = ref(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0));
