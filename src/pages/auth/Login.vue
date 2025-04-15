@@ -19,54 +19,54 @@ const errors = ref({
   password: [],
 })
 
-// const emailError = ref('');
-// let debounceTimeout;
-// watch(() => data.value.email, (newEmail) => {
-//   clearTimeout(debounceTimeout); // cancel the last timeout
+const emailError = ref('');
+let debounceTimeout;
+watch(() => data.value.email, (newEmail) => {
+  clearTimeout(debounceTimeout); // cancel the last timeout
 
-//   debounceTimeout = setTimeout(() => {
-//     if (!newEmail.includes("@")) {
-//       emailError.value = 'Email must contain an @ symbol.';
-//       console.log(emailError.value);
-//     } else if (newEmail.length === 0) {
-//       emailError.value = 'Email is required.';
-//       console.log(emailError.value);
-//     } else{
-//       emailError.value = '';
-//     }
-//   }, 1000);
-// }, { immediate: true });
+  debounceTimeout = setTimeout(() => {
+    if(newEmail === null) {
+      emailError.value = '';
+    } else if (!newEmail.includes("@")) {
+      emailError.value = 'Email must contain an @ symbol.';
+      console.log(emailError.value);
+    } else if (newEmail.length === 0) {
+      emailError.value = 'Email is required.';
+      console.log(emailError.value);
+    }
+  }, 1000);
+}, { immediate: true });
 
-// const passwordError = ref('')
-// const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-// watch(() => data.value.password, (newPassword) => {
-//   clearTimeout(debounceTimeout); // cancel the last timeout
+const passwordError = ref('')
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+watch(() => data.value.password, (newPassword) => {
+  clearTimeout(debounceTimeout); // cancel the last timeout
 
-//   debounceTimeout = setTimeout(() => {
-//     if (newPassword.length === 0) {
-//       passwordError.value = 'Password is required.';
-//       console.log(passwordError.value);
-//     } else if (!passwordRegex.test(newPassword)) {
-//       passwordError.value = 'Password must contain at least 1 lowercase, 1 uppercase, 1 digit, and 1 special character.';
-//       console.log(passwordError.value);
-//     } else if (newPassword.length < 8) {
-//       passwordError.value = 'Password must be at least 8 characters long.';
-//       console.log(passwordError.value);
-//     } else {
-//       passwordError.value = '';
-//     }
-//   }, 300)
-// }, { immediate: true })
+  debounceTimeout = setTimeout(() => {
+    if(newPassword === null) {
+      passwordError.value = '';
+    } else if(newPassword.length === 0) {
+      passwordError.value = 'Password is required.';
+      console.log(passwordError.value);
+    } else if (!passwordRegex.test(newPassword)) {
+      passwordError.value = 'Password must contain at least 1 lowercase, 1 uppercase, 1 digit, and 1 special character.';
+      console.log(passwordError.value);
+    } else if (newPassword.length < 8) {
+      passwordError.value = 'Password must be at least 8 characters long.';
+      console.log(passwordError.value);
+    }
+  }, 300)
+}, { immediate: true })
 
-// const validate = () => {
-//   return !emailError.value && !passwordError.value;
-// }
+const validate = () => {
+  return !emailError.value && !passwordError.value;
+}
 
 const submit = () => {
-  // if (!validate()) {
-  //   console.log('Validation failed');
-  //   return;
-  // }
+  if (!validate()) {
+    console.log('Validation failed');
+    return;
+  }
 
   submitLoading.value = true
   axiosClient.get('/sanctum/csrf-cookie').then(response => {
@@ -172,7 +172,7 @@ const submit = () => {
               />
               <p class="text-sm mt-1 text-red-600">
                 {{ errors.email ? errors.email[0] : '' }}
-                <!-- {{ emailError }} -->
+                {{ emailError }}
               </p>
             </div>
             <div>
@@ -181,11 +181,11 @@ const submit = () => {
                 type="password"
                 id="password"
                 v-model="data.password"
-                class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                :class="[!passwordError ? 'mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500' : 'mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500']"
               />
               <p class="text-sm mt-1 text-red-600">
                 {{ errors.password ? errors.password[0] : '' }}
-                <!-- {{ passwordError }} -->
+                {{ passwordError }}
               </p>
             </div>
             <button
