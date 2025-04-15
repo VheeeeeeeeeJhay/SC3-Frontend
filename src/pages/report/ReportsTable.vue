@@ -21,7 +21,7 @@ const databaseStore = useDatabaseStore();
 const store = useArrayStore();
 const passingData = (report) => {
     store.setData(report);
-    console.log(store.getData());
+    console.log(store.getData(),'=================================================================');
 }
 
 let refreshInterval = null;

@@ -391,9 +391,9 @@ const handlePrint = () => {
                             <td class="px-4 py-3">{{ maskEmail(user.email) }}</td>
                             <td class="px-4 py-3">
                                 911: <Badge :Message="user.for_911 ? `Has Access` : `No Access`"
-                                    :class="[user.for_911 ? 'bg-green-700' : 'bg-red-700']" /> 
+                                    :class="[user.for_911 ? 'bg-green-700' : 'bg-red-700', 'text-white']" /> 
                                 Inventory: <Badge :Message="user.for_inventory ? `Has Access` : `No Access`"
-                                    :class="[user.for_inventory ? 'bg-green-700' : 'bg-red-700']" />
+                                    :class="[user.for_inventory ? 'bg-green-700' : 'bg-red-700', 'text-white']" />
                             </td>
                             <td class="px-4 py-3 flex items-center relative">
                                 <button @click.stop="toggleDropdown(user.id)"
@@ -407,17 +407,17 @@ const handlePrint = () => {
                                 <div v-if="openDropdownId === user.id" ref="dropdownRefs"
                                     class="absolute z-10 w-44 mt-2 top-full left-0 shadow-sm border rounded-md bg-white dark:bg-slate-700">
                                     <ul class="py-2 text-sm">
-                                        <li>
+                                        <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
                                             <PrimaryButton @click.prevent="dashboardRole(user)"
-                                                :name="user.for_911 === 1 ? 'Revoke Access' : 'Grant Access'"
+                                                :name="user.for_911 === 1 ? 'Deactive 911 Access' : 'Activate 911 Access'"
                                                 class="mt-2 hover:text-gray-700 dark:hover:text-gray-300" />
                                         </li>
-                                        <li>
+                                        <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
                                             <PrimaryButton @click.prevent="inventoryRole(user)"
-                                                :name="user.for_inventory === 1 ? 'Revoke Access' : 'Grant Access'"
+                                                :name="user.for_inventory === 1 ? 'Deactive Inventory Access' : 'Activate Inventory Access'"
                                                 class="mt-2 hover:text-gray-700 dark:hover:text-gray-300" />
                                         </li>
-                                        <li>
+                                        <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
                                             <PrimaryButton @click.prevent="archiveUser(user)"
                                                 :name="'Archive User'"
                                                 class="mt-2 hover:text-gray-700 dark:hover:text-gray-300" />

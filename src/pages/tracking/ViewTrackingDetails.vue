@@ -2,6 +2,7 @@
 import { ref, computed, watch } from 'vue';
 import { useArrayStore } from '../../stores/arrayStore';
 import { useRouter } from 'vue-router';
+import axiosClient from  '../../axios.js';
 
 const router = useRouter();
 
@@ -94,6 +95,38 @@ const visiblePages = computed(() => {
     (_, i) => paginationStart.value + i
   );
 });
+
+
+//Restore axios
+const restoredReports = ref(new Set());
+
+const restoreReport = async (event, report) => {
+  const button = event.target.closest('button');
+  if (button) {
+    button.disabled = true;
+  }
+
+  try {
+    const response = await axiosClient.post('/api/911/restore-report', report, {
+      headers: {
+        'x-api-key': import.meta.env.VITE_API_KEY
+      }
+    });
+
+    // Mark this report as restored
+    restoredReports.value.add(report.id);
+
+    console.log('Report restored successfully:', response.data);
+
+  } catch (error) {
+    console.error('Error restoring report:', error.response?.data?.message || error.message);
+
+    if (button) {
+      button.disabled = false;
+    }
+  }
+};
+
 </script>
 
 <template>
@@ -154,34 +187,71 @@ const visiblePages = computed(() => {
                     <tr>
                         <th scope="col" class="px-4 py-3 text-center">ID</th>
                         <th scope="col" class="px-4 py-3 text-center">Name of Author</th>
-                        <th scope="col" class="px-4 py-3 text-center">Time</th>
-                        <th scope="col" class="px-4 py-3 text-center">Date Received</th>
-                        <th scope="col" class="px-4 py-3 text-center">Arrival On Site</th>
+                        <th scope="col" class="px-4 py-3 text-center">Timeline</th>
                         <th scope="col" class="px-4 py-3 text-center">Incident/Case</th>
-                        <th scope="col" class="px-4 py-3 text-center">Actions Taken</th>
-                        <th scope="col" class="px-4 py-3 text-center">Assistance</th>
-                        <th scope="col" class="px-4 py-3 text-center">Urgency</th>
-                        <th scope="col" class="px-4 py-3 text-center">Barangay</th>
-                        <th scope="col" class="px-4 py-3 text-center">Landmark</th>
-                        <th scope="col" class="px-4 py-3 text-center">Longitude</th>
-                        <th scope="col" class="px-4 py-3 text-center">Latitude</th>
+                        <th scope="col" class="px-4 py-3 text-center">Description</th>
+                        <th scope="col" class="px-4 py-3 text-center">Location</th>
+                        <th v-if="storage.action === 'restore'" scope="col" class="px-4 py-3 text-center">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="item in paginatedReports" :key="item.id" class="bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700">
+                    <tr v-for="item in paginatedReports" :key="item.id" class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
                         <td class="px-4 py-3 text-center">{{ item.id }}</td>
                         <td class="px-4 py-3 text-center">{{ item.name }}</td>
-                        <td class="px-4 py-3 text-center">{{ item.time }}</td>
-                        <td class="px-4 py-3 text-center">{{ item.date_received }}</td>
-                        <td class="px-4 py-3 text-center">{{ item.arrival_on_site }}</td>
-                        <td class="px-4 py-3 text-center">{{ item.incident?.type || item.incident_id }}</td>
-                        <td class="px-4 py-3 text-center">{{ item.actions?.actions || item.actions_id }}</td>
-                        <td class="px-4 py-3 text-center">{{ item.assistance?.assistance || item.assistance_id }}</td>
-                        <td class="px-4 py-3 text-center">{{ item.urgency?.urgency || item.urgency_id }}</td>
-                        <td class="px-4 py-3 text-center">{{ item.barangay?.name || item.barangay_id }}</td>
-                        <td class="px-4 py-3 text-center">{{ item.landmark }}</td>
-                        <td class="px-4 py-3 text-center">{{ item.longitude }}</td>
-                        <td class="px-4 py-3 text-center">{{ item.latitude }}</td>
+                        <td class="px-4 py-3">
+                            <dl class="grid gap-1">
+                                <div>
+                                    <dt class="font-medium">Received Time:</dt>
+                                    <dd class="ml-2">{{ item.time }} - {{ item.date_received }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="font-medium">Arrival Time:</dt>
+                                    <dd class="ml-2">{{ item.arrival_on_site }}</dd>
+                                </div>
+                            </dl>
+                        </td>
+                        <td class="px-4 py-3">
+                          <dl class="">
+                            <div>
+                              <dt class="font-medium">Source:</dt>
+                              <dd class="ml-2">{{ item.source?.sources || item.source_id }} - {{ item.actions?.actions || item.actions_id }}</dd>
+                            </div>
+                            <div>
+                              <dt class="font-medium">Assistance:</dt>
+                              <dd class="ml-2">{{ item.assistance?.assistance || item.assistance_id }} - {{ item.incident?.type || item.incident_id }}</dd>
+                            </div>
+                            <div>
+                              <dt class="font-medium">Urgency:</dt>
+                              <dd class="ml-2">{{ item.urgency?.urgency || item.urgency_id }}</dd>
+                            </div>
+                          </dl>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                          {{ item.description }}
+                        </td>
+                        <td class="px-4 py-3">
+                          <dl class="space-y-1">
+                            <div>
+                              <dt class="font-medium">Barangay:</dt>
+                              <dd class="ml-2">{{ item.barangay?.name || item.barangay_id }} - {{ item.landmark }}</dd>
+                            </div>
+                            <div>
+                              <dt class="font-medium">Coordinates:</dt>
+                              <dd class="ml-2">{{ item.longitude }}, {{ item.latitude }}</dd>
+                            </div>
+                          </dl>
+                        </td>
+                        <td v-if="storage.action === 'restore'" class="px-4 py-3 text-center">
+                          <!-- <PrimaryButton @click="(e) => restoreReport(e, item)" name="Restore" class="bg-green-500 hover:bg-green-600" /> -->
+                            <PrimaryButton
+                            :disabled="restoredReports.has(item.id)"
+                            @click="(e) => restoreReport(e, item)"
+                            name="Restore"
+                            :class="restoredReports.has(item.id)
+                            ? 'bg-gray-400 pointer-events-none text-white'
+                            : 'bg-green-500 hover:bg-green-600 text-white'"
+                        />
+                        </td>
                     </tr>
                 </tbody>
             </table>
