@@ -274,38 +274,10 @@ const clearAllImages = () => {
 };
 
 // Fullscreen card logic
-const fullscreenCard = ref(null);
-const expandCard = (cardName) => {
-  fullscreenCard.value = cardName;
-};
-const closeFullscreen = () => {
-  fullscreenCard.value = null;
-};
-
+// const fullscreenCard = ref(null);
 // Handle Escape key to exit fullscreen
-const handleKeydown = (e) => {
-  if (e.key === "Escape") {
-    closeFullscreen();
-  }
-};
-onMounted(() => {
-  window.addEventListener("keydown", handleKeydown);
-});
 
 // Map string identifiers to components
-const componentMap = {
-  IncidentGrowthRate,
-  TotalReportsReceived,
-  TopPerforming,
-  LineChart,
-  BarChart,
-  PieChart,
-  RecentIncident,
-};
-
-const fullscreenCardComponent = computed(() => {
-  return componentMap[fullscreenCard.value] || null;
-});
 
 const showExportMenu = ref(false)
 
