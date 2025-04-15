@@ -60,33 +60,7 @@ const {
 const mapStore = useMapStore();
 const errors = ref("");
 
-// const fetchData = async () => {
-//   try {
-//     const response = await axiosClient.get("/api/911/report-display", {
-//       headers: {
-//         "x-api-key": import.meta.env.VITE_API_KEY,
-//       },
-//     });
-//     reports.value = response.data[0] || []; // Ensure reports is an array even if empty
-//     console.log("Fetched Reports:", reports.value);
 
-//     // Check if reports have latitude/longitude
-//     reports.value.forEach((report) => {
-//       if (!report.barangay.latitude || !report.barangay.longitude) {
-//         console.warn(`Report missing lat/long: ${JSON.stringify(report)}`);
-//       }
-//     });
-
-//     // updateHeatmap();
-//   } catch (error) {
-//     console.error("Error fetching reports:", error);
-//     errors.value = error.response.data.error;
-//   }
-// };
-
-// onMounted(() => {
-//   fetchData();
-// });
 
 const startDate = ref(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
 const endDate = ref(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0));
@@ -242,25 +216,6 @@ dropdownControl.addTo(map);
       button.innerHTML = isDarkMode ? "☀️ Light Mode" : "🌙 Dark Mode";
     };
 
-  
-      // // ✅ Add Custom Control for Toggle Button
-      // const toggleControl = leaflet.control({ position: "topleft" });
-
-      // toggleControl.onAdd = function () {
-      //   const div = leaflet.DomUtil.create(
-      //     "div",
-      //     "leaflet-bar leaflet-control leaflet-control-custom leaflet-left"
-      //   );
-      //   div.innerHTML = `<button id="toggleBordersBtn" class="border-toggle-btn">Borders</button>`;
-
-      //   div.onclick = () => {
-      //     mapStore.showGeoJSONBorders = !mapStore.showGeoJSONBorders; // Toggle the state
-      //   };
-
-      //   return div;
-      // };
-
-      // toggleControl.addTo(map);
 
   // Create another control for the new button
   const anotherControl = leaflet.control({ position: "topright" });

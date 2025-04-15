@@ -220,7 +220,7 @@ const addGeoJSONLayer = () => {
   if (!map || !mapData.features || !barangay_name.value) return;
 
   const filteredFeatures = mapData.features.filter(
-    (feature) => feature.properties.adm4_en === barangay_name.value
+    (feature) => feature.properties.name === barangay_name.value
   );
 
   console.log(`Filtered GeoJSON for '${barangay_name.value}':`, filteredFeatures);
@@ -240,23 +240,42 @@ const addGeoJSONLayer = () => {
       }
     ).addTo(map);
 
-    const maskPolygon = {
-      type: "FeatureCollection",
-      features: [
-        {
-          type: "Feature",
-          geometry: {
-            type: "Polygon",
-            coordinates: [
-              [
-                [180, 90], [180, -90], [-180, -90], [-180, 90], [180, 90],
-              ],
-              ...filteredFeatures.flatMap((feature) => feature.geometry.coordinates),
-            ],
-          },
-        },
-      ],
-    };
+    const outer = [
+  [180, 90], [180, -90], [-180, -90], [-180, 90], [180, 90]
+];
+
+const innerRings = filteredFeatures
+  .map((feature) => {
+    const coords = feature.geometry.coordinates;
+    if (feature.geometry.type === "LineString") {
+      const flatCoords = coords.map(coord => [coord[0], coord[1]]);
+      // Ensure the ring is closed
+      if (
+        flatCoords.length > 2 &&
+        (flatCoords[0][0] !== flatCoords[flatCoords.length - 1][0] ||
+         flatCoords[0][1] !== flatCoords[flatCoords.length - 1][1])
+      ) {
+        flatCoords.push(flatCoords[0]);
+      }
+      return flatCoords;
+    }
+    return null;
+  })
+  .filter(ring => ring); // remove nulls
+
+const maskPolygon = {
+  type: "FeatureCollection",
+  features: [
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [outer, ...innerRings],
+      },
+    },
+  ],
+};
+
 
     maskLayer.value = leaflet.geoJSON(maskPolygon, {
       style: {
