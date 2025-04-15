@@ -155,11 +155,10 @@ const closeSidebar = () => {
           type="button"
           class="flex justify-center items-center bg-gray-800 rounded-full hover:ring-4 hover:ring-green-500 transition-all duration-300"
         >
-          <img
-            class="w-10 h-10 rounded-full"
-            src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
-            alt="user photo"
-          />
+        <div
+    class="w-10 h-10 mx-auto flex items-center justify-center rounded-full bg-indigo-600 text-white text-2xl font-bold shadow-xl dark:bg-indigo-500">
+    {{ user?.email?.charAt(0).toUpperCase() || '?' }}
+  </div>
         </button>
         <div class="flex flex-col">
           <p class="text-xs font-medium text-gray-800 dark:text-white">

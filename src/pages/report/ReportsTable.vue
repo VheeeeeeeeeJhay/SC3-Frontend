@@ -410,7 +410,7 @@ const updateDateRange = ({ start, end }) => {
 
         <div class="mt-6 w-full">
             <div
-                class="relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
+                class="relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-gradient-to-br from-gray-900 via-gray-950 to-black dark:border-black dark:text-white">
                 <div
                     class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
                     <div class="w-full md:w-1/2">
