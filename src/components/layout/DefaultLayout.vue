@@ -170,7 +170,7 @@ const closeSidebar = () => {
         </button>
         <div class="flex flex-col">
           <p class="text-xs font-medium text-gray-800 dark:text-white">
-            {{ user?.firstname || 'Guest' }}
+            {{ user?.firstName || 'Guest' }} || {{ user?.role ? 'SUPERLAMIG' : 'USER' }}
           </p>
           <p class="text-xs truncate text-gray-600 dark:text-gray-400">
             {{ user?.email || 'No email' }}
