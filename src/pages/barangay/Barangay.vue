@@ -405,7 +405,7 @@ const handlePrint = () => {
               </thead>
               <tbody>
                 <tr v-for="barangay in paginatedBarangays" :key="barangay.id"
-                  class="dark:bg-slate-800 dark:hover:bg-slate-700 bg-sky-50 hover:bg-gray-200">
+                  class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
 
                   <td class="px-4 py-3 ">{{ barangay.id }}</td>
                   <td class="px-4 py-3 ">{{ barangay.name }}</td>

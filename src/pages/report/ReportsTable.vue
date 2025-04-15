@@ -471,7 +471,7 @@ const updateDateRange = ({ start, end }) => {
                                             <tbody
                                                 class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                                 <tr v-for="report in selectedReports" :key="report.id"
-                                                    class="dark:bg-gray-700">
+                                                    class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
                                                     <td class="px-4 py-1 whitespace-nowrap">
                                                         <button @click.prevent="removedSplice(report.id)"><span
                                                                 class="hover:text-red-600 text-red-500 text-[10px] material-icons">cancel</span></button>
@@ -670,7 +670,7 @@ const updateDateRange = ({ start, end }) => {
                     </thead>
                     <tbody>
                         <tr v-for="report in paginatedReports" :key="report.id"
-                            class="bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700">
+                            class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
                             <td class="px-4 py-3 text-center"><input type="checkbox" :value="report"
                                     v-model="selectedReports" class="w-4 h-4" /></td>
                             <td class="px-4 py-3 text-center">{{ report.id }}</td>

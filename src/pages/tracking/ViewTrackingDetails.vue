@@ -241,7 +241,7 @@ const restoreReport = async (event, report) => {
                             </div>
                           </dl>
                         </td>
-                        <td v-if="storage.action === 'restore'" class="px-4 py-3 text-center">
+                        <td v-if="storage.action === 'Deleted' || storage.action === 'Multiple Delete'" class="px-4 py-3 text-center">
                           <!-- <PrimaryButton @click="(e) => restoreReport(e, item)" name="Restore" class="bg-green-500 hover:bg-green-600" /> -->
                             <PrimaryButton
                             :disabled="restoredReports.has(item.id)"

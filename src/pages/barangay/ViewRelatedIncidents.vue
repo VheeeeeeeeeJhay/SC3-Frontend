@@ -440,7 +440,7 @@ const updateDateRange = ({ start, end }) => {
                     </thead>
                     <tbody>
                         <tr v-for="report in paginatedReports" :key="report.id"
-                            class="bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700">
+                            class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
                             <td class="px-4 py-3 ">{{ report.id }}</td>
                                 <td class="px-4 py-3 ">{{ report.time }}</td>
                                 <td class="px-4 py-3 ">{{ report.date_received }}</td>
