@@ -1,16 +1,23 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-950 to-black flex items-center justify-center p-6">
+  <div class="min-h-screen 
+         bg-gradient-to-br from-white via-[#f4f4f9] to-[#f0f0f4] 
+         dark:bg-gradient-to-br dark:from-black dark:via-[#02021b] dark:to-black 
+         text-black dark:text-white 
+         shadow-[rgba(0,0,255,0.3)_0px_15px_25px,_rgba(255,0,0,0.22)_0px_10px_10px]  
+         flex items-center justify-center p-6 transition-colors duration-500">
+
     <div class="bg-white/10 dark:bg-black/30 backdrop-blur-lg rounded-3xl shadow-2xl w-full max-w-5xl p-10 transition-all duration-300 border border-white/10 dark:border-gray-800">
       <div class="flex flex-col md:flex-row items-center justify-between">
+        
         <!-- Profile Section -->
         <div class="md:w-1/3 text-center mb-10 md:mb-0">
-          <div class="w-48 h-48 mx-auto mb-6 flex items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-purple-700 text-white text-7xl font-bold shadow-2xl border-4 border-white/20">
+          <div class="w-48 h-48 mx-auto mb-6 flex items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-purple-700 text-white text-7xl font-bold shadow-2xl border-4 border-white/20 dark:border-gray-800">
             {{ user?.email?.charAt(0).toUpperCase() || '?' }}
           </div>
-          <h1 class="text-3xl font-extrabold text-white mb-2 tracking-tight">
+          <h1 class="text-3xl font-extrabold text-gray-700 dark:text-gray-200 mb-2 tracking-tight">
             {{ user?.firstName }} {{ user?.middleName }} {{ user?.lastName }}
           </h1>
-          <p class="text-lg text-gray-300">User Account</p>
+          <p class="text-lg text-gray-700 dark:text-gray-200">User Account</p>
           <button
             class="mt-6 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-full shadow-md transition-transform hover:scale-105"
             @click="showModal = true"
@@ -21,13 +28,12 @@
 
         <!-- Info Section -->
         <div class="md:w-2/3 md:pl-12">
-          <h2 class="text-2xl font-semibold text-white mb-6">Account Details</h2>
-          <ul class="space-y-4 text-base text-gray-300">
-            <li><strong class="text-indigo-400">First Name:</strong> {{ user?.firstName }}</li>
-            <li><strong class="text-indigo-400">Middle Name:</strong> {{ user?.middleName }}</li>
-            <li><strong class="text-indigo-400">Last Name:</strong> {{ user?.lastName }}</li>
-            <li><strong class="text-indigo-400">Email:</strong> {{ user?.email }}</li>
-            <li><strong class="text-indigo-400">Password:</strong> ********</li>
+          <h2 class="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-6">Account Details</h2>
+          <ul class="space-y-4 text-base text-gray-700 dark:text-gray-200">
+            <li><strong class="text-indigo-400 dark:text-indigo-300">First Name:</strong> {{ user?.firstName }}</li>
+            <li><strong class="text-indigo-400 dark:text-indigo-300">Middle Name:</strong> {{ user?.middleName ||'N/A'}}</li>
+            <li><strong class="text-indigo-400 dark:text-indigo-300">Last Name:</strong> {{ user?.lastName }}</li>
+            <li><strong class="text-indigo-400 dark:text-indigo-300">Email:</strong> {{ user?.email }}</li>
           </ul>
         </div>
       </div>
@@ -66,7 +72,7 @@
           <!-- Actions -->
           <div class="flex justify-between items-center mt-10">
             <button
-              class="text-sm text-indigo-600 hover:underline"
+              class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
               @click="showPasswordModal = true"
             >
               Change Password
@@ -88,7 +94,7 @@
       </div>
     </transition>
 
-    <!-- Nested Change Password Modal -->
+    <!-- Change Password Modal -->
     <transition name="fade">
       <div v-if="showPasswordModal" class="fixed inset-0 z-60 bg-black/70 backdrop-blur-sm flex items-center justify-center">
         <div class="bg-white dark:bg-gray-900 border border-white/10 dark:border-gray-700 rounded-3xl shadow-2xl w-full max-w-xl p-8 animate-glow">
@@ -129,6 +135,7 @@
     </transition>
   </div>
 </template>
+
 
 <script setup>
 import { reactive, ref, onMounted, watchEffect } from 'vue'

@@ -369,7 +369,10 @@ const showPreviewDrawer = ref(false)
 
   </div>
   <!-- main dashboard page -->
-  <div class="min-h-screen p-4">
+  <div class="min-h-screen p-4 bg-gradient-to-br from-white via-[#f4f4f9] to-[#f0f0f4] 
+         dark:bg-gradient-to-br dark:from-black dark:via-[#02021b] dark:to-black 
+         text-black dark:text-white 
+         shadow-[rgba(0,0,255,0.3)_0px_15px_25px,_rgba(255,0,0,0.22)_0px_10px_10px]">
 
     <!-- <TestMail /> -->
 
@@ -480,9 +483,8 @@ const showPreviewDrawer = ref(false)
 <style scoped>
 .card {
   background-color: white;
-  border-width: 4px;
+  border-width: 2px;
   border-radius: 1rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 255, 135, 0.3);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   border-color: rgba(59, 130, 246, 0.2);
 }
@@ -490,12 +492,11 @@ const showPreviewDrawer = ref(false)
 .dark .card {
   background-color: black;
   border-color: #1e3a8a;
-  box-shadow: inset 0 0 10px rgba(0, 255, 135, 0.3);
 }
 
 .card:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 25px rgba(34, 197, 94, 0.5);
+  
 }
 
 .expand-btn {

@@ -250,16 +250,35 @@ const updateDateRange = ({ start, end }) => {
     </div>
     <div class="p-4">
 
-        <!--  -->
-        <div
-            class="mt-6 p-4 h-4/5 border border-gray-200 dark:border-black rounded-lg dark:bg-slate-800 dark:text-white">
-            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Barangay Details</h2>
-            <div class="flex justify-evenly">
-                <div><span class="font-semibold my-2">Name:</span> {{ barangay.name }}</div>
-                <div><span class="font-semibold my-2">Longitude:</span> {{ barangay.longitude }}</div>
-                <div><span class="font-semibold my-2">Latitude:</span> {{ barangay.latitude }}</div>
+        <!-- Barangay Details Section -->
+        <div class="mt-6 p-6 bg-[#1e293b] rounded-2xl shadow-lg border border-gray-700">
+        <div class="flex items-center mb-6">
+            <div class="bg-blue-600 p-2 rounded-full mr-4">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3 7l1.664 9.32a2 2 0 001.978 1.68h10.716a2 2 0 001.978-1.68L21 7H3z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 11a4 4 0 01-8 0" />
+            </svg>
+            </div>
+            <h2 class="text-3xl font-semibold tracking-wide text-white">Barangay Details</h2>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-sm">
+            <div class="flex flex-col border-b border-gray-700 pb-4">
+            <span class="text-lg font-medium text-gray-400">Name</span>
+            <span class="text-2xl font-semibold text-white">{{ barangay.name }}</span>
+            </div>
+            <div class="flex flex-col border-b border-gray-700 pb-4">
+            <span class="text-lg font-medium text-gray-400">Longitude</span>
+            <span class="text-2xl font-semibold text-white">{{ barangay.longitude }}</span>
+            </div>
+            <div class="flex flex-col border-b border-gray-700 pb-4">
+            <span class="text-lg font-medium text-gray-400">Latitude</span>
+            <span class="text-2xl font-semibold text-white">{{ barangay.latitude }}</span>
             </div>
         </div>
+        </div>
+
 
         <!--  -->
         <div class="mx-20 mt-6 rounded-lg">
