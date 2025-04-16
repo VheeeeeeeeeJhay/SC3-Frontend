@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, onUnmounted } from 'vue';
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axiosClient from '../../axios.js';
@@ -8,16 +8,13 @@ import viewMap from '../../components/Maps/viewMap.vue';
 import ChooseReportType from '../../components/modal/ChooseReportType.vue';
 import { useDatabaseStore } from '../../stores/databaseStore';
 import DateRangePicker from "../../components/DateRangePicker.vue";
-
-
+import { useArrayStore } from '../../stores/arrayStore';
+import DeleteModal from '../../components/modal/DeleteModal.vue';
 
 const router = useRouter();
 const id = String(useRoute().params.id);
-const isLoading = ref(false);
 console.log(id);
 
-const reports = ref([]);
-const barangay = ref([]);
 const errors = ref([]);
 const startDate = ref(null);
 const endDate = ref(null);
@@ -26,52 +23,43 @@ const databaseStore = useDatabaseStore();
 
 let refreshInterval = null;
 
+onMounted(() => {
+    databaseStore.fetchData();
 
-const fetchBarangay = async () => {
-    await axiosClient.get(`/api/911/barangay-edit/${id}`, {
-        headers: {
-            'x-api-key': import.meta.env.VITE_API_KEY
-        }
-    })
-        .then((res) => {
-            console.log(res.data);
-            barangay.value = res.data;
-            console.log(barangay.value);
-        })
-        .catch((error) => {
-            console.error('Error fetching data:', error);
-            errors.value = 'Failed to load data. Please try again later.';
-        })
-        .finally(() => {
-            isLoading.value = false;
-        });
-}
+    refreshInterval = setInterval(() => {
+        databaseStore.fetchData();
+    }, 50000);
+});
 
-const fetchData = async () => {
-    isLoading.value = true;
-    await axiosClient.get('/api/911/barangay-reports/' + id, {
-        headers: {
-            'x-api-key': import.meta.env.VITE_API_KEY
-        }
-    })
-        .then((res) => {
-            reports.value = res.data;
-            console.log(reports.value);
-        })
-        .catch((error) => {
-            console.error('Error fetching data:', error);
-            errors.value = 'Failed to load data. Please try again later.';
-        })
-        .finally(() => {
-            isLoading.value = false;
-        });
+onUnmounted(() => {
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+    }
+});
+
+const computedProperties = {
+    reportArray: "reportsList",
+};
+
+const {
+    reportArray,
+} = Object.fromEntries(
+    Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
+);
+
+const store = useArrayStore();
+const data = store.getBarangayData();
+
+const reports = computed(() => (reportArray.value || []).filter(report => String(report.barangay_id) === id));
+
+
+//Passed report data to ViewReport.vue
+const passingData = (report) => {
+    store.setData(report);
+    console.log(store.getData(),'=================================================================');
 }
 
 onMounted(() => {
-    isLoading.value = true;
-    fetchBarangay();
-    fetchData();
-
     // ------------------------------------------
     document.addEventListener("click", (event) => {
         if (
@@ -93,9 +81,6 @@ const closeDropdown = () => {
 const toggleDropdown = (transactionId) => {
     openDropdownId.value = openDropdownId.value === transactionId ? null : transactionId;
 };
-
-
-// const filterDropdown = ref(false);
 
 
 // -----------------------
@@ -138,7 +123,6 @@ document.addEventListener("click", closeDropdowns);
 
 
 const searchQuery = ref("");
-
 // Computed property for dynamic search and filtering
 const filteredReports = computed(() => {
     return reports.value.filter(report => {
@@ -237,6 +221,67 @@ const updateDateRange = ({ start, end }) => {
   endDate.value = end;
   console.log("Date Range:", startDate.value, endDate.value);
 };
+
+
+//multiple delete of reports
+const isDeleteModalOpen = ref(false);
+const success = ref('');
+
+// store multiple id's
+const selectedReports = ref([]);
+
+const removedSplice = (id) => {
+    // Check if there are items in the selectedReports array
+    if (selectedReports.value.length === 1) {
+        const index = selectedReports.value.findIndex(report => report.id === id);
+
+        if (index > -1) {
+            selectedReports.value.splice(index, 1);
+
+            // After removing the last item, close the delete modal
+            isDeleteModalOpen.value = false;
+        }
+    } else if (selectedReports.value.length > 1) {
+        const index = selectedReports.value.findIndex(report => report.id === id);
+
+        if (index > -1) {
+            selectedReports.value.splice(index, 1);
+        }
+    }
+};
+
+const checkboxDelete = async () => {
+    // Close the delete modal
+    isDeleteModalOpen.value = false;
+
+    // Get the selected report objects (instead of just IDs)
+    const selectedReportsData = selectedReports.value;
+
+    try {
+        // Send the full reports data
+        const response = await axiosClient.delete('/api/911/report-delete', {
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': import.meta.env.VITE_API_KEY
+            },
+            data: { data: selectedReportsData }, // Pass the full report objects
+        });
+
+        // Handle success message
+        console.log(response.data.message); // You can show this success message in the UI
+        success.value = 'Reports deleted successfully!';
+
+        // Clear selected reports
+        selectedReports.value = [];
+
+        // Refresh the reports list
+        databaseStore.fetchData();
+    } catch (error) {
+        // Handle error message
+        console.error('Error deleting data:', error);
+        errors.value = error.response?.data?.message || 'Something went wrong!';
+    }
+};
 </script>
 
 <template>
@@ -255,9 +300,9 @@ const updateDateRange = ({ start, end }) => {
             class="mt-6 p-4 h-4/5 border border-gray-200 dark:border-black rounded-lg dark:bg-slate-800 dark:text-white">
             <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Barangay Details</h2>
             <div class="flex justify-evenly">
-                <div><span class="font-semibold my-2">Name:</span> {{ barangay.name }}</div>
-                <div><span class="font-semibold my-2">Longitude:</span> {{ barangay.longitude }}</div>
-                <div><span class="font-semibold my-2">Latitude:</span> {{ barangay.latitude }}</div>
+                <div><span class="font-semibold my-2">Name:</span> {{ data.name }}</div>
+                <div><span class="font-semibold my-2">Longitude:</span> {{ data.longitude }}</div>
+                <div><span class="font-semibold my-2">Latitude:</span> {{ data.latitude }}</div>
             </div>
         </div>
 
@@ -289,7 +334,82 @@ const updateDateRange = ({ start, end }) => {
                     <div
                         class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
                         
+                        <div v-if="selectedReports.length > 0">
+                            <!-- modal delete -->
+                            <DeleteModal Title="Delete Report" ModalButton="Delete" Icon="delete" Classes=""
+                                :show="isDeleteModalOpen" @update:show="isDeleteModalOpen = $event"
+                                ButtonClass="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-red-500 text-white hover:bg-red-600 dark:bg-red-700 dark:hover:bg-red-600">
+                                <template #modalContent>
+                                    <div class="p-6">
+                                        <p class="text-gray-500 dark:text-gray-300">Are you sure you want to delete the
+                                            following record/s?</p>
+                                    </div>
+                                    <div class="overflow-x-auto">
+                                        <table
+                                            class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 rounded-lg">
+                                            <thead class="bg-gray-50 dark:bg-gray-900">
+                                                <tr>
+                                                    <th></th>
+                                                    <th
+                                                        class="px-4 py-1 text-left text-[10px] font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                        ID</th>
+                                                    <th
+                                                        class="px-4 py-1 text-left text-[10px] font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                        Source</th>
+                                                    <th
+                                                        class="px-4 py-1 text-left text-[10px] font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                        Assistance</th>
+                                                    <th
+                                                        class="px-4 py-1 text-left text-[10px] font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                        Incident Type</th>
+                                                    <th
+                                                        class="px-4 py-1 text-left text-[10px] font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                        Actions</th>
+                                                    <th
+                                                        class="px-4 py-1 text-left text-[10px] font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                        Barangay</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody
+                                                class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                                <tr v-for="report in selectedReports" :key="report.id"
+                                                    class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
+                                                    <td class="px-4 py-1 whitespace-nowrap">
+                                                        <button @click.prevent="removedSplice(report.id)"><span
+                                                                class="hover:text-red-600 text-red-500 text-[10px] material-icons">cancel</span></button>
+                                                    </td>
+                                                    <td
+                                                        class="px-4 py-1 whitespace-nowrap text-[10px] text-gray-500 dark:text-gray-300">
+                                                        {{ report.id }}</td>
+                                                    <td
+                                                        class="px-4 py-1 whitespace-nowrap text-[10px] text-gray-500 dark:text-gray-300">
+                                                        {{ report.source.sources }}</td>
+                                                    <td
+                                                        class="px-4 py-1 whitespace-nowrap text-[10px] text-gray-500 dark:text-gray-300">
+                                                        {{ report.assistance.assistance }}</td>
+                                                    <td
+                                                        class="px-4 py-1 whitespace-nowrap text-[10px] text-gray-500 dark:text-gray-300">
+                                                        {{ report.incident.type }}</td>
+                                                    <td
+                                                        class="px-4 py-1 whitespace-nowrap text-[10px] text-gray-500 dark:text-gray-300">
+                                                        {{ report.actions.actions }}</td>
+                                                    <td
+                                                        class="px-4 py-1 whitespace-nowrap text-[10px] text-gray-500 dark:text-gray-300">
+                                                        {{ report.barangay.name }}</td>
 
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="flex justify-end gap-2 mt-4">
+                                        <button @click="isDeleteModalOpen = false"
+                                            class="w-1/2 px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 dark:bg-slate-600 dark:hover:bg-slate-700 dark:text-white">Cancel</button>
+                                        <button @click="checkboxDelete"
+                                            class="w-1/2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 dark:bg-red-700 dark:hover:bg-red-600">Delete</button>
+                                    </div>
+                                </template>
+                            </DeleteModal>
+                    </div>
                         <div class="flex items-center space-x-2">
 
                             <!-- report button -->
@@ -427,34 +547,36 @@ const updateDateRange = ({ start, end }) => {
                 <table class="w-full text-sm text-left">
                     <thead class="text-xs uppercase bg-teal-300 text-gray-800 dark:bg-slate-950 dark:text-gray-300">
                         <tr>
-                            <th scope="col" class="px-4 py-3 ">ID</th>
-                                <th scope="col" class="px-4 py-3">Time</th>
-                                <th scope="col" class="px-4 py-3">Date Received</th>
-                                <th scope="col" class="px-4 py-3">Assistance</th>
-                                <th scope="col" class="px-4 py-3">Incident Type</th>
-                                <th scope="col" class="px-4 py-3">Landmark</th>
-                                <th scope="col" class="px-4 py-3">Longitude</th>
-                                <th scope="col" class="px-4 py-3">Latitude</th>
-                                <th scope="col" class="px-4 py-3">Actions</th>
+                            <th scope="col" class="px-4 py-3 text-center"></th>
+                            <th scope="col" class="px-4 py-3 text-center">ID</th>
+                            <th scope="col" class="px-4 py-3 text-center">Source</th>
+                            <th scope="col" class="px-4 py-3 text-center">Assistance</th>
+                            <th scope="col" class="px-4 py-3 text-center">Incident/Case</th>
+                            <th scope="col" class="px-4 py-3 text-center">Actions Taken</th>
+                            <th scope="col" class="px-4 py-3 text-center">Urgency</th>
+                            <th scope="col" class="px-4 py-3 text-center">Location</th>
+                            <th scope="col" class="px-4 py-3 text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="report in paginatedReports" :key="report.id"
                             class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
-                            <td class="px-4 py-3 ">{{ report.id }}</td>
-                                <td class="px-4 py-3 ">{{ report.time }}</td>
-                                <td class="px-4 py-3 ">{{ report.date_received }}</td>
-                                <td class="px-4 py-3 ">{{ report.assistance.assistance }}</td>
-                                <td class="px-4 py-3 ">{{ report.incident.type }}</td>
-                                <td class="px-4 py-3 ">{{ report.landmark }}</td>
-                                <td class="px-4 py-3 " v-if="report.longitude">{{ report.longitude }}</td>
-                                <td class="px-4 py-3 " v-if="!report.longitude">
-                                    <Badge Message="No Data for Longitude" />
-                                </td>
-                                <td class="px-4 py-3" v-if="report.latitude">{{ report.latitude }}</td>
-                                <td class="px-4 py-3" v-if="!report.latitude">
-                                    <Badge Message="No Data for Latitude" />
-                                </td>
+                            <td class="px-4 py-3 text-center"><input type="checkbox" :value="report"
+                                    v-model="selectedReports" class="w-4 h-4" /></td>
+                            <td class="px-4 py-3 text-center">{{ report.id }}</td>
+                            <td class="px-4 py-3 text-center">{{ report.source.sources }}</td>
+                            <td class="px-4 py-3 text-center">{{ report.assistance.assistance }}</td>
+                            <td class="px-4 py-3 text-center">{{ report.incident.type }}</td>
+                            <td class="px-4 py-3 text-center">{{ report.actions.actions }}</td>
+                            <td class="px-4 py-3 text-center"
+                                :class="[report.urgency.urgency === 'Life-Saving' ? 'text-red-500' : 
+                                        report.urgency.urgency === 'Critical' ? 'text-orange-500' : 
+                                        report.urgency.urgency === 'High Priority' ? 'text-yellow-500' : 
+                                        report.urgency.urgency === 'Moderate' ? 'text-green-500' : 
+                                        'text-gray-500','font-bold']">
+                                {{ report.urgency.urgency }}
+                            </td>
+                            <td class="px-4 py-3 text-center">{{ report.barangay.name }}</td>
                                 <td class="px-4 py-3 flex items-center relative">
                                     <!-- Dropdown Button -->
                                     <button @click.stop="toggleDropdown(report.id)"
@@ -552,12 +674,4 @@ const updateDateRange = ({ start, end }) => {
             </div>
         </div>
     </div>
-
-
-    <!-- This is for table -->
-    <!-- <div class="mt-6 px-2"> -->
-
-    <!-- </div> -->
-
-    <!-- <viewMap :viewID="id" /> -->
 </template>

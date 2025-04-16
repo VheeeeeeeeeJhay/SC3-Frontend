@@ -42,38 +42,14 @@ watch(() => props.barangay, (newBarangay) => {
   }
 }, { immediate: true, deep: true });
 
-
 const submitLoading = ref(false);
 
-// const isLoading = ref(false);
 const errors = ref('');
 const success = ref('');
 const message = ref('');
 const type = ref('');
 const icon = ref('');
 const classes = ref('');
-
-// const fetchData = () => {
-//     axiosClient.get(`/api/911/barangay-edit/${barangay_Id.value}`, {
-//         headers: {
-//             'x-api-key': import.meta.env.VITE_API_KEY
-//         }
-//     })
-//     .then((res) => {
-//         console.log("Fetched Data:", res.data);
-//         data.value = { ...res.data }; // Ensuring we copy raw values
-//         isLoading.value = false;
-//     })
-//     .catch((error) => {
-//         console.error('Error fetching data:', error);
-//         isLoading.value = false;
-//     });
-// }
-
-onMounted(() => {
-    // isLoading.value = true;
-    // fetchData();
-});
 
 const formSubmit = () => {
     submitLoading.value = true;

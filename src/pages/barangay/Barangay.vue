@@ -5,7 +5,9 @@ import EditBarangay from './EditBarangay.vue';
 import axiosClient from '../../axios.js';
 import { RouterLink } from 'vue-router';
 import Badge from '../../components/Badge.vue';
+import { useArrayStore } from '../../stores/arrayStore';
 import { useDatabaseStore } from '../../stores/databaseStore';
+
 
 // Initialize database store
 const databaseStore = useDatabaseStore();
@@ -19,15 +21,6 @@ onMounted(() => {
     console.log(combinedList.value, '%cBookmark', 'color: blue')
   }, 50000);
 
-  // Handle click event to close dropdown
-  document.addEventListener("click", (event) => {
-    if (
-      openDropdownId.value !== null &&
-      !dropdownRefs.value[openDropdownId.value]?.contains(event.target)
-    ) {
-      closeDropdown();
-    }
-  });
 });
 
 onUnmounted(() => {
@@ -36,6 +29,12 @@ onUnmounted(() => {
     clearInterval(refreshInterval);
   }
 });
+
+const store = useArrayStore();
+const passingData = (barangay) => {
+    store.setBarangayData(barangay);
+    console.log(store.getBarangayData(),'=================================================================');
+}
 
 const message = ref('');
 const errors = ref('');
@@ -58,25 +57,7 @@ const {
     Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
 );
 
-// Watch databaseStore.barangaysList
-// watch(() => databaseStore.barangaysList, () => {
-//   if (databaseStore.barangaysList && Array.isArray(databaseStore.barangaysList)) {
-//     barangaysList.value = databaseStore.barangaysList;
-//   } else {
-//     barangaysList.value = []; // Prevent errors if data is not an array
-//   }
-// });
 
-// // Watch databaseStore.reportsPerBarangay
-// watch(() => databaseStore.reportsPerBarangay, () => {
-//   if (databaseStore.reportsPerBarangay && Array.isArray(databaseStore.reportsPerBarangay)) {
-//     reportsPerBarangay.value = databaseStore.reportsPerBarangay;
-//   } else {
-//     reportsPerBarangay.value = []; // Prevent errors if data is not an array
-//   }
-// });
-
-// ====================
 
 // Create a new computed property for the combined list
 const combinedList = computed(() => {
@@ -99,15 +80,7 @@ const combinedList = computed(() => {
   }
   return []; // Return an empty array if data isn't valid
 });
-// console.log(combinedList.value)
-// watch(combinedList, (newCombinedList) => {
-//   combinedList.value = newCombinedList;
-//   console.log(combinedList.value);
-// });
-// console.log(combinedList.value)
 
-
-// ===========================
 
 
 onMounted(() => {
@@ -126,15 +99,6 @@ onMounted(() => {
 
 const searchQuery = ref("");
 
-// const filteredBarangays = computed(() => {
-//   return barangaysList.value
-//     .filter(barangay =>
-//       barangay.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-//       barangay.id.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-//       barangay.latitude.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-//       barangay.longitude.toLowerCase().includes(searchQuery.value.toLowerCase())
-//     );
-// });
 const filteredBarangays = computed(() => {
   const query = searchQuery.value.toLowerCase();
   return combinedList.value.filter(barangay =>
@@ -406,17 +370,8 @@ const handlePrint = () => {
               <tbody>
                 <tr v-for="barangay in paginatedBarangays" :key="barangay.id"
                   class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
-
                   <td class="px-4 py-3 ">{{ barangay.id }}</td>
                   <td class="px-4 py-3 ">{{ barangay.name }}</td>
-                  <!-- <td class="px-4 py-3">
-                    <span v-if="barangay.longitude">{{ barangay.longitude }}</span>
-                    <Badge v-else Message="No Data for Longitude" />
-                  </td>
-                  <td class="px-4 py-3">
-                    <span v-if="barangay.latitude">{{ barangay.latitude }}</span>
-                    <Badge v-else Message="No Data for Latitude" />
-                  </td> -->
                   <td class="px-4 py-3">
                     Long: <span v-if="barangay.longitude" class="font-bold">{{ barangay.longitude }}</span>
                     <br>
@@ -427,12 +382,11 @@ const handlePrint = () => {
                     <Badge v-else Message="No Data for No. of Cases" />
                   </td>
                   <td class="px-4 py-3 text-blue-800 hover:text-blue-600 hover:underline font-bold">
-                    <RouterLink :to="`/barangay-statistics/${barangay.id}`">View Incidents</RouterLink>
+                    <RouterLink @click="passingData(barangay)" :to="`/barangay-statistics/${barangay.id}`">View Incidents</RouterLink>
                     <ToolTip :Information="`Click to visit barangay and view incidents`" />
                   </td>
                   <td class="px-4 py-3 flex items-center relative">
                     <!-- Dropdown Button -->
-
                     <button @click.stop="toggleDropdown(barangay.id)"
                       class="inline-flex items-center p-0.5 text-sm font-medium rounded-lg" type="button">
                       <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
