@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import axiosClient from '../../axios.js';
 import { RouterLink } from 'vue-router';
 import ChooseReportType from '../../components/modal/ChooseReportType.vue';
@@ -50,9 +50,95 @@ const {
     Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
 );
 console.log('%c', 'color: red', reports, 'reports');
+
+// 
+watch([classifications, urgencies, actions],
+([newClassifications, newUrgencies, newActions]) => {
+  selectedClassifications.value = newClassifications.map(c => c.id);
+  selectedUrgencies.value = newUrgencies.map(u => u.id);
+  selectedActions.value = newActions.map(a => a.id);
+}, { immediate: true });
+
+const sortSource = ref('none'); // 'none', 'asc', 'desc'
+const toggleSortSource = () => {
+    if (sortSource.value === 'none') {
+        sortSource.value = 'asc';
+    } else if (sortSource.value === 'asc') {
+        sortSource.value = 'desc';
+    } else {
+        sortSource.value = 'none';
+    }
+    console.log('Sort Source:', sortSource.value);
+};
+
+const sortAssistance = ref('none'); // 'none', 'asc', 'desc'
+const toggleSortAssistance = () => {
+    if (sortAssistance.value === 'none') {
+        sortAssistance.value = 'asc';
+    } else if (sortAssistance.value === 'asc') {
+        sortAssistance.value = 'desc';
+    } else {
+        sortAssistance.value = 'none';
+    }
+    console.log('Sort Assistance:', sortAssistance.value);
+};
+
+const sortIncident = ref('none');
+const toggleSortIncident = () => {
+    if (sortIncident.value === 'none') {
+        sortIncident.value = 'asc';
+    } else if (sortIncident.value === 'asc') {
+        sortIncident.value = 'desc';
+    } else {
+        sortIncident.value = 'none';
+    }
+    console.log('Sort Incident:', sortIncident.value);
+};
+
+const sortActions = ref('none');
+const toggleSortActions = () => {
+    if (sortActions.value === 'none') {
+        sortActions.value = 'asc';
+    } else if (sortActions.value === 'asc') {
+        sortActions.value = 'desc';
+    } else {
+        sortActions.value = 'none';
+    }
+    console.log('Sort Actions:', sortActions.value);
+};
+
+const sortUrgency = ref('none');
+const toggleSortUrgency = () => {
+    if (sortUrgency.value === 'none') {
+        sortUrgency.value = 'asc';
+    } else if (sortUrgency.value === 'asc') {
+        sortUrgency.value = 'desc';
+    } else {
+        sortUrgency.value = 'none';
+    }
+    console.log('Sort Urgency:', sortUrgency.value);
+};
+
+const sortBarangay = ref('none');
+const toggleSortBarangay = () => {
+    if (sortBarangay.value === 'none') {
+        sortBarangay.value = 'asc';
+    } else if (sortBarangay.value === 'asc') {
+        sortBarangay.value = 'desc';
+    } else {
+        sortBarangay.value = 'none';
+    }
+    console.log('Sort Assistance:', sortAssistance.value);
+};
+
 // Computed property for dynamic search and filtering
 const filteredReports = computed(() => {
-    return reports.value.filter(report => {
+    if (selectedClassifications.value.length === 0) return [];
+    if (selectedUrgencies.value.length === 0) return [];
+    if (selectedActions.value.length === 0) return [];
+
+    // 1. Filter reports
+    let result = reports.value.filter(report => {
         const matchesSearch = searchQuery.value
             ? report.source.sources.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
             report.assistance.assistance.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
@@ -71,13 +157,72 @@ const filteredReports = computed(() => {
         const matchesAction = selectedActions.value.length === 0 ||
             selectedActions.value.includes(report.actions_id);
 
-        const reportDate = new Date(report.date_received); // Replace `report.date` with your actual date field
+        const reportDate = new Date(report.date_received);
 
         const matchesDateRange =
             (!startDate.value || reportDate >= new Date(startDate.value)) &&
             (!endDate.value || reportDate <= new Date(endDate.value));
 
         return matchesSearch && matchesClassification && matchesUrgency && matchesAction && matchesDateRange;
+    });
+
+    // 2. Apply search on the filtered result
+    if (searchQuery.value) {
+        const query = searchQuery.value.toLowerCase();
+        result = result.filter(report =>
+            // Adjust these fields as needed for your data
+            report.source.sources.toLowerCase().includes(query) ||
+            report.assistance.assistance.toLowerCase().includes(query) ||
+            report.incident.type.toLowerCase().includes(query)
+            // Add more fields if needed
+        );
+    }
+
+    // 3. Sort the filtered array
+    return [...result].sort((a, b) => {
+        // First: sort by source if enabled
+        if (sortSource.value !== 'none') {
+            const cmpSource = sortSource.value === 'asc'
+                ? a.source.sources.localeCompare(b.source.sources)
+                : b.source.sources.localeCompare(a.source.sources);
+            if (cmpSource !== 0) return cmpSource;
+        }
+        // Then: sort by assistance if enabled
+        if (sortAssistance.value !== 'none') {
+            const cmpAssist = sortAssistance.value === 'asc'
+                ? a.assistance.assistance.localeCompare(b.assistance.assistance)
+                : b.assistance.assistance.localeCompare(a.assistance.assistance);
+            if (cmpAssist !== 0) return cmpAssist;
+        }
+
+        if (sortIncident.value !== 'none') {
+            const cmpIncident = sortIncident.value === 'asc'
+                ? a.incident.type.localeCompare(b.incident.type)
+                : b.incident.type.localeCompare(a.incident.type);
+            if (cmpIncident !== 0) return cmpIncident;
+        }
+
+        if (sortActions.value !== 'none') {
+            const cmpAction = sortActions.value === 'asc'
+                ? a.actions.actions.localeCompare(b.actions.actions)
+                : b.actions.actions.localeCompare(a.actions.actions);
+            if (cmpAction !== 0) return cmpAction;
+        }
+
+        if (sortUrgency.value !== 'none') {
+            const cmpUrgency = sortUrgency.value === 'asc'
+                ? a.urgency.urgency.localeCompare(b.urgency.urgency)
+                : b.urgency.urgency.localeCompare(a.urgency.urgency);
+            if (cmpUrgency !== 0) return cmpUrgency;
+        }
+
+        if (sortBarangay.value !== 'none') {
+            const cmpBarangay = sortBarangay.value === 'asc'
+                ? a.barangay.name.localeCompare(b.barangay.name)
+                : b.barangay.name.localeCompare(a.barangay.name);
+            if (cmpBarangay !== 0) return cmpBarangay;
+        }
+        return 0;
     });
 });
 
@@ -100,12 +245,10 @@ const dropdownRefs = ref([]);
 const closeDropdown = () => {
     openDropdownId.value = null;
 };
-const toggleDropdown = (transactionId) => {
-    openDropdownId.value = openDropdownId.value === transactionId ? null : transactionId;
+const toggleDropdown = (reportId) => {
+    openDropdownId.value = openDropdownId.value === reportId ? null : reportId;
 };
 
-
-// const filterDropdown = ref(false);
 
 
 // -----------------------
@@ -659,12 +802,12 @@ const updateDateRange = ({ start, end }) => {
                         <tr>
                             <th scope="col" class="px-4 py-3 text-center"></th>
                             <th scope="col" class="px-4 py-3 text-center">ID</th>
-                            <th scope="col" class="px-4 py-3 text-center">Source</th>
-                            <th scope="col" class="px-4 py-3 text-center">Assistance</th>
-                            <th scope="col" class="px-4 py-3 text-center">Incident/Case</th>
-                            <th scope="col" class="px-4 py-3 text-center">Actions Taken</th>
-                            <th scope="col" class="px-4 py-3 text-center">Urgency</th>
-                            <th scope="col" class="px-4 py-3 text-center">Location</th>
+                            <th scope="col" class="px-4 py-3 text-center"><button class="" @click="toggleSortSource">SOURCE <i :class="sortSource === 'asc' ? 'pi pi-sort-alpha-up' : (sortSource === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button></th>
+                            <th scope="col" class="px-4 py-3 text-center"><button class="" @click="toggleSortAssistance">ASSISTANCE  <i :class="sortAssistance === 'asc' ? 'pi pi-sort-alpha-up' : (sortAssistance === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button></th>
+                            <th scope="col" class="px-4 py-3 text-center"><button class="" @click="toggleSortIncident">INCIDENT/CASE <i :class="sortIncident === 'asc' ? 'pi pi-sort-alpha-up' : (sortIncident === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button></th>
+                            <th scope="col" class="px-4 py-3 text-center"><button class="" @click="toggleSortActions">ACTIONS <i :class="sortActions === 'asc' ? 'pi pi-sort-alpha-up' : (sortActions === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button></th>
+                            <th scope="col" class="px-4 py-3 text-center"><button class="" @click="toggleSortUrgency">URGENCY <i :class="sortUrgency === 'asc' ? 'pi pi-sort-alpha-up' : (sortUrgency === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button></th>
+                            <th scope="col" class="px-4 py-3 text-center"><button class="" @click="toggleSortBarangay">LOCATION <i :class="sortBarangay === 'asc' ? 'pi pi-sort-alpha-up' : (sortBarangay === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button></th>
                             <th scope="col" class="px-4 py-3 text-center">Actions</th>
                         </tr>
                     </thead>
