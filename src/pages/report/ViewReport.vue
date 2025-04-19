@@ -94,7 +94,7 @@ const data = ref({
     @click.prevent="router.back()"
     class="px-4 py-2 bg-gray-300 text-gray-800 dark:bg-gray-800 dark:text-white rounded-lg hover:bg-gray-400 dark:hover:bg-gray-700 transition duration-200 flex items-center shadow-md"
   >
-    <span class="material-icons mr-2">arrow_back</span>
+    <i class="pi pi-angle-double-left" style="font-size: 2rem"></i>
     Back
   </PrimaryButton>
 </div>

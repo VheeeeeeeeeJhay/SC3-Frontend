@@ -7,6 +7,11 @@ import { RouterLink } from 'vue-router';
 import Badge from '../../components/Badge.vue';
 import { useArrayStore } from '../../stores/arrayStore';
 import { useDatabaseStore } from '../../stores/databaseStore';
+import useUserStore from '../../stores/user.js'
+
+
+const user = useUserStore().user;
+console.log(user.role)
 
 
 // Initialize database store
@@ -364,7 +369,7 @@ const handlePrint = () => {
                   <th scope="col" class="px-4 py-3">Coordinates</th>
                   <th scope="col" class="px-4 py-3">No. of Cases</th>
                   <th scope="col" class="px-4 py-3">Visit Barangay</th>
-                  <th scope="col" class="px-4 py-3">Actions</th>
+                  <th v-if="user.role" scope="col" class="px-4 py-3">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -385,7 +390,7 @@ const handlePrint = () => {
                     <RouterLink @click="passingData(barangay)" :to="`/barangay-statistics/${barangay.id}`">View Incidents</RouterLink>
                     <ToolTip :Information="`Click to visit barangay and view incidents`" />
                   </td>
-                  <td class="px-4 py-3 flex items-center relative">
+                  <td v-if="user.role" class="px-4 py-3 flex items-center relative">
                     <!-- Dropdown Button -->
                     <button @click.stop="toggleDropdown(barangay.id)"
                       class="inline-flex items-center p-0.5 text-sm font-medium rounded-lg" type="button">

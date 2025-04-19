@@ -591,9 +591,9 @@ const updateDateRange = ({ start, end }) => {
                                             <thead class="bg-gray-50 dark:bg-gray-900">
                                                 <tr>
                                                     <th></th>
-                                                    <th
+                                                    <!-- <th
                                                         class="px-4 py-1 text-left text-[10px] font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                                        ID</th>
+                                                        ID</th> -->
                                                     <th
                                                         class="px-4 py-1 text-left text-[10px] font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                                         Source</th>
@@ -619,9 +619,9 @@ const updateDateRange = ({ start, end }) => {
                                                         <button @click.prevent="removedSplice(report.id)"><span
                                                                 class="hover:text-red-600 text-red-500 text-[10px] material-icons">cancel</span></button>
                                                     </td>
-                                                    <td
+                                                    <!-- <td
                                                         class="px-4 py-1 whitespace-nowrap text-[10px] text-gray-500 dark:text-gray-300">
-                                                        {{ report.id }}</td>
+                                                        {{ report.id }}</td> -->
                                                     <td
                                                         class="px-4 py-1 whitespace-nowrap text-[10px] text-gray-500 dark:text-gray-300">
                                                         {{ report.source.sources }}</td>
@@ -637,7 +637,6 @@ const updateDateRange = ({ start, end }) => {
                                                     <td
                                                         class="px-4 py-1 whitespace-nowrap text-[10px] text-gray-500 dark:text-gray-300">
                                                         {{ report.barangay.name }}</td>
-
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -801,7 +800,7 @@ const updateDateRange = ({ start, end }) => {
                     <thead class="text-xs uppercase bg-teal-300 text-gray-800 dark:bg-slate-950 dark:text-gray-300">
                         <tr>
                             <th scope="col" class="px-4 py-3 text-center"></th>
-                            <th scope="col" class="px-4 py-3 text-center">ID</th>
+                            <!-- <th scope="col" class="px-4 py-3 text-center">ID</th> -->
                             <th scope="col" class="px-4 py-3 text-center"><button class="" @click="toggleSortSource">SOURCE <i :class="sortSource === 'asc' ? 'pi pi-sort-alpha-up' : (sortSource === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button></th>
                             <th scope="col" class="px-4 py-3 text-center"><button class="" @click="toggleSortAssistance">ASSISTANCE  <i :class="sortAssistance === 'asc' ? 'pi pi-sort-alpha-up' : (sortAssistance === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button></th>
                             <th scope="col" class="px-4 py-3 text-center"><button class="" @click="toggleSortIncident">INCIDENT/CASE <i :class="sortIncident === 'asc' ? 'pi pi-sort-alpha-up' : (sortIncident === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button></th>
@@ -816,7 +815,7 @@ const updateDateRange = ({ start, end }) => {
                             class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
                             <td class="px-4 py-3 text-center"><input type="checkbox" :value="report"
                                     v-model="selectedReports" class="w-4 h-4" /></td>
-                            <td class="px-4 py-3 text-center">{{ report.id }}</td>
+                            <!-- <td class="px-4 py-3 text-center">{{ report.id }}</td> -->
                             <td class="px-4 py-3 text-center">{{ report.source.sources }}</td>
                             <td class="px-4 py-3 text-center">{{ report.assistance.assistance }}</td>
                             <td class="px-4 py-3 text-center">{{ report.incident.type }}</td>

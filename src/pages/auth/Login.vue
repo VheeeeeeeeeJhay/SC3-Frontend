@@ -2,7 +2,7 @@
 
 import GuestLayout from "../../components/layout/GuestLayout.vue";
 import axiosClient from "../../axios.js";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import router from "../../router.js";
 import logo from '../../assets/baguio-logo.png';
 import smart from '../../assets/smart-city1.jpg';
@@ -19,7 +19,55 @@ const errors = ref({
   password: [],
 })
 
+// const emailError = ref('');
+// let debounceTimeout;
+// watch(() => data.value.email, (newEmail) => {
+//   clearTimeout(debounceTimeout); // cancel the last timeout
+
+//   debounceTimeout = setTimeout(() => {
+//     if (!newEmail.includes("@")) {
+//       emailError.value = 'Email must contain an @ symbol.';
+//       console.log(emailError.value);
+//     } else if (newEmail.length === 0) {
+//       emailError.value = 'Email is required.';
+//       console.log(emailError.value);
+//     } else{
+//       emailError.value = '';
+//     }
+//   }, 1000);
+// }, { immediate: true });
+
+// const passwordError = ref('')
+// const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+// watch(() => data.value.password, (newPassword) => {
+//   clearTimeout(debounceTimeout); // cancel the last timeout
+
+//   debounceTimeout = setTimeout(() => {
+//     if (newPassword.length === 0) {
+//       passwordError.value = 'Password is required.';
+//       console.log(passwordError.value);
+//     } else if (!passwordRegex.test(newPassword)) {
+//       passwordError.value = 'Password must contain at least 1 lowercase, 1 uppercase, 1 digit, and 1 special character.';
+//       console.log(passwordError.value);
+//     } else if (newPassword.length < 8) {
+//       passwordError.value = 'Password must be at least 8 characters long.';
+//       console.log(passwordError.value);
+//     } else {
+//       passwordError.value = '';
+//     }
+//   }, 300)
+// }, { immediate: true })
+
+// const validate = () => {
+//   return !emailError.value && !passwordError.value;
+// }
+
 const submit = () => {
+  // if (!validate()) {
+  //   console.log('Validation failed');
+  //   return;
+  // }
+
   submitLoading.value = true
   axiosClient.get('/sanctum/csrf-cookie').then(response => {
     axiosClient.post("/login", data.value, {
@@ -63,6 +111,26 @@ const submit = () => {
     })
   });
 }
+// const submit = () => {
+//   submitLoading.value = true
+//   axiosClient.get('/sanctum/csrf-cookie').then(response => {
+//     axiosClient.post("/login", data.value, {
+//       headers: {
+//         'x-api-key': import.meta.env.VITE_API_KEY
+//       }
+//     })
+//       .then(response => {
+//         router.push({ name: 'Overview' })
+//       })
+//       .catch(error => {
+//         console.log(error.response.data.message)
+//         errors.value = error.response.data.errors;
+//       })
+//       .finally(() => {
+//         submitLoading.value = false
+//       })
+//   });
+// }
 </script>
 
 <template>
@@ -100,10 +168,11 @@ const submit = () => {
                 type="email"
                 id="email"
                 v-model="data.email"
-                class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                :class="[!emailError ? 'mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500' : 'mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500']"
               />
               <p class="text-sm mt-1 text-red-600">
                 {{ errors.email ? errors.email[0] : '' }}
+                <!-- {{ emailError }} -->
               </p>
             </div>
             <div>
@@ -116,6 +185,7 @@ const submit = () => {
               />
               <p class="text-sm mt-1 text-red-600">
                 {{ errors.password ? errors.password[0] : '' }}
+                <!-- {{ passwordError }} -->
               </p>
             </div>
             <button

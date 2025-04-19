@@ -298,15 +298,18 @@ const showPreviewDrawer = ref(false)
 </script>
 
 <template>
+  
+  <!-- main dashboard page -->
+  <div class="min-h-screen p-4">
   <div>
     <!-- Preview Drawer for Exporting images -->
     <div 
       v-if="showPreviewDrawer" 
-      class="fixed bottom-0 left-0 z-50 max-h-[50vh] w-1/4 bg-white dark:bg-gray-900 p-4 
+      class="container fixed bottom-4 left-4 right-4 z-50 w-full bg-white dark:bg-gray-900 
          shadow-2xl rounded-t-2xl transform transition-transform duration-300 
          translate-y-0"
     >
-      <div class="w-full max-w-md bg-white dark:bg-gray-900 p-6 shadow-xl">
+      <div class="w-full bg-white dark:bg-gray-900 p-6 shadow-xl">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-xl font-bold text-gray-900 dark:text-white">Export Preview</h3>
           <button 
@@ -316,7 +319,7 @@ const showPreviewDrawer = ref(false)
             ✕
           </button>
         </div>
-        <div class="h-48 overflow-y-auto pr-1 scrollbar-thin">
+        <div class="overflow-y-auto  scrollbar-thin">
           <div class="flex flex-wrap gap-4 ">
             <div v-for="(image, index) in exportedImageUrls" :key="index" class="relative">
               <img 
@@ -341,7 +344,7 @@ const showPreviewDrawer = ref(false)
         </div>
 
         <!-- Footer Actions -->
-        <div class="mt-6 space-y-2">
+        <div class="mt-6 flex gap-3">
           <button 
             @click="downloadAll" 
             class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 rounded-xl shadow-md transition duration-200"
@@ -368,9 +371,6 @@ const showPreviewDrawer = ref(false)
     </div>
 
   </div>
-  <!-- main dashboard page -->
-  <div class="min-h-screen p-4">
-
     <!-- <TestMail /> -->
 
     <!-- Title -->
