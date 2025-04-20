@@ -59,11 +59,11 @@ const {
 
 // 
 watch([classifications, urgencies, actions],
-([newClassifications, newUrgencies, newActions]) => {
-  selectedClassifications.value = newClassifications.map(c => c.id);
-  selectedUrgencies.value = newUrgencies.map(u => u.id);
-  selectedActions.value = newActions.map(a => a.id);
-}, { immediate: true });
+    ([newClassifications, newUrgencies, newActions]) => {
+        selectedClassifications.value = newClassifications.map(c => c.id);
+        selectedUrgencies.value = newUrgencies.map(u => u.id);
+        selectedActions.value = newActions.map(a => a.id);
+    }, { immediate: true });
 
 const sortSource = ref('none'); // 'none', 'asc', 'desc'
 const toggleSortSource = () => {
@@ -134,7 +134,7 @@ const reports = computed(() => (reportArray.value || []).filter(report => String
 //Passed report data to ViewReport.vue
 const passingData = (report) => {
     store.setData(report);
-    console.log(store.getData(),'=================================================================');
+    console.log(store.getData(), '=================================================================');
 }
 
 onMounted(() => {
@@ -463,7 +463,7 @@ const visiblePages = computed(() => {
     return Array.from({ length: paginationEnd.value - paginationStart.value + 1 }, (_, i) => paginationStart.value + i);
 });
 
-const isModalOpen = ref(false); 
+const isModalOpen = ref(false);
 
 // show all filter
 const isFilterContainerOpen = ref(false);
@@ -472,9 +472,9 @@ const toggleFilters = () => {
 };
 
 const updateDateRange = ({ start, end }) => {
-  startDate.value = start;
-  endDate.value = end;
-  console.log("Date Range:", startDate.value, endDate.value);
+    startDate.value = start;
+    endDate.value = end;
+    console.log("Date Range:", startDate.value, endDate.value);
 };
 
 
@@ -659,94 +659,94 @@ const handlePrint = async () => {
 
 // //handle CSV generation
 const handleCSV = (filteredReports) => {
-  if (!filteredReports || filteredReports.length === 0) {
-    console.warn("No data to export.");
-    return;
-  }
+    if (!filteredReports || filteredReports.length === 0) {
+        console.warn("No data to export.");
+        return;
+    }
 
-  // Flatten each report
-  const flatReports = filteredReports.map(report => ({
-    id: report.id,
-    name: report.name,
-    date_received: report.date_received,
-    time: report.time,
-    arrival_on_site: report.arrival_on_site,
-    landmark: report.landmark,
-    description: report.description,
-    latitude: report.latitude,
-    longitude: report.longitude,
-    source_id: report.source_id,
-    source: report.source?.sources ?? '',
-    assistance_id: report.assistance_id,
-    assistance: report.assistance?.assistance ?? '',
-    actions_id: report.actions_id,
-    actions: report.actions?.actions ?? '',
-    urgency_id: report.urgency_id,
-    urgency: report.urgency?.urgency ?? '',
-    incident_id: report.incident_id,
-    incident: report.incident?.type ?? '',
-    barangay_id: report.barangay_id,
-    barangay: report.barangay?.name ?? '',
-    created_at: report.created_at,
-    updated_at: report.updated_at,
-  }));
+    // Flatten each report
+    const flatReports = filteredReports.map(report => ({
+        id: report.id,
+        name: report.name,
+        date_received: report.date_received,
+        time: report.time,
+        arrival_on_site: report.arrival_on_site,
+        landmark: report.landmark,
+        description: report.description,
+        latitude: report.latitude,
+        longitude: report.longitude,
+        source_id: report.source_id,
+        source: report.source?.sources ?? '',
+        assistance_id: report.assistance_id,
+        assistance: report.assistance?.assistance ?? '',
+        actions_id: report.actions_id,
+        actions: report.actions?.actions ?? '',
+        urgency_id: report.urgency_id,
+        urgency: report.urgency?.urgency ?? '',
+        incident_id: report.incident_id,
+        incident: report.incident?.type ?? '',
+        barangay_id: report.barangay_id,
+        barangay: report.barangay?.name ?? '',
+        created_at: report.created_at,
+        updated_at: report.updated_at,
+    }));
 
-  // Get headers
-  const headers = Object.keys(flatReports[0]);
+    // Get headers
+    const headers = Object.keys(flatReports[0]);
 
-  // Build CSV rows
-  const csvRows = [headers.join(',')];
+    // Build CSV rows
+    const csvRows = [headers.join(',')];
 
-  flatReports.forEach(item => {
-    const row = headers.map(header => {
-      const val = item[header];
-      if (typeof val === 'string') {
-        return `"${val.replace(/"/g, '""')}"`; // escape quotes
-      }
-      return val ?? '';
+    flatReports.forEach(item => {
+        const row = headers.map(header => {
+            const val = item[header];
+            if (typeof val === 'string') {
+                return `"${val.replace(/"/g, '""')}"`; // escape quotes
+            }
+            return val ?? '';
+        });
+        csvRows.push(row.join(','));
     });
-    csvRows.push(row.join(','));
-  });
 
-  // Create blob and trigger download
-  const csvContent = csvRows.join('\n');
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute('download', 'filtered_reports.csv');
-  document.body.appendChild(link); // not required but safer in some browsers
-  link.click();
+    // Create blob and trigger download
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'filtered_reports.csv');
+    document.body.appendChild(link); // not required but safer in some browsers
+    link.click();
 
-  // Clean up after short delay to ensure download starts
-  setTimeout(() => {
-    URL.revokeObjectURL(url);
-    document.body.removeChild(link);
-  }, 100);
+    // Clean up after short delay to ensure download starts
+    setTimeout(() => {
+        URL.revokeObjectURL(url);
+        document.body.removeChild(link);
+    }, 100);
 };
 
 //handle JSON
 const handleJSON = (filteredReports) => {
-  if (!filteredReports || filteredReports.length === 0) {
-    console.warn("No data to export.");
-    return;
-  }
+    if (!filteredReports || filteredReports.length === 0) {
+        console.warn("No data to export.");
+        return;
+    }
 
-  const jsonContent = JSON.stringify(filteredReports, null, 2); // Pretty print with 2 spaces
-  const blob = new Blob([jsonContent], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
+    const jsonContent = JSON.stringify(filteredReports, null, 2); // Pretty print with 2 spaces
+    const blob = new Blob([jsonContent], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
 
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute('download', 'filtered_reports.json');
-  document.body.appendChild(link);
-  link.click();
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'filtered_reports.json');
+    document.body.appendChild(link);
+    link.click();
 
-  // Clean up
-  setTimeout(() => {
-    URL.revokeObjectURL(url);
-    document.body.removeChild(link);
-  }, 100);
+    // Clean up
+    setTimeout(() => {
+        URL.revokeObjectURL(url);
+        document.body.removeChild(link);
+    }, 100);
 };
 </script>
 
@@ -799,7 +799,7 @@ const handleJSON = (filteredReports) => {
 
                     <div
                         class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-                        
+
                         <div v-if="selectedReports.length > 0">
                             <!-- modal delete -->
                             <DeleteModal Title="Delete Report" ModalButton="Delete" Icon="delete" Classes=""
@@ -875,7 +875,7 @@ const handleJSON = (filteredReports) => {
                                     </div>
                                 </template>
                             </DeleteModal>
-                    </div>
+                        </div>
                         <div class="flex items-center space-x-2">
 
                             <!-- report button -->
@@ -901,19 +901,19 @@ const handleJSON = (filteredReports) => {
                                     @click.stop>
 
                                     <ul class=" text-sm">
-                                        <li>
+                                        <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
                                             <div @click="handlePrint"
                                                 class="block px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-slate-600">
                                                 Export to PDF
                                             </div>
                                         </li>
-                                        <li>
+                                        <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
                                             <div @click="handleJSON(filteredReports)"
                                                 class="block px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-slate-600">
                                                 Export to JSON
                                             </div>
                                         </li>
-                                        <li>
+                                        <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
                                             <div @click="handleCSV(filteredReports)"
                                                 class="block px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-slate-600">
                                                 Export to CSV
@@ -923,7 +923,7 @@ const handleJSON = (filteredReports) => {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <button @click="toggleFilters"
                             :class="[!isFilterContainerOpen ? 'w-full md:w-auto flex items-center justify-center py-2 px-4  text-sm font-medium rounded-lg border bg-white hover:bg-gray-200 dark:bg-slate-700 dark:border-black dark:text-white dark:hover:bg-slate-600' : 'w-full md:w-auto flex items-center justify-center py-2 px-4  text-sm font-medium rounded-lg border bg-white hover:bg-gray-500 dark:bg-slate-900 dark:border-black dark:text-white dark:hover:bg-slate-600']"
                             id="filterDropdownButton">
@@ -936,7 +936,7 @@ const handleJSON = (filteredReports) => {
                             Filters
                         </button>
 
-                        
+
                     </div>
                 </div>
 
@@ -945,12 +945,14 @@ const handleJSON = (filteredReports) => {
                     <div v-show="isFilterContainerOpen" class="flex flex-wrap justify-end mb-3 space-x-2">
 
                         <!-- Date Range Filter -->
-                        <div class="w-full md:w-auto flex flex-col md:flex-row items-stretch md:items-center justify-end flex-shrink-0">
-                            <DateRangePicker class="max-w-xs"  @dateRangeSelected="updateDateRange"/>
+                        <div
+                            class="w-full md:w-auto flex flex-col md:flex-row items-stretch md:items-center justify-end flex-shrink-0">
+                            <DateRangePicker class="max-w-xs" @dateRangeSelected="updateDateRange" />
                         </div>
 
                         <!-- Assistance Filter -->
-                        <div class="w-full md:w-auto flex flex-col md:flex-row items-stretch md:items-center justify-end flex-shrink-0">
+                        <div
+                            class="w-full md:w-auto flex flex-col md:flex-row items-stretch md:items-center justify-end flex-shrink-0">
                             <div class="flex items-center md:w-auto relative">
                                 <button @click="toggleFilterDropdown"
                                     class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
@@ -1051,11 +1053,26 @@ const handleJSON = (filteredReports) => {
                         <tr>
                             <th scope="col" class="px-4 py-3 text-center"></th>
                             <th scope="col" class="px-4 py-3 text-center">ID</th>
-                            <th scope="col" class="px-4 py-3 text-center"><button class="" @click="toggleSortSource">SOURCE <i :class="sortSource === 'asc' ? 'pi pi-sort-alpha-up' : (sortSource === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button></th>
-                            <th scope="col" class="px-4 py-3 text-center"><button class="" @click="toggleSortAssistance">ASSISTANCE  <i :class="sortAssistance === 'asc' ? 'pi pi-sort-alpha-up' : (sortAssistance === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button></th>
-                            <th scope="col" class="px-4 py-3 text-center"><button class="" @click="toggleSortIncident">INCIDENT/CASE <i :class="sortIncident === 'asc' ? 'pi pi-sort-alpha-up' : (sortIncident === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button></th>
-                            <th scope="col" class="px-4 py-3 text-center"><button class="" @click="toggleSortActions">ACTIONS <i :class="sortActions === 'asc' ? 'pi pi-sort-alpha-up' : (sortActions === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button></th>
-                            <th scope="col" class="px-4 py-3 text-center"><button class="" @click="toggleSortUrgency">URGENCY <i :class="sortUrgency === 'asc' ? 'pi pi-sort-alpha-up' : (sortUrgency === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button></th>
+                            <th scope="col" class="px-4 py-3 text-center"><button class=""
+                                    @click="toggleSortSource">SOURCE <i
+                                        :class="sortSource === 'asc' ? 'pi pi-sort-alpha-up' : (sortSource === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
+                            </th>
+                            <th scope="col" class="px-4 py-3 text-center"><button class=""
+                                    @click="toggleSortAssistance">ASSISTANCE <i
+                                        :class="sortAssistance === 'asc' ? 'pi pi-sort-alpha-up' : (sortAssistance === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
+                            </th>
+                            <th scope="col" class="px-4 py-3 text-center"><button class=""
+                                    @click="toggleSortIncident">INCIDENT/CASE <i
+                                        :class="sortIncident === 'asc' ? 'pi pi-sort-alpha-up' : (sortIncident === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
+                            </th>
+                            <th scope="col" class="px-4 py-3 text-center"><button class=""
+                                    @click="toggleSortActions">ACTIONS <i
+                                        :class="sortActions === 'asc' ? 'pi pi-sort-alpha-up' : (sortActions === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
+                            </th>
+                            <th scope="col" class="px-4 py-3 text-center"><button class=""
+                                    @click="toggleSortUrgency">URGENCY <i
+                                        :class="sortUrgency === 'asc' ? 'pi pi-sort-alpha-up' : (sortUrgency === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
+                            </th>
                             <th scope="col" class="px-4 py-3 text-center">Location</th>
                             <th scope="col" class="px-4 py-3 text-center">Actions</th>
                         </tr>
@@ -1070,50 +1087,46 @@ const handleJSON = (filteredReports) => {
                             <td class="px-4 py-3 text-center">{{ report.assistance.assistance }}</td>
                             <td class="px-4 py-3 text-center">{{ report.incident.type }}</td>
                             <td class="px-4 py-3 text-center">{{ report.actions.actions }}</td>
-                            <td class="px-4 py-3 text-center"
-                                :class="[report.urgency.urgency === 'Life-Saving' ? 'text-red-500' : 
-                                        report.urgency.urgency === 'Critical' ? 'text-orange-500' : 
-                                        report.urgency.urgency === 'High Priority' ? 'text-yellow-500' : 
-                                        report.urgency.urgency === 'Moderate' ? 'text-green-500' : 
-                                        'text-gray-500','font-bold']">
+                            <td class="px-4 py-3 text-center" :class="[report.urgency.urgency === 'Life-Saving' ? 'text-red-500' :
+                                report.urgency.urgency === 'Critical' ? 'text-orange-500' :
+                                    report.urgency.urgency === 'High Priority' ? 'text-yellow-500' :
+                                        report.urgency.urgency === 'Moderate' ? 'text-green-500' :
+                                            'text-gray-500', 'font-bold']">
                                 {{ report.urgency.urgency }}
                             </td>
                             <td class="px-4 py-3 text-center">{{ report.barangay.name }}</td>
-                                <td class="px-4 py-3 flex items-center relative">
-                                    <!-- Dropdown Button -->
-                                    <button @click.stop="toggleDropdown(report.id)"
-                                        class="inline-flex items-center p-0.5 text-sm font-medium rounded-lg"
-                                        type="button">
-                                        <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <path
-                                                d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
-                                        </svg>
-                                    </button>
-                                    <!-- Dropdown Menu -->
-                                    <div v-if="openDropdownId === report.id" ref="dropdownRefs"
-                                        class="absolute z-[10] w-44 mt-2 top-full left-0 shadow-sm border rounded-md bg-white dark:bg-slate-700"
-                                        @click.stop>
-
-                                        <ul class=" text-sm">
-                                        <li>
-                                            <RouterLink 
-                                            @click="passingData(report)"
-                                                :to="{ name: 'ReportViewDetails', params: { id: report.id } }"
-                                                class="block px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-slate-600">
-                                                View Details
-                                            </RouterLink>
-                                        </li>
-                                        <li>
-                                            <RouterLink 
-                                            @click="passingData(report)"
-                                                :to="{ name: 'EditReport', params: { id: report.id } }"
-                                                class="block px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-slate-600">
-                                                Edit Report
-                                            </RouterLink>
-                                        </li>
-                                        <PopupModal Title="Are you sure you want to delete this report?"
-                                            ModalButton="Delete" Icon="cancel" Classes="" :show="isDeleteModalOpen"
+                            <td class="px-4 py-3 flex items-center justify-center relative">
+                                <!-- Dropdown Button -->
+                                <button @click.stop="toggleDropdown(report.id)"
+                                    class="inline-flex items-center p-0.5 text-sm font-medium rounded-lg" type="button">
+                                    <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
+                                        xmlns="[http://www.w3.org/2000/svg">](http://www.w3.org/2000/svg">)
+                                        <path
+                                            d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+                                    </svg>
+                                </button>
+                                <!-- Dropdown Menu -->
+                                <ul v-if="openDropdownId === report.id" ref="dropdownRefs"
+                                    class="absolute z-[10] w-44 top-full right-0 shadow-sm border rounded-md bg-white dark:bg-slate-700"
+                                    @click.stop>
+                                    <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
+                                        <RouterLink @click="passingData(report)"
+                                            :to="{ name: 'ReportViewDetails', params: { id: report.id } }"
+                                            class="block px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-slate-600">
+                                            View Details
+                                        </RouterLink>
+                                    </li>
+                                    <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
+                                        <RouterLink @click="passingData(report)"
+                                            :to="{ name: 'EditReport', params: { id: report.id } }"
+                                            class="block px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-slate-600">
+                                            Edit Report
+                                        </RouterLink>
+                                    </li>
+                                    <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
+                                        <PopupModal
+                                            Title="Are you sure you want to delete this report?" ModalButton="Delete"
+                                            Icon="cancel" Classes="" :show="isDeleteModalOpen"
                                             @update:show="isDeleteModalOpen = $event"
                                             ButtonClass="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
                                             <template #modalContent>
@@ -1125,8 +1138,8 @@ const handleJSON = (filteredReports) => {
                                                 </div>
                                             </template>
                                         </PopupModal>
-                                    </ul>
-                                </div>
+                                    </li>
+                                </ul>
                             </td>
                         </tr>
                     </tbody>
@@ -1134,9 +1147,11 @@ const handleJSON = (filteredReports) => {
 
                 <nav
                     class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">
-                    <span class="text-sm font-normal">Showing {{ filteredReports.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }} to {{
-                        Math.min(currentPage *
-                            itemsPerPage, filteredReports.length) }} of {{ filteredReports.length }}</span>
+                    <span class="text-sm font-normal">Showing {{ filteredReports.length > 0 ? (currentPage - 1) *
+                        itemsPerPage + 1 : 0
+                        }} to {{
+                            Math.min(currentPage *
+                                itemsPerPage, filteredReports.length) }} of {{ filteredReports.length }}</span>
                     <ul class="inline-flex items-stretch -space-x-px">
                         <li>
                             <button @click="prevPage" :disabled="currentPage === 1"

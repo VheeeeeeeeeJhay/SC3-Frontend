@@ -1003,25 +1003,25 @@ const handleJSON = (filteredReports) => {
                                 </button>
 
                                 <div v-if="openDropdownId === report.id" ref="dropdownRefs"
-                                    class="absolute z-10 w-44 mt-0.5 top-full right-0 shadow-sm border rounded-md bg-white dark:bg-slate-700"
+                                    class="absolute z-10 w-44 top-full right-0 shadow-sm border rounded-md bg-white dark:bg-slate-700"
                                     @click.stop>
 
                                     <ul class=" text-sm">
-                                        <li>
+                                        <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
                                             <RouterLink @click="passingData(report)"
                                                 :to="{ name: 'ReportViewDetails', params: { id: report.id } }"
-                                                class="block px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-slate-600">
+                                                class="block px-4 py-2 text-left">
                                                 View Details
                                             </RouterLink>
                                         </li>
-                                        <li>
+                                        <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
                                             <RouterLink @click="passingData(report)"
                                                 :to="{ name: 'EditReport', params: { id: report.id } }"
-                                                class="block px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-slate-600">
+                                                class="block px-4 py-2 text-left">
                                                 Edit Report
                                             </RouterLink>
                                         </li>
-                                        <PopupModal Title="Are you sure you want to delete this report?"
+                                        <PopupModal class="hover:bg-gray-300 dark:hover:bg-gray-600" Title="Are you sure you want to delete this report?"
                                             ModalButton="Delete" Icon="cancel" Classes="" :show="isDeleteModalOpen"
                                             @update:show="isDeleteModalOpen = $event"
                                             ButtonClass="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">

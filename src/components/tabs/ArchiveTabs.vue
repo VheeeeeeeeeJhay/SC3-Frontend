@@ -19,14 +19,39 @@ const classes = ref('');
 
 let refreshInterval = null;
 
+const sortName = ref('none'); // 'none', 'asc', 'desc'
+const toggleSortName = () => {
+    if (sortName.value === 'none') {
+        sortName.value = 'asc';
+    } else if (sortName.value === 'asc') {
+        sortName.value = 'desc';
+    } else {
+        sortName.value = 'none';
+    }
+    console.log('Sort Name:', sortName.value);
+};
+
+const sortEmail = ref('none'); // 'none', 'asc', 'desc'
+const toggleSortEmail = () => {
+    if (sortEmail.value === 'none') {
+        sortEmail.value = 'asc';
+    } else if (sortEmail.value === 'asc') {
+        sortEmail.value = 'desc';
+    } else {
+        sortEmail.value = 'none';
+    }
+    console.log('Sort Email:', sortEmail.value);
+};
+
 // Computed property for dynamic search and filtering
 const filteredUsers = computed(() => {
-    return users.value.filter(user => {
+    // Step 1: Filter users
+    const result = users.value.filter(user => {
         const matchesSearch = searchQuery.value
             ? user.firstName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            user.middleName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            user.lastName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            user.email.toLowerCase().includes(searchQuery.value.toLowerCase())
+              user.middleName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+              user.lastName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+              user.email.toLowerCase().includes(searchQuery.value.toLowerCase())
             : true;
 
         const matchesClassification = selectedClassifications.value.length === 0 ||
@@ -34,6 +59,25 @@ const filteredUsers = computed(() => {
 
         return matchesSearch && matchesClassification;
     });
+
+    // Step 2: Sort the filtered users if sort is enabled
+    if (sortName.value !== 'none') {
+        return [...result].sort((a, b) => {
+            return sortName.value === 'asc'
+                ? a.firstName.localeCompare(b.firstName)
+                : b.firstName.localeCompare(a.firstName);
+        });
+    }
+    
+    if (sortEmail.value !== 'none') {
+        return [...result].sort((a, b) => {
+            return sortEmail.value === 'asc'
+                ? a.email.localeCompare(b.email)
+                : b.email.localeCompare(a.email);
+        });
+    }
+    // Step 3: Return the filtered (but unsorted) users
+    return result;
 });
 
 const dropListener = () => {
@@ -226,23 +270,23 @@ const visiblePages = computed(() => {
                 <table v-else class="w-full text-sm text-left">
                     <thead class="text-xs uppercase bg-teal-300 text-gray-800 dark:bg-slate-950 dark:text-gray-300">
                         <tr>
-                            <th scope="col" class="px-4 py-3">ID</th>
-                            <th scope="col" class="px-4 py-3">Name</th>
-                            <th scope="col" class="px-4 py-3">Email</th>
-                            <th scope="col" class="px-4 py-3">Access</th>
-                            <th scope="col" class="px-4 py-3">Actions</th>
+                            <th scope="col" class="px-4 py-3 text-center">ID</th>
+                            <th scope="col" class="px-4 py-3 text-center"><button class="" @click="toggleSortName">NAME <i :class="sortName === 'asc' ? 'pi pi-sort-alpha-up' : (sortName === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button></th>
+                            <th scope="col" class="px-4 py-3 text-center"><button class="" @click="toggleSortEmail">EMAIL <i :class="sortEmail === 'asc' ? 'pi pi-sort-alpha-up' : (sortEmail === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button></th>
+                            <th scope="col" class="px-4 py-3 text-center">Access</th>
+                            <th scope="col" class="px-4 py-3 text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="user in paginatedUsers" :key="user.id"
                             class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
-                            <td class="px-4 py-3">{{ user.id }}</td>
-                            <td class="px-4 py-3">{{ user.firstName }} {{ user.middleName }} {{ user.lastName }}</td>
-                            <td class="px-4 py-3">{{ maskEmail(user.email) }}</td>
-                            <td class="px-4 py-3">
+                            <td class="px-4 py-3 text-center">{{ user.id }}</td>
+                            <td class="px-4 py-3 text-center">{{ user.firstName }} {{ user.middleName }} {{ user.lastName }}</td>
+                            <td class="px-4 py-3 text-center">{{ maskEmail(user.email) }}</td>
+                            <td class="px-4 py-3 text-center">
                                 <Badge :Message="'User is archived'" class="bg-red-700" />
                             </td>
-                            <td class="px-4 py-3 flex items-center relative">
+                            <td class="px-4 py-3 flex items-center justify-center relative">
                                 <button @click.stop="toggleDropdown(user.id)"
                                     class="inline-flex items-center p-0.5 text-sm font-medium rounded-lg">
                                     <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
@@ -252,9 +296,9 @@ const visiblePages = computed(() => {
                                 </button>
 
                                 <div v-if="openDropdownId === user.id" ref="dropdownRefs"
-                                    class="absolute z-10 w-44 mt-2 top-full left-0 shadow-sm border rounded-md bg-white dark:bg-slate-700">
+                                    class="absolute z-10 w-44 top-full right-0 shadow-sm border rounded-md bg-white dark:bg-slate-700">
                                     <ul class="py-2 text-sm">
-                                        <li>
+                                        <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
                                             <PrimaryButton @click.prevent="archiveUser(user)" :name="'Re-Activate User'"
                                                 class="mt-2 hover:text-gray-700 dark:hover:text-gray-300" />
                                         </li>

@@ -357,35 +357,35 @@ const handlePrint = () => {
             <table class="w-full text-sm text-left">
               <thead class="text-xs uppercase dark:bg-slate-900 dark:text-gray-300 bg-teal-300 text-gray-800">
                 <tr>
-                  <th scope="col" class="px-4 py-3 ">ID</th>
-                  <th scope="col" class="px-4 py-3">Name</th>
+                  <th scope="col" class="px-4 py-3 text-center">ID</th>
+                  <th scope="col" class="px-4 py-3 text-center">Name</th>
                   <!-- <th scope="col" class="px-4 py-3">Longitude</th>
                   <th scope="col" class="px-4 py-3">Latitude</th> -->
-                  <th scope="col" class="px-4 py-3">Coordinates</th>
-                  <th scope="col" class="px-4 py-3">No. of Cases</th>
-                  <th scope="col" class="px-4 py-3">Visit Barangay</th>
-                  <th scope="col" class="px-4 py-3">Actions</th>
+                  <th scope="col" class="px-4 py-3 text-center">Coordinates</th>
+                  <th scope="col" class="px-4 py-3 text-center">No. of Cases</th>
+                  <th scope="col" class="px-4 py-3 text-center">Visit Barangay</th>
+                  <th scope="col" class="px-4 py-3 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="barangay in paginatedBarangays" :key="barangay.id"
                   class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
-                  <td class="px-4 py-3 ">{{ barangay.id }}</td>
-                  <td class="px-4 py-3 ">{{ barangay.name }}</td>
-                  <td class="px-4 py-3">
+                  <td class="px-4 py-3 text-center">{{ barangay.id }}</td>
+                  <td class="px-4 py-3 text-center">{{ barangay.name }}</td>
+                  <td class="px-4 py-3 text-center">
                     Long: <span v-if="barangay.longitude" class="font-bold">{{ barangay.longitude }}</span>
                     <br>
                     Lat: <span v-if="barangay.latitude" class="font-bold">{{ barangay.latitude }}</span>
                   </td>
-                  <td class="px-4 py-3">
+                  <td class="px-4 py-3 text-center">
                     <span v-if="barangay.report && barangay.report.total_reports">{{ barangay.report.total_reports }}</span>
                     <Badge v-else Message="No Data for No. of Cases" />
                   </td>
-                  <td class="px-4 py-3 text-blue-800 hover:text-blue-600 hover:underline font-bold">
+                  <td class="px-4 py-3 text-center text-blue-800 hover:text-blue-600 hover:underline font-bold">
                     <RouterLink @click="passingData(barangay)" :to="`/barangay-statistics/${barangay.id}`">View Incidents</RouterLink>
                     <ToolTip :Information="`Click to visit barangay and view incidents`" />
                   </td>
-                  <td class="px-4 py-3 flex items-center relative">
+                  <td class="px-4 py-3 flex items-center justify-center relative">
                     <!-- Dropdown Button -->
                     <button @click.stop="toggleDropdown(barangay.id)"
                       class="inline-flex items-center p-0.5 text-sm font-medium rounded-lg" type="button">
@@ -397,13 +397,13 @@ const handlePrint = () => {
                     </button>
                     <!-- Dropdown Menu -->
                     <div v-if="openDropdownId === barangay.id" ref="dropdownRefs"
-                      class="absolute z-[10] w-44 mt-2 top-full left-0 shadow-sm border rounded-md bg-white dark:bg-slate-700"
+                      class="absolute z-[10] w-44 top-full right-0 shadow-sm border rounded-md bg-white dark:bg-slate-700"
                       @click.stop>
 
                       <!-- Dropdown Items Container -->
                       <div class="py-2 text-sm flex flex-col w-full items-center">
                         <!-- Edit Button -->
-                        <PopupModal Title="Edit Barangay" ModalButton="Edit" Icon="edit" Classes="" :show="isModalOpen"
+                        <PopupModal class="hover:bg-gray-300 dark:hover:bg-gray-600" Title="Edit Barangay" ModalButton="Edit" Icon="edit" Classes="" :show="isModalOpen"
                           @update:show="isModalOpen = $event"
                           ButtonClass="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
                           <template #modalContent>
@@ -414,7 +414,7 @@ const handlePrint = () => {
                         </PopupModal>
 
                         <!-- Delete Button -->
-                        <PopupModal Title="Are you sure you want to delete this barangay?" ModalButton="Delete"
+                        <PopupModal class="hover:bg-gray-300 dark:hover:bg-gray-600" Title="Are you sure you want to delete this barangay?" ModalButton="Delete"
                           Icon="cancel" Classes="" :show="isDeleteModalOpen" @update:show="isDeleteModalOpen = $event"
                           ButtonClass="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
                           <template #modalContent>
