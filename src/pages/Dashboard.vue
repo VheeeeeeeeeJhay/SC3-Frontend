@@ -326,7 +326,7 @@ const toggleMinimize = () => {
             <img :src="image" alt="Exported Chart Preview"
               class="cursor-pointer transition-transform duration-300 ease-in-out w-24 h-24 rounded" />
             <button @click="downloadImage(image, index)"
-              class="absolute top-0 right-0 bg-gray-700 text-white p-1 rounded-full text-xs hover:bg-gray-800 transition-all">
+              class="absolute top-0 right-0 text-white p-1 rounded-full text-xs hover:bg-gray-800 transition-all">
               ⬇
             </button>
             <button @click="removeImage(index)"
