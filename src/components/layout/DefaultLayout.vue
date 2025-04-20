@@ -111,15 +111,15 @@ const closeSidebar = () => {
     <div class="min-h-screen flex">
       <!-- Sidebar (Main) -->
       <aside
-  id="logo-sidebar"
-  class="fixed top-0 left-0 z-40 w-56 h-screen transition-transform duration-300
-         bg-white dark:bg-black dark:text-white 
-         shadow-[rgba(0,0,255,0.3)_0px_15px_25px,_rgba(255,0,0,0.22)_0px_10px_10px] 
-         border-r-10 border-solid dark:border-gray-950 
-         ring-1 ring-gray-300 dark:ring-slate-900 rounded-r-1xl
-         backdrop-blur-md overflow-hidden"
-  :class="sidebarVisible ? 'translate-x-0' : '-translate-x-full sm:translate-x-0'"
->
+        id="logo-sidebar"
+        class="fixed top-0 left-0 z-40 w-56 h-screen transition-transform duration-300
+              bg-white dark:bg-black dark:text-white 
+              shadow-[rgba(0,0,255,0.3)_0px_15px_25px,_rgba(255,0,0,0.22)_0px_10px_10px] 
+              border-r-5 border-solid dark:border-gray-950 
+              ring-1 ring-gray-300 dark:ring-slate-900 rounded-r-1xl
+              backdrop-blur-md overflow-hidden"
+        :class="sidebarVisible ? 'translate-x-0' : '-translate-x-full sm:translate-x-0'"
+      >
   <div class="h-full flex flex-col justify-between relative z-10 px-3 pb-4 overflow-y-auto">
 
     <!-- Logo Section (Less Top Padding + Separated Logo/Text) -->
