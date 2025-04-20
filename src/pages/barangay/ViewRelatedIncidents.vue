@@ -766,9 +766,9 @@ const handleJSON = (filteredReports) => {
             class="mt-6 p-4 h-4/5 border border-gray-200 dark:border-black rounded-lg dark:bg-slate-800 dark:text-white">
             <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Barangay Details</h2>
             <div class="flex justify-evenly">
-                <div><span class="font-semibold my-2">Name:</span> {{ barangay.name }}</div>
-                <div><span class="font-semibold my-2">Longitude:</span> {{ barangay.longitude }}</div>
-                <div><span class="font-semibold my-2">Latitude:</span> {{ barangay.latitude }}</div>
+                <div><span class="font-semibold my-2">Name:</span> {{ data.name }}</div>
+                <div><span class="font-semibold my-2">Longitude:</span> {{ data.longitude }}</div>
+                <div><span class="font-semibold my-2">Latitude:</span> {{ data.latitude }}</div>
             </div>
         </div>
 
