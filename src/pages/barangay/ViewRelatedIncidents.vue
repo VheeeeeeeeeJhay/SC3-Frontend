@@ -10,6 +10,7 @@ import { useDatabaseStore } from '../../stores/databaseStore';
 import DateRangePicker from "../../components/DateRangePicker.vue";
 import { useArrayStore } from '../../stores/arrayStore';
 import DeleteModal from '../../components/modal/DeleteModal.vue';
+import logo from '../../assets/baguio-logo.png';
 
 const router = useRouter();
 const id = String(useRoute().params.id);
@@ -18,6 +19,9 @@ console.log(id);
 const errors = ref([]);
 const startDate = ref(null);
 const endDate = ref(null);
+const selectedClassifications = ref([]);
+const selectedUrgencies = ref([]);
+const selectedActions = ref([]);
 
 const databaseStore = useDatabaseStore();
 
@@ -39,13 +43,87 @@ onUnmounted(() => {
 
 const computedProperties = {
     reportArray: "reportsList",
+    classifications: "classificationsList",
+    urgencies: "urgenciesList",
+    actions: "actionsList",
 };
 
 const {
     reportArray,
+    classifications,
+    urgencies,
+    actions,
 } = Object.fromEntries(
     Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
 );
+
+// 
+watch([classifications, urgencies, actions],
+([newClassifications, newUrgencies, newActions]) => {
+  selectedClassifications.value = newClassifications.map(c => c.id);
+  selectedUrgencies.value = newUrgencies.map(u => u.id);
+  selectedActions.value = newActions.map(a => a.id);
+}, { immediate: true });
+
+const sortSource = ref('none'); // 'none', 'asc', 'desc'
+const toggleSortSource = () => {
+    if (sortSource.value === 'none') {
+        sortSource.value = 'asc';
+    } else if (sortSource.value === 'asc') {
+        sortSource.value = 'desc';
+    } else {
+        sortSource.value = 'none';
+    }
+    console.log('Sort Source:', sortSource.value);
+};
+
+const sortAssistance = ref('none'); // 'none', 'asc', 'desc'
+const toggleSortAssistance = () => {
+    if (sortAssistance.value === 'none') {
+        sortAssistance.value = 'asc';
+    } else if (sortAssistance.value === 'asc') {
+        sortAssistance.value = 'desc';
+    } else {
+        sortAssistance.value = 'none';
+    }
+    console.log('Sort Assistance:', sortAssistance.value);
+};
+
+const sortIncident = ref('none');
+const toggleSortIncident = () => {
+    if (sortIncident.value === 'none') {
+        sortIncident.value = 'asc';
+    } else if (sortIncident.value === 'asc') {
+        sortIncident.value = 'desc';
+    } else {
+        sortIncident.value = 'none';
+    }
+    console.log('Sort Incident:', sortIncident.value);
+};
+
+const sortActions = ref('none');
+const toggleSortActions = () => {
+    if (sortActions.value === 'none') {
+        sortActions.value = 'asc';
+    } else if (sortActions.value === 'asc') {
+        sortActions.value = 'desc';
+    } else {
+        sortActions.value = 'none';
+    }
+    console.log('Sort Actions:', sortActions.value);
+};
+
+const sortUrgency = ref('none');
+const toggleSortUrgency = () => {
+    if (sortUrgency.value === 'none') {
+        sortUrgency.value = 'asc';
+    } else if (sortUrgency.value === 'asc') {
+        sortUrgency.value = 'desc';
+    } else {
+        sortUrgency.value = 'none';
+    }
+    console.log('Sort Urgency:', sortUrgency.value);
+};
 
 const store = useArrayStore();
 const data = store.getBarangayData();
@@ -125,34 +203,211 @@ document.addEventListener("click", closeDropdowns);
 const searchQuery = ref("");
 // Computed property for dynamic search and filtering
 const filteredReports = computed(() => {
-    return reports.value.filter(report => {
-        const reportId = String(report.id)?.toLowerCase() || "";
-        const reportTime = String(report.time)?.toLowerCase() || "";
-        const reportDateReceived = String(report.date_received)?.toLowerCase() || "";
-        const reportAssistance = String(report.assistance.assistance)?.toLowerCase() || "";
-        const reportIncidentType = String(report.incident.type)?.toLowerCase() || "";
-        const reportLandmark = String(report.landmark)?.toLowerCase() || "";
-        const query = searchQuery.value.toLowerCase();
+    if (selectedClassifications.value.length === 0) return [];
+    if (selectedUrgencies.value.length === 0) return [];
+    if (selectedActions.value.length === 0) return [];
 
-        // Match search query
-        const matchesSearch = query
-            ? reportId.includes(query) ||
-            reportTime.includes(query) ||
-            reportDateReceived.includes(query) ||
-            reportAssistance.includes(query) ||
-            reportIncidentType.includes(query) ||
-            reportLandmark.includes(query)
+    // return reports.value.filter(report => {
+    //     const reportId = String(report.id)?.toLowerCase() || "";
+    //     const reportTime = String(report.time)?.toLowerCase() || "";
+    //     const reportDateReceived = String(report.date_received)?.toLowerCase() || "";
+    //     const reportAssistance = String(report.assistance.assistance)?.toLowerCase() || "";
+    //     const reportIncidentType = String(report.incident.type)?.toLowerCase() || "";
+    //     const reportLandmark = String(report.landmark)?.toLowerCase() || "";
+    //     const query = searchQuery.value.toLowerCase();
+
+    //     // Match search query
+    //     const matchesSearch = query
+    //         ? reportId.includes(query) ||
+    //         reportTime.includes(query) ||
+    //         reportDateReceived.includes(query) ||
+    //         reportAssistance.includes(query) ||
+    //         reportIncidentType.includes(query) ||
+    //         reportLandmark.includes(query)
+    //         : true;
+
+    //     const reportDate = new Date(report.date_received); // Replace `report.date` with your actual date field
+
+    //     const matchesDateRange =
+    //         (!startDate.value || reportDate >= new Date(startDate.value)) &&
+    //         (!endDate.value || reportDate <= new Date(endDate.value));
+
+    //     return matchesSearch && matchesDateRange;
+    // });
+    let result = reports.value.filter(report => {
+        const matchesSearch = searchQuery.value
+            ? report.source.sources.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+            report.assistance.assistance.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+            report.incident.type.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+            report.actions.actions.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+            report.barangay.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+            report.urgency.urgency.toLowerCase().includes(searchQuery.value.toLowerCase())
             : true;
 
-        const reportDate = new Date(report.date_received); // Replace `report.date` with your actual date field
+        const matchesClassification = selectedClassifications.value.length === 0 ||
+            selectedClassifications.value.includes(report.assistance_id);
+
+        const matchesUrgency = selectedUrgencies.value.length === 0 ||
+            selectedUrgencies.value.includes(report.urgency_id);
+
+        const matchesAction = selectedActions.value.length === 0 ||
+            selectedActions.value.includes(report.actions_id);
+
+        const reportDate = new Date(report.date_received);
 
         const matchesDateRange =
             (!startDate.value || reportDate >= new Date(startDate.value)) &&
             (!endDate.value || reportDate <= new Date(endDate.value));
 
-        return matchesSearch && matchesDateRange;
+        return matchesSearch && matchesClassification && matchesUrgency && matchesAction && matchesDateRange;
+    });
+
+    // 2. Apply search on the filtered result
+    if (searchQuery.value) {
+        const query = searchQuery.value.toLowerCase();
+        result = result.filter(report =>
+            // Adjust these fields as needed for your data
+            report.source.sources.toLowerCase().includes(query) ||
+            report.assistance.assistance.toLowerCase().includes(query) ||
+            report.incident.type.toLowerCase().includes(query)
+            // Add more fields if needed
+        );
+    }
+
+    // 3. Sort the filtered array
+    return [...result].sort((a, b) => {
+        // First: sort by source if enabled
+        if (sortSource.value !== 'none') {
+            const cmpSource = sortSource.value === 'asc'
+                ? a.source.sources.localeCompare(b.source.sources)
+                : b.source.sources.localeCompare(a.source.sources);
+            if (cmpSource !== 0) return cmpSource;
+        }
+        // Then: sort by assistance if enabled
+        if (sortAssistance.value !== 'none') {
+            const cmpAssist = sortAssistance.value === 'asc'
+                ? a.assistance.assistance.localeCompare(b.assistance.assistance)
+                : b.assistance.assistance.localeCompare(a.assistance.assistance);
+            if (cmpAssist !== 0) return cmpAssist;
+        }
+
+        if (sortIncident.value !== 'none') {
+            const cmpIncident = sortIncident.value === 'asc'
+                ? a.incident.type.localeCompare(b.incident.type)
+                : b.incident.type.localeCompare(a.incident.type);
+            if (cmpIncident !== 0) return cmpIncident;
+        }
+
+        if (sortActions.value !== 'none') {
+            const cmpAction = sortActions.value === 'asc'
+                ? a.actions.actions.localeCompare(b.actions.actions)
+                : b.actions.actions.localeCompare(a.actions.actions);
+            if (cmpAction !== 0) return cmpAction;
+        }
+
+        if (sortUrgency.value !== 'none') {
+            const cmpUrgency = sortUrgency.value === 'asc'
+                ? a.urgency.urgency.localeCompare(b.urgency.urgency)
+                : b.urgency.urgency.localeCompare(a.urgency.urgency);
+            if (cmpUrgency !== 0) return cmpUrgency;
+        }
+
+        return 0;
     });
 });
+// const filteredReports = computed(() => {
+//     if (selectedClassifications.value.length === 0) return [];
+//     if (selectedUrgencies.value.length === 0) return [];
+//     if (selectedActions.value.length === 0) return [];
+
+//     // 1. Filter reports
+//     let result = reports.value.filter(report => {
+//         const matchesSearch = searchQuery.value
+//             ? report.source.sources.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+//             report.assistance.assistance.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+//             report.incident.type.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+//             report.actions.actions.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+//             report.barangay.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+//             report.urgency.urgency.toLowerCase().includes(searchQuery.value.toLowerCase())
+//             : true;
+
+//         const matchesClassification = selectedClassifications.value.length === 0 ||
+//             selectedClassifications.value.includes(report.assistance_id);
+
+//         const matchesUrgency = selectedUrgencies.value.length === 0 ||
+//             selectedUrgencies.value.includes(report.urgency_id);
+
+//         const matchesAction = selectedActions.value.length === 0 ||
+//             selectedActions.value.includes(report.actions_id);
+
+//         const reportDate = new Date(report.date_received);
+
+//         const matchesDateRange =
+//             (!startDate.value || reportDate >= new Date(startDate.value)) &&
+//             (!endDate.value || reportDate <= new Date(endDate.value));
+
+//         return matchesSearch && matchesClassification && matchesUrgency && matchesAction && matchesDateRange;
+//     });
+
+//     // 2. Apply search on the filtered result
+//     if (searchQuery.value) {
+//         const query = searchQuery.value.toLowerCase();
+//         result = result.filter(report =>
+//             // Adjust these fields as needed for your data
+//             report.source.sources.toLowerCase().includes(query) ||
+//             report.assistance.assistance.toLowerCase().includes(query) ||
+//             report.incident.type.toLowerCase().includes(query)
+//             // Add more fields if needed
+//         );
+//     }
+
+//     // 3. Sort the filtered array
+//     return [...result].sort((a, b) => {
+//         // First: sort by source if enabled
+//         if (sortSource.value !== 'none') {
+//             const cmpSource = sortSource.value === 'asc'
+//                 ? a.source.sources.localeCompare(b.source.sources)
+//                 : b.source.sources.localeCompare(a.source.sources);
+//             if (cmpSource !== 0) return cmpSource;
+//         }
+//         // Then: sort by assistance if enabled
+//         if (sortAssistance.value !== 'none') {
+//             const cmpAssist = sortAssistance.value === 'asc'
+//                 ? a.assistance.assistance.localeCompare(b.assistance.assistance)
+//                 : b.assistance.assistance.localeCompare(a.assistance.assistance);
+//             if (cmpAssist !== 0) return cmpAssist;
+//         }
+
+//         if (sortIncident.value !== 'none') {
+//             const cmpIncident = sortIncident.value === 'asc'
+//                 ? a.incident.type.localeCompare(b.incident.type)
+//                 : b.incident.type.localeCompare(a.incident.type);
+//             if (cmpIncident !== 0) return cmpIncident;
+//         }
+
+//         if (sortActions.value !== 'none') {
+//             const cmpAction = sortActions.value === 'asc'
+//                 ? a.actions.actions.localeCompare(b.actions.actions)
+//                 : b.actions.actions.localeCompare(a.actions.actions);
+//             if (cmpAction !== 0) return cmpAction;
+//         }
+
+//         if (sortUrgency.value !== 'none') {
+//             const cmpUrgency = sortUrgency.value === 'asc'
+//                 ? a.urgency.urgency.localeCompare(b.urgency.urgency)
+//                 : b.urgency.urgency.localeCompare(a.urgency.urgency);
+//             if (cmpUrgency !== 0) return cmpUrgency;
+//         }
+
+//         if (sortBarangay.value !== 'none') {
+//             const cmpBarangay = sortBarangay.value === 'asc'
+//                 ? a.barangay.name.localeCompare(b.barangay.name)
+//                 : b.barangay.name.localeCompare(a.barangay.name);
+//             if (cmpBarangay !== 0) return cmpBarangay;
+//         }
+//         return 0;
+//     });
+// });
 
 // Pagination
 const currentPage = ref(1);
@@ -281,6 +536,217 @@ const checkboxDelete = async () => {
         console.error('Error deleting data:', error);
         errors.value = error.response?.data?.message || 'Something went wrong!';
     }
+};
+
+//For Export Option
+onMounted(() => {
+    document.addEventListener("click", (event) => {
+        if (
+            openDropdownExportId.value !== null &&
+            !dropdownExportRefs.value[openDropdownExportId.value]?.contains(event.target)
+        ) {
+            closeExportDropdown();
+        }
+    });
+});
+
+// -----------------------
+const openDropdownExportId = ref(null);
+
+const dropdownExportRefs = ref([]);
+const closeExportDropdown = () => {
+    openDropdownExportId.value = null;
+};
+const toggleExportDropdown = (exportId) => {
+    openDropdownExportId.value = openDropdownExportId.value === exportId ? null : exportId;
+};
+
+// for printing reports
+const handlePrint = async () => {
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
+
+    // Wait for the image to load
+    await new Promise((resolve) => {
+        const img = new Image();
+        img.src = logo;
+        img.onload = resolve;
+        img.onerror = resolve; // Avoid hanging if image fails
+    });
+
+    // Wait for the reports data to be fully available
+    await new Promise((resolve) => {
+        setTimeout(resolve, 100); // Small delay to ensure data is processed
+    });
+
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Printed Reports</title>
+                <style>
+                    body { font-family: Arial, sans-serif; }
+                    table { 
+                        width: 100%; 
+                        border-collapse: collapse; 
+                        margin-bottom: 20px; 
+                    }
+                    th, td { 
+                        border: 1px solid #ddd; 
+                        padding: 8px; 
+                        text-align: left; 
+                    }
+                    th { 
+                        background-color: #f2f2f2; 
+                        font-weight: bold; 
+                    }
+                    .print-header {
+                        text-align: center;
+                        margin-bottom: 20px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="print-header">
+                    <img src="${logo}" alt="Logo" style="width: 100px; height: auto; display: block; margin: 20px auto;">
+                    <h1>Reports Management - Printed Report</h1>
+                    <p>Printed on: ${new Date().toLocaleString()}</p>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Source</th>
+                            <th>Assistance</th>
+                            <th>Incident/Case</th>
+                            <th>Actions Taken</th>
+                            <th>Location</th>
+                            <th>Urgency</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filteredReports.value.map(report => `
+                            <tr>
+                                <td>${report.id}</td>
+                                <td>${report.source.sources}</td>
+                                <td>${report.assistance.assistance}</td>
+                                <td>${report.incident.type}</td>
+                                <td>${report.actions.actions}</td>
+                                <td>${report.barangay.name}</td>
+                                <td>${report.urgency.urgency}</td>
+                                <td>${report.description}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                <div class="print-footer">
+                    <p>Total Reports: ${filteredReports.value.length}</p>
+                </div>
+            </body>
+        </html>
+    `);
+
+    printWindow.document.close();
+
+    // Wait for the new window to finish rendering before printing
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    printWindow.print();
+
+    printWindow.onafterprint = () => {
+        printWindow.close();
+    };
+};
+
+// //handle CSV generation
+const handleCSV = (filteredReports) => {
+  if (!filteredReports || filteredReports.length === 0) {
+    console.warn("No data to export.");
+    return;
+  }
+
+  // Flatten each report
+  const flatReports = filteredReports.map(report => ({
+    id: report.id,
+    name: report.name,
+    date_received: report.date_received,
+    time: report.time,
+    arrival_on_site: report.arrival_on_site,
+    landmark: report.landmark,
+    description: report.description,
+    latitude: report.latitude,
+    longitude: report.longitude,
+    source_id: report.source_id,
+    source: report.source?.sources ?? '',
+    assistance_id: report.assistance_id,
+    assistance: report.assistance?.assistance ?? '',
+    actions_id: report.actions_id,
+    actions: report.actions?.actions ?? '',
+    urgency_id: report.urgency_id,
+    urgency: report.urgency?.urgency ?? '',
+    incident_id: report.incident_id,
+    incident: report.incident?.type ?? '',
+    barangay_id: report.barangay_id,
+    barangay: report.barangay?.name ?? '',
+    created_at: report.created_at,
+    updated_at: report.updated_at,
+  }));
+
+  // Get headers
+  const headers = Object.keys(flatReports[0]);
+
+  // Build CSV rows
+  const csvRows = [headers.join(',')];
+
+  flatReports.forEach(item => {
+    const row = headers.map(header => {
+      const val = item[header];
+      if (typeof val === 'string') {
+        return `"${val.replace(/"/g, '""')}"`; // escape quotes
+      }
+      return val ?? '';
+    });
+    csvRows.push(row.join(','));
+  });
+
+  // Create blob and trigger download
+  const csvContent = csvRows.join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', 'filtered_reports.csv');
+  document.body.appendChild(link); // not required but safer in some browsers
+  link.click();
+
+  // Clean up after short delay to ensure download starts
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+    document.body.removeChild(link);
+  }, 100);
+};
+
+//handle JSON
+const handleJSON = (filteredReports) => {
+  if (!filteredReports || filteredReports.length === 0) {
+    console.warn("No data to export.");
+    return;
+  }
+
+  const jsonContent = JSON.stringify(filteredReports, null, 2); // Pretty print with 2 spaces
+  const blob = new Blob([jsonContent], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', 'filtered_reports.json');
+  document.body.appendChild(link);
+  link.click();
+
+  // Clean up
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+    document.body.removeChild(link);
+  }, 100);
 };
 </script>
 
@@ -413,12 +879,48 @@ const checkboxDelete = async () => {
                         <div class="flex items-center space-x-2">
 
                             <!-- report button -->
-                            <div
+                            <!-- <div
                                 class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
                                 <button @click="handlePrint"
                                     class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
                                     Print Reports
                                 </button>
+                            </div> -->
+                            <div class="flex items-center md:w-auto relative">
+                                <!-- <button "
+                                    class="inline-flex items-center p-0.5 text-sm font-medium rounded-lg">
+                                    Export
+                                </button> -->
+                                <button @click.stop="toggleExportDropdown(73)"
+                                    class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
+                                    Export
+                                </button>
+
+                                <div v-if="openDropdownExportId" ref="dropdownExportRefs"
+                                    class="absolute z-10 w-44 mt-0.5 top-full right-0 shadow-sm border rounded-md bg-white dark:bg-slate-700"
+                                    @click.stop>
+
+                                    <ul class=" text-sm">
+                                        <li>
+                                            <div @click="handlePrint"
+                                                class="block px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-slate-600">
+                                                Export to PDF
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div @click="handleJSON(filteredReports)"
+                                                class="block px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-slate-600">
+                                                Export to JSON
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div @click="handleCSV(filteredReports)"
+                                                class="block px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-slate-600">
+                                                Export to CSV
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                         
@@ -549,11 +1051,11 @@ const checkboxDelete = async () => {
                         <tr>
                             <th scope="col" class="px-4 py-3 text-center"></th>
                             <th scope="col" class="px-4 py-3 text-center">ID</th>
-                            <th scope="col" class="px-4 py-3 text-center">Source</th>
-                            <th scope="col" class="px-4 py-3 text-center">Assistance</th>
-                            <th scope="col" class="px-4 py-3 text-center">Incident/Case</th>
-                            <th scope="col" class="px-4 py-3 text-center">Actions Taken</th>
-                            <th scope="col" class="px-4 py-3 text-center">Urgency</th>
+                            <th scope="col" class="px-4 py-3 text-center"><button class="" @click="toggleSortSource">SOURCE <i :class="sortSource === 'asc' ? 'pi pi-sort-alpha-up' : (sortSource === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button></th>
+                            <th scope="col" class="px-4 py-3 text-center"><button class="" @click="toggleSortAssistance">ASSISTANCE  <i :class="sortAssistance === 'asc' ? 'pi pi-sort-alpha-up' : (sortAssistance === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button></th>
+                            <th scope="col" class="px-4 py-3 text-center"><button class="" @click="toggleSortIncident">INCIDENT/CASE <i :class="sortIncident === 'asc' ? 'pi pi-sort-alpha-up' : (sortIncident === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button></th>
+                            <th scope="col" class="px-4 py-3 text-center"><button class="" @click="toggleSortActions">ACTIONS <i :class="sortActions === 'asc' ? 'pi pi-sort-alpha-up' : (sortActions === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button></th>
+                            <th scope="col" class="px-4 py-3 text-center"><button class="" @click="toggleSortUrgency">URGENCY <i :class="sortUrgency === 'asc' ? 'pi pi-sort-alpha-up' : (sortUrgency === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button></th>
                             <th scope="col" class="px-4 py-3 text-center">Location</th>
                             <th scope="col" class="px-4 py-3 text-center">Actions</th>
                         </tr>
