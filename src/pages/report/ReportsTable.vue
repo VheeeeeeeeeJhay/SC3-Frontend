@@ -227,6 +227,7 @@ const filteredReports = computed(() => {
 });
 
 
+//for action button
 onMounted(() => {
     document.addEventListener("click", (event) => {
         if (
@@ -237,10 +238,7 @@ onMounted(() => {
         }
     });
 });
-
-// -----------------------
 const openDropdownId = ref(null);
-
 const dropdownRefs = ref([]);
 const closeDropdown = () => {
     openDropdownId.value = null;
@@ -544,6 +542,121 @@ const updateDateRange = ({ start, end }) => {
     endDate.value = end;
     console.log("Date Range:", startDate.value, endDate.value);
 };
+
+//For Export Option
+onMounted(() => {
+    document.addEventListener("click", (event) => {
+        if (
+            openDropdownExportId.value !== null &&
+            !dropdownExportRefs.value[openDropdownExportId.value]?.contains(event.target)
+        ) {
+            closeExportDropdown();
+        }
+    });
+});
+
+// -----------------------
+const openDropdownExportId = ref(null);
+
+const dropdownExportRefs = ref([]);
+const closeExportDropdown = () => {
+    openDropdownExportId.value = null;
+};
+const toggleExportDropdown = (exportId) => {
+    openDropdownExportId.value = openDropdownExportId.value === exportId ? null : exportId;
+};
+
+// //handle CSV generation
+const handleCSV = (filteredReports) => {
+  if (!filteredReports || filteredReports.length === 0) {
+    console.warn("No data to export.");
+    return;
+  }
+
+  // Flatten each report
+  const flatReports = filteredReports.map(report => ({
+    id: report.id,
+    name: report.name,
+    date_received: report.date_received,
+    time: report.time,
+    arrival_on_site: report.arrival_on_site,
+    landmark: report.landmark,
+    description: report.description,
+    latitude: report.latitude,
+    longitude: report.longitude,
+    source_id: report.source_id,
+    source: report.source?.sources ?? '',
+    assistance_id: report.assistance_id,
+    assistance: report.assistance?.assistance ?? '',
+    actions_id: report.actions_id,
+    actions: report.actions?.actions ?? '',
+    urgency_id: report.urgency_id,
+    urgency: report.urgency?.urgency ?? '',
+    incident_id: report.incident_id,
+    incident: report.incident?.type ?? '',
+    barangay_id: report.barangay_id,
+    barangay: report.barangay?.name ?? '',
+    created_at: report.created_at,
+    updated_at: report.updated_at,
+  }));
+
+  // Get headers
+  const headers = Object.keys(flatReports[0]);
+
+  // Build CSV rows
+  const csvRows = [headers.join(',')];
+
+  flatReports.forEach(item => {
+    const row = headers.map(header => {
+      const val = item[header];
+      if (typeof val === 'string') {
+        return `"${val.replace(/"/g, '""')}"`; // escape quotes
+      }
+      return val ?? '';
+    });
+    csvRows.push(row.join(','));
+  });
+
+  // Create blob and trigger download
+  const csvContent = csvRows.join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', 'filtered_reports.csv');
+  document.body.appendChild(link); // not required but safer in some browsers
+  link.click();
+
+  // Clean up after short delay to ensure download starts
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+    document.body.removeChild(link);
+  }, 100);
+};
+
+//handle JSON
+const handleJSON = (filteredReports) => {
+  if (!filteredReports || filteredReports.length === 0) {
+    console.warn("No data to export.");
+    return;
+  }
+
+  const jsonContent = JSON.stringify(filteredReports, null, 2); // Pretty print with 2 spaces
+  const blob = new Blob([jsonContent], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', 'filtered_reports.json');
+  document.body.appendChild(link);
+  link.click();
+
+  // Clean up
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+    document.body.removeChild(link);
+  }, 100);
+};
 </script>
 
 <template>
@@ -664,12 +777,62 @@ const updateDateRange = ({ start, end }) => {
                                 </PopupModal>
                             </div>
                             <!-- report button -->
-                            <div
+                            <!-- <div
                                 class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
                                 <button @click="handlePrint"
                                     class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
                                     Print Reports
                                 </button>
+                            </div> -->
+                            <!-- <div
+                                class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+                                <button @click="handleCSV(filteredReports)"
+                                    class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
+                                    Export to CSV
+                                </button>
+                            </div>
+                            <div
+                                class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+                                <button @click="handleJSON(filteredReports)"
+                                    class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
+                                    Export to JSON
+                                </button>
+                            </div> -->
+                            <div class="flex items-center md:w-auto relative">
+                                <!-- <button "
+                                    class="inline-flex items-center p-0.5 text-sm font-medium rounded-lg">
+                                    Export
+                                </button> -->
+                                <button @click.stop="toggleExportDropdown(73)"
+                                    class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
+                                    Export
+                                </button>
+
+                                <div v-if="openDropdownExportId" ref="dropdownExportRefs"
+                                    class="absolute z-10 w-44 mt-0.5 top-full right-0 shadow-sm border rounded-md bg-white dark:bg-slate-700"
+                                    @click.stop>
+
+                                    <ul class=" text-sm">
+                                        <li>
+                                            <div @click="handlePrint"
+                                                class="block px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-slate-600">
+                                                Export to PDF
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div @click="handleJSON(filteredReports)"
+                                                class="block px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-slate-600">
+                                                Export to JSON
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div @click="handleCSV(filteredReports)"
+                                                class="block px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-slate-600">
+                                                Export to CSV
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
 
