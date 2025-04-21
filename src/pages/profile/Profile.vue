@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-950 to-black flex items-center justify-center p-6">
+  <div class="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center p-6">
     <div class="bg-white/10 dark:bg-black/30 backdrop-blur-lg rounded-3xl shadow-2xl w-full max-w-5xl p-10 transition-all duration-300 border border-white/10 dark:border-gray-800">
       <div class="flex flex-col md:flex-row items-center justify-between">
         <!-- Profile Section -->
