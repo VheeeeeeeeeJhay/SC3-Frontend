@@ -161,7 +161,7 @@ const closeSidebar = () => {
         <button
           @click.stop="dropdownOpen = !dropdownOpen"
           type="button"
-          class="flex justify-center items-center bg-gray-800 rounded-full hover:ring-4 hover:ring-green-500 transition-all duration-300"
+          class="flex justify-center items-center bg-gray-800 rounded-full hover:ring-4 hover:ring-teal-500 transition-all duration-300"
         >
         <div
     class="w-10 h-10 mx-auto flex items-center justify-center rounded-full bg-indigo-600 text-white text-2xl font-bold shadow-xl dark:bg-indigo-500">
@@ -202,7 +202,7 @@ const closeSidebar = () => {
       <li>
         <button
           @click.stop="toggleTheme"
-          class="theme-toggle block w-full text-start px-4 py-2 text-sm hover:bg-gray-300 dark:hover:bg-slate-600 dark:hover:text-white"
+          class="theme-toggle block w-full text-start px-4 py-2 text-sm hover:bg-[#D9D9B3] dark:hover:bg-slate-600 dark:hover:text-white"
         >
           <div v-if="theme === 'light'">🌞 Light Mode</div>
           <div v-else>🌙 Dark Mode</div>
@@ -211,7 +211,7 @@ const closeSidebar = () => {
       <li>
         <RouterLink
           to="/profile"
-          class="block px-4 py-2 text-sm hover:bg-gray-300 dark:hover:bg-slate-600 dark:hover:text-white"
+          class="block px-4 py-2 text-sm hover:bg-[#D9D9B3] dark:hover:bg-slate-600 dark:hover:text-white"
         >
           Profile
         </RouterLink>
@@ -219,7 +219,7 @@ const closeSidebar = () => {
       <li>
         <a
           @click="showSignoutConfirmation"
-          class="block px-4 py-2 text-sm hover:bg-gray-300 dark:hover:bg-slate-600 dark:hover:text-white"
+          class="block px-4 py-2 text-sm hover:bg-[#D9D9B3] dark:hover:bg-slate-600 dark:hover:text-white"
         >
           Sign Out
         </a>

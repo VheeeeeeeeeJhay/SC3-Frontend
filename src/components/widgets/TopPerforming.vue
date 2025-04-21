@@ -89,23 +89,31 @@ const topBarangays = computed(() => {
   }
 
   // 🧠 Count per barangay
-  const barangayCounts = {};
+  // 🧠 Count per barangay using ID
+  const barangayMap = {};
 
   filteredReports.forEach(report => {
-    const brgy = typeof report.barangay === 'object' && report.barangay !== null
-      ? report.barangay.name
-      : report.barangay || 'Unknown';
+    const brgy = report.barangay;
 
-    barangayCounts[brgy] = (barangayCounts[brgy] || 0) + 1;
+    // skip if barangay is invalid
+    if (!brgy || typeof brgy !== 'object' || !brgy.id) return;
+
+    if (!barangayMap[brgy.id]) {
+      barangayMap[brgy.id] = {
+        id: brgy.id,
+        name: brgy.name,
+        count: 0
+      };
+    }
+
+    barangayMap[brgy.id].count++;
   });
 
-  console.log('📊 Barangay counts:', barangayCounts);
+  const sorted = Object.values(barangayMap).sort((a, b) => b.count - a.count);
 
-  const sorted = Object.entries(barangayCounts).sort((a, b) => b[1] - a[1]);
+  console.log('🏆 Sorted top barangays:', sorted);
 
-  console.log('🏆 Sorted barangays:', sorted);
-
-  return sorted.slice(0, 3).map(([barangay, count]) => `${barangay} (${count})`);
+  return sorted.slice(0, 3); // top 3 as array of objects
 });
 
 
@@ -118,13 +126,17 @@ const topBarangays = computed(() => {
         Barangay with the Most Cases <ToolTip Information="The barangay with the highest number of reports."/>
     </h2>
 
-    <ul class="mt-2 text-white text-sm list-disc list-inside space-y-2">
-    <li v-for="(barangay, index) in topBarangays" :key="index" class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-700 cursor-pointer">
-        <!-- Add an icon or styling if needed -->
-        <span class="text-teal-400">#{{ index + 1 }}</span>
-        <span>{{ barangay }}</span>
-    </li>
-</ul>
+    <ul class="mt-2 text-white text-sm space-y-2">
+      <li v-for="(barangay, index) in topBarangays" :key="barangay.id">
+        <RouterLink
+          :to="`/barangay-statistics/${barangay.id}`"
+          class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-700 cursor-pointer"
+        >
+          <span class="text-teal-400">#{{ index + 1 }}</span>
+          <span>{{ barangay.name }} ({{ barangay.count }})</span>
+        </RouterLink>
+      </li>
+    </ul>
 
 
 </template>

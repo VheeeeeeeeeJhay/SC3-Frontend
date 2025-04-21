@@ -371,8 +371,6 @@ const toggleMinimize = () => {
   <!-- main dashboard page -->
   <div class="min-h-screen p-4">
 
-    <!-- <TestMail /> -->
-
     <!-- Title -->
     <div class="mt-6 px-2 flex items-center justify-between">
       <h1 class="text-2xl font-bold dark:text-white">Overview</h1>
@@ -413,7 +411,7 @@ const toggleMinimize = () => {
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <div class="relative p-4 card">
           <button @click="expandCard('IncidentGrowthRate')" class="expand-btn">⛶</button>
-          <IncidentGrowthRate :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" />
+          <!-- <IncidentGrowthRate :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" /> -->
         </div>
 
         <div class="relative p-4 card">
@@ -424,7 +422,8 @@ const toggleMinimize = () => {
 
         <div class="relative p-4 card">
           <button @click="expandCard('TopPerforming')" class="expand-btn">⛶</button>
-          <TopPerforming />
+          <TopPerforming :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate"
+          :endDate="endDate"/>
         </div>
       </div>
 
@@ -432,19 +431,19 @@ const toggleMinimize = () => {
       <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <div class="relative p-4 card" ref="captureTarget1">
           <button @click="expandCard('LineChart')" class="expand-btn">⛶</button>
-          <LineChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate"
-            :endDate="endDate" />
+          <!-- <LineChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate"
+            :endDate="endDate" /> -->
         </div>
 
         <div class="relative p-4 card" ref="captureTarget2">
           <button @click="expandCard('BarChart')" class="expand-btn">⛶</button>
-          <BarChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate"
-            :endDate="endDate" class="w-full h-full" />
+          <!-- <BarChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate"
+            :endDate="endDate" class="w-full h-full" /> -->
         </div>
 
         <div class="relative p-4 card text-gray-800 dark:text-white">
           <button @click="expandCard('RecentIncident')" class="expand-btn">⛶</button>
-          <RecentIncident />
+          <!-- <RecentIncident /> -->
         </div>
       </div>
 
@@ -452,8 +451,8 @@ const toggleMinimize = () => {
       <div class="mt-6 grid grid-cols-1 sm:grid-cols-1 gap-6">
         <div class="relative p-4 card" ref="captureTarget3">
           <button @click="expandCard('PieChart')" class="expand-btn">⛶</button>
-          <PieChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate"
-            :endDate="endDate" />
+          <!-- <PieChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate"
+            :endDate="endDate" /> -->
         </div>
       </div>
     </main>

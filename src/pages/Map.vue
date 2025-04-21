@@ -53,7 +53,7 @@ const computedProperties = {
 const {
     reports,
 } = Object.fromEntries(
-    Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
+    Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])  
 );
 
 // Access Pinia store for GeoJSON border visibility
@@ -121,10 +121,11 @@ onMounted(() => {
     .map("map")
     .setView([16.404, 120.599], 13)
     .addLayer(
-      leaflet.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      leaflet.tileLayer("https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.{ext}", {
         maxZoom: 19,
         attribution:
           '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+          ext: 'png'
       })
     );
   const bounds = leaflet.latLngBounds(
@@ -139,7 +140,7 @@ onMounted(() => {
   }
 
   // ✅ Custom Control for Dropdown with Dark Mode and Borders Toggle
-const dropdownControl = leaflet.control({ position: "topleft" });
+  const dropdownControl = leaflet.control({ position: "topleft" });
 
 dropdownControl.onAdd = function () {
   const div = leaflet.DomUtil.create("div", "leaflet-bar leaflet-control leaflet-control-custom");
@@ -150,7 +151,8 @@ dropdownControl.onAdd = function () {
       <button class="dropbtn">⚙️</button>
       <div class="dropdown-content">
         <button id="darkModeToggleBtn" class="dark-mode-toggle">🌙 Dark Mode</button>
-        <button id="toggleBordersBtn" class="border-toggle-btn">🥷Borders</button>
+        <button id="toggleBordersBtn" class="border-toggle-btn">🥷 Borders</button>
+        <button id="captureMapBtn" class="capture-map-btn">📸 Capture Map</button>
       </div>
     </div>
   `;
@@ -161,6 +163,9 @@ dropdownControl.onAdd = function () {
   };
   div.querySelector("#toggleBordersBtn").onclick = () => {
     mapStore.showGeoJSONBorders = !mapStore.showGeoJSONBorders; // Toggle borders state
+  };
+  div.querySelector("#captureMapBtn").onclick = () => {
+    captureImage();
   };
 
   return div;
@@ -245,34 +250,26 @@ dropdownControl.addTo(map);
 
     // Define legend steps (Low, Medium, High)
     const legendSteps = [
-      { label: "Low", reports: minReports },
-      { label: "Medium", reports: Math.round((minReports + maxReports) / 2) },
-      { label: "High", reports: maxReports },
-    ];
+  { label: "Low", size: 10, color: "hsl(120, 100%, 50%)" },   // Green, small
+  { label: "Medium", size: 20, color: "hsl(60, 100%, 50%)" }, // Orange, medium
+  { label: "High", size: 30, color: "hsl(0, 100%, 50%)" },    // Red, large
+];
 
     // Generate legend dynamically based on marker size & color logic
     let legendHTML = `<h4>Incident Reports</h4>`;
 
     legendSteps.forEach((step) => {
-      const normalized =
-        (step.reports - minReports) / (maxReports - minReports);
-      const markerSize = 10 + normalized * 20; // Match marker size logic
-      const hue = normalized <= 0.5 
-        ? 120 - normalized * 120 // Green to orange (120 to 60)
-        : 60 - (normalized - 0.5) * 120; // Orange to red (60 to 0)
-      const markerColor = `hsl(${hue}, 100%, 50%)`;
-
-      legendHTML += `
+    legendHTML += `
       <div class="legend-item">
-        <span class="legend-circle" style="background: ${markerColor}; width: ${markerSize}px; height: ${markerSize}px;"></span>
+        <span class="legend-circle" style="background: ${step.color}; width: ${step.size}px; height: ${step.size}px;"></span>
         <span>${step.label}</span>
       </div>
     `;
-    });
+      });
 
-    div.innerHTML = legendHTML;
-    return div;
-  };
+      div.innerHTML = legendHTML;
+      return div;
+    };
 
   legendControl.addTo(map);
 
@@ -384,59 +381,114 @@ dropdownControl.addTo(map);
 `;
   document.head.appendChild(style);
 
-  // ✅ Add GeoJSON Layer with hover effect for barangay names
-  if (mapData && mapData.features) {
-    geojsonLayer.value = leaflet
-      .geoJSON(mapData, {
-        onEachFeature: (feature, layer) => {
-          layer.on("mouseover", (event) => {
-            if (mapStore.showGeoJSONBorders) {
-              layer.setStyle({
-                weight: 5,
-                color: "#007FFF",
-                fillOpacity: 0.7,
-              });
+  // ✅ Convert LineStrings to Polygons before rendering
+if (mapData && mapData.features) {
+  mapData.features = mapData.features.map((feature) => {
+    if (feature.geometry.type === "LineString") {
+      const coords = feature.geometry.coordinates;
 
-              // Show barangay name as a tooltip
-              const { adm4_en } = feature.properties;
-              layer
-                .bindTooltip(adm4_en, { permanent: false, direction: "center" })
-                .openTooltip();
-            }
-          });
+      // Close the loop if it's not already closed
+      const first = coords[0];
+      const last = coords[coords.length - 1];
+      if (first[0] !== last[0] || first[1] !== last[1]) {
+        coords.push(first);
+      }
 
-          layer.on("mouseout", () => {
-            if (mapStore.showGeoJSONBorders) {
-              layer.setStyle({
-                weight: 2,
-                color: "#007FFF",
-                fillOpacity: 0.2,
-              });
-            } else {
-              layer.setStyle({
-                weight: 0,
-                color: "",
-                fillOpacity: 0,
-              });
-            }
-
-            // Remove tooltip when mouse leaves
-            // layer.unbindTooltip();
-          });
-
-          // Set initial style
-          layer.setStyle({
-            weight: mapStore.showGeoJSONBorders ? 2 : 0,
-            color: "#007FFF",
-            fillOpacity: mapStore.showGeoJSONBorders ? 0.2 : 0,
-          });
+      return {
+        ...feature,
+        geometry: {
+          type: "Polygon",
+          coordinates: [coords], // Wrap in array for Polygon
         },
-      })
-      .addTo(map);
-  }
+      };
+    }
+
+    return feature;
+  });
+
+  // ✅ Add GeoJSON Layer with hover effect for barangay names
+  geojsonLayer.value = leaflet
+    .geoJSON(mapData, {
+      onEachFeature: (feature, layer) => {
+        const barangayName = feature.properties.adm4_en || feature.properties.name;
+        console.log("Feature geometry type:", feature.geometry.type);
+        layer.on("mouseover", () => {
+          if (mapStore.showGeoJSONBorders) {
+            layer.setStyle({
+              weight: 5,
+              color: "#007FFF",
+              fill: true,
+              fillColor: getBarangayColor(barangayName),
+              fillOpacity: 0.7,
+            });
+
+            layer
+              .bindTooltip(barangayName, {
+                permanent: false,
+                direction: "center",
+              })
+              .openTooltip();
+          }
+        });
+
+        layer.on("mouseout", () => {
+          if (mapStore.showGeoJSONBorders) {
+            layer.setStyle({
+              weight: 2,
+              color: "#007FFF",
+              fill: true,
+              fillColor: getBarangayColor(barangayName), // Optional: reset fill on mouse out
+              fillOpacity: 0.2,
+            });
+          } else {
+            layer.setStyle({
+              weight: 0,
+              color: "",
+              fillOpacity: 0,
+            });
+          }
+        });
+
+        // Initial style
+        layer.setStyle({
+          weight: mapStore.showGeoJSONBorders ? 2 : 0,
+          color: "#007FFF",
+          fill: true,
+          fillColor: getBarangayColor(barangayName),
+          fillOpacity: mapStore.showGeoJSONBorders ? 0.2 : 0,
+        });
+      },
+    })
+    .addTo(map);
+}
 
   // updateHeatmap();
 });
+
+const getBarangayColor = (barangayName) => {
+  const safeName = (name) => (typeof name === "string" ? name.trim().toLowerCase() : "");
+  const barangayData = groupedReportsByBarangay.value.find(
+    (b) => safeName(b.name) === safeName(barangayName)
+  );
+  
+
+  if (!barangayData) return "#cccccc"; // default gray if no data
+
+  const totalReports = barangayData.totalReports || 0;
+
+  const reportsArray = groupedReportsByBarangay.value.map((b) => b.totalReports);
+  const minReports = Math.min(...reportsArray);
+  const maxReports = Math.max(...reportsArray);
+
+  const normalized =
+    maxReports !== minReports
+      ? (totalReports - minReports) / (maxReports - minReports)
+      : 0.5;
+
+  const hue = 120 - normalized * 120; // green (120) to red (0)
+  return `hsl(${hue}, 100%, 50%)`;
+};
+
 
 //For the markers of each barangay setting the color and sizes
 let markers = []; // Store markers for clearing later
@@ -499,11 +551,6 @@ const addBarangayMarkers = () => {
 };
 
 
-// onMounted(() => {
-//   fetchData().then(() => {
-//     addBarangayMarkers(); // ✅ Add markers after fetching data
-//   });
-// });
 // 🏁 Run when component is mounted
 onMounted(() => {
   databaseStore.fetchData().then(() => {
@@ -517,11 +564,17 @@ watch(groupedReportsByBarangay, () => {
   addBarangayMarkers();
 }, { deep: true });
 
-// watchEffect(() => {
-//   if (reports.value.length > 0) {
-//     addBarangayMarkers(); // ✅ Refresh markers when data changes
-//   }
-// });
+watch(groupedReportsByBarangay, () => {
+  if (geojsonLayer.value) {
+    geojsonLayer.value.eachLayer((layer) => {
+      const barangayName = layer.feature.properties.adm4_en;
+      layer.setStyle({
+        fillColor: getBarangayColor(barangayName),
+      });
+    });
+  }
+}, { deep: true });
+
 
 // ✅ Mount Vue Component in the Leaflet Control
 onMounted(() => {
@@ -534,26 +587,38 @@ onMounted(() => {
   }).mount("#date-picker-container");
 });
 
-
-
-// **Watch for changes in showGeoJSONBorders**
+// for toggling the border button
 watch(
-  () => mapStore.showGeoJSONBorders, // Watch the showGeoJSONBorders state
+  () => mapStore.showGeoJSONBorders,
   () => {
-    updateGeoJSONStyles(); // Apply the new styles when the value changes
+    updateGeoJSONStyles(); 
   }
 );
+//for border fill color effect
+watchEffect(() => {
+  if (
+    geojsonLayer.value &&
+    mapData &&
+    mapData.features &&
+    groupedReportsByBarangay.value.length > 0
+  ) {
+    updateGeoJSONStyles();
+  }
+});
 
-// **Update GeoJSON Layer Styles**
 const updateGeoJSONStyles = () => {
   if (geojsonLayer.value) {
     geojsonLayer.value.eachLayer((layer) => {
-      // Update style based on border visibility
+      const barangayName =
+        layer.feature?.properties?.adm4_en || layer.feature?.properties?.name;
+
       layer.setStyle({
-        weight: mapStore.showGeoJSONBorders ? 2 : 0, // Show or hide borders based on the toggle
-        color: mapStore.showGeoJSONBorders ? "#007FFF" : "", // Light blue border when active, no border when inactive
-        fillOpacity: mapStore.showGeoJSONBorders ? 0.2 : 0, // Light opacity fill when active, no fill when inactive
-        fillColor: mapStore.showGeoJSONBorders ? "#007FFF" : "", // Optional: Set fill color based on border state
+        weight: mapStore.showGeoJSONBorders ? 2 : 0,
+        color: mapStore.showGeoJSONBorders ? "#007FFF" : "",
+        fillOpacity: mapStore.showGeoJSONBorders ? 0.2 : 0,
+        fillColor: mapStore.showGeoJSONBorders
+          ? getBarangayColor(barangayName)
+          : "",
       });
     });
   }
@@ -571,7 +636,15 @@ const exportAsImage = () => {
 
   const now = new Date();
   const timestamp = now.toISOString().replace(/[:.]/g, '-');
-  const filename = `Map-Capture-${timestamp}.png`;
+  // const filename = `Map-Capture-${timestamp}.png`;
+
+  // 👇 Target the dropdown wrapper and zoom controls
+  const dropdownEl = document.querySelector(".dropdown");
+  const zoomControlEl = document.querySelector(".leaflet-control-zoom");
+
+  // Temporarily hide the dropdown
+  if (dropdownEl) dropdownEl.style.display = "none";
+  if (zoomControlEl) zoomControlEl.style.display = "none";
 
   domtoimage.toPng(captureTarget.value)
     .then((dataUrl) => {
@@ -580,6 +653,10 @@ const exportAsImage = () => {
     })
     .catch((error) => {
       console.error('Error capturing image!', error);
+    })
+    .finally(() => {
+      if (dropdownEl) dropdownEl.style.display = ""; // Show it again
+      if (zoomControlEl) zoomControlEl.style.display = "";
     });
 };
 
@@ -652,6 +729,26 @@ const generatePdf = () => {
     };
   };
 };
+
+const showExportMenu = ref(false)
+
+// Toggle the dropdown
+function toggleExportMenu() {
+  showExportMenu.value = !showExportMenu.value
+}
+
+// Optional: Close dropdown if clicked outside
+const dropdownRef = ref(null)
+
+// onClickOutside(dropdownRef, () => {
+//   showExportMenu.value = false
+// })
+
+const minimized = ref(false);
+const toggleMinimize = () => {
+  minimized.value = !minimized.value;
+  console.log(minimized.value);
+};
 </script>
 <template>
   <!-- <div class="h-full w-full">
@@ -660,56 +757,68 @@ const generatePdf = () => {
     </div>
   </div> --><!-- Button to trigger image export -->
   <!-- Button to trigger image capture -->
-  <button 
-    v-if="!exportedImageUrl" 
-    @click="captureImage" 
-    class="bg-blue-500 text-white p-4 rounded hover:bg-blue-600 transition duration-300 w-full relative"
-  >
-    Capture Map
-  </button>
+  
 
-  <!-- Button with image preview and close icon inside -->
-  <button 
-    v-if="exportedImageUrl" 
-    @click="captureImage" 
-    class="bg-blue-500 text-white p-4 rounded hover:bg-blue-600 transition duration-300 relative"
-  >
-    <!-- Image preview -->
-    <div class="flex items-center justify-center">
-      <!-- Image with fixed width and height of 150px -->
-      <img 
-        :src="exportedImageUrl" 
-        alt="Captured Map" 
-        class="w-36 h-36 object-cover rounded-md"
-      />
-      <!-- Close button inside the image -->
-      <div 
-        class="absolute top-0 right-0 text-white text-3xl cursor-pointer bg-black bg-opacity-50 rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-500 transition duration-200"
-        @click="removeImage"
-      >
-        &times;
+  <!-- Export Preview Drawer -->
+<div v-if="exportedImageUrl">
+  <!-- Drawer Content -->
+  <div v-if="!minimized"
+    class="fixed bottom-0 right-0 z-50 w-96 m-5 rounded bg-white dark:bg-gray-900 p-6 shadow-xl">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-xl font-bold text-gray-900 dark:text-white">Export Preview</h3>
+      <div class="flex gap-2">
+        <button @click="toggleMinimize" class="text-gray-500 hover:text-gray-700 font-bold">—</button>
+        <button @click="removeImage" class="text-red-500 hover:text-red-700 font-bold">✕</button>
       </div>
     </div>
-  </button>
 
-  <!-- Buttons for download and PDF generation -->
-  <div v-if="exportedImageUrl" class="mt-4 text-center">
-    <button 
-      @click="downloadImage" 
-      class="bg-green-500 text-white p-2 rounded hover:bg-green-600 transition duration-300 mx-2"
-    >
-      Download Image
-    </button>
-    <button 
-      @click="generatePdf" 
-      class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition duration-300 mx-2"
-    >
-      Generate PDF
-    </button> 
+    <div class="h-30">
+      <div class="flex flex-row space-x-4 overflow-x-auto scrollbar-thin">
+        <div class="relative flex-shrink-0">
+          <img 
+            :src="exportedImageUrl" 
+            alt="Captured Map" 
+            class="w-24 h-24 object-cover rounded-md"
+          />
+          <button @click="downloadImage"
+            class="absolute top-0 right-0 text-white p-1 rounded-full text-xs hover:bg-gray-800 transition-all">⬇</button>
+          <button @click="removeImage"
+            class="absolute top-0 left-0 text-red-500 font-bold p-1 rounded-full text-xs hover:text-red-700 hover:font-black transition-all">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Actions -->
+    <div class="mt-6 flex gap-4 text-sm">
+      <button @click="downloadImage"
+        class="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-md transition duration-200">
+        Download Image
+      </button>
+      <button @click="generatePdf"
+        class="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-md transition duration-200">
+        Save as PDF
+      </button>
+      <button @click="removeImage"
+        class="w-full bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-md transition duration-200">
+        Clear Export
+      </button>
+    </div>
   </div>
 
+  <!-- Minimized Toggle Button -->
+  <div class="fixed end-6 bottom-6 group z-30">
+    <button v-if="minimized" @click="toggleMinimize" type="button"
+      class="flex items-center justify-center text-white bg-teal-700 rounded-lg w-14 h-14 hover:bg-teal-800">
+      <span class="material-icons">output</span>
+      <span class="sr-only">Open Export Preview</span>
+    </button>
+  </div>
+</div>
+
+
+
   <!-- Map wrapper -->
-  <div class="h-full w-full mt-6">
+  <div class="h-full w-full">
     <div id="map-wrapper" ref="captureTarget">
       <div id="map" class="z-10"></div>
     </div>
@@ -747,5 +856,15 @@ const generatePdf = () => {
 #map-wrapper.dark-mode ::v-deep(.leaflet-control),
 #map-wrapper.dark-mode ::v-deep(.leaflet-bar a) {
   filter: none !important;
+}
+
+/* Tailwind-compatible custom scrollbar */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 116, 139, 0.6);
+  border-radius: 3px;
 }
 </style>
