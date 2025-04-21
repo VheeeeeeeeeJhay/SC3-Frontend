@@ -14,8 +14,12 @@ onMounted(() => {
         databaseStore.fetchData();
     }, 50000);
 });
+
 onUnmounted(() => {
-    if (refreshInterval) clearInterval(refreshInterval);
+  // Clear the interval when the component is unmounted or page is reloaded
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+  }
 });
 
 // Get logs from the store

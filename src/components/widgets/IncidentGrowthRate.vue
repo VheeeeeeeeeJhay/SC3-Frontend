@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import ToolTip from '../../components/ToolTip.vue';
 import { useDatabaseStore } from '../../stores/databaseStore';
 
@@ -41,12 +41,17 @@ let refreshInterval = null;
 const databaseStore = useDatabaseStore();
 
 onMounted(() => {
-
     databaseStore.fetchData();
     refreshInterval = setInterval(() => {
         databaseStore.fetchData();
     }, 50000);
+});
 
+onUnmounted(() => {
+  // Clear the interval when the component is unmounted or page is reloaded
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+  }
 });
 
 const computedProperties = {

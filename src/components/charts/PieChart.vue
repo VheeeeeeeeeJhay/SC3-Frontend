@@ -2,9 +2,7 @@
 import { ref, onMounted, computed, onUnmounted, watch } from 'vue';
 import axiosClient from "../../axios.js";
 import ApexCharts from 'apexcharts';
-
-
-
+import { useDatabaseStore } from "../../stores/databaseStore";
 
 const data = ref({
   incidentType: '',
@@ -13,29 +11,61 @@ const data = ref({
 
 const errorMessage = ref('');
 // Store Fetch Data From Backend In An Array
-const incidents = ref([]);
-const assistance = ref([]);
-const report = ref([]);
+// const incidents = ref([]);
+// const assistance = ref([]);
+// const report = ref([]);
+
+const databaseStore = useDatabaseStore();
+
+let refreshInterval = null;
 
 onMounted(() => {
-  axiosClient.get('/api/911/dashboard', {
-    headers: {
-      'x-api-key': import.meta.env.VITE_API_KEY
-    }
-  })
-    .then((res) => {
-      console.log(res);
-      incidents.value = res.data.incidents;
-      assistance.value = res.data.assistance;
-      report.value = res.data.report;
+    databaseStore.fetchData();
 
-      // updateChart(); // Update the chart after fetching data
-    })
-    .catch((error) => {
-      console.error('Error fetching data:', error);
-      errorMessage.value = 'Failed to load data. Please try again later.';
-    });
+    refreshInterval = setInterval(() => {
+        databaseStore.fetchData();
+    }, 50000);
 });
+
+onUnmounted(() => {
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+    }
+});
+
+const computedProperties = {
+    report: "reportsList",
+    incidents: "incidents",
+    assistance: "assistance",
+};
+
+const {
+    report,
+    incidents,
+    assistance,
+} = Object.fromEntries(
+    Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
+);
+
+// onMounted(() => {
+//   // axiosClient.get('/api/911/dashboard', {
+//   //   headers: {
+//   //     'x-api-key': import.meta.env.VITE_API_KEY
+//   //   }
+//   // })
+//   //   .then((res) => {
+//   //     console.log(res);
+//   //     incidents.value = res.data.incidents;
+//   //     assistance.value = res.data.assistance;
+//   //     report.value = res.data.report;
+
+//   //     // updateChart(); // Update the chart after fetching data
+//   //   })
+//   //   .catch((error) => {
+//   //     console.error('Error fetching data:', error);
+//   //     errorMessage.value = 'Failed to load data. Please try again later.';
+//   //   });
+// });
 
 // Run updateChart whenever reports change
 watch(

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, watchEffect, watch } from 'vue';
+import { ref, computed, onMounted, watchEffect, watch, onUnmounted } from 'vue';
 import PrimaryButton from '../../components/PrimaryButton.vue';
 import axiosClient from '../../axios.js';
 import { useGeolocation } from '@vueuse/core';
@@ -67,6 +67,13 @@ onMounted(() => {
     databaseStore.fetchData();
   }, 50000);
 
+});
+
+onUnmounted(() => {
+  // Clear the interval when the component is unmounted or page is reloaded
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+  }
 });
 
 const computedProperties = {

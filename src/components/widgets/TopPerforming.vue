@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useDatabaseStore } from '../../stores/databaseStore';
 
 // Props
@@ -30,7 +30,15 @@ watch(() => [props.selectedMonth, props.selectedYear], () => {
 const databaseStore = useDatabaseStore();
 onMounted(() => {
   databaseStore.fetchData();
-  setInterval(() => databaseStore.fetchData(), 50000);
+  setInterval(() => {
+    databaseStore.fetchData();
+  }, 50000);
+});
+onUnmounted(() => {
+  // Clear the interval when the component is unmounted or page is reloaded
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+  }
 });
 
 // Reactive reports list

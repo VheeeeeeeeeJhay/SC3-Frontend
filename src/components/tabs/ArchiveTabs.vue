@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue';
+import { ref, onMounted, computed, watch, onUnmounted } from 'vue';
 import axiosClient from '../../axios.js';
 import Badge from '../../components/Badge.vue';
 import { useDatabaseStore } from "../../stores/databaseStore";
@@ -99,6 +99,12 @@ onMounted(() => {
     }, 50000);
 
     dropListener();
+});
+onUnmounted(() => {
+  // Clear the interval when the component is unmounted or page is reloaded
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+  }
 });
 
 const computedProperties = {

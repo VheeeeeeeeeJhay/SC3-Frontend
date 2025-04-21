@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch, computed } from "vue";
+import { ref, onMounted, watch, computed, onUnmounted } from "vue";
 import axiosClient from "../../axios";
 import leaflet from "leaflet";
 import "leaflet.heat";

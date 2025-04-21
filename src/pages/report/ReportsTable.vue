@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed, watch, onUnmounted } from 'vue';
 import axiosClient from '../../axios.js';
 import { RouterLink } from 'vue-router';
 import ChooseReportType from '../../components/modal/ChooseReportType.vue';
@@ -31,6 +31,13 @@ onMounted(() => {
     refreshInterval = setInterval(() => {
         databaseStore.fetchData();
     }, 50000);
+});
+
+onUnmounted(() => {
+  // Clear the interval when the component is unmounted or page is reloaded
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+  }
 });
 
 // Computed properties

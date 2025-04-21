@@ -1,6 +1,6 @@
 <script setup>
 
-import { ref, computed, onMounted, watch, } from "vue";
+import { ref, computed, onMounted, watch, onUnmounted } from "vue";
 import axiosClient from "../axios.js";
 import PieChart from "../components/charts/PieChart.vue";
 import LineChart from "../components/charts/LineChart.vue";

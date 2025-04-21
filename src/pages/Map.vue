@@ -4,7 +4,6 @@ import {
   computed,
   onMounted,
   watch,
-  watchEffect,
   createApp,
   onUnmounted,
   h,
@@ -511,6 +510,7 @@ onMounted(() => {
     addBarangayMarkers();
   });
 });
+
 // 🔄 Refresh markers when grouped reports change
 watch(groupedReportsByBarangay, () => {
   console.log("🟡 Detected change in barangay reports, refreshing markers...");
