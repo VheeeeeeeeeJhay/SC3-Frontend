@@ -1,6 +1,5 @@
 <script setup>
-
-import GuestLayout from "../../components/layout/GuestLayout.vue";
+import { useAuthValidation } from "../../composables/useAuthValidation.js";
 import { ref } from "vue";
 import axiosClient from "../../axios.js";
 import router from "../../router.js";
@@ -16,6 +15,8 @@ const data = ref({
   for_911: true,
   for_inventory: true,
 })
+
+const { emailError, passwordError, confirmPasswordError, firstNameError, lastNameError } = useAuthValidation(data);
 
 const errors = ref({
   firstName: [],
@@ -76,6 +77,7 @@ const submit = () => {
               class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
             <p class="text-sm mt-1 text-red-600">
               {{ errors.firstName ? errors.firstName[0] : '' }}
+              {{ firstNameError }}
             </p>
           </div>
           <div>
@@ -92,6 +94,7 @@ const submit = () => {
               class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
             <p class="text-sm mt-1 text-red-600">
               {{ errors.lastName ? errors.lastName[0] : '' }}
+              {{ lastNameError }}
             </p>
           </div>
           <div class="col-span-3">
@@ -100,6 +103,7 @@ const submit = () => {
               class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
             <p class="text-sm mt-1 text-red-600">
               {{ errors.email ? errors.email[0] : '' }}
+              {{ emailError }}
             </p>
           </div>
 
@@ -109,6 +113,7 @@ const submit = () => {
               class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
             <p class="text-sm mt-1 text-red-600">
               {{ errors.password ? errors.password[0] : '' }}
+              {{ passwordError }}
             </p>
           </div>
 
@@ -118,6 +123,7 @@ const submit = () => {
               class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
             <p class="text-sm mt-1 text-red-600">
               {{ errors.password_confirmation ? errors.password_confirmation[0] : '' }}
+              {{ confirmPasswordError }}
             </p>
           </div>
 

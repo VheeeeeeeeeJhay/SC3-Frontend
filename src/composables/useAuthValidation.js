@@ -35,10 +35,61 @@ export function useAuthValidation(data) {
                 passwordError.value = '';
             }
         }, 1000)
-    }), { immediate: true };
+    }, { immediate: true });
+
+    let debounceConfirmPasswordTimeout;
+    const confirmPasswordError = ref('')
+    watch(() => data.value.password_confirmation, (newConfirmPassword) => {
+        clearTimeout(debounceConfirmPasswordTimeout); // cancel the last timeout
+        
+        debounceConfirmPasswordTimeout = setTimeout(() => {
+            if (!newConfirmPassword) {
+                confirmPasswordError.value = '';
+            } else if(newConfirmPassword !== data.value.password) {
+                confirmPasswordError.value = 'Passwords do not match.';
+            } else {
+                confirmPasswordError.value = '';
+            }
+        }, 1000)
+    }, { immediate: true });
+
+    let debounceFirstNameTimeout;
+    const firstNameError = ref('')
+    watch(() => data.value.firstName, (newFirstName) => {
+        clearTimeout(debounceFirstNameTimeout); // cancel the last timeout
+        
+        debounceFirstNameTimeout = setTimeout(() => {
+            if (!newFirstName) {
+                firstNameError.value = '';
+            } else if(newFirstName.length < 2) {
+                firstNameError.value = 'First name must be at least 2 characters long.';
+            } else {
+                firstNameError.value = '';
+            }
+        }, 1000)
+    }, { immediate: true });
+
+    let debounceLastNameTimeout;
+    const lastNameError = ref('')
+    watch(() => data.value.lastName, (newLastName) => {
+        clearTimeout(debounceLastNameTimeout); // cancel the last timeout
+        
+        debounceLastNameTimeout = setTimeout(() => {
+            if (!newLastName) {
+                lastNameError.value = '';
+            } else if(newLastName.length < 2) {
+                lastNameError.value = 'Last name must be at least 2 characters long.';
+            } else {
+                lastNameError.value = '';
+            }
+        }, 1000)
+    }, { immediate: true });
 
     return {
         emailError,
-        passwordError
+        passwordError,
+        confirmPasswordError,
+        firstNameError,
+        lastNameError
     };
 }
