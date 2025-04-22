@@ -4,6 +4,7 @@ import axiosClient from "../../axios.js";
 import { useRouter } from 'vue-router';
 import logo from '../../assets/baguio-logo.png';
 import smart from '../../assets/smart-city1.jpg';
+import { inject } from 'vue';
 
 const router = useRouter();
 const data = ref({
@@ -14,6 +15,8 @@ const errors = ref({
   email: [],
 });
 
+const addToast = inject('addToast'); 
+
 const submit = () => {
   axiosClient.post("/forgot-password", data.value, {
     headers: {
@@ -21,12 +24,12 @@ const submit = () => {
     }
   })
     .then(response => {
-      console.log('Password reset link sent');
-      // router.push({ name: 'ForgotPasswordSuccess' }); // Redirect to success page or message
+      addToast('Password reset link sent', 'success', 'check_circle');
     })
     .catch(error => {
       console.log(error.response.data.message);
       errors.value = error.response.data.errors;
+      addToast(error.response.data.message, 'error', 'error');
     })
 }
 </script>

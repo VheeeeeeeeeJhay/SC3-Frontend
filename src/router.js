@@ -1,5 +1,6 @@
 import {createRouter, createWebHistory} from "vue-router";
 import DefaultLayout from "./components/layout/DefaultLayout.vue";
+import GuestLayout from "./components/layout/GuestLayout.vue";
 import Login from "./pages/auth/Login.vue";
 import Signup from "./pages/auth/Signup.vue";
 import NotFound from "./pages/auth/NotFound.vue";
@@ -74,6 +75,13 @@ const routes = [
       }
     },
   },
+  // {
+  //   path: "/login",
+  //   component: GuestLayout,
+  //   children: [
+  //     {path: '/login', name: 'Login', component: Login, meta: { title: 'Login' }},
+  //   ],
+  // },
   {
     path: '/login',
     name: 'Login',
