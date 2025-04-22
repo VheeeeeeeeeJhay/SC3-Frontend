@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, inject } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axiosClient from "../../axios.js";
 import logo from '../../assets/baguio-logo.png';
@@ -20,12 +20,15 @@ const dataNewPassword = ref({
   password_confirmation: ''
 });
 
+const addToast = inject('addToast'); 
+
 // Watch for route changes
 onMounted(() => {
   token.value = route.query.token;
   email.value = route.query.email;
   dataNewPassword.value.token = token.value;
   dataNewPassword.value.email = email.value;
+  addToast('You may now reset your password!', 'success', 'check_circle');
 });
 
 const errorsNewPassword = ref({
@@ -41,6 +44,7 @@ const submitNewPassword = async () => {
       }
     });
     console.log('Password reset successful:', response.data);
+    addToast('Reset password successful!', 'success', 'check_circle');
     router.push({ name: 'Login' });
   } catch (error) {
     console.error('Error:', error);

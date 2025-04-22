@@ -107,8 +107,14 @@ onMounted(() => {
 
 // Pass data to store
 const passingData = (log) => {
+    store.clearData();
+
     store.setData(log);
 };
+
+onUnmounted(() => {
+    store.clearData();
+})
 
 const formattedDate = computed(() => {
   return (dateString) => {

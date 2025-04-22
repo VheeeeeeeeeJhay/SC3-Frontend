@@ -32,10 +32,13 @@ const {
 
 const store = useArrayStore();
 const passingData = (recent) => {
-    console.log(recent);
+    store.clearData();
     store.setData(recent);
-    console.log(store.getData());
 }
+
+onUnmounted(() => {
+    store.clearData();
+})
 </script>
 
 <template>

@@ -133,9 +133,13 @@ const reports = computed(() => (reportArray.value || []).filter(report => String
 
 //Passed report data to ViewReport.vue
 const passingData = (report) => {
+    store.clearData();
     store.setData(report);
-    console.log(store.getData(), '=================================================================');
 }
+
+onUnmounted(() => {
+    store.clearData();
+})
 
 onMounted(() => {
     // ------------------------------------------

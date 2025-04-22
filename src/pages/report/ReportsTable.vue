@@ -23,8 +23,11 @@ const passingData = (report) => {
     store.clearData();
 
     store.setData(report);
-    console.log(store.getData());
 }
+
+onUnmounted(() => {
+    store.clearData();
+})
 
 let refreshInterval = null;
 onMounted(() => {
