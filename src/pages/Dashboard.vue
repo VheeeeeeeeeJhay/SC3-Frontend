@@ -12,6 +12,7 @@ import TopPerforming from "../components/widgets/TopPerforming.vue";
 import DateRangePicker from "../components/DateRangePicker.vue";
 import monthYearPicker from "../components/monthYearPicker.vue";
 import TestMail from "../mail/TestMail.vue";
+import UnifiedDatePicker from "../components/datePickers/UnifiedDatePicker.vue";
 
 
 // /👾👾👾👾👾👾👾👾/ //
@@ -108,6 +109,18 @@ const selectedYear1 = ref(currentYear);
 const selectedMonth1 = ref(new Date().getMonth() + 1); // JS months are 0-based
 const startDate = ref(null);
 const endDate = ref(null);
+
+function handleDateChange(payload) {
+  if (payload.type === 'range') {
+    startDate.value = payload.startDate
+    endDate.value = payload.endDate
+    console.log("Date Range Selected:", startDate.value, endDate.value)
+  } else if (payload.type === 'month') {
+    selectedYear1.value = payload.year
+    selectedMonth1.value = payload.month
+    console.log("Month/Year Selected:", selectedYear1.value, selectedMonth1.value)
+  }
+}
 
 const updateDateRange = ({ start, end }) => {
   startDate.value = start;
@@ -369,12 +382,7 @@ const toggleMinimize = () => {
 
   <!-- </div> -->
   <!-- main dashboard page -->
-  <div class="min-h-screen p-4 bg-gradient-to-br from-white via-[#f4f4f9] to-[#f0f0f4] 
-         dark:bg-gradient-to-br dark:from-black dark:via-[#02021b] dark:to-black 
-         text-black dark:text-white 
-         shadow-[rgba(0,0,255,0.3)_0px_15px_25px,_rgba(255,0,0,0.22)_0px_10px_10px]">
-
-    <!-- <TestMail /> -->
+  <div class="min-h-screen p-4">
 
     <!-- Title -->
     <div class="mt-6 px-2 flex items-center justify-between">
@@ -407,11 +415,13 @@ const toggleMinimize = () => {
             </button>
           </div>
         </div>
+        <UnifiedDatePicker @update:modelValue="handleDateChange" />
+
       </div>
     </div>
 
     <main class="mx-auto my-6 max-w-7xl px-4 sm:px-6 lg:px-8">
-
+      
       <!-- First Row -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <div class="relative p-4 card">
@@ -427,7 +437,8 @@ const toggleMinimize = () => {
 
         <div class="relative p-4 card">
           <button @click="expandCard('TopPerforming')" class="expand-btn">⛶</button>
-          <TopPerforming />
+          <TopPerforming :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate"
+          :endDate="endDate"/>
         </div>
       </div>
 
@@ -445,7 +456,7 @@ const toggleMinimize = () => {
             :endDate="endDate" class="w-full h-full" />
         </div>
 
-        <div class="relative p-4 card text-gray-800 dark:text-white">
+        <div class="relative p-4 card">
           <button @click="expandCard('RecentIncident')" class="expand-btn">⛶</button>
           <RecentIncident />
         </div>
@@ -463,38 +474,49 @@ const toggleMinimize = () => {
 
     <!-- Fullscreen Modal -->
     <transition name="modal-fade">
-      <div v-if="fullscreenCard" class="fixed inset-0 z-50 bg-white dark:bg-gray-900 p-6 overflow-auto">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-semibold text-gray-800 dark:text-white">
-            {{ fullscreenCard }}
-          </h2>
-          <button @click="closeFullscreen" class="text-2xl close-btn">✕</button>
-        </div>
+      <div v-if="fullscreenCard" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+        <div class="relative bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-5xl max-h-[90vh] overflow-auto p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-white capitalize">
+              {{ fullscreenCard }}
+            </h2>
+            <button @click="closeFullscreen" class="text-2xl">✕</button>
+          </div>
 
-        <component :is="fullscreenCardComponent" :selectedYear="selectedYear1" :selectedMonth="selectedMonth1"
-          :startDate="startDate" :endDate="endDate" class="w-full h-[80vh]" />
+          <component
+            :is="fullscreenCardComponent"
+            :selectedYear="selectedYear1"
+            :selectedMonth="selectedMonth1"
+            :startDate="startDate"
+            :endDate="endDate"
+            class="w-full h-[60vh]"
+          />
+        </div>
       </div>
     </transition>
+
   </div>
 </template>
 
 <style scoped>
 .card {
   background-color: white;
-  border-width: 2px;
+  border-width: 1px;
   border-radius: 1rem;
+  /* box-shadow: 0 10px 15px -3px rgba(0, 255, 135, 0.3); */
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border-color: rgba(59, 130, 246, 0.2);
+  /* border-color: rgba(59, 130, 246, 0.2); */
 }
 
 .dark .card {
   background-color: black;
-  border-color: #1e3a8a;
+  /* border-color: #1e3a8a; */
+  /* box-shadow: inset 0 0 10px rgba(0, 255, 135, 0.3); */
 }
 
 .card:hover {
   transform: scale(1.05);
-  
+  /* box-shadow: 0 0 25px rgba(34, 197, 94, 0.5); */
 }
 
 .expand-btn {

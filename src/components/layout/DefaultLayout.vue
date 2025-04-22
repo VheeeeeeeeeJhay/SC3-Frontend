@@ -148,26 +148,29 @@ const closeSidebar = () => {
           </ul>
         </div>
 
-        <!-- User Profile at Bottom -->
-        <div class="mt-auto pt-6 border-t border-gray-300 dark:border-slate-700">
-          <div class="flex items-center gap-3 px-2">
-            <button @click.stop="dropdownOpen = !dropdownOpen" type="button"
-              class="flex justify-center items-center bg-gray-800 rounded-full hover:ring-4 hover:ring-green-500 transition-all duration-300">
-              <div
-                class="w-10 h-10 mx-auto flex items-center justify-center rounded-full bg-indigo-600 text-white text-2xl font-bold shadow-xl dark:bg-indigo-500">
-                {{ user?.email?.charAt(0).toUpperCase() || '?' }}
-              </div>
-            </button>
-            <div class="flex flex-col">
-              <p class="text-xs font-medium text-gray-800 dark:text-white">
-                {{ user?.firstName || 'Guest' }} || {{ user?.role === 1 ? 'SUPERLAMIG' : 'USER' }}
-              </p>
-              <p class="text-xs truncate text-gray-600 dark:text-gray-400">
-                {{ user?.email || 'No email' }}
-              </p>
-            </div>
-          </div>
+    <!-- User Profile at Bottom -->
+    <div class="mt-auto pt-6 border-t border-gray-300 dark:border-slate-700">
+      <div class="flex items-center gap-3 px-2">
+        <button
+          @click.stop="dropdownOpen = !dropdownOpen"
+          type="button"
+          class="flex justify-center items-center bg-gray-800 rounded-full hover:ring-4 hover:ring-teal-500 transition-all duration-300"
+        >
+        <div
+    class="w-10 h-10 mx-auto flex items-center justify-center rounded-full bg-indigo-600 text-white text-2xl font-bold shadow-xl dark:bg-indigo-500">
+    {{ user?.email?.charAt(0).toUpperCase() || '?' }}
+  </div>
+        </button>
+        <div class="flex flex-col">
+          <p class="text-xs font-medium text-gray-800 dark:text-white">
+            {{ user?.firstName || 'Guest' }} || {{ user?.role === 1 ? 'SUPERLAMIG' : 'USER' }}
+          </p>
+          <p class="text-xs truncate text-gray-600 dark:text-gray-400">
+            {{ user?.email || 'No email' }}
+          </p>
         </div>
+      </div>
+    </div>
 
       </div>
     </aside>
@@ -185,29 +188,35 @@ const closeSidebar = () => {
           </p>
         </div>
 
-        <ul class="py-1">
-          <li>
-            <button @click.stop="toggleTheme"
-              class="theme-toggle block w-full text-start px-4 py-2 text-sm hover:bg-gray-300 dark:hover:bg-slate-600 dark:hover:text-white">
-              <div v-if="theme === 'light'">🌞 Light Mode</div>
-              <div v-else>🌙 Dark Mode</div>
-            </button>
-          </li>
-          <li>
-            <RouterLink to="/profile"
-              class="block px-4 py-2 text-sm hover:bg-gray-300 dark:hover:bg-slate-600 dark:hover:text-white">
-              Profile
-            </RouterLink>
-          </li>
-          <li>
-            <a @click="showSignoutConfirmation"
-              class="block px-4 py-2 text-sm hover:bg-gray-300 dark:hover:bg-slate-600 dark:hover:text-white">
-              Sign Out
-            </a>
-          </li>
-        </ul>
-      </div>
-    </transition>
+    <ul class="py-1">
+      <li>
+        <button
+          @click.stop="toggleTheme"
+          class="theme-toggle block w-full text-start px-4 py-2 text-sm hover:bg-[#D9D9B3] dark:hover:bg-slate-600 dark:hover:text-white"
+        >
+          <div v-if="theme === 'light'">🌞 Light Mode</div>
+          <div v-else>🌙 Dark Mode</div>
+        </button>
+      </li>
+      <li>
+        <RouterLink
+          to="/profile"
+          class="block px-4 py-2 text-sm hover:bg-[#D9D9B3] dark:hover:bg-slate-600 dark:hover:text-white"
+        >
+          Profile
+        </RouterLink>
+      </li>
+      <li>
+        <a
+          @click="showSignoutConfirmation"
+          class="block px-4 py-2 text-sm hover:bg-[#D9D9B3] dark:hover:bg-slate-600 dark:hover:text-white"
+        >
+          Sign Out
+        </a>
+      </li>
+    </ul>
+  </div>
+</transition>
 
 
     <!-- Content Area -->

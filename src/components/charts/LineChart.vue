@@ -2,9 +2,13 @@
 import { ref, onMounted, onUnmounted, watch } from "vue";
 import axiosClient from "../../axios.js";
 import ApexCharts from 'apexcharts';
+import { debounce } from 'lodash';
+import loader1 from "../loading/loader1.vue";
 
 const source = ref([]);
 const report = ref([]);
+const isLoading = ref(true);
+
 
 const lineChart = ref(null);
 let chart = null;
@@ -168,9 +172,12 @@ const updateChart = () => {
     }
   }
 
-  const reportCounts = source.value.map(src =>
-    filteredReports.filter(rep => rep.source_id === src.id).length
-  );
+  const counts = {};
+filteredReports.forEach(rep => {
+  counts[rep.source_id] = (counts[rep.source_id] || 0) + 1;
+});
+
+const reportCounts = source.value.map(src => counts[src.id] || 0);
 
   options.value.series = [{
     name: "Number of Reports",
@@ -187,29 +194,34 @@ const updateChart = () => {
 };
 
 onMounted(async () => {
-  await fetchChartData();
-  renderChart();
-  updateChart();
+  isLoading.value = true;
+  try {
+    await fetchChartData();
+    renderChart();
+    updateChart();
+  } finally {
+    isLoading.value = false;
+  }
 });
 
 onUnmounted(() => {
   if (chart) chart.destroy();
 });
 
-watch(
-  () => [props.selectedYear, props.selectedMonth, props.startDate, props.endDate],
-  () => {
-    updateChart();
-  },
+const debouncedUpdateChart = debounce(updateChart, 300);
+watch(() => [props.selectedYear, props.selectedMonth, props.startDate, props.endDate],
+  debouncedUpdateChart,
   { immediate: true }
 );
 </script>
 <template>
+
     <div class="w-full h-full p-4 dark:text-white text-gray-800">
       <!-- Title -->   
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-semibold">Report Trend</h2>
       </div>
+      <loader1 v-if="isLoading" class="bg-white/80 h-64" />
   
       <!-- LINE CHART -->
       <div class="dark:text-gray-800 h-64" ref="lineChart"></div>
