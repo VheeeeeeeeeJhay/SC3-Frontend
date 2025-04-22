@@ -4,6 +4,7 @@ import {
   computed,
   onMounted,
   watch,
+  watchEffect,
   createApp,
   onUnmounted,
   h,
