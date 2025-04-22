@@ -1,10 +1,10 @@
 <script setup>
 
-import GuestLayout from "../../components/layout/GuestLayout.vue";
 import { ref } from "vue";
 import axiosClient from "../../axios.js";
 import router from "../../router.js";
 import logo from "../../assets/baguio-logo.png";
+import smart from "../../assets/smart-city1.jpg";
 
 const data = ref({
   firstName: '',
@@ -53,9 +53,17 @@ const submit = () => {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-black to-blue-900 relative">
+  <div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-black to-blue-900 relative"
+  :style="{
+      backgroundImage: `url(${smart})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat'
+    }"
+  >
     <!-- Main Container -->
-    <div class="flex flex-col sm:flex-row items-center gap-8 z-10">
+    <div class="w-full px-4 sm:px-8 py-8 bg-black/50 backdrop-blur-md  shadow-inner">
+      <div class="flex flex-col sm:flex-row justify-center items-center gap-8 max-w-6xl mx-auto">
       <!-- City Logo and Title -->
       <div class="text-center">
         <img :src="logo" alt="City of Baguio Logo" class="w-70 mx-auto mb-4" />
@@ -121,20 +129,20 @@ const submit = () => {
             </p>
           </div>
 
-          <button v-if="!submitLoading" type="submit" class=" col-span-3 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">Sign
-            Up</button>
-          <button v-else type="submit" disabled class="col-span-3 bg-blue-900 text-white py-2 rounded-md">
-            Signing Up...
+          <button :disabled="submitLoading" type="submit" :class="[!submitLoading ? 'col-span-3 bg-teal-600 text-white py-2 rounded-md hover:bg-teal-700' : 'col-span-3 bg-teal-900 text-white py-2 rounded-md']">
+          {{ submitLoading ? 'Signing Up...' : 'Sign Up' }}
           </button>
-
         </form>
 
         <div class="text-sm text-center mt-4">
-          <router-link :to="{ name: 'Login' }" class="text-blue-600 hover:underline">Already have an account? Sign
-            in</router-link>
+          <router-link :to="{ name: 'Login' }" class="text-teal-600 hover:underline">
+            Already have an account? Sign in
+          </router-link>
         </div>
       </div>
     </div>
+    </div>
+    
   </div>
 </template>
 

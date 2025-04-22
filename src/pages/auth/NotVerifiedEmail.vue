@@ -9,17 +9,17 @@ const errors = ref({});
 
 const Verify = () => {
     axiosClient.post("/email/verification-notification", {
-            headers: {
-                'x-api-key': import.meta.env.VITE_API_KEY
-            }
-        })
-        .then(response => {
-            console.log('Email verification link sent');
-        })
-        .catch(error => {
-            console.log(error.response.data.message);
-            errors.value = error.response.data.errors;
-        })
+        headers: {
+            'x-api-key': import.meta.env.VITE_API_KEY
+        }
+    })
+    .then(response => {
+        console.log('Email verification link sent');
+    })
+    .catch(error => {
+        console.log(error.response.data.message);
+        errors.value = error.response.data.errors;
+    })
 };
 </script>
 

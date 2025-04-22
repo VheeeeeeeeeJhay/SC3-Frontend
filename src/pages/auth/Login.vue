@@ -94,19 +94,19 @@ const submit = () => {
             </div>
             <button
               type="submit"
-              :class="[!submitLoading ? 'w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700' : 'w-full bg-blue-900 text-white py-2 rounded-md']"
+              :class="[!submitLoading ? 'w-full bg-teal-600 text-white py-2 rounded-md hover:bg-teal-700' : 'w-full bg-teal-900 text-white py-2 rounded-md']"
               :disabled="submitLoading"
             >
               {{ submitLoading ? 'Logging in...' : 'Login In' }}
             </button>
           </form>
           <div class="text-sm text-center mt-4">
-            <RouterLink :to="{ name: 'Signup' }" class="text-blue-600 hover:underline">
+            <RouterLink :to="{ name: 'Signup' }" class="text-teal-600 hover:underline">
               Don't have an account? Sign up
             </RouterLink>
           </div>
           <div class="text-sm text-center mt-2">
-            <RouterLink :to="{ name: 'ForgotPassword' }" class="text-blue-600 hover:underline">
+            <RouterLink :to="{ name: 'ForgotPassword' }" class="text-teal-600 hover:underline">
               Forgot Password?
             </RouterLink>
           </div>

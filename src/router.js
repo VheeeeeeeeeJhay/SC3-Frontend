@@ -93,7 +93,7 @@ const routes = [
     meta: { title: 'Forgot Password' }
   },
   {
-    path: '/password-reset/:token',
+    path: '/password-reset',
     name: 'NewPassword',
     component: ResetPassword, // ResetPassword for new password form
     meta: { title: 'New Password' }
