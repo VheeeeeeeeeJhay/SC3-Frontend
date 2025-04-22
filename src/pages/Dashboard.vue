@@ -12,6 +12,7 @@ import TopPerforming from "../components/widgets/TopPerforming.vue";
 import DateRangePicker from "../components/DateRangePicker.vue";
 import monthYearPicker from "../components/monthYearPicker.vue";
 import TestMail from "../mail/TestMail.vue";
+import UnifiedDatePicker from "../components/datePickers/UnifiedDatePicker.vue";
 
 
 // /👾👾👾👾👾👾👾👾/ //
@@ -108,6 +109,18 @@ const selectedYear1 = ref(currentYear);
 const selectedMonth1 = ref(new Date().getMonth() + 1); // JS months are 0-based
 const startDate = ref(null);
 const endDate = ref(null);
+
+function handleDateChange(payload) {
+  if (payload.type === 'range') {
+    startDate.value = payload.startDate
+    endDate.value = payload.endDate
+    console.log("Date Range Selected:", startDate.value, endDate.value)
+  } else if (payload.type === 'month') {
+    selectedYear1.value = payload.year
+    selectedMonth1.value = payload.month
+    console.log("Month/Year Selected:", selectedYear1.value, selectedMonth1.value)
+  }
+}
 
 const updateDateRange = ({ start, end }) => {
   startDate.value = start;
@@ -402,6 +415,8 @@ const toggleMinimize = () => {
             </button>
           </div>
         </div>
+        <UnifiedDatePicker @update:modelValue="handleDateChange" />
+
       </div>
     </div>
 
@@ -411,7 +426,7 @@ const toggleMinimize = () => {
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <div class="relative p-4 card">
           <button @click="expandCard('IncidentGrowthRate')" class="expand-btn">⛶</button>
-          <!-- <IncidentGrowthRate :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" /> -->
+          <IncidentGrowthRate :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" />
         </div>
 
         <div class="relative p-4 card">
@@ -431,19 +446,19 @@ const toggleMinimize = () => {
       <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <div class="relative p-4 card" ref="captureTarget1">
           <button @click="expandCard('LineChart')" class="expand-btn">⛶</button>
-          <!-- <LineChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate"
-            :endDate="endDate" /> -->
+          <LineChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate"
+            :endDate="endDate" />
         </div>
 
         <div class="relative p-4 card" ref="captureTarget2">
           <button @click="expandCard('BarChart')" class="expand-btn">⛶</button>
-          <!-- <BarChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate"
-            :endDate="endDate" class="w-full h-full" /> -->
+          <BarChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate"
+            :endDate="endDate" class="w-full h-full" />
         </div>
 
-        <div class="relative p-4 card text-gray-800 dark:text-white">
+        <div class="relative p-4 card">
           <button @click="expandCard('RecentIncident')" class="expand-btn">⛶</button>
-          <!-- <RecentIncident /> -->
+          <RecentIncident />
         </div>
       </div>
 
@@ -451,8 +466,8 @@ const toggleMinimize = () => {
       <div class="mt-6 grid grid-cols-1 sm:grid-cols-1 gap-6">
         <div class="relative p-4 card" ref="captureTarget3">
           <button @click="expandCard('PieChart')" class="expand-btn">⛶</button>
-          <!-- <PieChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate"
-            :endDate="endDate" /> -->
+          <PieChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate"
+            :endDate="endDate" />
         </div>
       </div>
     </main>
@@ -486,22 +501,22 @@ const toggleMinimize = () => {
 <style scoped>
 .card {
   background-color: white;
-  border-width: 4px;
+  border-width: 1px;
   border-radius: 1rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 255, 135, 0.3);
+  /* box-shadow: 0 10px 15px -3px rgba(0, 255, 135, 0.3); */
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border-color: rgba(59, 130, 246, 0.2);
+  /* border-color: rgba(59, 130, 246, 0.2); */
 }
 
 .dark .card {
   background-color: black;
-  border-color: #1e3a8a;
-  box-shadow: inset 0 0 10px rgba(0, 255, 135, 0.3);
+  /* border-color: #1e3a8a; */
+  /* box-shadow: inset 0 0 10px rgba(0, 255, 135, 0.3); */
 }
 
 .card:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 25px rgba(34, 197, 94, 0.5);
+  /* box-shadow: 0 0 25px rgba(34, 197, 94, 0.5); */
 }
 
 .expand-btn {
