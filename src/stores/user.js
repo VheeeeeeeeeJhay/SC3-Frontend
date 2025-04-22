@@ -16,15 +16,6 @@ const useUserStore = defineStore("user", {
           }
         });
         
-        // Check if user is allowed to login (for_911 must be true)
-        if (!data.for_911) {
-          // Clear any existing user data
-          this.user = null;
-          // Redirect to login page
-          this.$router.push('/login');
-          throw new Error('Access denied: User is not authorized for 911 system');
-        }
-        
         this.user = data; // Store the fetched user data in the state
       } catch (error) {
         console.error("Error fetching user:", error);

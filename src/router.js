@@ -20,6 +20,7 @@ import Tracking from "./pages/tracking/Tracking.vue";
 import ViewTrackingDetails from "./pages/tracking/ViewTrackingDetails.vue";
 import ForgotPassword from "./pages/auth/ForgotPassword.vue";
 import ResetPassword from "./pages/auth/ResetPassword.vue";
+import NoAccess from "./pages/auth/NoAccess.vue";
 
 const routes = [
   {
@@ -55,9 +56,17 @@ const routes = [
       try {
         const userStore = useUserStore();
         await userStore.fetchUser();
+       
+        if (!userStore?.user.for_911) {
+          console.log(userStore.user);
+          next('/no-access');
+          console.log(userStore.user);
+          return
+        } 
+        
         next();
       } catch (error) {
-        next(false);
+        next('/login');
       }
     },
   },
@@ -84,6 +93,12 @@ const routes = [
     name: 'NewPassword',
     component: ResetPassword, // ResetPassword for new password form
     meta: { title: 'New Password' }
+  },
+  {
+    path: '/no-access',
+    name: 'NoAccess',
+    component: NoAccess,
+    meta: { title: 'No Access' }
   },
   {
     path: '/:pathMatch(.*)*',
