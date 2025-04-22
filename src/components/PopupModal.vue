@@ -20,6 +20,8 @@ const emit = defineEmits(['update:show']);
 const closeModal = () => {
   emit('update:show', false); // Notify parent to close modal
 };
+
+defineOptions({ inheritAttrs: false });
 </script>
 
 <template>
@@ -35,7 +37,7 @@ const closeModal = () => {
           v-if="show" 
           tabindex="-1" 
           @click.stop
-          class="overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 flex justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full bg-black/50 backdrop-blur-md">
+          :class="['overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 flex justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full bg-black/50 backdrop-blur-md',  attrs.class]">
             <div class="relative p-4 w-full max-w-md max-h-full">
                 <div class="relative bg-sky-50 rounded-lg shadow-sm dark:bg-gray-700">
                     <!-- Close button -->

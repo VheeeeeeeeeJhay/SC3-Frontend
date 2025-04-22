@@ -8,6 +8,7 @@ import logo from '../../assets/baguio-logo.png';
 import { useArrayStore } from '../../stores/arrayStore';
 import DeleteModal from '../../components/modal/DeleteModal.vue';
 import DateRangePicker from "../../components/DateRangePicker.vue";
+import { useActionDropdown } from '../../composables/useActionDropdown';
 
 const searchQuery = ref("");
 const selectedClassifications = ref([]);
@@ -240,25 +241,25 @@ const filteredReports = computed(() => {
 
 
 //for action button
-onMounted(() => {
-    document.addEventListener("click", (event) => {
-        if (
-            openDropdownId.value !== null &&
-            !dropdownRefs.value[openDropdownId.value]?.contains(event.target)
-        ) {
-            closeDropdown();
-        }
-    });
-});
-const openDropdownId = ref(null);
-const dropdownRefs = ref([]);
-const closeDropdown = () => {
-    openDropdownId.value = null;
-};
-const toggleDropdown = (reportId) => {
-    openDropdownId.value = openDropdownId.value === reportId ? null : reportId;
-};
-
+// onMounted(() => {
+//     document.addEventListener("click", (event) => {
+//         if (
+//             openDropdownId.value !== null &&
+//             !dropdownRefs.value[openDropdownId.value]?.contains(event.target)
+//         ) {
+//             closeDropdown();
+//         }
+//     });
+// });
+// const openDropdownId = ref(null);
+// const dropdownRefs = ref([]);
+// const closeDropdown = () => {
+//     openDropdownId.value = null;
+// };
+// const toggleDropdown = (reportId) => {
+//     openDropdownId.value = openDropdownId.value === reportId ? null : reportId;
+// };
+const { openDropdownId, dropdownRefs, toggleDropdown } = useActionDropdown();
 
 
 // -----------------------
@@ -1114,7 +1115,10 @@ const handleJSON = (filteredReports) => {
                                     </svg>
                                 </button>
 
-                                <div v-if="openDropdownId === report.id" ref="dropdownRefs"
+                                <div 
+                                v-if="openDropdownId === report.id"
+                                :ref="el => dropdownRefs[report.id] = el"
+
                                     class="absolute z-10 w-44 top-full right-0 shadow-sm border rounded-md bg-white dark:bg-slate-700"
                                     @click.stop>
 
