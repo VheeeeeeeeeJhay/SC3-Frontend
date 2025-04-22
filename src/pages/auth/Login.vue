@@ -1,16 +1,20 @@
 <script setup>
-
-import GuestLayout from "../../components/layout/GuestLayout.vue";
+import { useAuthValidation } from "../../composables/useAuthValidation.js";
 import axiosClient from "../../axios.js";
-import { ref } from "vue";
+import { ref, inject } from "vue";
 import router from "../../router.js";
 import logo from '../../assets/baguio-logo.png';
 import smart from '../../assets/smart-city1.jpg';
+
+const addToast = inject('addToast');
 
 const data = ref({
   email: '',
   password: '',
 })
+
+const { emailError, passwordError } = useAuthValidation(data);
+
 
 const submitLoading = ref(false)
 
@@ -20,6 +24,10 @@ const errors = ref({
 })
 
 const submit = () => {
+  if(emailError.value || passwordError.value) {
+    addToast('Please correct the errors in the form', 'error', 'error');
+    return;
+  }
   submitLoading.value = true
   axiosClient.get('/sanctum/csrf-cookie').then(response => {
     axiosClient.post("/login", data.value, {
@@ -103,7 +111,8 @@ const submit = () => {
                 class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <p class="text-sm mt-1 text-red-600">
-                {{ errors.email ? errors.email[0] : '' }}
+                <!-- {{ errors.email ? errors.email[0] : '' }} -->
+                {{ emailError }}
               </p>
             </div>
             <div>
@@ -115,7 +124,8 @@ const submit = () => {
                 class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <p class="text-sm mt-1 text-red-600">
-                {{ errors.password ? errors.password[0] : '' }}
+                <!-- {{ errors.password ? errors.password[0] : '' }} -->
+                {{ passwordError }}
               </p>
             </div>
             <button
