@@ -8,7 +8,7 @@ export function useAuthValidation(data) {
         clearTimeout(debounceEmailTimeout); // cancel the last timeout
         
         debounceEmailTimeout = setTimeout(() => {
-            if (!newEmail) {
+            if (newEmail.length === 0) {
                 emailError.value = '';
             } else if (!newEmail.includes("@")) {
                 emailError.value = 'Email must contain an @ symbol.';
@@ -25,13 +25,13 @@ export function useAuthValidation(data) {
         clearTimeout(debouncePasswordTimeout); // cancel the last timeout
         
         debouncePasswordTimeout = setTimeout(() => {
-            if (!newPassword) {
-                passwordError.value = '';
+            if (newPassword.length === 0) {
+              passwordError.value = '';
             } else if (newPassword.length < 8) {
                 passwordError.value = 'Password must be at least 8 characters long.';
             } else if (!passwordRegex.test(newPassword)) {
                 passwordError.value = 'Password must contain at least 1 lowercase, 1 uppercase, 1 digit, and 1 special character.';
-            } else {r
+            } else {
                 passwordError.value = '';
             }
         }, 1000)
