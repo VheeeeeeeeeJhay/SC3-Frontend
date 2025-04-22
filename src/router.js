@@ -21,6 +21,8 @@ import ViewTrackingDetails from "./pages/tracking/ViewTrackingDetails.vue";
 import ForgotPassword from "./pages/auth/ForgotPassword.vue";
 import ResetPassword from "./pages/auth/ResetPassword.vue";
 import NoAccess from "./pages/auth/NoAccess.vue";
+import NotVerifiedEmail from "./pages/auth/NotVerifiedEmail.vue";
+import VerifiedEmail from "./pages/auth/VerifiedEmail.vue";
 
 const routes = [
   {
@@ -28,7 +30,6 @@ const routes = [
     component: DefaultLayout,
     children: [
       {path: '/', name: 'Overview', component: Dashboard, meta: { title: 'Overview' }},
-      // {path: '/dashboard', name: 'Dashboard', component: Dashboard},
 
       {path: '/map', name: 'Map', component: Map, meta: { title: 'Map' }},
 
@@ -62,7 +63,10 @@ const routes = [
           next('/no-access');
           console.log(userStore.user);
           return
-        } 
+        } else if(!userStore?.user.email_verified_at) {
+          next('/email_not_verified');
+          return;
+        }
         
         next();
       } catch (error) {
@@ -99,6 +103,18 @@ const routes = [
     name: 'NoAccess',
     component: NoAccess,
     meta: { title: 'No Access' }
+  },
+  {
+    path: '/email_not_verified',
+    name: 'NotVerifiedEmail',
+    component: NotVerifiedEmail,
+    meta: { title: 'Not Verified Email' }
+  },
+  {
+    path: '/email_verified',
+    name: 'VerifiedEmail',
+    component: VerifiedEmail,
+    meta: { title: 'Verified Email' }
   },
   {
     path: '/:pathMatch(.*)*',
