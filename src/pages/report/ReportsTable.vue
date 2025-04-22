@@ -20,8 +20,10 @@ const databaseStore = useDatabaseStore();
 
 const store = useArrayStore();
 const passingData = (report) => {
+    store.clearData();
+
     store.setData(report);
-    console.log(store.getData(),'=================================================================');
+    console.log(store.getData());
 }
 
 let refreshInterval = null;
@@ -34,10 +36,10 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  // Clear the interval when the component is unmounted or page is reloaded
-  if (refreshInterval) {
-    clearInterval(refreshInterval);
-  }
+    // Clear the interval when the component is unmounted or page is reloaded
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+    }
 });
 
 // Computed properties
@@ -60,11 +62,11 @@ console.log('%c', 'color: red', reports, 'reports');
 
 // 
 watch([classifications, urgencies, actions],
-([newClassifications, newUrgencies, newActions]) => {
-  selectedClassifications.value = newClassifications.map(c => c.id);
-  selectedUrgencies.value = newUrgencies.map(u => u.id);
-  selectedActions.value = newActions.map(a => a.id);
-}, { immediate: true });
+    ([newClassifications, newUrgencies, newActions]) => {
+        selectedClassifications.value = newClassifications.map(c => c.id);
+        selectedUrgencies.value = newUrgencies.map(u => u.id);
+        selectedActions.value = newActions.map(a => a.id);
+    }, { immediate: true });
 
 const sortSource = ref('none'); // 'none', 'asc', 'desc'
 const toggleSortSource = () => {
@@ -476,7 +478,6 @@ const formSubmit = async (report_Id) => {
 };
 
 
-
 const isModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);
 
@@ -575,94 +576,94 @@ const toggleExportDropdown = (exportId) => {
 
 // //handle CSV generation
 const handleCSV = (filteredReports) => {
-  if (!filteredReports || filteredReports.length === 0) {
-    console.warn("No data to export.");
-    return;
-  }
+    if (!filteredReports || filteredReports.length === 0) {
+        console.warn("No data to export.");
+        return;
+    }
 
-  // Flatten each report
-  const flatReports = filteredReports.map(report => ({
-    id: report.id,
-    name: report.name,
-    date_received: report.date_received,
-    time: report.time,
-    arrival_on_site: report.arrival_on_site,
-    landmark: report.landmark,
-    description: report.description,
-    latitude: report.latitude,
-    longitude: report.longitude,
-    source_id: report.source_id,
-    source: report.source?.sources ?? '',
-    assistance_id: report.assistance_id,
-    assistance: report.assistance?.assistance ?? '',
-    actions_id: report.actions_id,
-    actions: report.actions?.actions ?? '',
-    urgency_id: report.urgency_id,
-    urgency: report.urgency?.urgency ?? '',
-    incident_id: report.incident_id,
-    incident: report.incident?.type ?? '',
-    barangay_id: report.barangay_id,
-    barangay: report.barangay?.name ?? '',
-    created_at: report.created_at,
-    updated_at: report.updated_at,
-  }));
+    // Flatten each report
+    const flatReports = filteredReports.map(report => ({
+        id: report.id,
+        name: report.name,
+        date_received: report.date_received,
+        time: report.time,
+        arrival_on_site: report.arrival_on_site,
+        landmark: report.landmark,
+        description: report.description,
+        latitude: report.latitude,
+        longitude: report.longitude,
+        source_id: report.source_id,
+        source: report.source?.sources ?? '',
+        assistance_id: report.assistance_id,
+        assistance: report.assistance?.assistance ?? '',
+        actions_id: report.actions_id,
+        actions: report.actions?.actions ?? '',
+        urgency_id: report.urgency_id,
+        urgency: report.urgency?.urgency ?? '',
+        incident_id: report.incident_id,
+        incident: report.incident?.type ?? '',
+        barangay_id: report.barangay_id,
+        barangay: report.barangay?.name ?? '',
+        created_at: report.created_at,
+        updated_at: report.updated_at,
+    }));
 
-  // Get headers
-  const headers = Object.keys(flatReports[0]);
+    // Get headers
+    const headers = Object.keys(flatReports[0]);
 
-  // Build CSV rows
-  const csvRows = [headers.join(',')];
+    // Build CSV rows
+    const csvRows = [headers.join(',')];
 
-  flatReports.forEach(item => {
-    const row = headers.map(header => {
-      const val = item[header];
-      if (typeof val === 'string') {
-        return `"${val.replace(/"/g, '""')}"`; // escape quotes
-      }
-      return val ?? '';
+    flatReports.forEach(item => {
+        const row = headers.map(header => {
+            const val = item[header];
+            if (typeof val === 'string') {
+                return `"${val.replace(/"/g, '""')}"`; // escape quotes
+            }
+            return val ?? '';
+        });
+        csvRows.push(row.join(','));
     });
-    csvRows.push(row.join(','));
-  });
 
-  // Create blob and trigger download
-  const csvContent = csvRows.join('\n');
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute('download', 'filtered_reports.csv');
-  document.body.appendChild(link); // not required but safer in some browsers
-  link.click();
+    // Create blob and trigger download
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'filtered_reports.csv');
+    document.body.appendChild(link); // not required but safer in some browsers
+    link.click();
 
-  // Clean up after short delay to ensure download starts
-  setTimeout(() => {
-    URL.revokeObjectURL(url);
-    document.body.removeChild(link);
-  }, 100);
+    // Clean up after short delay to ensure download starts
+    setTimeout(() => {
+        URL.revokeObjectURL(url);
+        document.body.removeChild(link);
+    }, 100);
 };
 
 //handle JSON
 const handleJSON = (filteredReports) => {
-  if (!filteredReports || filteredReports.length === 0) {
-    console.warn("No data to export.");
-    return;
-  }
+    if (!filteredReports || filteredReports.length === 0) {
+        console.warn("No data to export.");
+        return;
+    }
 
-  const jsonContent = JSON.stringify(filteredReports, null, 2); // Pretty print with 2 spaces
-  const blob = new Blob([jsonContent], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
+    const jsonContent = JSON.stringify(filteredReports, null, 2); // Pretty print with 2 spaces
+    const blob = new Blob([jsonContent], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
 
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute('download', 'filtered_reports.json');
-  document.body.appendChild(link);
-  link.click();
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'filtered_reports.json');
+    document.body.appendChild(link);
+    link.click();
 
-  // Clean up
-  setTimeout(() => {
-    URL.revokeObjectURL(url);
-    document.body.removeChild(link);
-  }, 100);
+    // Clean up
+    setTimeout(() => {
+        URL.revokeObjectURL(url);
+        document.body.removeChild(link);
+    }, 100);
 };
 </script>
 
@@ -674,10 +675,8 @@ const handleJSON = (filteredReports) => {
         </div>
 
         <div class="mt-6 w-full">
-            <div
-                class="relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
-                <div
-                    class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
+            <div class="relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
+                <div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
                     <div class="w-full md:w-1/2">
                         <form class="flex items-center">
                             <label for="simple-search" class="sr-only">Search</label>
@@ -692,8 +691,7 @@ const handleJSON = (filteredReports) => {
                         </form>
                     </div>
 
-                    <div
-                        class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+                    <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
 
                         <div v-if="selectedReports.length > 0">
                             <!-- modal delete -->
@@ -970,18 +968,19 @@ const handleJSON = (filteredReports) => {
                     <thead class="text-xs uppercase bg-teal-300 text-gray-800 dark:bg-slate-950 dark:text-gray-300">
                         <tr>
                             <th scope="col" class="px-4 py-3 text-center"></th>
-                            <th scope="col" class="px-4 py-3 text-center">ID</th>
+                            <!-- <th scope="col" class="px-4 py-3 text-center">ID</th> -->
                             <th scope="col" class="px-4 py-3 text-center">
-                                <button class="" @click="toggleSortSource">SOURCE <i :class="sortSource === 'asc' ? 'pi pi-sort-alpha-up' : (sortSource === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
+                                <button class="" @click="toggleSortSource">SOURCE <i
+                                        :class="sortSource === 'asc' ? 'pi pi-sort-alpha-up' : (sortSource === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
                             </th>
                             <th scope="col" class="px-4 py-3 text-center">
                                 <div class="flex items-center justify-center">
                                     <div class="flex items-center md:w-auto relative">
                                         <button @click="toggleFilterDropdown"
-                                            class="w-full md:w-auto flex items-center justify-center py-2  text-sm font-medium  text-gray-700 dark:text-gray-200 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
+                                            class="w-full md:w-auto flex items-center justify-center py-2  text-sm font-medium  text-gray-700 dark:text-gray-200 hover:text-teal-500 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
                                             id="filterDropdownButton">
-                                            <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2"
-                                                viewBox="0 0 20 20" fill="currentColor">
+                                            <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
+                                                class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
                                                 <path fill-rule="evenodd"
                                                     d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
                                                     clip-rule="evenodd" />
@@ -994,84 +993,93 @@ const handleJSON = (filteredReports) => {
                                             <ul class="space-y-2 text-sm">
                                                 <li v-for="classification in classifications" :key="classification.id"
                                                     class="flex items-center text-left">
-                                                    <input type="checkbox" :id="classification.id" :value="classification.id"
-                                                        v-model="selectedClassifications" class="w-4 h-4" />
+                                                    <input type="checkbox" :id="classification.id"
+                                                        :value="classification.id" v-model="selectedClassifications"
+                                                        class="w-4 h-4" />
                                                     <label :for="classification.id" class="ml-2 text-sm font-medium">{{
                                                         classification.assistance }}</label>
                                                 </li>
                                             </ul>
                                         </div>
                                     </div>
-                                    <button class="" @click="toggleSortAssistance">ASSISTANCE  <i :class="sortAssistance === 'asc' ? 'pi pi-sort-alpha-up' : (sortAssistance === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
+                                    <button class="" @click="toggleSortAssistance">ASSISTANCE <i
+                                            :class="sortAssistance === 'asc' ? 'pi pi-sort-alpha-up' : (sortAssistance === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
                                 </div>
                             </th>
                             <th scope="col" class="px-4 py-3 text-center">
-                                <button class="" @click="toggleSortIncident">INCIDENT/CASE <i :class="sortIncident === 'asc' ? 'pi pi-sort-alpha-up' : (sortIncident === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
+                                <button class="" @click="toggleSortIncident">INCIDENT/CASE <i
+                                        :class="sortIncident === 'asc' ? 'pi pi-sort-alpha-up' : (sortIncident === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
                             </th>
                             <th scope="col" class="px-4 py-3 text-center">
                                 <div class="flex items-center justify-center">
                                     <div class="flex items-center md:w-auto relative">
                                         <button @click="toggleActionsFilterDropdown"
-                                            class="w-full md:w-auto flex items-center justify-center py-2  text-sm font-medium  text-gray-700 dark:text-gray-200 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
+                                            class="w-full md:w-auto flex items-center justify-center py-2  text-sm font-medium  text-gray-700 dark:text-gray-200 hover:text-teal-500 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
                                             id="actionsFilterDropdownButton">
-                                            <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2"
-                                                viewBox="0 0 20 20" fill="currentColor">
+                                            <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
+                                                class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
                                                 <path fill-rule="evenodd"
                                                     d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
                                                     clip-rule="evenodd" />
                                             </svg>
-                                            Actions Taken
                                         </button>
 
                                         <div id="actionsFilterDropdown" v-show="isActionsFilterDropdownOpen"
                                             class="absolute top-full left-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-hidden">
                                             <h6 class="mb-3 text-sm font-medium">Choose Actions Taken</h6>
                                             <ul class="space-y-2 text-sm">
-                                                <li v-for="action in actions" :key="action.id" class="flex items-center text-left">
-                                                    <input type="checkbox" :id="'action-' + action.id" :value="action.id"
-                                                        v-model="selectedActions" class="w-4 h-4" />
-                                                    <label :for="'action-' + action.id" class="ml-2 text-sm font-medium">{{
-                                                        action.actions }}</label>
+                                                <li v-for="action in actions" :key="action.id"
+                                                    class="flex items-center text-left">
+                                                    <input type="checkbox" :id="'action-' + action.id"
+                                                        :value="action.id" v-model="selectedActions" class="w-4 h-4" />
+                                                    <label :for="'action-' + action.id"
+                                                        class="ml-2 text-sm font-medium">{{
+                                                            action.actions }}</label>
                                                 </li>
                                             </ul>
                                         </div>
                                     </div>
-                                    <button class="" @click="toggleSortActions">ACTIONS <i :class="sortActions === 'asc' ? 'pi pi-sort-alpha-up' : (sortActions === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
+                                    <button class="" @click="toggleSortActions">ACTIONS <i
+                                            :class="sortActions === 'asc' ? 'pi pi-sort-alpha-up' : (sortActions === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
                                 </div>
                             </th>
                             <th scope="col" class="px-4 py-3 text-center">
                                 <div class="flex items-center justify-center">
                                     <div class="flex items-center md:w-auto relative">
                                         <button @click="toggleUrgencyFilterDropdown"
-                                            class="w-full md:w-auto flex items-center justify-center py-2  text-sm font-medium  text-gray-700 dark:text-gray-200 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
+                                            class="w-full md:w-auto flex items-center justify-center py-2  text-sm font-medium  text-gray-700 dark:text-gray-200 hover:text-teal-500 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
                                             id="urgencyFilterDropdownButton">
-                                            <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2"
-                                                viewBox="0 0 20 20" fill="currentColor">
+                                            <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
+                                                class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
                                                 <path fill-rule="evenodd"
                                                     d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
                                                     clip-rule="evenodd" />
                                             </svg>
-                                            Urgency
                                         </button>
 
                                         <div id="urgencyFilterDropdown" v-show="isUrgencyFilterDropdownOpen"
                                             class="absolute top-full left-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-hidden">
                                             <h6 class="mb-3 text-sm font-medium">Choose Urgency</h6>
                                             <ul class="space-y-2 text-sm">
-                                                <li v-for="urgency in urgencies" :key="urgency.id" class="flex items-center">
-                                                    <input type="checkbox" :id="'urgency-' + urgency.id" :value="urgency.id"
-                                                        v-model="selectedUrgencies" class="w-4 h-4 text-left" />
-                                                    <label :for="'urgency-' + urgency.id" class="ml-2 text-sm font-medium">{{
-                                                        urgency.urgency }}</label>
+                                                <li v-for="urgency in urgencies" :key="urgency.id"
+                                                    class="flex items-center">
+                                                    <input type="checkbox" :id="'urgency-' + urgency.id"
+                                                        :value="urgency.id" v-model="selectedUrgencies"
+                                                        class="w-4 h-4 text-left" />
+                                                    <label :for="'urgency-' + urgency.id"
+                                                        class="ml-2 text-sm font-medium">{{
+                                                            urgency.urgency }}</label>
                                                 </li>
                                             </ul>
                                         </div>
                                     </div>
-                                    <button class="" @click="toggleSortUrgency">URGENCY <i :class="sortUrgency === 'asc' ? 'pi pi-sort-alpha-up' : (sortUrgency === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
+                                    <button class="" @click="toggleSortUrgency">URGENCY <i
+                                            :class="sortUrgency === 'asc' ? 'pi pi-sort-alpha-up' : (sortUrgency === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
                                 </div>
                             </th>
                             <th scope="col" class="px-4 py-3 text-center">
-                                <button class="" @click="toggleSortBarangay">LOCATION <i :class="sortBarangay === 'asc' ? 'pi pi-sort-alpha-up' : (sortBarangay === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
+                                <button class="" @click="toggleSortBarangay">LOCATION <i
+                                        :class="sortBarangay === 'asc' ? 'pi pi-sort-alpha-up' : (sortBarangay === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
                             </th>
                             <th scope="col" class="px-4 py-3 text-center">Actions</th>
                         </tr>
@@ -1081,17 +1089,16 @@ const handleJSON = (filteredReports) => {
                             class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
                             <td class="px-4 py-3 text-center"><input type="checkbox" :value="report"
                                     v-model="selectedReports" class="w-4 h-4" /></td>
-                            <td class="px-4 py-3 text-center">{{ report.id }}</td>
+                            <!-- <td class="px-4 py-3 text-center">{{ report.id }}</td> -->
                             <td class="px-4 py-3 text-center">{{ report.source.sources }}</td>
                             <td class="px-4 py-3 text-center">{{ report.assistance.assistance }}</td>
                             <td class="px-4 py-3 text-center">{{ report.incident.type }}</td>
                             <td class="px-4 py-3 text-center">{{ report.actions.actions }}</td>
-                            <td class="px-4 py-3 text-center"
-                                :class="[report.urgency.urgency === 'Life-Saving' ? 'text-red-500' : 
-                                        report.urgency.urgency === 'Critical' ? 'text-orange-500' : 
-                                        report.urgency.urgency === 'High Priority' ? 'text-yellow-500' : 
-                                        report.urgency.urgency === 'Moderate' ? 'text-green-500' : 
-                                        'text-gray-500','font-bold']">
+                            <td class="px-4 py-3 text-center" :class="[report.urgency.urgency === 'Life-Saving' ? 'text-red-500' :
+                                report.urgency.urgency === 'Critical' ? 'text-orange-500' :
+                                    report.urgency.urgency === 'High Priority' ? 'text-yellow-500' :
+                                        report.urgency.urgency === 'Moderate' ? 'text-green-500' :
+                                            'text-gray-500', 'font-bold']">
                                 {{ report.urgency.urgency }}
                             </td>
                             <td class="px-4 py-3 text-center">{{ report.barangay.name }}</td>
@@ -1123,8 +1130,9 @@ const handleJSON = (filteredReports) => {
                                                 Edit Report
                                             </RouterLink>
                                         </li>
-                                        <PopupModal class="hover:bg-gray-300 dark:hover:bg-gray-600" Title="Are you sure you want to delete this report?"
-                                            ModalButton="Delete" Icon="cancel" Classes="" :show="isDeleteModalOpen"
+                                        <PopupModal class="hover:bg-gray-300 dark:hover:bg-gray-600"
+                                            Title="Are you sure you want to delete this report?" ModalButton="Delete"
+                                            Icon="cancel" Classes="" :show="isDeleteModalOpen"
                                             @update:show="isDeleteModalOpen = $event"
                                             ButtonClass="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
                                             <template #modalContent>
@@ -1147,7 +1155,7 @@ const handleJSON = (filteredReports) => {
                     class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">
                     <span class="text-sm font-normal">Showing {{ filteredReports.length > 0 ? (currentPage - 1) *
                         itemsPerPage + 1 : 0
-                        }} to {{
+                    }} to {{
                             Math.min(currentPage *
                                 itemsPerPage, filteredReports.length) }} of {{ filteredReports.length }}</span>
                     <ul class="inline-flex items-stretch -space-x-px">
