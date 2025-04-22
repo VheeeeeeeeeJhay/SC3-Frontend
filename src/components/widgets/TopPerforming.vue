@@ -28,9 +28,11 @@ watch(() => [props.selectedMonth, props.selectedYear], () => {
 
 // Store setup
 const databaseStore = useDatabaseStore();
+let refreshInterval = null;
+
 onMounted(() => {
   databaseStore.fetchData();
-  setInterval(() => {
+  refreshInterval = setInterval(() => {
     databaseStore.fetchData();
   }, 50000);
 });
