@@ -406,7 +406,7 @@ const toggleMinimize = () => {
     </div>
 
     <main class="mx-auto my-6 max-w-7xl px-4 sm:px-6 lg:px-8">
-
+      
       <!-- First Row -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <div class="relative p-4 card">
@@ -459,18 +459,27 @@ const toggleMinimize = () => {
 
     <!-- Fullscreen Modal -->
     <transition name="modal-fade">
-      <div v-if="fullscreenCard" class="fixed inset-0 z-50 bg-white dark:bg-gray-900 p-6 overflow-auto">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-semibold text-gray-800 dark:text-white">
-            {{ fullscreenCard }}
-          </h2>
-          <button @click="closeFullscreen" class="text-2xl close-btn">✕</button>
-        </div>
+      <div v-if="fullscreenCard" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+        <div class="relative bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-5xl max-h-[90vh] overflow-auto p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-white capitalize">
+              {{ fullscreenCard }}
+            </h2>
+            <button @click="closeFullscreen" class="text-2xl">✕</button>
+          </div>
 
-        <component :is="fullscreenCardComponent" :selectedYear="selectedYear1" :selectedMonth="selectedMonth1"
-          :startDate="startDate" :endDate="endDate" class="w-full h-[80vh]" />
+          <component
+            :is="fullscreenCardComponent"
+            :selectedYear="selectedYear1"
+            :selectedMonth="selectedMonth1"
+            :startDate="startDate"
+            :endDate="endDate"
+            class="w-full h-[60vh]"
+          />
+        </div>
       </div>
     </transition>
+
   </div>
 </template>
 

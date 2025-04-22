@@ -2,9 +2,11 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useDatabaseStore } from '../../stores/databaseStore';
 import { useArrayStore } from '../../stores/arrayStore';
+import DateRangePicker from '../../components/DateRangePicker.vue';
 
 const databaseStore = useDatabaseStore();
 const store = useArrayStore();
+
 
 // Auto-refresh logs
 let refreshInterval = null;
@@ -28,13 +30,36 @@ const itemsPerPage = ref(10);
 
 // Filter logs based on search query
 const filteredLogs = computed(() => {
-    if (!searchQuery.value) return logs.value;
-    return logs.value.filter(log =>
-        Object.values(log).some(val =>
-            String(val).toLowerCase().includes(searchQuery.value.toLowerCase())
-        )
+  let filtered = logs.value;
+
+  // 🔍 Step 1: Search filter
+  if (searchQuery.value) {
+    filtered = filtered.filter(log =>
+      Object.values(log).some(val =>
+        String(val).toLowerCase().includes(searchQuery.value.toLowerCase())
+      )
     );
+  }
+
+  // 📅 Step 2: Date range filter based on startDate & endDate refs
+  if (startDate.value || endDate.value) {
+    const start = startDate.value ? new Date(startDate.value) : null;
+    const end = endDate.value ? new Date(endDate.value) : null;
+
+    filtered = filtered.filter(log => {
+      const logDate = new Date(log.created_at);
+      if (start && logDate < start) return false;
+      if (end && logDate > end) return false;
+      return true;
+    });
+
+    console.log(`📆 Filtering logs from ${startDate.value || 'any'} to ${endDate.value || 'any'}`);
+    console.log(`✅ Found ${filtered.length} logs in range.`);
+  }
+
+  return filtered;
 });
+
 
 const totalPages = computed(() =>
     Math.ceil(filteredLogs.value.length / itemsPerPage.value)
@@ -120,6 +145,15 @@ const formattedDate = computed(() => {
     });
   };
 });
+
+const startDate = ref(null);
+const endDate = ref(null);
+
+const updateDateRange = ({ start, end }) => {
+  startDate.value = start;
+  endDate.value = end;
+  console.log("Date Range:", startDate.value, endDate.value);
+};
 </script>
 
 <template>
@@ -129,21 +163,28 @@ const formattedDate = computed(() => {
         </div>
 
         <div class="mt-6 relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
-            <div class="flex flex-col md:flex-row items-center justify-between p-4">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4 p-4">
+                <!-- 🔍 Search -->
                 <div class="w-full md:w-1/2">
                     <form class="flex items-center">
-                        <label for="simple-search" class="sr-only">Search</label>
-                        <div class="relative w-full">
-                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                <span class="material-icons text-gray-500 dark:text-gray-300">search</span>
-                            </div>
-                            <input v-model="searchQuery" type="text" id="simple-search"
-                                class="border text-sm rounded-lg block w-full pl-10 p-2 bg-white dark:bg-slate-700 dark:text-white dark:border-black placeholder-gray-500 dark:placeholder-gray-300"
-                                placeholder="Search..." />
+                    <label for="simple-search" class="sr-only">Search</label>
+                    <div class="relative w-full">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <span class="material-icons text-gray-500 dark:text-gray-300">search</span>
                         </div>
+                        <input v-model="searchQuery" type="text" id="simple-search"
+                        class="border text-sm rounded-lg block w-full pl-10 p-2 bg-white dark:bg-slate-700 dark:text-white dark:border-black placeholder-gray-500 dark:placeholder-gray-300"
+                        placeholder="Search..." />
+                    </div>
                     </form>
                 </div>
+
+                <!-- 📅 Date Range Picker -->
+                <div class="w-full md:w-auto">
+                    <DateRangePicker class="max-w-xs w-full md:w-auto" @dateRangeSelected="updateDateRange" />
+                </div>
             </div>
+
 
             <table class="w-full text-sm text-left">
                 <thead class="text-xs uppercase bg-teal-300 text-gray-800 dark:bg-slate-950 dark:text-gray-300">

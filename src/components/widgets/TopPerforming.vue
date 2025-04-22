@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { useDatabaseStore } from '../../stores/databaseStore';
+import { useArrayStore } from '../../stores/arrayStore';
 
 // Props
 const props = defineProps({
@@ -102,6 +103,8 @@ const topBarangays = computed(() => {
       barangayMap[brgy.id] = {
         id: brgy.id,
         name: brgy.name,
+        longitude: brgy.longitude,
+        latitude: brgy.latitude,
         count: 0
       };
     }
@@ -116,6 +119,14 @@ const topBarangays = computed(() => {
   return sorted.slice(0, 3); // top 3 as array of objects
 });
 
+const store = useArrayStore();
+const passingData = (barangay) => {
+    store.clearBarangayData();
+
+    store.setBarangayData(barangay);
+    console.log(store.getBarangayData());
+}
+
 
 </script>
 
@@ -128,7 +139,7 @@ const topBarangays = computed(() => {
 
     <ul class="mt-2 text-white text-sm space-y-2">
       <li v-for="(barangay, index) in topBarangays" :key="barangay.id">
-        <RouterLink
+        <RouterLink @click="passingData(barangay)"
           :to="`/barangay-statistics/${barangay.id}`"
           class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-700 cursor-pointer"
         >
