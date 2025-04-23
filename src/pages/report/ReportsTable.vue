@@ -467,7 +467,7 @@ const success = ref('');
 const formSubmit = async (report_Id) => {
 
     // Close modal
-    isModalOpen.value = false;
+    isDeleteModalOpen.value = false;
 
     // errors.value = ''; // 🔹 Reset errors before making a request
     await axiosClient.delete(`/api/911/report-delete/${report_Id}`, {
@@ -475,17 +475,16 @@ const formSubmit = async (report_Id) => {
             'x-api-key': import.meta.env.VITE_API_KEY
         }
     })
-        .then(() => {
+        .then(response => {
             // Remove the deleted barangay from the list without refreshing the page
             // reports.value = reports.value.filter(b => b.id !== report_Id); // ================================================================ revise
             success.value = 'Report deleted successfully';
+            addToast(response.data.message, 'success', 'check_circle');
             databaseStore.fetchData();
         })
         .catch(error => {
-            console.error('Error deleting report:', error.response?.data);
-            errors.value = error.response?.data?.errors || 'Failed to delete report.';
+            addToast(error.response?.data?.message || error.response?.data?.error, 'error', 'error');
         });
-
 };
 
 
@@ -546,6 +545,7 @@ const checkboxDelete = async () => {
 
         // Clear selected reports
         selectedReports.value = [];
+        addToast(response.data.message, 'success', 'check_circle');
 
         // Refresh the reports list
         databaseStore.fetchData();
@@ -553,6 +553,7 @@ const checkboxDelete = async () => {
         // Handle error message
         console.error('Error deleting data:', error);
         errors.value = error.response?.data?.message || 'Something went wrong!';
+        addToast(error.response?.data.error || error.response?.data.message, 'error', 'error');
     }
 };
 
@@ -1158,7 +1159,7 @@ const handleJSON = (filteredReports) => {
                                                 Edit Report
                                             </RouterLink>
                                         </li>
-                                        <PopupModal class="hover:bg-gray-300 dark:hover:bg-gray-600"
+                                        <PopupModal
                                             Title="Are you sure you want to delete this report?" ModalButton="Delete"
                                             Icon="cancel" Classes="" :show="isDeleteModalOpen"
                                             @update:show="isDeleteModalOpen = $event"
