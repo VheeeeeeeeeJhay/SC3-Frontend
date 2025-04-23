@@ -282,8 +282,15 @@ onUnmounted(() => {
 <template>
   <div class="w-full h-full p-4 dark:text-white text-gray-800">   
     <div class="flex justify-between items-center mb-4">
-      <h2 v-if="!startDate && !endDate" class="text-xl font-semibold">Report Per Source in {{ selectedMonth }}/{{ selectedYear }}</h2>
-      <h2 v-else class="text-xl font-semibold">Report Per Source from {{ startDate }} to {{ endDate }}</h2>
+      <h2 class="text-xl font-semibold">Report Per Source
+        <p v-if="!startDate && !endDate" class="text-xs text-gray-500 dark:text-gray-400">
+        Reports for {{ selectedMonth }}/{{ selectedYear }}
+      </p>
+      <p v-else class="text-xs text-gray-500 dark:text-gray-400">
+        Reports from {{ startDate }} to {{ endDate }}
+      </p>
+      </h2>
+      
       <!-- <select v-model="selectedDateFilter" class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600">
         <option value="" disabled>Select Date Range</option>
         <option v-for="filter in dateFilters" :key="filter.value" :value="filter.value">

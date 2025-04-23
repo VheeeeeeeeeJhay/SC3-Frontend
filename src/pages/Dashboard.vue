@@ -110,18 +110,6 @@ const selectedMonth1 = ref(new Date().getMonth() + 1); // JS months are 0-based
 const startDate = ref(null);
 const endDate = ref(null);
 
-function handleDateChange(payload) {
-  if (payload.type === 'range') {
-    startDate.value = payload.startDate
-    endDate.value = payload.endDate
-    console.log("Date Range Selected:", startDate.value, endDate.value)
-  } else if (payload.type === 'month') {
-    selectedYear1.value = payload.year
-    selectedMonth1.value = payload.month
-    console.log("Month/Year Selected:", selectedYear1.value, selectedMonth1.value)
-  }
-}
-
 const updateDateRange = ({ start, end }) => {
   startDate.value = start;
   endDate.value = end;
@@ -388,8 +376,9 @@ const toggleMinimize = () => {
     <div class="mt-6 px-2 flex items-center justify-between">
       <h1 class="text-2xl font-bold dark:text-white">Overview</h1>
       <div class="flex items-center space-x-6">
-        <monthYearPicker class="flex-1" v-model:selectedMonth="selectedMonth1" v-model:selectedYear="selectedYear1" />
+        <!-- <monthYearPicker class="flex-1" v-model:selectedMonth="selectedMonth1" v-model:selectedYear="selectedYear1" /> -->
         <DateRangePicker class="max-w-xs" @dateRangeSelected="updateDateRange" />
+
         <div class="relative" ref="dropdownRef">
           <button @click="toggleExportMenu"
             class="bg-gray-700 text-white px-3 py-2 rounded-lg text-sm hover:bg-gray-800">
@@ -415,7 +404,7 @@ const toggleMinimize = () => {
             </button>
           </div>
         </div>
-        <UnifiedDatePicker @update:modelValue="handleDateChange" />
+        <!-- <UnifiedDatePicker @update:modelValue="handleDateChange" /> -->
 
       </div>
     </div>
@@ -424,18 +413,18 @@ const toggleMinimize = () => {
       
       <!-- First Row -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div class="relative p-4 card">
+        <div class="relative p-4 card z-20">
           <button @click="expandCard('IncidentGrowthRate')" class="expand-btn">⛶</button>
-          <IncidentGrowthRate :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" />
+          <IncidentGrowthRate />
         </div>
 
-        <div class="relative p-4 card">
+        <div class="relative p-4 card z-0">
           <button @click="expandCard('TotalReportsReceived')" class="expand-btn">⛶</button>
           <TotalReportsReceived :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate"
             :endDate="endDate" />
         </div>
 
-        <div class="relative p-4 card">
+        <div class="relative p-4 card z-0">
           <button @click="expandCard('TopPerforming')" class="expand-btn">⛶</button>
           <TopPerforming :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate"
           :endDate="endDate"/>
@@ -506,6 +495,7 @@ const toggleMinimize = () => {
   /* box-shadow: 0 10px 15px -3px rgba(0, 255, 135, 0.3); */
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   /* border-color: rgba(59, 130, 246, 0.2); */
+  overflow: visible;
 }
 
 .dark .card {

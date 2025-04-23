@@ -121,7 +121,7 @@ const renderCalendar = () => {
 
     for (let i = 1; i <= daysInMonth; i++) {
         const day = new Date(year, month, i)
-        const dayString = day.toLocaleDateString('en-US')
+        const dayString = formatDate(day);
         let className =
             'flex items-center justify-center cursor-pointer w-[46px] h-[46px] rounded-full text-dark-3 dark:text-dark-6 my-0.5 hover:bg-teal-700 hover:text-white'
 
@@ -200,11 +200,17 @@ const handleApply = () => {
 
 
 const handleClear = () => {
-  selectedStartDate.value = null;
-    selectedEndDate.value = null;
-    
-    // Emit event to clear date range in parent
-    emit('dateRangeSelected', { start: null, end: null });
+  const now = new Date();
+  const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+  const start = formatDate(firstDayOfMonth);
+  const end = formatDate(lastDayOfMonth);
+
+  selectedStartDate.value = start;
+  selectedEndDate.value = end;
+
+  emit('dateRangeSelected', { start, end });
 
     console.log('🗑 Cleared Date Range');
     isOpen.value = false;
@@ -226,6 +232,13 @@ const changeMonth = (direction) => {
 
 onMounted(() => {
     document.addEventListener('click', handleDocumentClick)
+    const start = formatDate(firstDayOfMonth);
+  const end = formatDate(lastDayOfMonth);
+  selectedStartDate.value = start;
+  selectedEndDate.value = end;
+
+  // Emit to parent so it gets the initial range
+  emit("dateRangeSelected", { start, end });
 })
 
 onUnmounted(() => {
