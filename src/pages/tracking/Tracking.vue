@@ -3,6 +3,7 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useDatabaseStore } from '../../stores/databaseStore';
 import { useArrayStore } from '../../stores/arrayStore';
 import DateRangePicker from '../../components/DateRangePicker.vue';
+import { useActionDropdown } from '../../composables/useActionDropdown';
 
 const databaseStore = useDatabaseStore();
 const store = useArrayStore();
@@ -110,25 +111,8 @@ watch(searchQuery, () => {
     currentPage.value = 1;
 });
 
-// Dropdown management
-const openDropdownId = ref(null);
-const dropdownRefs = ref([]);
-const closeDropdown = () => (openDropdownId.value = null);
-const toggleDropdown = (logId) => {
-    openDropdownId.value = openDropdownId.value === logId ? null : logId;
-};
-
-// Close dropdown when clicking outside
-onMounted(() => {
-    document.addEventListener("click", (event) => {
-        if (
-            openDropdownId.value !== null &&
-            !dropdownRefs.value[openDropdownId.value]?.contains(event.target)
-        ) {
-            closeDropdown();
-        }
-    });
-});
+// composable action dropdown activator
+const { openDropdownId, dropdownRefs, toggleDropdown } = useActionDropdown();
 
 // Pass data to store
 const passingData = (log) => {
@@ -221,7 +205,8 @@ const updateDateRange = ({ start, end }) => {
                                     <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
                                 </svg>
                             </button>
-                            <div v-if="openDropdownId === log.id" ref="dropdownRefs"
+                            <div v-if="openDropdownId === log.id"
+                                :ref="el => dropdownRefs[log.id] = el"
                                 class="absolute z-10 w-44 mt-0.5 top-full right-0 shadow-sm border rounded-md bg-white dark:bg-slate-700"
                                 @click.stop>
                                 <ul class="text-sm">

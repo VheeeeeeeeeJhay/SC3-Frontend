@@ -1,8 +1,9 @@
 <script setup>
 import { ref, onMounted, computed, watch, onUnmounted } from 'vue';
-import axiosClient from  '../../axios.js';
+import axiosClient from '../../axios.js';
 import Badge from '../../components/Badge.vue';
 import { useDatabaseStore } from "../../stores/databaseStore";
+import { useActionDropdown } from '../../composables/useActionDropdown';
 
 const selectedClassifications = ref([]);
 
@@ -86,11 +87,11 @@ const inventoryRole = async (user) => {
 const archiveUser = async (user) => {
     try {
         const response = await axiosClient.patch(`/api/911/user-archive/${user.id}`, { is_deleted: 1 },
-        {
-            headers: {
-                'x-api-key': import.meta.env.VITE_API_KEY,
-            }
-        });
+            {
+                headers: {
+                    'x-api-key': import.meta.env.VITE_API_KEY,
+                }
+            });
         // Update local state instantly
         type.value = 'success';
         message.value = response.data.message;
@@ -133,9 +134,9 @@ const filteredUsers = computed(() => {
     const result = users.value.filter(user => {
         const matchesSearch = searchQuery.value
             ? user.firstName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-              user.middleName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-              user.lastName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-              user.email.toLowerCase().includes(searchQuery.value.toLowerCase())
+            user.middleName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+            user.lastName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+            user.email.toLowerCase().includes(searchQuery.value.toLowerCase())
             : true;
 
         const matchesClassification = selectedClassifications.value.length === 0 ||
@@ -152,7 +153,7 @@ const filteredUsers = computed(() => {
                 : b.firstName.localeCompare(a.firstName);
         });
     }
-    
+
     if (sortEmail.value !== 'none') {
         return [...result].sort((a, b) => {
             return sortEmail.value === 'asc'
@@ -164,17 +165,7 @@ const filteredUsers = computed(() => {
     return result;
 });
 
-// Dropdown
-const dropListener = () => {
-    document.addEventListener("click", (event) => {
-        if (
-            openDropdownId.value !== null &&
-            !dropdownRefs.value[openDropdownId.value]?.contains(event.target)
-        ) {
-            closeDropdown();
-        }
-    });
-}
+
 
 onMounted(() => {
     // fetchData();
@@ -185,38 +176,26 @@ onMounted(() => {
     }, 50000);
 
     // ------------------------------------------
-    dropListener();
 });
 onUnmounted(() => {
-  // Clear the interval when the component is unmounted or page is reloaded
-  if (refreshInterval) {
-    clearInterval(refreshInterval);
-  }
+    // Clear the interval when the component is unmounted or page is reloaded
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+    }
 });
 
 const computedProperties = {
     users: "activeUsers",
 };
 
-const { 
+const {
     users
 } = Object.fromEntries(
     Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
 );
 
-
-const openDropdownId = ref(null);
-
-const dropdownRefs = ref([]);
-const closeDropdown = () => {
-    openDropdownId.value = null;
-};
-const toggleDropdown = (transactionId) => {
-    openDropdownId.value = openDropdownId.value === transactionId ? null : transactionId;
-};
-
-const filterDropdown = ref(false);
-
+// composable action dropdown activator
+const { openDropdownId, dropdownRefs, toggleDropdown } = useActionDropdown();
 
 const isActionsDropdownOpen = ref(false);
 const isFilterDropdownOpen = ref(false);
@@ -311,9 +290,9 @@ const maskEmail = (email) => {
 
 // generate pdf user
 const handlePrint = () => {
-  const printWindow = window.open('', '_blank', 'width=800,height=600');
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
 
-  printWindow.document.write(`
+    printWindow.document.write(`
         <html>
             <head>
                 <title>Printed Active Users</title>
@@ -373,19 +352,19 @@ const handlePrint = () => {
         </html>
     `);
 
-  printWindow.document.close();
+    printWindow.document.close();
 
-  printWindow.print();
+    printWindow.print();
 
-  printWindow.onafterprint = () => {
-    printWindow.close();
-  };
+    printWindow.onafterprint = () => {
+        printWindow.close();
+    };
 };
 
 </script>
 
 <template>
-<section class="w-full min-h-screen">
+    <section class="w-full min-h-screen">
 
         <div class="mt-6 w-full">
             <div
@@ -404,15 +383,15 @@ const handlePrint = () => {
                                     placeholder="Search..." />
                             </div>
                         </form>
-                        
+
                     </div>
                     <div
-                class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-                <button @click="handlePrint"
-                  class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
-                  Print Users
-                </button>
-              </div>
+                        class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+                        <button @click="handlePrint"
+                            class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
+                            Print Users
+                        </button>
+                    </div>
                 </div>
 
                 <div v-if="isLoading" class="flex justify-center">
@@ -423,8 +402,14 @@ const handlePrint = () => {
                     <thead class="text-xs uppercase bg-teal-300 text-gray-800 dark:bg-slate-950 dark:text-gray-300">
                         <tr>
                             <th scope="col" class="px-4 py-3 text-center">ID</th>
-                            <th scope="col" class="px-4 py-3 text-center"><button class="" @click="toggleSortName">NAME <i :class="sortName === 'asc' ? 'pi pi-sort-alpha-up' : (sortName === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button></th>
-                            <th scope="col" class="px-4 py-3 text-center"><button class="" @click="toggleSortEmail">EMAIL <i :class="sortEmail === 'asc' ? 'pi pi-sort-alpha-up' : (sortEmail === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button></th>
+                            <th scope="col" class="px-4 py-3 text-center"><button class="" @click="toggleSortName">NAME
+                                    <i
+                                        :class="sortName === 'asc' ? 'pi pi-sort-alpha-up' : (sortName === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
+                            </th>
+                            <th scope="col" class="px-4 py-3 text-center"><button class=""
+                                    @click="toggleSortEmail">EMAIL <i
+                                        :class="sortEmail === 'asc' ? 'pi pi-sort-alpha-up' : (sortEmail === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
+                            </th>
                             <th scope="col" class="px-4 py-3 text-center">Roles</th>
                             <!-- <th scope="col" class="px-4 py-3">Inventory</th> -->
                             <th scope="col" class="px-4 py-3 text-center">Actions</th>
@@ -434,12 +419,15 @@ const handlePrint = () => {
                         <tr v-for="user in paginatedUsers" :key="user.id"
                             class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
                             <td class="px-4 py-3 text-center">{{ user.id }}</td>
-                            <td class="px-4 py-3 text-center">{{ user.firstName }} {{ user.middleName }} {{ user.lastName }}</td>
+                            <td class="px-4 py-3 text-center">{{ user.firstName }} {{ user.middleName }} {{
+                                user.lastName }}</td>
                             <td class="px-4 py-3 text-center">{{ maskEmail(user.email) }}</td>
                             <td class="px-4 py-3 text-center">
-                                911: <Badge :Message="user.for_911 ? `Has Access` : `No Access`"
-                                    :class="[user.for_911 ? 'bg-green-700' : 'bg-red-700', 'text-white']" /> 
-                                Inventory: <Badge :Message="user.for_inventory ? `Has Access` : `No Access`"
+                                911:
+                                <Badge :Message="user.for_911 ? `Has Access` : `No Access`"
+                                    :class="[user.for_911 ? 'bg-green-700' : 'bg-red-700', 'text-white']" />
+                                Inventory:
+                                <Badge :Message="user.for_inventory ? `Has Access` : `No Access`"
                                     :class="[user.for_inventory ? 'bg-green-700' : 'bg-red-700', 'text-white']" />
                             </td>
                             <td class="px-4 py-3 flex items-center justify-center relative">
@@ -451,8 +439,9 @@ const handlePrint = () => {
                                     </svg>
                                 </button>
 
-                                <div v-if="openDropdownId === user.id" ref="dropdownRefs"
-                                    class="absolute z-10 w-44 top-full right-0 shadow-sm border rounded-md bg-white dark:bg-slate-700">
+                                <div v-if="openDropdownId === user.id" 
+                                    :ref="el => dropdownRefs[user.id] = el"
+                                    class="absolute z-10 w-48 top-full right-0 shadow-sm border rounded-md bg-white dark:bg-slate-700">
                                     <ul class="py-2 text-sm">
                                         <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
                                             <PrimaryButton @click.prevent="dashboardRole(user)"
@@ -465,8 +454,7 @@ const handlePrint = () => {
                                                 class="mt-2 hover:text-gray-700 dark:hover:text-gray-300" />
                                         </li>
                                         <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
-                                            <PrimaryButton @click.prevent="archiveUser(user)"
-                                                :name="'Archive User'"
+                                            <PrimaryButton @click.prevent="archiveUser(user)" :name="'Archive User'"
                                                 class="mt-2 hover:text-gray-700 dark:hover:text-gray-300" />
                                         </li>
                                     </ul>
@@ -521,17 +509,16 @@ const handlePrint = () => {
                 </nav>
             </div>
         </div>
-        
+
     </section>
     <!-- <Toast v-if="message" :message="message" :icon="icon" :classes="classes" /> -->
 
     <div class="flex flex-col fixed top-17 right-5 w-1/2 items-end">
-        <Toast v-if="message" :message="message" :icon="icon" :classes="classes" :type="type"/>
-        <Toast v-if="errors" :message="errors" :icon="icon" :classes="classes" :type="type"/>
+        <Toast v-if="message" :message="message" :icon="icon" :classes="classes" :type="type" />
+        <Toast v-if="errors" :message="errors" :icon="icon" :classes="classes" :type="type" />
     </div>
 
-    
+
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
