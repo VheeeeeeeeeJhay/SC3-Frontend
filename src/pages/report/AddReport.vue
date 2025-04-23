@@ -14,26 +14,6 @@ const userStore = useUserStore();
 const user = computed(() => userStore.user);
 const router = useRouter();
 
-// Clearing Form Data
-const clearForm = () => {
-  errors.value = [];
-  data.value = {
-    source_id: '',
-    assistance_id: '',
-    incident_id: '',
-    actions_id: '',
-    date_received: '',
-    arrival_on_site: '',
-    time: '',
-    barangay_id: '',
-    landmark: '',
-    longitude: '',
-    latitude: '',
-    urgency_id: '',
-    description: '',
-  }
-};
-
 // Full Name of Auth User
 const fullName = computed(() => {
   return user.value.firstName + ' ' + user.value.lastName
@@ -545,8 +525,6 @@ const closeDropdown = () => {
                 </div>
               </div>
               <div class="flex justify-end space-x-4 mt-8">
-                <PrimaryButton type="button" name="Clear" @click="clearForm"
-                  class="w-1/2 px-6 py-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200" />
                 <PrimaryButton type="submit" name="Add Report"
                   class="w-1/2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200" />
               </div>

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watchEffect, watch, computed, shallowRef, onUnmounted } from 'vue';
+import { ref, onMounted, watchEffect, watch, computed, shallowRef, onUnmounted, inject } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axiosClient from '../../axios.js';
 import { useGeolocation } from '@vueuse/core';
@@ -44,6 +44,7 @@ const data = ref({
     description: storage.value.description,
 });
 
+
 const originalData = shallowRef('');
 
 const errors = ref([]); // Define errors
@@ -55,6 +56,7 @@ const databaseStore = useDatabaseStore();
 
 let refreshInterval = null;
 
+const addToast = inject('addToast'); 
 
 const updateForm = async () => {
     const payload = {
@@ -76,7 +78,6 @@ const updateForm = async () => {
     };
     console.log(data.value.longitude, 'lngitude');
     console.log(data.value.latitude, 'latitude');
-    try {
         axiosClient.put(`/api/911/report/${report_Id}`, payload, {
             headers: {
                 'x-api-key': import.meta.env.VITE_API_KEY,
@@ -86,12 +87,15 @@ const updateForm = async () => {
             console.log('Report updated successfully:', response.data);
             // Optionally, refresh the originalData reference
             originalData.value = { ...data.value };
+            addToast(response.data.message, 'success', 'check_circle');
             router.push({ name: 'ReportTable' });
         })
-    } catch (error) {
-        console.error('Error updating report:', error.response?.data.errors);
-        errors.value = error.response?.data.errors || 'Failed to update report. Please try again later.';
-    }
+        .catch (error => {
+            console.error('Error updating report:', error.response?.data.errors);
+            errors.value = error.response?.data.errors || 'Failed to update report. Please try again later.';
+            console.log(error.response.data);
+            addToast(error.response.data.message, 'error', 'error');
+        })
 };
 
 // console.log(data.value);
@@ -460,7 +464,7 @@ const openDatePicker = () => {
                                 </div>
 
                                 <div class="form-group">
-                                    <div id="map" class="mb-4 h-64 z-10"></div>
+                                    <div id="map" class="mb-4 h-64 z-5"></div>
                                 </div>
                                 
                                 <div class="grid grid-cols-2 gap-4">
@@ -472,7 +476,9 @@ const openDatePicker = () => {
                                         </label>
                                         <input readonly id="longitude" v-model="data.longitude" placeholder="Enter Longitude"
                                             class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
-                                    </div>
+                                        <span class="text-sm text-red-500" v-if="errors.longitude && errors.longitude.length">{{
+                                            errors.longitude[0] }}</span>
+                                        </div>
                                     <div class="form-group">
                                         <label for="latitude" class="block text-sm font-medium mb-2">
                                             Latitude
@@ -481,11 +487,11 @@ const openDatePicker = () => {
                                         </label>
                                         <input readonly id="latitude" v-model="data.latitude" placeholder="Enter Latitude"
                                             class="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
+                                        <span class="text-sm text-red-500" v-if="errors.latitude && errors.latitude.length">{{
+                                        errors.latitude[0] }}</span>
                                     </div>
                                 </div>
                                 <div class="flex justify-end space-x-4 mt-8">
-                                    <!-- <PrimaryButton type="button" name="Clear" @click="clearForm"
-                              class="px-6 py-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200" /> -->
                                     <PrimaryButton type="submit" name="Update Report"
                                         class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200" />
                                 </div>
