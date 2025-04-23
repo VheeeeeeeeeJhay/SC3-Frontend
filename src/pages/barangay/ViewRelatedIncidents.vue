@@ -11,6 +11,7 @@ import DateRangePicker from "../../components/DateRangePicker.vue";
 import { useArrayStore } from '../../stores/arrayStore';
 import DeleteModal from '../../components/modal/DeleteModal.vue';
 import logo from '../../assets/baguio-logo.png';
+import { useActionDropdown } from '../../composables/useActionDropdown';
 
 const router = useRouter();
 const id = String(useRoute().params.id);
@@ -141,28 +142,29 @@ onUnmounted(() => {
     store.clearData();
 })
 
-onMounted(() => {
-    // ------------------------------------------
-    document.addEventListener("click", (event) => {
-        if (
-            openDropdownId.value !== null &&
-            !dropdownRefs.value[openDropdownId.value]?.contains(event.target)
-        ) {
-            closeDropdown();
-        }
-    });
-});
+// onMounted(() => {
+//     // ------------------------------------------
+//     document.addEventListener("click", (event) => {
+//         if (
+//             openDropdownId.value !== null &&
+//             !dropdownRefs.value[openDropdownId.value]?.contains(event.target)
+//         ) {
+//             closeDropdown();
+//         }
+//     });
+// });
 
-// -----------------------
-const openDropdownId = ref(null);
+// // -----------------------
+// const openDropdownId = ref(null);
 
-const dropdownRefs = ref([]);
-const closeDropdown = () => {
-    openDropdownId.value = null;
-};
-const toggleDropdown = (transactionId) => {
-    openDropdownId.value = openDropdownId.value === transactionId ? null : transactionId;
-};
+// const dropdownRefs = ref([]);
+// const closeDropdown = () => {
+//     openDropdownId.value = null;
+// };
+// const toggleDropdown = (transactionId) => {
+//     openDropdownId.value = openDropdownId.value === transactionId ? null : transactionId;
+// };
+const { openDropdownId, dropdownRefs, toggleDropdown } = useActionDropdown();
 
 
 // -----------------------
@@ -203,7 +205,6 @@ const closeDropdowns = (event) => {
 document.addEventListener("click", closeDropdowns);
 
 
-
 const searchQuery = ref("");
 // Computed property for dynamic search and filtering
 const filteredReports = computed(() => {
@@ -211,33 +212,6 @@ const filteredReports = computed(() => {
     if (selectedUrgencies.value.length === 0) return [];
     if (selectedActions.value.length === 0) return [];
 
-    // return reports.value.filter(report => {
-    //     const reportId = String(report.id)?.toLowerCase() || "";
-    //     const reportTime = String(report.time)?.toLowerCase() || "";
-    //     const reportDateReceived = String(report.date_received)?.toLowerCase() || "";
-    //     const reportAssistance = String(report.assistance.assistance)?.toLowerCase() || "";
-    //     const reportIncidentType = String(report.incident.type)?.toLowerCase() || "";
-    //     const reportLandmark = String(report.landmark)?.toLowerCase() || "";
-    //     const query = searchQuery.value.toLowerCase();
-
-    //     // Match search query
-    //     const matchesSearch = query
-    //         ? reportId.includes(query) ||
-    //         reportTime.includes(query) ||
-    //         reportDateReceived.includes(query) ||
-    //         reportAssistance.includes(query) ||
-    //         reportIncidentType.includes(query) ||
-    //         reportLandmark.includes(query)
-    //         : true;
-
-    //     const reportDate = new Date(report.date_received); // Replace `report.date` with your actual date field
-
-    //     const matchesDateRange =
-    //         (!startDate.value || reportDate >= new Date(startDate.value)) &&
-    //         (!endDate.value || reportDate <= new Date(endDate.value));
-
-    //     return matchesSearch && matchesDateRange;
-    // });
     let result = reports.value.filter(report => {
         const matchesSearch = searchQuery.value
             ? report.source.sources.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
@@ -319,99 +293,8 @@ const filteredReports = computed(() => {
         return 0;
     });
 });
-// const filteredReports = computed(() => {
-//     if (selectedClassifications.value.length === 0) return [];
-//     if (selectedUrgencies.value.length === 0) return [];
-//     if (selectedActions.value.length === 0) return [];
 
-//     // 1. Filter reports
-//     let result = reports.value.filter(report => {
-//         const matchesSearch = searchQuery.value
-//             ? report.source.sources.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-//             report.assistance.assistance.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-//             report.incident.type.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-//             report.actions.actions.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-//             report.barangay.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-//             report.urgency.urgency.toLowerCase().includes(searchQuery.value.toLowerCase())
-//             : true;
 
-//         const matchesClassification = selectedClassifications.value.length === 0 ||
-//             selectedClassifications.value.includes(report.assistance_id);
-
-//         const matchesUrgency = selectedUrgencies.value.length === 0 ||
-//             selectedUrgencies.value.includes(report.urgency_id);
-
-//         const matchesAction = selectedActions.value.length === 0 ||
-//             selectedActions.value.includes(report.actions_id);
-
-//         const reportDate = new Date(report.date_received);
-
-//         const matchesDateRange =
-//             (!startDate.value || reportDate >= new Date(startDate.value)) &&
-//             (!endDate.value || reportDate <= new Date(endDate.value));
-
-//         return matchesSearch && matchesClassification && matchesUrgency && matchesAction && matchesDateRange;
-//     });
-
-//     // 2. Apply search on the filtered result
-//     if (searchQuery.value) {
-//         const query = searchQuery.value.toLowerCase();
-//         result = result.filter(report =>
-//             // Adjust these fields as needed for your data
-//             report.source.sources.toLowerCase().includes(query) ||
-//             report.assistance.assistance.toLowerCase().includes(query) ||
-//             report.incident.type.toLowerCase().includes(query)
-//             // Add more fields if needed
-//         );
-//     }
-
-//     // 3. Sort the filtered array
-//     return [...result].sort((a, b) => {
-//         // First: sort by source if enabled
-//         if (sortSource.value !== 'none') {
-//             const cmpSource = sortSource.value === 'asc'
-//                 ? a.source.sources.localeCompare(b.source.sources)
-//                 : b.source.sources.localeCompare(a.source.sources);
-//             if (cmpSource !== 0) return cmpSource;
-//         }
-//         // Then: sort by assistance if enabled
-//         if (sortAssistance.value !== 'none') {
-//             const cmpAssist = sortAssistance.value === 'asc'
-//                 ? a.assistance.assistance.localeCompare(b.assistance.assistance)
-//                 : b.assistance.assistance.localeCompare(a.assistance.assistance);
-//             if (cmpAssist !== 0) return cmpAssist;
-//         }
-
-//         if (sortIncident.value !== 'none') {
-//             const cmpIncident = sortIncident.value === 'asc'
-//                 ? a.incident.type.localeCompare(b.incident.type)
-//                 : b.incident.type.localeCompare(a.incident.type);
-//             if (cmpIncident !== 0) return cmpIncident;
-//         }
-
-//         if (sortActions.value !== 'none') {
-//             const cmpAction = sortActions.value === 'asc'
-//                 ? a.actions.actions.localeCompare(b.actions.actions)
-//                 : b.actions.actions.localeCompare(a.actions.actions);
-//             if (cmpAction !== 0) return cmpAction;
-//         }
-
-//         if (sortUrgency.value !== 'none') {
-//             const cmpUrgency = sortUrgency.value === 'asc'
-//                 ? a.urgency.urgency.localeCompare(b.urgency.urgency)
-//                 : b.urgency.urgency.localeCompare(a.urgency.urgency);
-//             if (cmpUrgency !== 0) return cmpUrgency;
-//         }
-
-//         if (sortBarangay.value !== 'none') {
-//             const cmpBarangay = sortBarangay.value === 'asc'
-//                 ? a.barangay.name.localeCompare(b.barangay.name)
-//                 : b.barangay.name.localeCompare(a.barangay.name);
-//             if (cmpBarangay !== 0) return cmpBarangay;
-//         }
-//         return 0;
-//     });
-// });
 
 // Pagination
 const currentPage = ref(1);
@@ -757,11 +640,11 @@ const handleJSON = (filteredReports) => {
 <template>
     <div class="mt-6 flex justify-between p-4">
         <h1 class="text-2xl font-bold dark:text-white">View Barangay and Related Incidents</h1>
-        <Button type="button" name="Back" @click.prevent="router.back()"
+        <button type="button" name="Back" @click.prevent="router.back()"
             class="px-3 py-1 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200 flex items-center">
             <span class="material-icons mr-2"> arrow_back </span>
             Back
-        </Button>
+        </button>
     </div>
     <div class="p-4">
 
@@ -1110,7 +993,7 @@ const handleJSON = (filteredReports) => {
                                     </svg>
                                 </button>
                                 <!-- Dropdown Menu -->
-                                <ul v-if="openDropdownId === report.id" ref="dropdownRefs"
+                                <ul v-if="openDropdownId === report.id" :ref="el => dropdownRefs[report.id] = el"
                                     class="absolute z-[10] w-44 top-full right-0 shadow-sm border rounded-md bg-white dark:bg-slate-700"
                                     @click.stop>
                                     <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
@@ -1128,9 +1011,8 @@ const handleJSON = (filteredReports) => {
                                         </RouterLink>
                                     </li>
                                     <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
-                                        <PopupModal
-                                            Title="Are you sure you want to delete this report?" ModalButton="Delete"
-                                            Icon="cancel" Classes="" :show="isDeleteModalOpen"
+                                        <PopupModal Title="Are you sure you want to delete this report?"
+                                            ModalButton="Delete" Icon="cancel" Classes="" :show="isDeleteModalOpen"
                                             @update:show="isDeleteModalOpen = $event"
                                             ButtonClass="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
                                             <template #modalContent>

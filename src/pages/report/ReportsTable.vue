@@ -1118,7 +1118,6 @@ const handleJSON = (filteredReports) => {
                                 <div 
                                 v-if="openDropdownId === report.id"
                                 :ref="el => dropdownRefs[report.id] = el"
-
                                     class="absolute z-10 w-44 top-full right-0 shadow-sm border rounded-md bg-white dark:bg-slate-700"
                                     @click.stop>
 
