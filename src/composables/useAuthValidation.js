@@ -15,7 +15,7 @@ export function useAuthValidation(data) {
             } else{
                 emailError.value = '';
             }
-        }, 1000);
+        }, 400);
     }, { immediate: true });
     
     let debouncePasswordTimeout;
@@ -34,7 +34,7 @@ export function useAuthValidation(data) {
             } else {
                 passwordError.value = '';
             }
-        }, 1000)
+        }, 400)
     }, { immediate: true });
 
     let debounceConfirmPasswordTimeout;
@@ -50,7 +50,7 @@ export function useAuthValidation(data) {
             } else {
                 confirmPasswordError.value = '';
             }
-        }, 1000)
+        }, 400)
     }, { immediate: true });
 
     let debounceFirstNameTimeout;
@@ -66,7 +66,7 @@ export function useAuthValidation(data) {
             } else {
                 firstNameError.value = '';
             }
-        }, 1000)
+        }, 400)
     }, { immediate: true });
 
     let debounceLastNameTimeout;
@@ -82,7 +82,7 @@ export function useAuthValidation(data) {
             } else {
                 lastNameError.value = '';
             }
-        }, 1000)
+        }, 400)
     }, { immediate: true });
 
     return {
