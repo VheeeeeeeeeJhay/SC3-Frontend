@@ -88,7 +88,7 @@ const data = ref({
  <div class="min-h-screen p-4 text-black dark:text-white bg-white dark:bg-gradient-to-br from-gray-900 via-gray-950 to-black ">
   <!-- Back Button -->
   <div class="mb-4 flex justify-end">
-  <PrimaryButton
+  <button
     type="button"
     name="Back"
     @click.prevent="router.back()"
@@ -96,7 +96,7 @@ const data = ref({
   >
     <span class="material-icons mr-2">arrow_back</span>
     Back
-  </PrimaryButton>
+  </button>
 </div>
 
     

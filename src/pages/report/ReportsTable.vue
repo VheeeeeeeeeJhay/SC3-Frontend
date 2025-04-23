@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, watch, onUnmounted } from 'vue';
+import { ref, onMounted, computed, watch, onUnmounted, inject } from 'vue';
 import axiosClient from '../../axios.js';
 import { RouterLink } from 'vue-router';
 import ChooseReportType from '../../components/modal/ChooseReportType.vue';
@@ -26,9 +26,11 @@ const passingData = (report) => {
     store.setData(report);
 }
 
-onUnmounted(() => {
-    store.clearData();
-})
+const addToast = inject('addToast'); 
+
+// onUnmounted(() => {
+//     store.clearData();
+// })
 
 let refreshInterval = null;
 onMounted(() => {
@@ -358,100 +360,105 @@ const visiblePages = computed(() => {
 
 // for printing reports
 const handlePrint = async () => {
-    const printWindow = window.open('', '_blank', 'width=800,height=600');
+    try{
+        const printWindow = window.open('', '_blank', 'width=800,height=600');
 
-    // Wait for the image to load
-    await new Promise((resolve) => {
-        const img = new Image();
-        img.src = logo;
-        img.onload = resolve;
-        img.onerror = resolve; // Avoid hanging if image fails
-    });
+        // Wait for the image to load
+        await new Promise((resolve) => {
+            const img = new Image();
+            img.src = logo;
+            img.onload = resolve;
+            img.onerror = resolve; // Avoid hanging if image fails
+        });
 
-    // Wait for the reports data to be fully available
-    await new Promise((resolve) => {
-        setTimeout(resolve, 100); // Small delay to ensure data is processed
-    });
+        // Wait for the reports data to be fully available
+        await new Promise((resolve) => {
+            setTimeout(resolve, 100); // Small delay to ensure data is processed
+        });
 
-    printWindow.document.write(`
-        <html>
-            <head>
-                <title>Printed Reports</title>
-                <style>
-                    body { font-family: Arial, sans-serif; }
-                    table { 
-                        width: 100%; 
-                        border-collapse: collapse; 
-                        margin-bottom: 20px; 
-                    }
-                    th, td { 
-                        border: 1px solid #ddd; 
-                        padding: 8px; 
-                        text-align: left; 
-                    }
-                    th { 
-                        background-color: #f2f2f2; 
-                        font-weight: bold; 
-                    }
-                    .print-header {
-                        text-align: center;
-                        margin-bottom: 20px;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="print-header">
-                    <img src="${logo}" alt="Logo" style="width: 100px; height: auto; display: block; margin: 20px auto;">
-                    <h1>Reports Management - Printed Report</h1>
-                    <p>Printed on: ${new Date().toLocaleString()}</p>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Source</th>
-                            <th>Assistance</th>
-                            <th>Incident/Case</th>
-                            <th>Actions Taken</th>
-                            <th>Location</th>
-                            <th>Urgency</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${filteredReports.value.map(report => `
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Printed Reports</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; }
+                        table { 
+                            width: 100%; 
+                            border-collapse: collapse; 
+                            margin-bottom: 20px; 
+                        }
+                        th, td { 
+                            border: 1px solid #ddd; 
+                            padding: 8px; 
+                            text-align: left; 
+                        }
+                        th { 
+                            background-color: #f2f2f2; 
+                            font-weight: bold; 
+                        }
+                        .print-header {
+                            text-align: center;
+                            margin-bottom: 20px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="print-header">
+                        <img src="${logo}" alt="Logo" style="width: 100px; height: auto; display: block; margin: 20px auto;">
+                        <h1>Reports Management - Printed Report</h1>
+                        <p>Printed on: ${new Date().toLocaleString()}</p>
+                    </div>
+                    <table>
+                        <thead>
                             <tr>
-                                <td>${report.id}</td>
-                                <td>${report.source.sources}</td>
-                                <td>${report.assistance.assistance}</td>
-                                <td>${report.incident.type}</td>
-                                <td>${report.actions.actions}</td>
-                                <td>${report.barangay.name}</td>
-                                <td>${report.urgency.urgency}</td>
-                                <td>${report.description}</td>
+                                <th>ID</th>
+                                <th>Source</th>
+                                <th>Assistance</th>
+                                <th>Incident/Case</th>
+                                <th>Actions Taken</th>
+                                <th>Location</th>
+                                <th>Urgency</th>
+                                <th>Description</th>
                             </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-                <div class="print-footer">
-                    <p>Total Reports: ${filteredReports.value.length}</p>
-                </div>
-            </body>
-        </html>
-    `);
+                        </thead>
+                        <tbody>
+                            ${filteredReports.value.map(report => `
+                                <tr>
+                                    <td>${report.id}</td>
+                                    <td>${report.source.sources}</td>
+                                    <td>${report.assistance.assistance}</td>
+                                    <td>${report.incident.type}</td>
+                                    <td>${report.actions.actions}</td>
+                                    <td>${report.barangay.name}</td>
+                                    <td>${report.urgency.urgency}</td>
+                                    <td>${report.description}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    <div class="print-footer">
+                        <p>Total Reports: ${filteredReports.value.length}</p>
+                    </div>
+                </body>
+            </html>
+        `);
 
-    printWindow.document.close();
+        printWindow.document.close();
 
-    // Wait for the new window to finish rendering before printing
-    await new Promise((resolve) => setTimeout(resolve, 500));
+        
 
-    printWindow.print();
+        // Wait for the new window to finish rendering before printing
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
-    printWindow.onafterprint = () => {
-        printWindow.close();
-    };
+        printWindow.print();
+        addToast('Exported PDF successfully!', 'success', 'check_circle');
+        printWindow.onafterprint = () => {
+            printWindow.close();
+        };
+    } catch {
+        addToast('Failed to export PDF', 'error', 'error');
+    }
 };
-
 
 // Delete A Report
 const errors = ref('');
@@ -585,65 +592,73 @@ const handleCSV = (filteredReports) => {
         return;
     }
 
+    try {
     // Flatten each report
-    const flatReports = filteredReports.map(report => ({
-        id: report.id,
-        name: report.name,
-        date_received: report.date_received,
-        time: report.time,
-        arrival_on_site: report.arrival_on_site,
-        landmark: report.landmark,
-        description: report.description,
-        latitude: report.latitude,
-        longitude: report.longitude,
-        source_id: report.source_id,
-        source: report.source?.sources ?? '',
-        assistance_id: report.assistance_id,
-        assistance: report.assistance?.assistance ?? '',
-        actions_id: report.actions_id,
-        actions: report.actions?.actions ?? '',
-        urgency_id: report.urgency_id,
-        urgency: report.urgency?.urgency ?? '',
-        incident_id: report.incident_id,
-        incident: report.incident?.type ?? '',
-        barangay_id: report.barangay_id,
-        barangay: report.barangay?.name ?? '',
-        created_at: report.created_at,
-        updated_at: report.updated_at,
-    }));
+        const flatReports = filteredReports.map(report => ({
+            id: report.id,
+            name: report.name,
+            date_received: report.date_received,
+            time: report.time,
+            arrival_on_site: report.arrival_on_site,
+            landmark: report.landmark,
+            description: report.description,
+            latitude: report.latitude,
+            longitude: report.longitude,
+            source_id: report.source_id,
+            source: report.source?.sources ?? '',
+            assistance_id: report.assistance_id,
+            assistance: report.assistance?.assistance ?? '',
+            actions_id: report.actions_id,
+            actions: report.actions?.actions ?? '',
+            urgency_id: report.urgency_id,
+            urgency: report.urgency?.urgency ?? '',
+            incident_id: report.incident_id,
+            incident: report.incident?.type ?? '',
+            barangay_id: report.barangay_id,
+            barangay: report.barangay?.name ?? '',
+            created_at: report.created_at,
+            updated_at: report.updated_at,
+        }));
 
-    // Get headers
-    const headers = Object.keys(flatReports[0]);
+        // Get headers
+        const headers = Object.keys(flatReports[0]);
 
-    // Build CSV rows
-    const csvRows = [headers.join(',')];
+        // Build CSV rows
+        const csvRows = [headers.join(',')];
 
-    flatReports.forEach(item => {
-        const row = headers.map(header => {
-            const val = item[header];
-            if (typeof val === 'string') {
-                return `"${val.replace(/"/g, '""')}"`; // escape quotes
-            }
-            return val ?? '';
+        flatReports.forEach(item => {
+            const row = headers.map(header => {
+                const val = item[header];
+                if (typeof val === 'string') {
+                    return `"${val.replace(/"/g, '""')}"`; // escape quotes
+                }
+                return val ?? '';
+            });
+            csvRows.push(row.join(','));
         });
-        csvRows.push(row.join(','));
-    });
 
-    // Create blob and trigger download
-    const csvContent = csvRows.join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', 'filtered_reports.csv');
-    document.body.appendChild(link); // not required but safer in some browsers
-    link.click();
+        // Create blob and trigger download
+        const csvContent = csvRows.join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'filtered_reports.csv');
+        document.body.appendChild(link); // not required but safer in some browsers
+        link.click();
 
-    // Clean up after short delay to ensure download starts
-    setTimeout(() => {
-        URL.revokeObjectURL(url);
-        document.body.removeChild(link);
-    }, 100);
+        // Show success message after download
+        addToast('Exported CSV successfully!', 'success', 'check_circle');
+
+        // Clean up after short delay to ensure download starts
+        setTimeout(() => {
+            URL.revokeObjectURL(url);
+            document.body.removeChild(link);
+        }, 100);
+    } catch (error) {
+        console.error('Error exporting CSV:', error);
+        addToast('Failed to export CSV. Please try again.', 'error', 'error');
+    }
 };
 
 //handle JSON
@@ -653,6 +668,7 @@ const handleJSON = (filteredReports) => {
         return;
     }
 
+    try {
     const jsonContent = JSON.stringify(filteredReports, null, 2); // Pretty print with 2 spaces
     const blob = new Blob([jsonContent], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -663,11 +679,17 @@ const handleJSON = (filteredReports) => {
     document.body.appendChild(link);
     link.click();
 
+    addToast('Exported JSON successfully!', 'success', 'check_circle');
+
     // Clean up
     setTimeout(() => {
         URL.revokeObjectURL(url);
         document.body.removeChild(link);
     }, 100);
+    } catch (error) {
+        console.error('Error exporting JSON:', error);
+        addToast('Failed to export JSON. Please try again.', 'error', 'error');
+    }
 };
 </script>
 

@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted } from 'vue';
+import { onMounted, onUnmounted, inject } from 'vue';
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axiosClient from '../../axios.js';
@@ -23,6 +23,8 @@ const endDate = ref(null);
 const selectedClassifications = ref([]);
 const selectedUrgencies = ref([]);
 const selectedActions = ref([]);
+
+const addToast = inject('addToast');
 
 const databaseStore = useDatabaseStore();
 
@@ -450,6 +452,7 @@ const toggleExportDropdown = (exportId) => {
 
 // for printing reports
 const handlePrint = async () => {
+    try{
     const printWindow = window.open('', '_blank', 'width=800,height=600');
 
     // Wait for the image to load
@@ -538,10 +541,16 @@ const handlePrint = async () => {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     printWindow.print();
-
+    
+    addToast('Exported PDF successfully!', 'success', 'check_circle');
+    
     printWindow.onafterprint = () => {
         printWindow.close();
     };
+    } catch (error) {
+        console.error('Error printing:', error);
+        addToast('Failed to export PDF', 'error', 'error');
+    }
 };
 
 // //handle CSV generation
@@ -551,6 +560,7 @@ const handleCSV = (filteredReports) => {
         return;
     }
 
+    try{
     // Flatten each report
     const flatReports = filteredReports.map(report => ({
         id: report.id,
@@ -605,11 +615,17 @@ const handleCSV = (filteredReports) => {
     document.body.appendChild(link); // not required but safer in some browsers
     link.click();
 
+    addToast('Exported CSV successfully!', 'success', 'check_circle');
+
     // Clean up after short delay to ensure download starts
     setTimeout(() => {
         URL.revokeObjectURL(url);
         document.body.removeChild(link);
     }, 100);
+    } catch (error) {
+        console.error('Error exporting CSV:', error);
+        addToast('Failed to export CSV. Please try again.', 'error', 'error');
+    }
 };
 
 //handle JSON
@@ -619,6 +635,7 @@ const handleJSON = (filteredReports) => {
         return;
     }
 
+    try{
     const jsonContent = JSON.stringify(filteredReports, null, 2); // Pretty print with 2 spaces
     const blob = new Blob([jsonContent], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -629,11 +646,17 @@ const handleJSON = (filteredReports) => {
     document.body.appendChild(link);
     link.click();
 
+    addToast('Exported JSON successfully!', 'success', 'check_circle');
+
     // Clean up
     setTimeout(() => {
         URL.revokeObjectURL(url);
         document.body.removeChild(link);
     }, 100);
+    } catch (error) {
+        console.error('Error exporting JSON:', error);
+        addToast('Failed to export JSON. Please try again.', 'error', 'error');
+    }
 };
 </script>
 
@@ -1035,7 +1058,7 @@ const handleJSON = (filteredReports) => {
                     class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">
                     <span class="text-sm font-normal">Showing {{ filteredReports.length > 0 ? (currentPage - 1) *
                         itemsPerPage + 1 : 0
-                        }} to {{
+                    }} to {{
                             Math.min(currentPage *
                                 itemsPerPage, filteredReports.length) }} of {{ filteredReports.length }}</span>
                     <ul class="inline-flex items-stretch -space-x-px">
