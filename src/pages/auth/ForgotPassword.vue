@@ -24,10 +24,9 @@ const submit = () => {
     }
   })
     .then(response => {
-      addToast('Password reset link sent', 'success', 'check_circle');
+      addToast(response.data.status, 'success', 'check_circle');
     })
     .catch(error => {
-      console.log(error.response.data.message);
       errors.value = error.response.data.errors;
       addToast(error.response.data.message, 'error', 'error');
     })
