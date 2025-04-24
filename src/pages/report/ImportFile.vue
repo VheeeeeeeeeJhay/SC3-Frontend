@@ -45,6 +45,42 @@ const handleFileUpload = (event) => {
     selectedFile = file;
 };
 
+// Add new drag and drop handlers
+const handleDragOver = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    // Add visual feedback for drag over
+    const dropZone = document.getElementById('dropzone-file');
+    if (dropZone) {
+        dropZone.classList.add('border-blue-500');
+    }
+};
+
+const handleDragLeave = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    // Remove visual feedback
+    const dropZone = document.getElementById('dropzone-file');
+    if (dropZone) {
+        dropZone.classList.remove('border-blue-500');
+    }
+};
+
+const handleDrop = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Remove visual feedback
+    const dropZone = document.getElementById('dropzone-file');
+    if (dropZone) {
+        dropZone.classList.remove('border-blue-500');
+    }
+
+    const files = event.dataTransfer.files;
+    if (files.length > 0) {
+        handleFileUpload({ target: { files: [files[0]] } });
+    }
+};
 
 // ✅ FIXED: Only clears table data and returns to step 1, keeps file
 const removeFile = () => {
@@ -63,52 +99,63 @@ const clearData = () => {
 };
 
 const verifyFileData = async () => {
-    try {
-        if (!selectedFile) {
-            errorMessage.value = 'Please upload a file before submitting.';
-            return;
+    if (!selectedFile) {
+        errorMessage.value = 'Please upload a file before submitting.';
+        return;
+    }
+
+    const uploadFile = new FormData();
+    uploadFile.append('file', selectedFile);
+
+    await axiosClient.post('/api/911/import-excel', uploadFile, {
+        headers: {
+            'x-api-key': import.meta.env.VITE_API_KEY
         }
-
-        const uploadFile = new FormData();
-        uploadFile.append('file', selectedFile);
-
-        const response = await axiosClient.post('/api/911/import-excel', uploadFile, {
-            headers: {
-                'x-api-key': import.meta.env.VITE_API_KEY,
-            },
-        });
-
-        successMessage.value = 'File uploaded successfully!';
-        errorMessage.value = '';
+    })
+    .then(response => {
+        addToast(response.data.message, 'success', 'check_circle');
         contained_data.value = response.data.data;
         currentStep.value = 2;
-    } catch (error) {
+    })
+    .catch(error => {
         console.error('Error uploading file:', error);
         errorMessage.value = error.response?.data?.message || 'Something went wrong!';
-    }
+        addToast(error.response?.data.message, 'error', 'error');
+    });
 };
 
+// const submitFileData = async () => {
+//     await axiosClient.post('/api/911/import-excel-data', { data: contained_data.value }, {
+//         headers: {
+//             'Content-Type': 'application/json',
+//             'x-api-key': import.meta.env.VITE_API_KEY,
+//         },
+//     })
+//     .then(response => {
+//         addToast(response.data.message, 'success', 'check_circle');
+//         contained_data.value = response.data.data;
+//         currentStep.value = 3;
+//     })
+//     .catch(error => {
+//         addToast(error.response?.data.message, 'error', 'error');
+//     });
+// };
 const submitFileData = async () => {
     try {
-        const response = await axiosClient.post('/api/911/import-excel-data', {
-            data: contained_data.value,
-        }, {
+        await axiosClient.post('/api/911/import-excel-data', { data: contained_data.value }, {
             headers: {
                 'Content-Type': 'application/json',
                 'x-api-key': import.meta.env.VITE_API_KEY,
             },
         });
 
-        successMessage.value = 'Data uploaded successfully!';
-        errorMessage.value = '';
-        contained_data.value = response.data.inserted_records || [];
-        currentStep.value = 3;
+        addToast('Report data imported successfully!', 'success', 'check_circle');
+        currentStep.value = 3; // ✅ Go to Step 3 on success
     } catch (error) {
-        console.error('Error uploading data:', error);
-        errorMessage.value = error.response?.data?.message || 'Something went wrong!';
-        addToast(error.response?.data.message, 'error', 'error');
+        addToast(error.response?.data?.message || 'Failed to import data.', 'error', 'error');
     }
 };
+
 
 // Stepper logic
 const currentStep = ref(1);
@@ -185,7 +232,10 @@ const goBackToReportTable = () => {
             <!-- Step 1: Upload -->
             <div v-if="currentStep === 1" class="mt-6">
                 <form @submit.prevent="verifyFileData" class="space-y-6">
-                    <div class="flex items-center justify-center w-full">
+                    <div class="flex items-center justify-center w-full" 
+                         @dragover.prevent="handleDragOver" 
+                         @dragleave.prevent="handleDragLeave" 
+                         @drop.prevent="handleDrop">
                         <label v-if="!uploadedFileName" for="dropzone-file"
                             class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
                             <div class="flex flex-col items-center justify-center pt-5 pb-6">
