@@ -3,8 +3,6 @@ import { computed, onMounted, onUnmounted } from "vue";
 import { useDatabaseStore } from '../../stores/databaseStore';
 
 const props = defineProps({
-  selectedYear: Number,
-  selectedMonth: Number,
   startDate: String,
   endDate: String
 });
@@ -45,11 +43,7 @@ onUnmounted(() => {
 <template>
   <h2 class="text-base font-medium dark:text-white">
     Total Reports Received
-    <!-- <ToolTip Information="The total reports received is the total number of reports received in the system."/> -->
-    <p v-if="!startDate && !endDate" class="text-xs text-gray-500 dark:text-gray-400">
-      Reports for {{ selectedMonth }}/{{ selectedYear }}
-    </p>
-    <p v-else class="text-xs text-gray-500 dark:text-gray-400">
+    <p class="text-xs text-gray-500 dark:text-gray-400">
       Reports from {{ startDate }} to {{ endDate }}
     </p>
   </h2>

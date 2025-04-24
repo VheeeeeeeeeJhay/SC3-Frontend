@@ -14,8 +14,6 @@ const lineChart = ref(null);
 let chart = null;
 
 const props = defineProps({
-  selectedYear: Number,
-  selectedMonth: Number,
   startDate: String,
   endDate: String
 });
@@ -157,25 +155,12 @@ const updateChart = () => {
       if (props.endDate && reportDate > new Date(props.endDate)) isValid = false;
       return isValid;
     });
-  } else {
-    if (props.selectedYear) {
-      filteredReports = filteredReports.filter(rep => {
-        const year = new Date(rep.date_received).getFullYear();
-        return year === props.selectedYear;
-      });
-    }
-    if (props.selectedMonth) {
-      filteredReports = filteredReports.filter(rep => {
-        const month = new Date(rep.date_received).getMonth() + 1;
-        return month === props.selectedMonth;
-      });
-    }
   }
 
   const counts = {};
-filteredReports.forEach(rep => {
-  counts[rep.source_id] = (counts[rep.source_id] || 0) + 1;
-});
+  filteredReports.forEach(rep => {
+    counts[rep.source_id] = (counts[rep.source_id] || 0) + 1;
+  });
 
 const reportCounts = source.value.map(src => counts[src.id] || 0);
 
@@ -209,22 +194,37 @@ onUnmounted(() => {
 });
 
 const debouncedUpdateChart = debounce(updateChart, 300);
-watch(() => [props.selectedYear, props.selectedMonth, props.startDate, props.endDate],
+watch(() => [props.startDate, props.endDate],
   debouncedUpdateChart,
   { immediate: true }
 );
 </script>
 <template>
-
-    <div class="w-full h-full p-4 dark:text-white text-gray-800">
-      <!-- Title -->   
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-semibold">Report Trend</h2>
-      </div>
-      <loader1 v-if="isLoading" class="bg-white/80 h-64" />
-  
-      <!-- LINE CHART -->
-      <div class="dark:text-gray-800 h-64" ref="lineChart"></div>
+  <div class="w-full h-full p-4 dark:text-white text-gray-800 relative">
+    <!-- Title -->
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-semibold">Report Trend</h2>
     </div>
-  </template>
+
+    <transition name="fade">
+  <div v-if="isLoading" class="absolute inset-0 z-10 flex items-center justify-center bg-[#1f2937] rounded-xl">
+    <loader1 />
+  </div>
+</transition>
+
+    <!-- CHART CONTAINER -->
+    <div class="h-64" ref="lineChart" />
+  </div>
+</template>
+
+
+
+<style scoped>
+/* Add this to a global CSS or <style scoped> */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}</style>
   

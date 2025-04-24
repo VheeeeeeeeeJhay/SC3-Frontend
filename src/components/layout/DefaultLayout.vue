@@ -117,39 +117,40 @@ const closeSidebar = () => {
               border-r-5 border-solid dark:border-gray-950 
               ring-1 ring-gray-300 dark:ring-slate-900 rounded-r-1xl
               backdrop-blur-md overflow-hidden"
-      :class="sidebarVisible ? 'translate-x-0' : '-translate-x-full sm:translate-x-0'">
-      <div class="h-full flex flex-col justify-between relative z-10 px-3 pb-4 overflow-y-auto">
+    :class="sidebarVisible ? 'translate-x-0' : '-translate-x-full sm:translate-x-0'">
 
+      <div class="h-full flex flex-col justify-between relative z-10 px-1 pb-4 overflow-y-auto">
         <!-- Logo Section (Less Top Padding + Separated Logo/Text) -->
         <div class="pt-11 flex flex-col items-center">
           <span class="text-center text-lg font-semibold sm:text-xl text-gray-800 dark:text-white">
             SC3-911 Dashboard
           </span>
           <img src="../../assets/baguio-logo.png" class="h-40 mb-2" alt="Smart City Baguio" />
-        </div>
+      </div>
 
-        <!-- Navigation Links -->
-        <div class="flex-1 mt-6">
-          <ul class="space-y-2 font-medium">
-            <li v-for="item in filteredNavigation" :key="item.name">
-              <RouterLink :to="item.to" :class="[
-                'flex items-center p-2 rounded-lg group',
-                isActive(item)
-                  ? 'bg-[#FFFFF0] dark:bg-slate-600 shadow-md'
-                  : 'hover:bg-[#D9D9B3] dark:hover:bg-slate-600'
-              ]">
-                <span class="material-icons w-5 h-5 transition duration-75"
-                  :class="isActive(item) ? 'text-gray-800 dark:!text-white' : 'text-gray-800 dark:!text-gray-300'">
-                  {{ item.icon }}
-                </span>
-                <span class="ms-3">{{ item.name }}</span>
-              </RouterLink>
-            </li>
-          </ul>
-        </div>
+    <!-- Navigation -->
+    <nav class="flex-1 mt-6 space-y-2">
+      <ul class="space-y-1">
+        <li v-for="item in filteredNavigation" :key="item.name">
+          <RouterLink :to="item.to"
+            :class="[
+              'flex items-center gap-3 p-3 rounded-lg transition-all duration-200 group',
+              isActive(item)
+                ? 'bg-sky-100 dark:bg-slate-700 text-slate-800 dark:text-white font-semibold shadow-sm'
+                : 'hover:bg-sky-50 dark:hover:bg-slate-800'
+            ]">
+            <span class="material-icons text-base group-hover:scale-110 transition-transform duration-200"
+              :class="isActive(item) ? 'text-indigo-600 dark:text-teal-300' : 'text-slate-600 dark:text-slate-300'">
+              {{ item.icon }}
+            </span>
+            <span class="ms-3">{{ item.name }}</span>
+          </RouterLink>
+        </li>
+      </ul>
+    </nav>
 
-    <!-- User Profile at Bottom -->
-    <div class="mt-auto pt-6 border-t border-gray-300 dark:border-slate-700">
+    <!-- User -->
+    <div class="mt-6 pt-4 border-t border-gray-200 dark:border-slate-700">
       <div class="flex items-center gap-3 px-2">
         <button
           @click.stop="dropdownOpen = !dropdownOpen"
@@ -157,23 +158,21 @@ const closeSidebar = () => {
           class="flex justify-center items-center bg-gray-800 rounded-full hover:ring-4 hover:ring-teal-500 transition-all duration-300"
         >
         <div
-    class="w-10 h-10 mx-auto flex items-center justify-center rounded-full bg-indigo-600 text-white text-2xl font-bold shadow-xl dark:bg-indigo-500">
-    {{ user?.email?.charAt(0).toUpperCase() || '?' }}
-  </div>
+          class="w-10 h-10 flex items-center justify-center rounded-full bg-teal-600 text-white text-lg font-bold shadow ring-2 ring-white dark:ring-teal-400">
+          {{ user?.email?.charAt(0).toUpperCase() || '?' }}
+        </div>
         </button>
         <div class="flex flex-col">
-          <p class="text-xs font-medium text-gray-800 dark:text-white">
-            {{ user?.firstName || 'Guest' }} || {{ user?.role === 1 ? 'SUPERLAMIG' : 'USER' }}
+          <p class="text-sm font-medium">{{ user?.firstName || 'Guest' }}
+            <span class="text-xs font-normal text-slate-500 dark:text-slate-400">({{ user?.role === 1 ? 'Admin' : 'User' }})</span>
           </p>
-          <p class="text-xs truncate text-gray-600 dark:text-gray-400">
-            {{ user?.email || 'No email' }}
-          </p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ user?.email || 'No email' }}</p>
         </div>
       </div>
     </div>
+  </div>
+</aside>
 
-      </div>
-    </aside>
 
     <!-- Right Sidebar Modal with Bottom-Up Slide Animation -->
     <transition name="slide">
