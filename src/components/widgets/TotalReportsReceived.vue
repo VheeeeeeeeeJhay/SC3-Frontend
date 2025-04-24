@@ -3,8 +3,6 @@ import { computed, onMounted, onUnmounted } from "vue";
 import { useDatabaseStore } from '../../stores/databaseStore';
 
 const props = defineProps({
-  selectedYear: Number,
-  selectedMonth: Number,
   startDate: String,
   endDate: String
 });
@@ -19,16 +17,10 @@ const filteredReports = computed(() => {
     if (!report.date_received) return false;
 
     const reportDate = report.date_received.split("T")[0];
-    const reportYear = new Date(reportDate).getFullYear();
-    const reportMonth = new Date(reportDate).getMonth() + 1;
 
-    const isWithinSelectedMonth = reportYear === props.selectedYear && reportMonth === props.selectedMonth;
-    const isWithinDateRange = props.startDate && props.endDate 
-      ? (reportDate >= props.startDate && reportDate <= props.endDate) 
+    return props.startDate && props.endDate
+      ? reportDate >= props.startDate && reportDate <= props.endDate
       : false;
-
-    return (props.startDate && props.endDate && isWithinDateRange) ||
-           (!props.startDate && !props.endDate && isWithinSelectedMonth);
   }).length;
 });
 
@@ -51,11 +43,7 @@ onUnmounted(() => {
 <template>
   <h2 class="text-base font-medium dark:text-white">
     Total Reports Received
-    <ToolTip Information="The total reports received is the total number of reports received in the system."/>
-    <p v-if="!startDate && !endDate" class="text-xs">
-      Reports for {{ selectedMonth }}/{{ selectedYear }}
-    </p>
-    <p v-else class="text-xs">
+    <p class="text-xs text-gray-500 dark:text-gray-400">
       Reports from {{ startDate }} to {{ endDate }}
     </p>
   </h2>

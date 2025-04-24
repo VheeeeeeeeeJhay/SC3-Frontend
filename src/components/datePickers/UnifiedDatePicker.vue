@@ -1,34 +1,34 @@
 <template>
-    <div class="relative w-full space-y-2">
-      <!-- Mode Selector -->
-      <div class="flex justify-between items-center text-sm text-gray-300">
-        <label for="modeSelect" class="font-medium">Filter:</label>
-        <select
-          id="modeSelect"
-          v-model="mode"
-          class="bg-gray-800 text-white border border-gray-700 rounded px-2 py-1 focus:outline-none"
-        >
-          <option value="range">Date Range</option>
-          <option value="month">Month & Year</option>
-        </select>
-      </div>
-  
-      <!-- Dynamic Picker -->
-      <div>
-        <DateRangePicker
-          v-if="mode === 'range'"
-          @dateRangeSelected="updateDateRange"
-          @change="emitCombinedValue"
-        />
-        <MonthYearPicker
-          v-else
-          v-model:selectedMonth="selectedMonth1" v-model:selectedYear="selectedYear1"
+  <div class="flex items-center space-x-2 w-full">
+    <!-- Mode Selector -->
+    <select
+      id="modeSelect"
+      v-model="mode"
+      class="bg-gray-700 text-white px-3 py-2 rounded-lg text-sm hover:bg-gray-800"
+    >
+      <option value="range">Date Range</option>
+      <option value="month">Month & Year</option>
+    </select>
 
-          @change="emitCombinedValue"
-        />
-      </div>
+    <!-- Dynamic Picker -->
+    <div class="flex items-center space-x-2">
+      <DateRangePicker
+        v-if="mode === 'range'"
+        class="max-w-xs"
+        @dateRangeSelected="updateDateRange"
+        @change="emitCombinedValue"
+      />
+      <MonthYearPicker
+        v-else
+        class="flex"
+        v-model:selectedMonth="selectedMonth1"
+        v-model:selectedYear="selectedYear1"
+        @change="emitCombinedValue"
+      />
     </div>
-  </template>
+  </div>
+</template>
+
   
   <script setup>
   import { ref, watch } from 'vue'

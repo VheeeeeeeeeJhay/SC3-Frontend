@@ -2,67 +2,71 @@
   <div class="relative w-full">
     <!-- Month Picker Toggle -->
     <div 
-    @click="openPicker" 
-    class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg shadow cursor-pointer flex items-center justify-between w-full"
+      @click="openPicker" 
+      class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 px-2 py-1.5 border border-gray-300 dark:border-gray-700 rounded-md shadow cursor-pointer flex items-center justify-between w-auto min-w-[6rem]"
     >
-    <span class="text-sm font-medium whitespace-nowrap">{{ months[selectedMonth - 1] }} {{ selectedYear }}</span>
-    <svg 
-      class="w-4 h-4 transition-transform duration-200" 
-      :class="{ 'rotate-180': isOpen }"
-      fill="none" stroke="currentColor" viewBox="0 0 16 16"
-    >
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6l4 4 4-4"></path>
-    </svg>
+      <span class="text-xs font-medium whitespace-nowrap">
+        {{ months[selectedMonth - 1] }} {{ selectedYear }}
+      </span>
+      <svg 
+        class="w-3.5 h-3.5 transition-transform duration-200" 
+        :class="{ 'rotate-180': isOpen }"
+        fill="none" stroke="currentColor" viewBox="0 0 16 16"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6l4 4 4-4"></path>
+      </svg>
     </div>
-  
+
     <!-- Dropdown Menu -->
     <div 
-    v-if="isOpen" 
-    class="absolute bg-white dark:bg-gray-800 shadow-lg rounded-md mt-1 min-w-[250px] w-full p-2 z-50 border border-gray-200 dark:border-gray-700"
+      v-if="isOpen" 
+      class="absolute bg-white dark:bg-gray-800 shadow-md rounded-md mt-1 min-w-[200px] p-1 z-50 border border-gray-200 dark:border-gray-700"
     >
-    <!-- Year Carousel -->
-    <div class="flex items-center justify-between px-3 py-2">
-      <button @click="scrollYears(-1)" class="p-2 bg-gray-200 dark:bg-gray-700 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600">
-      ‹
-      </button>
-      <div ref="yearCarousel" class="overflow-hidden w-24 text-center">
-      <div 
-        class="flex transition-transform duration-300"
-        :style="{ transform: `translateX(-${scrollOffset}px)` }"
-      >
-        <button
-        v-for="year in years"
-        :key="year"
-        @click="selectYear(year)"
-        class="px-3 py-1 text-sm font-medium rounded-md"
-        :class="selectedYear === year ? 'bg-teal-600 dark:bg-teal-700 text-white' : 'hover:bg-teal-500 dark:hover:bg-teal-600 hover:text-white'"
-        >
-        {{ year }}
+      <!-- Year Carousel -->
+      <div class="flex items-center justify-between px-2 py-1">
+        <button @click="scrollYears(-1)" class="p-1 bg-gray-200 dark:bg-gray-700 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 text-xs">
+          ‹
+        </button>
+        <div ref="yearCarousel" class="overflow-hidden w-20 text-center">
+          <div 
+            class="flex transition-transform duration-300"
+            :style="{ transform: `translateX(-${scrollOffset}px)` }"
+          >
+            <button
+              v-for="year in years"
+              :key="year"
+              @click="selectYear(year)"
+              class="px-2 py-1 text-xs font-medium rounded-md"
+              :class="selectedYear === year ? 'bg-teal-600 dark:bg-teal-700 text-white' : 'hover:bg-teal-500 dark:hover:bg-teal-600 hover:text-white'"
+            >
+              {{ year }}
+            </button>
+          </div>
+        </div>
+        <button @click="scrollYears(1)" class="p-1 bg-gray-200 dark:bg-gray-700 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 text-xs">
+          ›
         </button>
       </div>
+
+      <!-- Month Selector -->
+      <div class="grid grid-cols-3 gap-[2px] mt-1">
+        <button
+          v-for="(month, index) in months"
+          :key="month"
+          @click="selectMonth(index + 1)"
+          class="px-2 py-1 text-xs font-medium rounded-md transition duration-150 w-full text-center dark:text-gray-200"
+          :class="selectedMonth === index + 1 
+            ? 'bg-teal-600 dark:bg-teal-700 text-white shadow' 
+            : 'hover:bg-teal-500 dark:hover:bg-teal-600 hover:text-white'"
+        >
+          {{ month }}
+        </button>
       </div>
-      <button @click="scrollYears(1)" class="p-2 bg-gray-200 dark:bg-gray-700 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600">
-      ›
-      </button>
-    </div>
-  
-    <!-- Month Selector -->
-    <div class="grid grid-cols-3 gap-1 mt-2">
-      <button
-      v-for="(month, index) in months"
-      :key="month"
-      @click="selectMonth(index + 1)"
-      class="px-3 py-2 text-xs font-medium rounded-md transition duration-150 w-full text-center dark:text-gray-200"
-      :class="selectedMonth === index + 1 
-        ? 'bg-teal-600 dark:bg-teal-700 text-white shadow-md' 
-        : 'hover:bg-teal-500 dark:hover:bg-teal-600 hover:text-white'"
-      >
-      {{ month }}
-      </button>
-    </div>
     </div>
   </div>
-  </template>
+</template>
+
+
   
   <script setup>
   import { ref, defineProps, defineEmits, computed } from "vue";

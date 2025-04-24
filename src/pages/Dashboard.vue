@@ -110,18 +110,6 @@ const selectedMonth1 = ref(new Date().getMonth() + 1); // JS months are 0-based
 const startDate = ref(null);
 const endDate = ref(null);
 
-function handleDateChange(payload) {
-  if (payload.type === 'range') {
-    startDate.value = payload.startDate
-    endDate.value = payload.endDate
-    console.log("Date Range Selected:", startDate.value, endDate.value)
-  } else if (payload.type === 'month') {
-    selectedYear1.value = payload.year
-    selectedMonth1.value = payload.month
-    console.log("Month/Year Selected:", selectedYear1.value, selectedMonth1.value)
-  }
-}
-
 const updateDateRange = ({ start, end }) => {
   startDate.value = start;
   endDate.value = end;
@@ -318,232 +306,186 @@ const toggleMinimize = () => {
 
 <template>
   <div v-if="exportedImageUrls.length > 0">
-    <!-- Preview Drawer for Exporting images -->
+    <!-- Export Drawer -->
     <div v-if="!minimized"
-      class="fixed bottom-0 right-0 z-50 w-96 m-5 rounded bg-white dark:bg-gray-900 p-6 shadow-xl">
+      class="fixed bottom-6 right-6 z-50 w-[26rem] rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-2xl border border-gray-200 dark:border-gray-700 transition-all duration-300">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold text-gray-900 dark:text-white">Export Preview</h3>
+        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Export Preview</h3>
         <div class="flex gap-2">
-          <button @click="toggleMinimize" class="text-gray-500 hover:text-gray-700 font-bold">
+          <button @click="toggleMinimize" class="text-gray-500 hover:text-gray-700 dark:hover:text-white transition">
             —
           </button>
-          <button @click="clearAllImages" class="text-red-500 hover:text-red-700 font-bold">
+          <button @click="clearAllImages" class="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition">
             ✕
           </button>
         </div>
-        
       </div>
-      <div class="h-30">
-        <div class="container flex flex-row space-x-4 overflow-x-auto scrollbar-thin">
-          <div v-for="(image, index) in exportedImageUrls" :key="index" class="relative flex-shrink-0">
-            <img :src="image" alt="Exported Chart Preview"
-              class="cursor-pointer transition-transform duration-300 ease-in-out w-24 h-24 rounded" />
-            <button @click="downloadImage(image, index)"
-              class="absolute top-0 right-0 text-white p-1 rounded-full text-xs hover:bg-gray-800 transition-all">
-              ⬇
-            </button>
-            <button @click="removeImage(index)"
-              class="absolute top-0 left-0 text-red-500 font-bold p-1 rounded-full text-xs hover:text-red-700 hover:font-black transition-all">
-              ✕
-            </button>
-          </div>
+
+      <div class="flex space-x-4 overflow-x-auto scrollbar-thin">
+        <div v-for="(image, index) in exportedImageUrls" :key="index" class="relative flex-shrink-0">
+          <img :src="image" alt="Exported Chart" class="w-24 h-24 object-cover rounded-lg border" />
+          <button @click="downloadImage(image, index)"
+            class="absolute top-1 right-1 text-white text-xs bg-gray-800 hover:bg-gray-700 p-1 rounded-full">
+            ⬇
+          </button>
+          <button @click="removeImage(index)"
+            class="absolute top-1 left-1 text-red-500 hover:text-red-700 text-xs p-1 rounded-full">
+            ✕
+          </button>
         </div>
       </div>
-      <!-- Footer Actions -->
-      <div class="mt-6 flex gap-4 font-size-12">
+
+      <!-- Drawer Footer -->
+      <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-2">
         <button @click="downloadAll"
-          class="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-md transition duration-200 text-sm">
-          Download All Images
-        </button>
-
+          class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg py-2 text-sm shadow">Download All</button>
         <button @click="handlePrint" :disabled="!exportedImageUrls.length"
-          class="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-md transition duration-200 text-sm">
-          Save All as PDF
-        </button>
-
+          class="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg py-2 text-sm shadow">Save as PDF</button>
         <button @click="clearAllImages"
-          class="w-full bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-md transition duration-200 text-sm">
-          Clear Export
-        </button>
+          class="bg-rose-600 hover:bg-rose-700 text-white rounded-lg py-2 text-sm shadow">Clear</button>
       </div>
     </div>
-  </div>
-  <div v-if="exportedImageUrls.length > 0">
-    <div class="fixed end-6 bottom-6 group z-30">
-      <button v-if="minimized" @click="toggleMinimize" type="button"
-        class="flex items-center justify-center text-white bg-teal-700 rounded-lg w-14 h-14 hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-700 focus:ring-4 focus:ring-teal-300 focus:outline-none dark:focus:ring-teal-800">
-        <span class="material-icons">
-          output
-        </span>
-        <span class="sr-only">Open actions menu</span>
+
+    <!-- Reopen Button -->
+    <div class="fixed bottom-6 right-6 z-40">
+      <button v-if="minimized" @click="toggleMinimize"
+        class="w-14 h-14 rounded-full bg-teal-600 hover:bg-teal-700 flex items-center justify-center text-white shadow-lg">
+        <span class="material-icons">output</span>
       </button>
     </div>
   </div>
 
-  <!-- </div> -->
-  <!-- main dashboard page -->
-  <div class="min-h-screen p-4">
+  <!-- Main Dashboard -->
+  <div class="min-h-screen px-12 pt-6 pb-10 bg-gray-50 dark:bg-gray-950 transition-colors">
 
-    <!-- Title -->
-    <div class="mt-6 px-2 flex items-center justify-between">
-      <h1 class="text-2xl font-bold dark:text-white">Overview</h1>
-      <div class="flex items-center space-x-6">
-        <monthYearPicker class="flex-1" v-model:selectedMonth="selectedMonth1" v-model:selectedYear="selectedYear1" />
+    <div class="flex justify-between items-center px-2">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Dashboard Overview</h1>
+
+      <div class="flex items-center gap-4">
         <DateRangePicker class="max-w-xs" @dateRangeSelected="updateDateRange" />
-        <div class="relative" ref="dropdownRef">
+
+        <div class="relative">
           <button @click="toggleExportMenu"
-            class="bg-gray-700 text-white px-3 py-2 rounded-lg text-sm hover:bg-gray-800">
+            class="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-700 transition">
             Export
           </button>
 
-          <div v-if="showExportMenu" class="absolute right-0 mt-2 z-30 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 
-          border border-gray-300 dark:border-gray-700 rounded-lg shadow flex flex-col space-y-1 min-w-[140px]">
-            <button @click="exportAsImage(1)" class="w-full text-left text-sm flex items-center gap-2 px-3 py-2 rounded-md 
-           hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-              <span class="material-icons">show_chart</span>
-              Line Chart
+          <div v-if="showExportMenu"
+            class="absolute right-0 mt-2 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-40">
+            <button @click="exportAsImage(1)"
+              class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center gap-2">
+              <span class="material-icons">show_chart</span> Line Chart
             </button>
-            <button @click="exportAsImage(2)" class="w-full text-left text-sm flex items-center gap-2 px-3 py-2 rounded-md 
-           hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-              <span class="material-icons">bar_chart</span>
-              Bar Chart
+            <button @click="exportAsImage(2)"
+              class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center gap-2">
+              <span class="material-icons">bar_chart</span> Bar Chart
             </button>
-            <button @click="exportAsImage(3)" class="w-full text-left text-sm flex items-center gap-2 px-3 py-2 rounded-md 
-           hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-              <span class="material-icons">incomplete_circle</span>
-              Pie Chart
+            <button @click="exportAsImage(3)"
+              class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center gap-2">
+              <span class="material-icons">incomplete_circle</span> Pie Chart
             </button>
           </div>
         </div>
-        <UnifiedDatePicker @update:modelValue="handleDateChange" />
-
       </div>
     </div>
 
-    <main class="mx-auto my-6 max-w-7xl px-4 sm:px-6 lg:px-8">
-      
-      <!-- First Row -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div class="relative p-4 card">
-          <button @click="expandCard('IncidentGrowthRate')" class="expand-btn">⛶</button>
-          <IncidentGrowthRate :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" />
-        </div>
-
-        <div class="relative p-4 card">
-          <button @click="expandCard('TotalReportsReceived')" class="expand-btn">⛶</button>
-          <TotalReportsReceived :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate"
-            :endDate="endDate" />
-        </div>
-
-        <div class="relative p-4 card">
-          <button @click="expandCard('TopPerforming')" class="expand-btn">⛶</button>
-          <TopPerforming :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate"
-          :endDate="endDate"/>
-        </div>
+    <!-- Cards -->
+    <main class="grid gap-6 mt-8 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="card relative z-10">
+        <button @click="expandCard('IncidentGrowthRate')" class="expand-btn">⛶</button>
+        <IncidentGrowthRate />
       </div>
 
-      <!-- Second Row -->
-      <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div class="relative p-4 card" ref="captureTarget1">
-          <button @click="expandCard('LineChart')" class="expand-btn">⛶</button>
-          <LineChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate"
-            :endDate="endDate" />
-        </div>
-
-        <div class="relative p-4 card" ref="captureTarget2">
-          <button @click="expandCard('BarChart')" class="expand-btn">⛶</button>
-          <BarChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate"
-            :endDate="endDate" class="w-full h-full" />
-        </div>
-
-        <div class="relative p-4 card">
-          <button @click="expandCard('RecentIncident')" class="expand-btn">⛶</button>
-          <RecentIncident />
-        </div>
+      <div class="card relative z-1">
+        <button @click="expandCard('TotalReportsReceived')" class="expand-btn">⛶</button>
+        <TotalReportsReceived :startDate="startDate" :endDate="endDate" />
       </div>
 
-      <!-- Third Row -->
-      <div class="mt-6 grid grid-cols-1 sm:grid-cols-1 gap-6">
-        <div class="relative p-4 card" ref="captureTarget3">
-          <button @click="expandCard('PieChart')" class="expand-btn">⛶</button>
-          <PieChart :selectedYear="selectedYear1" :selectedMonth="selectedMonth1" :startDate="startDate"
-            :endDate="endDate" />
-        </div>
+      <div class="card relative z-10">
+        <button @click="expandCard('TopPerforming')" class="expand-btn">⛶</button>
+        <TopPerforming :startDate="startDate" :endDate="endDate" />
+      </div>
+
+      <div class="card relative" ref="captureTarget1">
+        <button @click="expandCard('LineChart')" class="expand-btn">⛶</button>
+        <LineChart :startDate="startDate" :endDate="endDate" />
+      </div>
+
+      <div class="card relative" ref="captureTarget2">
+        <button @click="expandCard('BarChart')" class="expand-btn">⛶</button>
+        <BarChart :startDate="startDate" :endDate="endDate" />
+      </div>
+
+      <div class="card relative">
+        <button @click="expandCard('RecentIncident')" class="expand-btn">⛶</button>
+        <RecentIncident />
+      </div>
+
+      <div class="card relative col-span-full" ref="captureTarget3">
+        <button @click="expandCard('PieChart')" class="expand-btn">⛶</button>
+        <PieChart :startDate="startDate" :endDate="endDate" />
       </div>
     </main>
 
     <!-- Fullscreen Modal -->
     <transition name="modal-fade">
-      <div v-if="fullscreenCard" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-        <div class="relative bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-5xl max-h-[90vh] overflow-auto p-6">
+      <div v-if="fullscreenCard"
+        class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-5xl max-h-[90vh] p-6 overflow-auto">
           <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white capitalize">
-              {{ fullscreenCard }}
-            </h2>
-            <button @click="closeFullscreen" class="text-2xl">✕</button>
+            <h2 class="text-xl font-semibold dark:text-white">{{ fullscreenCard }}</h2>
+            <button @click="closeFullscreen" class="text-xl dark:text-white hover:text-red-600">✕</button>
           </div>
-
-          <component
-            :is="fullscreenCardComponent"
-            :selectedYear="selectedYear1"
-            :selectedMonth="selectedMonth1"
-            :startDate="startDate"
-            :endDate="endDate"
-            class="w-full h-[60vh]"
-          />
+          <component :is="fullscreenCardComponent" :selectedYear="selectedYear1"
+            :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate"
+            class="w-full h-[60vh]" />
         </div>
       </div>
     </transition>
-
   </div>
 </template>
 
 <style scoped>
 .card {
   background-color: white;
-  border-width: 1px;
+  border: 1px solid #e5e7eb;
   border-radius: 1rem;
-  /* box-shadow: 0 10px 15px -3px rgba(0, 255, 135, 0.3); */
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  /* border-color: rgba(59, 130, 246, 0.2); */
+  padding: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
-
 .dark .card {
-  background-color: black;
-  /* border-color: #1e3a8a; */
-  /* box-shadow: inset 0 0 10px rgba(0, 255, 135, 0.3); */
+  background-color: #1f2937;
+  border-color: #374151;
 }
 
 .card:hover {
-  transform: scale(1.05);
-  /* box-shadow: 0 0 25px rgba(34, 197, 94, 0.5); */
+  transform: scale(1.02);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.15);
 }
 
 .expand-btn {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
-  z-index: 10;
   font-size: 1rem;
-  color: #a7a7a7;
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-}
-
-.expand-btn:hover {
-  color: #ffffff;
-}
-
-.close-btn {
-  color: white;
+  color: #9ca3af;
   background: none;
   border: none;
   cursor: pointer;
 }
 
-.close-btn:hover {
-  color: red;
+.expand-btn:hover {
+  color: #22d3ee;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 116, 139, 0.6);
+  border-radius: 4px;
 }
 
 .modal-fade-enter-active,
@@ -554,16 +496,5 @@ const toggleMinimize = () => {
 .modal-fade-enter-from,
 .modal-fade-leave-to {
   opacity: 0;
-}
-
-
-/* Tailwind-compatible custom scrollbar */
-.scrollbar-thin::-webkit-scrollbar {
-  width: 6px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background-color: rgba(100, 116, 139, 0.6);
-  border-radius: 3px;
 }
 </style>

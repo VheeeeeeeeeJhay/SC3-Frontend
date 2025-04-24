@@ -2,12 +2,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import ToolTip from '../../components/ToolTip.vue';
 import { useDatabaseStore } from '../../stores/databaseStore';
-
-// Props
-const props = defineProps({
-  selectedYear: Number,
-  selectedMonth: Number
-});
+import monthYearPicker from '../MonthYearPicker.vue';
 
 
 const months = [
@@ -15,27 +10,21 @@ const months = [
     'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
+// Defaults to current month/year
+const currentYear = ref(new Date().getFullYear());
+const currentMonth = ref(new Date().getMonth() + 1); // 1-based (Jan = 1)
 
-// 🎯 Adjust selected months and years correctly
-const selectedMonth2 = ref(months[props.selectedMonth - 1]); // Current month
-const selectedMonth1 = ref(
-  props.selectedMonth === 1 ? months[11] : months[props.selectedMonth - 2] // Previous month
+// Derived previous month name and adjusted year
+const previousMonthName = computed(() =>
+  currentMonth.value === 1 ? months[11] : months[currentMonth.value - 2]
 );
-const selectedYear1 = ref(
-  props.selectedMonth === 1 ? props.selectedYear - 1 : props.selectedYear // Adjust year for Dec → Jan transition
+
+const previousYear = computed(() =>
+  currentMonth.value === 1 ? currentYear.value - 1 : currentYear.value
 );
-const selectedYear2 = ref(props.selectedYear); // Keep the current year
 
-// console.log(`📆 Previous Month: ${selectedMonth1.value}, Year: ${selectedYear1.value}`);
-// console.log(`📆 Current Month: ${selectedMonth2.value}, Year: ${selectedYear2.value}`);
-
-// Update values when props change
-watch(() => [props.selectedYear, props.selectedMonth], () => {
-  selectedMonth2.value = months[props.selectedMonth - 1]; // Current month
-  selectedMonth1.value = props.selectedMonth === 1 ? months[11] : months[props.selectedMonth - 2]; // Previous month
-  selectedYear1.value = props.selectedMonth === 1 ? props.selectedYear - 1 : props.selectedYear; // Adjust year if needed
-  selectedYear2.value = props.selectedYear; // Keep current year
-});
+// Get the month name of the current selection
+const currentMonthName = computed(() => months[currentMonth.value - 1]);
 
 let refreshInterval = null;
 const databaseStore = useDatabaseStore();
@@ -65,86 +54,58 @@ const {
 );
 
 // Function to count reports for a given month
-const getReportCountForMonth = (month, year) => { 
-    if (!month || !year) return 0; 
-
-    const monthIndex = months.indexOf(month) + 1; // Convert to 1-based index (Jan = 1)
-    
-    // console.log(`🔍 Checking reports for ${month} ${year} (Index: ${monthIndex})`);
-
-    const filteredReports = reports.value.filter(report => {
-        const reportDate = new Date(report.date_received);
-        const reportMonth = reportDate.getMonth() + 1;
-        const reportYear = reportDate.getFullYear();
-
-        // console.log(`📅 Report Date: ${report.date_received} (Month: ${reportMonth}, Year: ${reportYear})`);
-
-        return reportMonth === monthIndex && reportYear === year;
-    });
-
-    // console.log(`✅ Found ${filteredReports.length} reports for ${month} ${year}`);
-
+const getReportCountForMonth = (monthName, year) => { 
+    if (!monthName || !year) return 0; 
+        const monthIndex = months.indexOf(monthName) + 1; // Convert to 1-based index (Jan = 1)
+        const filteredReports = reports.value.filter(report => {
+            const reportDate = new Date(report.date_received);
+            const reportMonth = reportDate.getMonth() + 1;
+            const reportYear = reportDate.getFullYear();
+            return reportMonth === monthIndex && reportYear === year;
+        });
     return filteredReports.length;
 };
 
 
-// Compute Month over Month Growth Rate == value2 - value1 / value1 * 100
+// Calculate % growth rate: ((current - previous) / previous) * 100
 const percentageChange = computed(() => {
-    const count1 = getReportCountForMonth(selectedMonth1.value, selectedYear1.value);
-    const count2 = getReportCountForMonth(selectedMonth2.value, selectedYear2.value);
+  const countPrevious = getReportCountForMonth(previousMonthName.value, previousYear.value);
+  const countCurrent = getReportCountForMonth(currentMonthName.value, currentYear.value);
 
-    if (count1 === 0) return count2 > 0 ? 100 : 0; // Avoid division by zero
-
-    return ((count2 - count1) / count1) * 100;
+  if (countPrevious === 0) return countCurrent > 0 ? 100 : 0;
+  return ((countCurrent - countPrevious) / countPrevious) * 100;
 });
 </script>
 
 <template>
-    <!-- Title -->
-    <h2 class="text-base font-medium dark:text-white">
+<div class="flex flex-col space-y-1">
+  <!-- Title + Tooltip + Date Picker in the same row -->
+  <div class="flex items-center justify-between">
+    <!-- Left: Title + Tooltip -->
+    <div class="flex items-center space-x-2">
+      <h2 class="text-base font-medium dark:text-white">
         Growth Rate of Incidents
-        <ToolTip
-            Information="The growth rate of incidents is the percentage change in the number of incidents between two months." />
-            <p class="text-xs">Compared to previous month</p>
-    </h2>
-
-    <!-- Month Selection -->
-    <div class="grid grid-cols-3 gap-2 items-center">
-        <!-- Month 1 Selection -->
-        <div class="col-span-1">
-            <!-- <select v-model="selectedMonth1" :disabled="!selectedYear1"
-                class="w-full px-2 py-1 text-sm font-medium bg-teal-500 text-white rounded-md shadow hover:bg-teal-600 transition duration-200 disabled:opacity-50">
-                <option value="" disabled>Month 1</option>
-                <option v-for="month in months" :key="month" :value="month">
-                    {{ month }}
-                </option>
-            </select> -->
-        </div>
-
-        <!-- Month 2 Selection -->
-        <div class="col-span-1">
-            <!-- <select v-model="selectedMonth2" :disabled="!selectedMonth1"
-                class="w-full px-2 py-1 text-sm font-medium bg-teal-500 text-white rounded-md shadow hover:bg-teal-600 transition duration-200 disabled:opacity-50">
-                <option value="" disabled>Month 2</option>
-                <option v-for="month in filteredMonths2" :key="month" :value="month">
-                    {{ month }}
-                </option>
-            </select> -->
-        </div>
-
-        <!-- Year Selection -->
-        <!-- <div class="col-span-1">
-            <select v-model="selectedYear1"
-                class="w-full px-2 py-1 text-sm font-medium bg-teal-500 text-white rounded-md shadow hover:bg-teal-600 transition duration-200">
-                <option value="" disabled>Select Year</option>
-                <option v-for="year in years" :key="year" :value="year">
-                    {{ year }}
-                </option>
-            </select>
-        </div> -->
-        <!-- <monthYearPicker v-model:selectedMonth="selectedMonth1" v-model:selectedYear="selectedYear1"/> -->
-
+        <p class="text-xs text-gray-500 dark:text-gray-400">
+    Compared to {{ previousMonthName }} {{ previousYear }}
+  </p>
+      </h2>
+      <!-- <ToolTip
+        Information="The growth rate of incidents is the percentage change in the number of incidents between two months." /> -->
     </div>
+
+    <!-- Right: Date Picker aligned to far right -->
+    <div class="flex-shrink-0">
+      <monthYearPicker
+        class="w-32"
+        v-model:selectedMonth="currentMonth"
+        v-model:selectedYear="currentYear"
+      />
+    </div>
+  </div>
+
+  
+</div>
+
 
     <div class="flex justify-center items-center">
         <div class="flex justify-center items-center">

@@ -156,9 +156,7 @@ const options = ref({
 });
 
 const props = defineProps({
-  selectedYear: Number,
-  selectedMonth: Number,
-  startDate: String,  // Assuming the date is a string (format YYYY-MM-DD)
+  startDate: String,  // (format YYYY-MM-DD)
   endDate: String
 });
 
@@ -176,33 +174,21 @@ const updateChart = () => {
 
     let filteredReports = report.value;
 
-    // Step 1: Apply date range filter first (if startDate and endDate are provided)
+    // Apply date range filter
     if (props.startDate || props.endDate) {
         filteredReports = filteredReports.filter(rep => {
             const reportDate = new Date(rep.date_received);
 
-            // Filter by startDate if provided
+            // Filter by startDate 
             if (props.startDate && reportDate < new Date(props.startDate)) return false;
-            // Filter by endDate if provided
+            // Filter by endDate 
             if (props.endDate && reportDate > new Date(props.endDate)) return false;
-
-            return true;
-        });
-    } else {
-        // Step 2: If no date range is provided, apply year and month filters
-        filteredReports = filteredReports.filter(rep => {
-            const reportDate = new Date(rep.date_received);
-            const reportYear = reportDate.getFullYear();
-            const reportMonth = reportDate.getMonth() + 1;
-
-            if (props.selectedYear && reportYear !== props.selectedYear) return false;
-            if (props.selectedMonth && reportMonth !== props.selectedMonth) return false;
 
             return true;
         });
     }
 
-    // Step 3: Populate series data
+    // Populate series data
     filteredReports.forEach(rep => {
         const sourceIndex = source.value.findIndex(src => src.id === rep.source_id);
         if (sourceIndex === -1) return;
@@ -211,7 +197,7 @@ const updateChart = () => {
         seriesData[sourceIndex][reportMonthIndex]++;
     });
 
-    // Step 4: Determine which months have data
+    // Determine which months have data
     const monthPresence = Array(12).fill(false);
     seriesData.forEach(sourceArr => {
         sourceArr.forEach((count, idx) => {
@@ -233,7 +219,7 @@ const updateChart = () => {
     console.log("✅ Final Chart Series:", trimmedSeries);
     console.log("📅 Filtered Month Labels:", filteredMonthLabels);
 
-    // Step 5: Update chart
+    // Update chart
     options.value.series = trimmedSeries;
     options.value.xaxis.categories = filteredMonthLabels;
 
@@ -243,11 +229,6 @@ const updateChart = () => {
         renderChart();
     }
 };
-
-
-
-
-
 
 
 
@@ -267,11 +248,9 @@ watch([source, report], ([newSource, newReport]) => {
 });
 
 
-watch([() => props.selectedYear, () => props.selectedMonth, () => props.startDate, () => props.endDate], () => {
-    console.log("🔄 Props changed: Running updateChart()");
-
-    // Re-run updateChart when any of the props change
-    updateChart();
+watch([() => props.startDate, () => props.endDate], () => {
+  console.log("🔄 Date props changed: Running updateChart()");
+  updateChart();
 });
 
 onUnmounted(() => {
@@ -282,14 +261,12 @@ onUnmounted(() => {
 <template>
   <div class="w-full h-full p-4 dark:text-white text-gray-800">   
     <div class="flex justify-between items-center mb-4">
-      <h2 v-if="!startDate && !endDate" class="text-xl font-semibold">Report Per Source in {{ selectedMonth }}/{{ selectedYear }}</h2>
-      <h2 v-else class="text-xl font-semibold">Report Per Source from {{ startDate }} to {{ endDate }}</h2>
-      <!-- <select v-model="selectedDateFilter" class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600">
-        <option value="" disabled>Select Date Range</option>
-        <option v-for="filter in dateFilters" :key="filter.value" :value="filter.value">
-          {{ filter.name }}
-        </option>
-      </select> -->
+      <h2 class="text-xl font-semibold">Report Per Source
+        <p class="text-xs text-gray-500 dark:text-gray-400">
+            Reports from {{ startDate }} to {{ endDate }}
+        </p>
+      </h2>
+      
     </div>
     <!-- BAR CHART -->
     <div class="dark:text-gray-800 h-64" ref="barChart"></div>

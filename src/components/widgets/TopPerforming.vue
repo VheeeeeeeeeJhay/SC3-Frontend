@@ -5,26 +5,8 @@ import { useArrayStore } from '../../stores/arrayStore';
 
 // Props
 const props = defineProps({
-  selectedYear: Number,
-  selectedMonth: Number,
   startDate: String,
   endDate: String
-});
-
-// Months list
-const months = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
-];
-
-// Month-Year state
-const selectedMonth2 = ref(months[props.selectedMonth - 1]);
-const selectedYear2 = ref(props.selectedYear);
-
-// Watch for prop changes
-watch(() => [props.selectedMonth, props.selectedYear], () => {
-  selectedMonth2.value = months[props.selectedMonth - 1];
-  selectedYear2.value = props.selectedYear;
 });
 
 // Store setup
@@ -47,27 +29,11 @@ onUnmounted(() => {
 // Reactive reports list
 const reports = computed(() => databaseStore.reportsList);
 
-// Helper: Get reports for specific month/year
-const getReportsForMonth = (month, year) => {
-  const monthIndex = months.indexOf(month) + 1;
-  const filtered = reports.value.filter(report => {
-    const date = new Date(report.date_received);
-    const reportMonth = date.getMonth() + 1;
-    const reportYear = date.getFullYear();
-
-    return reportMonth === monthIndex && reportYear === year;
-  });
-
-  console.log(`📆 Filtering for: ${month} ${year} (Index: ${monthIndex})`);
-  console.log(`✅ Found ${filtered.length} reports for ${month} ${year}`);
-  return filtered;
-};
-
 // 🧠 Top 3 Barangays
 const topBarangays = computed(() => {
   let filteredReports = reports.value;
 
-  // 📅 Step 1: Apply date range if provided
+  // Apply date range
   if (props.startDate || props.endDate) {
     const start = props.startDate ? new Date(props.startDate) : null;
     const end = props.endDate ? new Date(props.endDate) : null;
@@ -82,24 +48,7 @@ const topBarangays = computed(() => {
     console.log(`📆 Filtering by date range: ${props.startDate} to ${props.endDate}`);
     console.log(`✅ Found ${filteredReports.length} reports in date range.`);
   } 
-  // 📆 Step 2: Otherwise filter by month & year
-  else if (props.selectedMonth && props.selectedYear) {
-    const monthIndex = props.selectedMonth; // 1-based
-    const year = props.selectedYear;
 
-    filteredReports = filteredReports.filter(rep => {
-      const date = new Date(rep.date_received);
-      const reportMonth = date.getMonth() + 1;
-      const reportYear = date.getFullYear();
-
-      return reportMonth === monthIndex && reportYear === year;
-    });
-
-    console.log(`📅 Filtering for: ${months[props.selectedMonth - 1]} ${year}`);
-    console.log(`✅ Found ${filteredReports.length} reports for that month/year.`);
-  }
-
-  // 🧠 Count per barangay
   // 🧠 Count per barangay using ID
   const barangayMap = {};
 
@@ -143,7 +92,7 @@ const passingData = (barangay) => {
 <template>
     <!-- Title -->
     <h2 class="text-base font-medium dark:text-white">
-        Barangay with the Most Cases <ToolTip Information="The barangay with the highest number of reports."/>
+        Barangay with the Most Cases
     </h2>
 
     <ul class="mt-2 text-white text-sm space-y-2">

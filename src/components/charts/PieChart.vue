@@ -125,9 +125,7 @@ const options = ref({
 
 
 const props = defineProps({
-  selectedYear: Number,
-  selectedMonth: Number,
-  startDate: String,  // Assuming format YYYY-MM-DD
+  startDate: String,  // format YYYY-MM-DD
   endDate: String
 });
 
@@ -138,7 +136,7 @@ const updateChart = () => {
   let filteredReports = [];
 
   if (props.startDate && props.endDate) {
-    // 🎯 **Filter by Date Range**
+    // Filter by Date Range
     const startISO = new Date(props.startDate).toISOString().split("T")[0];
     const endISO = new Date(props.endDate).toISOString().split("T")[0];
 
@@ -151,25 +149,16 @@ const updateChart = () => {
       return reportDate >= startISO && reportDate <= endISO;
     });
 
-  } else if (props.selectedYear && props.selectedMonth) {
-    // 🎯 **Filter by Year & Month**
-    console.log("📆 Filtering reports for:", props.selectedYear, props.selectedMonth);
-
-    filteredReports = report.value.filter(reportItem => {
-      if (!reportItem.date_received) return false;
-
-      const reportDate = new Date(reportItem.date_received);
-      return (
-        reportDate.getFullYear() === props.selectedYear &&
-        reportDate.getMonth() + 1 === props.selectedMonth // Months are 0-based in JS
-      );
-    });
+  } else {
+    // No date range received
+    console.log("⚠️ No valid date range provided. Skipping chart update.");
+    return;
   }
 
   console.log("📊 Filtered Reports:", filteredReports);
 
   if (!data.value.incidentType) {
-    // 🚀 No specific incident filter → Show all classifications
+    // No specific incident filter → Show all classifications
     const classificationCounts = filteredReports.reduce((acc, reportItem) => {
       const incident = incidents.value.find(i => i.id === reportItem.incident_id);
       if (!incident) return acc;
@@ -220,21 +209,17 @@ const updateChart = () => {
     options.value.labels = incidentLabels;
   }
 
-  // ✅ Update the chart only if it's initialized
+  // Update the chart only if it's initialized
   if (chart) {
     chart.updateOptions(options.value);
   }
 };
 
-// 🔄 Watch for changes and update the chart accordingly
-watch([() => props.startDate, () => props.endDate, () => props.selectedYear, () => props.selectedMonth], () => {
-  console.log("🔄 Filters changed, updating chart...");
+// Watch for changes and update the chart
+watch([() => props.startDate, () => props.endDate], () => {
+  console.log("🔄 Date filters changed, updating chart...");
   updateChart();
 });
-
-
-
-
 
 watch(() => data.value.incidentType, updateChart);
 
