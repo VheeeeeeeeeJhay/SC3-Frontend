@@ -40,6 +40,10 @@ const dashboardRole = async (user) => {
         user.for_911 = newRoleStatus;
         addToast(response.data.message, 'success', 'check_circle');
         databaseStore.fetchData();
+        clearInterval(refreshInterval);
+        refreshInterval = setInterval(() => {
+            databaseStore.fetchData(); // runs again every 50s
+        }, 50000);
     } catch (error) {
         console.error(error.response?.data?.error);
         errors.value = error.response?.data?.error;
@@ -69,6 +73,10 @@ const inventoryRole = async (user) => {
         user.for_inventory = newRoleStatus;
         addToast(response.data.message, 'success', 'check_circle');
         databaseStore.fetchData();
+        clearInterval(refreshInterval);
+        refreshInterval = setInterval(() => {
+            databaseStore.fetchData(); // runs again every 50s
+        }, 50000);
     } catch (error) {
         console.error(error.response?.data?.message || error.message);
         errors.value = error.response?.data?.error;
@@ -89,6 +97,9 @@ const archiveUser = async (user) => {
         user.is_deleted = 1;
         addToast(response.data.message, 'success', 'check_circle');
         databaseStore.fetchData();
+        refreshInterval = setInterval(() => {
+            databaseStore.fetchData(); // runs again every 50s
+        }, 50000);
     } catch (error) {
         console.error(error.response?.data?.message || error.message);
         errors.value = error.response?.data?.error || 'Failed to archive user';
@@ -166,8 +177,6 @@ onMounted(() => {
     refreshInterval = setInterval(() => {
         databaseStore.fetchData();
     }, 50000);
-
-    // ------------------------------------------
 });
 onUnmounted(() => {
     // Clear the interval when the component is unmounted or page is reloaded

@@ -120,6 +120,9 @@ const formSubmit = (barangay_Id) => {
       console.log('Barangay deleted successfully');
       addToast(response.data.message, 'success', 'check_circle');
       databaseStore.fetchData();
+      refreshInterval = setInterval(() => {
+            databaseStore.fetchData(); // runs again every 50s
+        }, 50000);
       isDeleteModalOpen.value = false;
     })
     .catch(error => {

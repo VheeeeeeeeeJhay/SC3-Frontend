@@ -192,6 +192,9 @@ const archiveUser = async (user) => {
         user.is_deleted = 0;
         addToast(response.data.message, 'success', 'check_circle');
         databaseStore.fetchData();
+        refreshInterval = setInterval(() => {
+            databaseStore.fetchData(); // runs again every 50s
+        }, 50000);
     } catch (error) {
         errors.value = error.response?.data?.error;
         addToast(errors.value, 'error', 'error');

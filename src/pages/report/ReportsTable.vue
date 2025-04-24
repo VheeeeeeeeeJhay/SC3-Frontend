@@ -480,6 +480,9 @@ const formSubmit = async (report_Id) => {
             success.value = 'Report deleted successfully';
             addToast(response.data.message, 'success', 'check_circle');
             databaseStore.fetchData();
+            refreshInterval = setInterval(() => {
+                databaseStore.fetchData(); // runs again every 50s
+            }, 50000);
         })
         .catch(error => {
             addToast(error.response?.data?.message || error.response?.data?.error, 'error', 'error');
@@ -548,6 +551,9 @@ const checkboxDelete = async () => {
 
         // Refresh the reports list
         databaseStore.fetchData();
+        refreshInterval = setInterval(() => {
+            databaseStore.fetchData(); // runs again every 50s
+        }, 50000);
     } catch (error) {
         // Handle error message
         console.error('Error deleting data:', error);

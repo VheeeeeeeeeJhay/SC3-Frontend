@@ -128,6 +128,9 @@ const submitForm = async () => {
       clearForm();
       console.log(message.value)
       databaseStore.fetchData();
+      refreshInterval = setInterval(() => {
+            databaseStore.fetchData(); // runs again every 50s
+        }, 50000);
     })
     .catch(error => {
       errors.value = error.response.data.errors;
