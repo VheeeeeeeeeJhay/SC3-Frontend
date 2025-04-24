@@ -1,3 +1,56 @@
+<script setup>
+import { reactive, ref, onMounted, watchEffect, inject } from 'vue'
+import { storeToRefs } from 'pinia'
+import useUserStore from '../../stores/user.js'
+
+const addToast = inject('addToast')
+
+const userStore = useUserStore()
+const { user } = storeToRefs(userStore)
+
+const showModal = ref(false)
+const showPasswordModal = ref(false)
+
+const editData = reactive({
+  id: null,
+  firstName: '',
+  middleName: '',
+  lastName: '',
+  email: '',
+  old_password: '',
+  password: '',
+  password_confirmation: ''
+})
+
+onMounted(async () => {
+  await userStore.fetchUser()
+})
+
+watchEffect(() => {
+  if (user.value) {
+    editData.id = user.value.id
+    editData.firstName = user.value.firstName ?? ''
+    editData.middleName = user.value.middleName ?? ''
+    editData.lastName = user.value.lastName ?? ''
+    editData.email = user.value.email ?? ''
+  }
+})
+
+const saveChanges = async () => {
+  try {
+    await userStore.updateUser(editData)
+    addToast('Profile updated successfully', 'success', 'check_circle')
+    showModal.value = false
+    showPasswordModal.value = false
+    editData.old_password = ''
+    editData.password = ''
+    editData.password_confirmation = ''
+  } catch (error) {
+    addToast(error.response?.data?.error || error.message, 'error', 'error')
+  }
+}
+</script>
+
 <template>
   <div class="min-h-screen 
          bg-gradient-to-br from-white via-[#f4f4f9] to-[#f0f0f4] 
@@ -136,57 +189,6 @@
   </div>
 </template>
 
-
-<script setup>
-import { reactive, ref, onMounted, watchEffect } from 'vue'
-import { storeToRefs } from 'pinia'
-import useUserStore from '../../stores/user.js'
-
-const userStore = useUserStore()
-const { user } = storeToRefs(userStore)
-
-const showModal = ref(false)
-const showPasswordModal = ref(false)
-
-const editData = reactive({
-  id: null,
-  firstName: '',
-  middleName: '',
-  lastName: '',
-  email: '',
-  old_password: '',
-  password: '',
-  password_confirmation: ''
-})
-
-onMounted(async () => {
-  await userStore.fetchUser()
-})
-
-watchEffect(() => {
-  if (user.value) {
-    editData.id = user.value.id
-    editData.firstName = user.value.firstName ?? ''
-    editData.middleName = user.value.middleName ?? ''
-    editData.lastName = user.value.lastName ?? ''
-    editData.email = user.value.email ?? ''
-  }
-})
-
-const saveChanges = async () => {
-  try {
-    await userStore.updateUser(editData)
-    alert('Profile updated successfully!')
-    showModal.value = false
-    showPasswordModal.value = false
-    editData.old_password = ''
-    editData.password = ''
-    editData.password_confirmation = ''
-  } catch (error) {
-    alert('Error updating profile: ' + (error.response?.data?.error || error.message))
-  }
-}
-</script>
 
 <style scoped>
 .fade-enter-active, .fade-leave-active {
