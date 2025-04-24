@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, inject } from 'vue';
 import { useRouter } from 'vue-router';
 import axiosClient from '../../axios.js';
 import UploadedFileTable from '../../components/tables/UploadedFileTable.vue';
@@ -11,6 +11,8 @@ const maxFileSize = 2 * 1024 * 1024;
 const uploadedFileName = ref('');
 const fileInput = ref(null);
 let selectedFile = null;
+
+const addToast = inject('addToast'); // Inject global toast function
 
 const contained_data = ref([]);
 
@@ -104,6 +106,7 @@ const submitFileData = async () => {
     } catch (error) {
         console.error('Error uploading data:', error);
         errorMessage.value = error.response?.data?.message || 'Something went wrong!';
+        addToast(error.response?.data.message, 'error', 'error');
     }
 };
 
