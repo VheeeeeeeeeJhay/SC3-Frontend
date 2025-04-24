@@ -1,9 +1,11 @@
 <script setup>
-import { ref, onMounted, computed, watch, onUnmounted } from 'vue';
+import { ref, onMounted, computed, watch, onUnmounted, inject } from 'vue';
 import axiosClient from '../../axios.js';
 import Badge from '../../components/Badge.vue';
 import { useDatabaseStore } from "../../stores/databaseStore";
 import { useActionDropdown } from '../../composables/useActionDropdown';
+
+const addToast = inject('addToast');
 
 const databaseStore = useDatabaseStore();
 
@@ -12,11 +14,7 @@ const isLoading = ref(false);
 
 const selectedClassifications = ref([]);
 
-const message = ref("");
 const errors = ref("");
-const icon = ref('');
-const type = ref('');
-const classes = ref('');
 
 let refreshInterval = null;
 
@@ -190,14 +188,13 @@ const archiveUser = async (user) => {
                     'x-api-key': import.meta.env.VITE_API_KEY,
                 }
             });
-        type.value = 'success';
-        message.value = response.data.message;
         // Update local state instantly
         user.is_deleted = 0;
+        addToast(response.data.message, 'success', 'check_circle');
+        databaseStore.fetchData();
     } catch (error) {
-        console.error(error.response?.data?.message || 'Failed to re-activate user');
-        type.value = 'error';
-        errors.value = error.response?.data?.error || 'Failed to re-activate user';
+        errors.value = error.response?.data?.error;
+        addToast(errors.value, 'error', 'error');
     }
 };
 
@@ -338,12 +335,6 @@ const visiblePages = computed(() => {
             </div>
         </div>
     </section>
-
-    <div class="flex flex-col fixed top-17 right-5 w-1/2 items-end">
-        <Toast v-if="message" :message="message" :icon="icon" :classes="classes" :type="type" />
-        <Toast v-if="errors" :message="errors" :icon="icon" :classes="classes" :type="type" />
-    </div>
-
 </template>
 
 <style scoped></style>

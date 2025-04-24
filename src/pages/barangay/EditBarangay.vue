@@ -61,20 +61,12 @@ const formSubmit = () => {
         }
     })
     .then(response => {
-        console.log(response.data.message);
         addToast(response.data.message, 'success', 'check_circle'); // Add success toast
         emit('close');
         // closeModal();
     })
     .catch(error => {
-        console.log(error.response.data.errors);
-        console.log(error.response.data.error);
-        console.log(error.response.data.message);
         errors.value = error.response.data.errors;
-        console.log('Name errors:', errors.value.name);
-        console.log('Longitude errors:', errors.value.longitude);
-        console.log('Latitude errors:', errors.value.latitude);
-        console.log(errors.value);
         addToast(error.response.data.message, 'error', 'error');
     })
     .finally(() => {

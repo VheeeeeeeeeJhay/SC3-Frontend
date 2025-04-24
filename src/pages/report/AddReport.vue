@@ -560,9 +560,6 @@ const closeDropdown = () => {
       </form>
     </main>
   </div>
-
-  <Toast v-if="message.length > 0" :message="message" icon="check_circle" type="success" />
-  <Toast v-if="errors.length > 0" :message="errors" icon="error" type="error" />
 </template>
 
 <style scoped>
