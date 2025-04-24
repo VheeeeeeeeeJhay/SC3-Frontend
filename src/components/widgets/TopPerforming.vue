@@ -137,7 +137,6 @@ const passingData = (barangay) => {
     console.log(store.getBarangayData());
 }
 
-
 </script>
 
 

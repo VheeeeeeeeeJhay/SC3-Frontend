@@ -137,9 +137,9 @@ const passingData = (report) => {
     store.setData(report);
 }
 
-onUnmounted(() => {
-    store.clearData();
-})
+// onUnmounted(() => {
+//     store.clearData();
+// })
 
 onMounted(() => {
     // ------------------------------------------

@@ -36,9 +36,9 @@ const passingData = (recent) => {
     store.setData(recent);
 }
 
-onUnmounted(() => {
-    store.clearData();
-})
+// onUnmounted(() => {
+//     store.clearData();
+// })
 </script>
 
 <template>
