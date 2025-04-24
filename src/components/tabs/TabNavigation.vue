@@ -18,7 +18,7 @@ const activeTab = ref('active'); // Set the default active tab to 'active'
           :class="{ 'text-teal-600 border-teal-600 dark:text-teal-500 dark:border-teal-500': activeTab === 'active' }"
           @click.prevent="activeTab = 'active'" 
         >
-            <span class="material-icons">people_alt</span>
+            <span class="material-icons">people_alt</span> 
             ACTIVE
         </a>
       </li>
@@ -31,7 +31,7 @@ const activeTab = ref('active'); // Set the default active tab to 'active'
           :class="{ 'text-teal-600 border-teal-600 dark:text-teal-500 dark:border-teal-500': activeTab === 'archive' }"
           @click.prevent="activeTab = 'archive'"
         >
-          <span class="material-icons">archive</span>
+          <span class="material-icons">archive</span> 
           ARCHIVE
         </a>
       </li>

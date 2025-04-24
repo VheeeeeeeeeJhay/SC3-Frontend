@@ -423,12 +423,15 @@ const handlePrint = () => {
                                 user.lastName }}</td>
                             <td class="px-4 py-3 text-center">{{ maskEmail(user.email) }}</td>
                             <td class="px-4 py-3 text-center">
-                                911:
+                                911: 
                                 <Badge :Message="user.for_911 ? `Has Access` : `No Access`"
                                     :class="[user.for_911 ? 'bg-green-700' : 'bg-red-700', 'text-white']" />
-                                Inventory:
+                                Inventory: 
                                 <Badge :Message="user.for_inventory ? `Has Access` : `No Access`"
                                     :class="[user.for_inventory ? 'bg-green-700' : 'bg-red-700', 'text-white']" />
+                                Traffic: 
+                                <Badge :Message="'Pending'"
+                                    :class="['bg-yellow-700 text-white']" />
                             </td>
                             <td class="px-4 py-3 flex items-center justify-center relative">
                                 <button @click.stop="toggleDropdown(user.id)"

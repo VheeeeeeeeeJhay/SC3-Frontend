@@ -52,12 +52,7 @@ const saveChanges = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen 
-         bg-gradient-to-br from-white via-[#f4f4f9] to-[#f0f0f4] 
-         dark:bg-gradient-to-br dark:from-black dark:via-[#02021b] dark:to-black 
-         text-black dark:text-white 
-         shadow-[rgba(0,0,255,0.3)_0px_15px_25px,_rgba(255,0,0,0.22)_0px_10px_10px]  
-         flex items-center justify-center p-6 transition-colors duration-500">
+  <div class="min-h-screen bg-gradient-to-br from-white via-[#f4f4f9] to-[#f0f0f4] dark:bg-gradient-to-br dark:from-black dark:via-[#02021b] dark:to-black text-black dark:text-white shadow-[rgba(0,0,255,0.3)_0px_15px_25px,_rgba(255,0,0,0.22)_0px_10px_10px] flex items-center justify-center p-6 transition-colors duration-500">
 
     <div class="bg-white/10 dark:bg-black/30 backdrop-blur-lg rounded-3xl shadow-2xl w-full max-w-5xl p-10 transition-all duration-300 border border-white/10 dark:border-gray-800">
       <div class="flex flex-col md:flex-row items-center justify-between">
@@ -84,7 +79,7 @@ const saveChanges = async () => {
           <h2 class="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-6">Account Details</h2>
           <ul class="space-y-4 text-base text-gray-700 dark:text-gray-200">
             <li><strong class="text-indigo-400 dark:text-indigo-300">First Name:</strong> {{ user?.firstName }}</li>
-            <li><strong class="text-indigo-400 dark:text-indigo-300">Middle Name:</strong> {{ user?.middleName ||'N/A'}}</li>
+            <li><strong class="text-indigo-400 dark:text-indigo-300">Middle Name:</strong> {{ user?.middleName ||''}}</li>
             <li><strong class="text-indigo-400 dark:text-indigo-300">Last Name:</strong> {{ user?.lastName }}</li>
             <li><strong class="text-indigo-400 dark:text-indigo-300">Email:</strong> {{ user?.email }}</li>
           </ul>

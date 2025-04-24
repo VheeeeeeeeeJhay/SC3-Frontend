@@ -319,7 +319,7 @@ const handlePrint = () => {
               class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
 
               <!-- Add Barangay Button -->
-              <!-- <PopupModal Title="Add a new Barangay" ModalButton="Add Barangay" Icon="home" Classes=""
+              <PopupModal Title="Add a new Barangay" ModalButton="Add Barangay" Icon="home" Classes=""
                 :show="isModalOpen" @update:show="isModalOpen = $event"
                 ButtonClass="w-full md:w-auto rounded-lg flex items-center justify-center py-2 px-4 text-sm font-medium focus:outline-none bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
                 <template #modalContent>
@@ -327,7 +327,7 @@ const handlePrint = () => {
                     <AddBarangay @close="isModalOpen = false" />
                   </div>
                 </template>
-              </PopupModal> -->
+              </PopupModal>
 
               <!--Generate PDF File Button -->
               <div
@@ -403,7 +403,7 @@ const handlePrint = () => {
                       <!-- Dropdown Items Container -->
                       <div class="py-2 text-sm flex flex-col w-full items-center">
                         <!-- Edit Button -->
-                        <PopupModal class="hover:bg-gray-300 dark:hover:bg-gray-600" Title="Edit Barangay" ModalButton="Edit" Icon="edit" Classes="" :show="isModalOpen"
+                        <PopupModal class="" Title="Edit Barangay" ModalButton="Edit" Icon="edit" Classes="" :show="isModalOpen"
                           @update:show="isModalOpen = $event"
                           ButtonClass="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
                           <template #modalContent>
