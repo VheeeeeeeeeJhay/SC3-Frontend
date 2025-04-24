@@ -12,15 +12,11 @@ const props = ref({
     name: 'null',
     type: 'null'
 })
+
 </script>
 
 <template>
-    <button 
-        :type="type" 
-        :name="name" 
-        :class="class" 
-        class="px-2 py-1.5 rounded-md my-2" 
-    >
-    {{ name }}
+    <button :type="type" :name="name" :class="class" class="px-2 py-1.5 rounded-md my-2">
+        {{ name }}
     </button>
 </template>

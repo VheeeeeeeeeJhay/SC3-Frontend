@@ -145,13 +145,13 @@ const restoreReport = async (event, report) => {
     <div class="w-full min-h-screen p-4">
         <div class="mt-6 px-2 flex justify-between">
             <h1 class="text-2xl font-bold dark:text-white">Detailed Logs View</h1>
-            <Button type="button" name="Back" @click.prevent="router.back()"
+            <button type="button" name="Back" @click.prevent="router.back()"
                 class="px-3 py-1 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200 flex items-center">
                 <span class="material-icons mr-2">
                     arrow_back
                 </span>
                 Back
-            </Button>
+            </button>
         </div>
 
         <div class="mt-6 relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white mb-6">

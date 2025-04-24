@@ -3,6 +3,7 @@ import { ref, onMounted, computed, watch, onUnmounted } from 'vue';
 import axiosClient from '../../axios.js';
 import Badge from '../../components/Badge.vue';
 import { useDatabaseStore } from "../../stores/databaseStore";
+import { useActionDropdown } from '../../composables/useActionDropdown';
 
 const databaseStore = useDatabaseStore();
 
@@ -80,16 +81,6 @@ const filteredUsers = computed(() => {
     return result;
 });
 
-const dropListener = () => {
-    document.addEventListener("click", (event) => {
-        if (
-            openDropdownId.value !== null &&
-            !dropdownRefs.value[openDropdownId.value]?.contains(event.target)
-        ) {
-            closeDropdown();
-        }
-    });
-}
 
 onMounted(() => {
     databaseStore.fetchData();
@@ -98,7 +89,6 @@ onMounted(() => {
         databaseStore.fetchData();
     }, 50000);
 
-    dropListener();
 });
 onUnmounted(() => {
   // Clear the interval when the component is unmounted or page is reloaded
@@ -117,20 +107,7 @@ const {
     Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
 );
 
-// -----------------------
-const openDropdownId = ref(null);
-
-const dropdownRefs = ref([]);
-const closeDropdown = () => {
-    openDropdownId.value = null;
-};
-const toggleDropdown = (transactionId) => {
-    openDropdownId.value = openDropdownId.value === transactionId ? null : transactionId;
-};
-
-
-const filterDropdown = ref(false);
-
+const { openDropdownId, dropdownRefs, toggleDropdown } = useActionDropdown();
 
 // -----------------------
 const isActionsDropdownOpen = ref(false);
@@ -301,7 +278,8 @@ const visiblePages = computed(() => {
                                     </svg>
                                 </button>
 
-                                <div v-if="openDropdownId === user.id" ref="dropdownRefs"
+                                <div v-if="openDropdownId === user.id" 
+                                :ref="el => dropdownRefs[user.id] = el"
                                     class="absolute z-10 w-44 top-full right-0 shadow-sm border rounded-md bg-white dark:bg-slate-700">
                                     <ul class="py-2 text-sm">
                                         <li class="hover:bg-gray-300 dark:hover:bg-gray-600">

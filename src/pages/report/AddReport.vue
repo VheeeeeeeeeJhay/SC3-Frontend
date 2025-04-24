@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, watchEffect, watch, onUnmounted } from 'vue';
+import { ref, computed, onMounted, watchEffect, watch, onUnmounted, inject } from 'vue';
 import PrimaryButton from '../../components/PrimaryButton.vue';
 import axiosClient from '../../axios.js';
 import { useGeolocation } from '@vueuse/core';
@@ -14,25 +14,7 @@ const userStore = useUserStore();
 const user = computed(() => userStore.user);
 const router = useRouter();
 
-// Clearing Form Data
-const clearForm = () => {
-  errors.value = [];
-  data.value = {
-    source_id: '',
-    assistance_id: '',
-    incident_id: '',
-    actions_id: '',
-    date_received: '',
-    arrival_on_site: '',
-    time: '',
-    barangay_id: '',
-    landmark: '',
-    longitude: '',
-    latitude: '',
-    urgency_id: '',
-    description: '',
-  }
-};
+const addToast = inject('addToast');
 
 // Full Name of Auth User
 const fullName = computed(() => {
@@ -99,43 +81,67 @@ const {
 const errors = ref([])
 const message = ref('')
 
+const clearForm = () => {
+  errors.value = [];
+  data.value = {
+    source_id: '',
+    assistance_id: '',
+    incident_id: '',
+    actions_id: '',
+    date_received: '',
+    arrival_on_site: '',
+    time: '',
+    barangay_id: '',
+    landmark: '',
+    longitude: '',
+    latitude: '',
+    urgency_id: '',
+  }
+};
+
 const submitForm = async () => {
-  try {
-    const formData = new FormData();
-    formData.append('source_id', data.value.source_id)
-    formData.append('time', data.value.time)
-    formData.append('incident_id', data.value.incident_id)
-    formData.append('date_received', data.value.date_received)
-    formData.append('arrival_on_site', data.value.arrival_on_site)
-    formData.append('name', data.value.name)
-    formData.append('landmark', data.value.landmark)
-    formData.append('barangay_id', data.value.barangay_id)
-    formData.append('actions_id', data.value.actions_id)
-    formData.append('assistance_id', data.value.assistance_id)
-    formData.append('longitude', data.value.longitude)
-    formData.append('latitude', data.value.latitude)
-    formData.append('urgency_id', data.value.urgency_id)
-    formData.append('description', data.value.description)
-    console.log(formData)
-    await axiosClient.post('/api/911/report', formData, {
-      headers: {
-        'x-api-key': import.meta.env.VITE_API_KEY
+  const formData = new FormData();
+  formData.append('source_id', data.value.source_id)
+  formData.append('time', data.value.time)
+  formData.append('incident_id', data.value.incident_id)
+  formData.append('date_received', data.value.date_received)
+  formData.append('arrival_on_site', data.value.arrival_on_site)
+  formData.append('name', data.value.name)
+  formData.append('landmark', data.value.landmark)
+  formData.append('barangay_id', data.value.barangay_id)
+  formData.append('actions_id', data.value.actions_id)
+  formData.append('assistance_id', data.value.assistance_id)
+  formData.append('longitude', data.value.longitude)
+  formData.append('latitude', data.value.latitude)
+  formData.append('urgency_id', data.value.urgency_id)
+  formData.append('description', data.value.description)
+  console.log(formData)
+  await axiosClient.post('/api/911/report', formData, {
+    headers: {
+      'x-api-key': import.meta.env.VITE_API_KEY
+    }
+  })
+    .then(response => {
+      console.log('Form submitted successfully:', response.data);
+      message.value = response.data.message;
+      addToast(message.value, 'success', 'check_circle');
+      clearForm();
+      console.log(message.value)
+      databaseStore.fetchData();
+    })
+    .catch(error => {
+      errors.value = error.response.data.errors;
+      if (errors.value) {
+        for (const key in errors.value) {
+          const messages = errors.value[key]; // This is an array of messages
+          messages.forEach(message => {
+            addToast(message, 'error', 'error');
+          });
+        }
+      } else if (error.response.data.error) {
+        addToast(error.response.data.error, 'error', 'error');
       }
     })
-      .then(response => {
-        console.log('Form submitted successfully:', response.data);
-        message.value = response.data.message;
-        clearForm();
-        errors.value = [];
-        console.log(message.value)
-        databaseStore.fetchData();
-      })
-  } catch (error) {
-    console.error(error.response.data);
-    errors.value = `An error occurred: ${error.response.data}`;
-    console.log('Error:', error.response.data);
-    errors.value = error.response.data.errors;
-  }
 };
 
 
@@ -325,11 +331,11 @@ const closeDropdown = () => {
     <!-- Titleee -->
     <div class="mt-6 px-2 flex justify-between">
       <h1 class="text-2xl font-bold dark:text-white mb-2">Add a New Report</h1>
-      <PrimaryButton type="button" name="Back" @click.prevent="router.back()"
+      <button type="button" name="Back" @click.prevent="router.back()"
         class="px-3 py-1 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200 flex items-center">
         <span class="material-icons mr-2"> arrow_back </span>
         Back
-      </PrimaryButton>
+      </button>
     </div>
 
     <main class="flex-1 px-2">
@@ -545,10 +551,8 @@ const closeDropdown = () => {
                 </div>
               </div>
               <div class="flex justify-end space-x-4 mt-8">
-                <PrimaryButton type="button" name="Clear" @click="clearForm"
-                  class="w-1/2 px-6 py-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200" />
                 <PrimaryButton type="submit" name="Add Report"
-                  class="w-1/2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200" />
+                  class="w-1/2 px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition duration-200" />
               </div>
             </div>
           </div>

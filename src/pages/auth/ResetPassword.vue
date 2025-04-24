@@ -28,7 +28,7 @@ onMounted(() => {
   email.value = route.query.email;
   dataNewPassword.value.token = token.value;
   dataNewPassword.value.email = email.value;
-  addToast('You may now reset your password!', 'success', 'check_circle');
+  // addToast('You may now reset your password!', 'success', 'check_circle');
 });
 
 const errorsNewPassword = ref({
@@ -43,12 +43,13 @@ const submitNewPassword = async () => {
         'x-api-key': import.meta.env.VITE_API_KEY
       }
     });
-    console.log('Password reset successful:', response.data);
     addToast('Reset password successful!', 'success', 'check_circle');
     router.push({ name: 'Login' });
   } catch (error) {
-    console.error('Error:', error);
-    errorsNewPassword.value = error.response?.data?.errors || {};
+    const errors = error.response?.data?.errors || {};
+    for (const key in errors) {
+        addToast(errors[key][0], 'error', 'error');
+    }
   }
 };
 </script>

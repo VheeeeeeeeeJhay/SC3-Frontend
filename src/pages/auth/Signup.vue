@@ -1,10 +1,10 @@
 <script setup>
-
-import { ref } from "vue";
+import { ref, inject } from "vue";
 import axiosClient from "../../axios.js";
 import router from "../../router.js";
 import logo from "../../assets/baguio-logo.png";
 import smart from "../../assets/smart-city1.jpg";
+import { useAuthValidation } from "../../composables/useAuthValidation.js";
 
 const data = ref({
   firstName: '',
@@ -17,6 +17,12 @@ const data = ref({
   for_inventory: true,
 })
 
+const { firstNameError, lastNameError, emailError, passwordError } = useAuthValidation(data);
+
+const success = ref({
+  message: [],
+})
+
 const errors = ref({
   firstName: [],
   middleName: [],
@@ -26,6 +32,7 @@ const errors = ref({
   password_confirmation: [],
 })
 
+const addToast = inject('addToast'); 
 const submitLoading = ref(false)
 
 const submit = () => {
@@ -38,18 +45,35 @@ const submit = () => {
       }
     })
       .then(response => {
-        router.push({ name: 'Overview' })
+        success.value.message = response.data.message;
+        console.log(response.data)
+        addToast(response.data.message, 'success', 'check_circle');
+        // if (!data.value.password_confirmation) {
+        //   errors.value.password_confirmation = [];
+        // } else if (data.value.password_confirmation == data.value.password) {
+        //   errors.value.password_confirmation = [];
+        // }
+        router.push({ name: 'Login' })
       })
       .catch(error => {
         console.log(error.response.data)
         errors.value = error.response.data.errors;
+        for (const key in errors.value) {
+          addToast(errors.value[key][0], 'error', 'error');
+        }
+        // if (data.value.password_confirmation == '') {
+        //   addToast('The confirm password field in required', 'error', 'error');
+        //   errors.value.password_confirmation = ['The confirm password field in required'];
+        // } else if (data.value.password_confirmation != data.value.password) {
+        //   addToast('The confirm password field does not match', 'error', 'error');
+        //   errors.value.password_confirmation = ['The confirm password field does not match'];
+        // }
       })
       .finally(() => {
         submitLoading.value = false
       })
   });
 }
-
 </script>
 
 <template>
@@ -84,6 +108,7 @@ const submit = () => {
               class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
             <p class="text-sm mt-1 text-red-600">
               {{ errors.firstName ? errors.firstName[0] : '' }}
+              {{ firstNameError }}
             </p>
           </div>
           <div>
@@ -100,6 +125,7 @@ const submit = () => {
               class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
             <p class="text-sm mt-1 text-red-600">
               {{ errors.lastName ? errors.lastName[0] : '' }}
+              {{ lastNameError }}
             </p>
           </div>
           <div class="col-span-3">
@@ -108,6 +134,7 @@ const submit = () => {
               class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
             <p class="text-sm mt-1 text-red-600">
               {{ errors.email ? errors.email[0] : '' }}
+              {{ emailError }}
             </p>
           </div>
 
@@ -117,6 +144,7 @@ const submit = () => {
               class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
             <p class="text-sm mt-1 text-red-600">
               {{ errors.password ? errors.password[0] : '' }}
+              {{ passwordError }}
             </p>
           </div>
 
@@ -126,6 +154,7 @@ const submit = () => {
               class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
             <p class="text-sm mt-1 text-red-600">
               {{ errors.password_confirmation ? errors.password_confirmation[0] : '' }}
+              {{ confirmPasswordError }}
             </p>
           </div>
 
