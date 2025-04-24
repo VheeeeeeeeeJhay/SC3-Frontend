@@ -17,7 +17,11 @@ const clearData = () => {
 }
 
 // const message = ref('');
-const errors = ref([]);
+const errors = ref({
+  name: [],
+  longitude: [],
+  latitude: [],
+});
 // const type = ref('');
 // const icon = ref('');
 // const classes = ref('');
@@ -27,27 +31,27 @@ const emit = defineEmits(['close']);
 
 
 const formSubmit = async () => {
-  try {
-    console.log(data.value);
-    const formData = new FormData();
-    formData.append('name', data.value.name);
-    formData.append('longitude', data.value.longitude);
-    formData.append('latitude', data.value.latitude);
-    
-    const response = await axiosClient.post("/api/911/barangay", formData, {
-      headers: {
-        'x-api-key': import.meta.env.VITE_API_KEY
-      }
-    });
-
-    addToast(response.data.message, 'success', 'check_circle'); // Add success toast
-    clearData();
-    emit('close');
-
-  } catch (error) {
-    console.error(error.response.data.message);
-    addToast(error.response.data.message, 'error', 'error'); // Add error toast
-  }
+  // try {
+  console.log(data.value);
+  const formData = new FormData();
+  formData.append('name', data.value.name);
+  formData.append('longitude', data.value.longitude);
+  formData.append('latitude', data.value.latitude);
+  
+  await axiosClient.post("/api/911/barangay", formData, {
+    headers: {
+      'x-api-key': import.meta.env.VITE_API_KEY
+    }
+  })
+    .then((response) => {
+      addToast(response.data.message, 'success', 'check_circle'); // Add success toast
+      clearData();
+      emit('close');
+    })
+    .catch ((error) => {
+      errors.value = error.response.data.errors;
+      addToast(error.response.data.message, 'error', 'error'); // Add error toast
+    })
 };
 </script>
 
@@ -90,7 +94,7 @@ const formSubmit = async () => {
 
       <!-- Submit Button -->
       <PrimaryButton name="Add Barangay" type="submit"
-        class="w-full py-2 text-white bg-green-600 hover:bg-green-700 rounded-md transition-all">
+        class="w-full py-2 text-white bg-teal-600 hover:bg-teal-700 rounded-md transition-all">
       </PrimaryButton>
 
     </form>

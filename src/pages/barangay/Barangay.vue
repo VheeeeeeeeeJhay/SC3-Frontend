@@ -414,15 +414,15 @@ const handlePrint = () => {
                         </PopupModal>
 
                         <!-- Delete Button -->
-                        <PopupModal class="hover:bg-gray-300 dark:hover:bg-gray-600" Title="Are you sure you want to delete this barangay?" ModalButton="Delete"
+                        <PopupModal Title="Are you sure you want to delete this barangay?" ModalButton="Delete"
                           Icon="cancel" Classes="" :show="isDeleteModalOpen" @update:show="isDeleteModalOpen = $event"
                           ButtonClass="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
                           <template #modalContent>
-                            <div class="p-6 space-x-2">
+                            <div class="p-6 flex gap-3">
                               <PrimaryButton @click="openDropdownId = null" name="Cancel"
-                                class="bg-gray-500 hover:bg-gray-600 text-gray-100 shadow-md" />
+                                class="w-1/2 bg-gray-500 hover:bg-gray-600 text-gray-100 shadow-md" />
                               <PrimaryButton @click.prevent="formSubmit(barangay.id)" name="Delete"
-                                class="bg-red-500 hover:bg-red-600 text-gray-100 shadow-md" />
+                                class="w-1/2 bg-red-500 hover:bg-red-600 text-gray-100 shadow-md" />
                             </div>
                           </template>
                         </PopupModal>
