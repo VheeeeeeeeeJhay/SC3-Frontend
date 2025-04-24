@@ -1,8 +1,10 @@
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, inject } from 'vue';
 import { useArrayStore } from '../../stores/arrayStore';
 import { useRouter } from 'vue-router';
 import axiosClient from  '../../axios.js';
+
+const addToast = inject('addToast');
 
 const router = useRouter();
 
@@ -127,12 +129,13 @@ const restoreReport = async (event, report) => {
 
     // Mark this report as restored
     restoredReports.value.add(report.id);
+    addToast(response.data.message, 'success', 'check_circle');
 
     console.log('Report restored successfully:', response.data);
 
   } catch (error) {
     console.error('Error restoring report:', error.response?.data?.message || error.message);
-
+    addToast(error.response?.data?.message, 'error', 'error');
     if (button) {
       button.disabled = false;
     }

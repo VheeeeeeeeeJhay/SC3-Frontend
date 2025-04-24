@@ -1,13 +1,14 @@
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted, inject } from 'vue';
 import { useDatabaseStore } from '../../stores/databaseStore';
 import { useArrayStore } from '../../stores/arrayStore';
 import DateRangePicker from '../../components/DateRangePicker.vue';
 import { useActionDropdown } from '../../composables/useActionDropdown';
 
+const addToast = inject('addToast');
+
 const databaseStore = useDatabaseStore();
 const store = useArrayStore();
-
 
 // Auto-refresh logs
 let refreshInterval = null;
