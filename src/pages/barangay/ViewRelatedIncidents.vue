@@ -140,32 +140,6 @@ const passingData = (report) => {
     store.setData(report);
 }
 
-// onUnmounted(() => {
-//     store.clearData();
-// })
-
-// onMounted(() => {
-//     // ------------------------------------------
-//     document.addEventListener("click", (event) => {
-//         if (
-//             openDropdownId.value !== null &&
-//             !dropdownRefs.value[openDropdownId.value]?.contains(event.target)
-//         ) {
-//             closeDropdown();
-//         }
-//     });
-// });
-
-// // -----------------------
-// const openDropdownId = ref(null);
-
-// const dropdownRefs = ref([]);
-// const closeDropdown = () => {
-//     openDropdownId.value = null;
-// };
-// const toggleDropdown = (transactionId) => {
-//     openDropdownId.value = openDropdownId.value === transactionId ? null : transactionId;
-// };
 const { openDropdownId, dropdownRefs, toggleDropdown } = useActionDropdown();
 
 
@@ -296,6 +270,28 @@ const filteredReports = computed(() => {
     });
 });
 
+
+const formSubmit = async (report_Id) => {
+    // Close modal
+    isDeleteModalOpen.value = false;
+
+    // errors.value = ''; // 🔹 Reset errors before making a request
+    await axiosClient.delete(`/api/911/report-delete/${report_Id}`, {
+        headers: {
+            'x-api-key': import.meta.env.VITE_API_KEY
+        }
+    })
+        .then(response => {
+            // Remove the deleted barangay from the list without refreshing the page
+            // reports.value = reports.value.filter(b => b.id !== report_Id); // ================================================================ revise
+            success.value = 'Report deleted successfully';
+            addToast(response.data.message, 'success', 'check_circle');
+            databaseStore.fetchData();
+        })
+        .catch(error => {
+            addToast(error.response?.data?.message || error.response?.data?.error, 'error', 'error');
+        });
+};
 
 
 // Pagination
@@ -788,14 +784,6 @@ const handleJSON = (filteredReports) => {
                         </div>
                         <div class="flex items-center space-x-2">
 
-                            <!-- report button -->
-                            <!-- <div
-                                class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-                                <button @click="handlePrint"
-                                    class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
-                                    Print Reports
-                                </button>
-                            </div> -->
                             <div class="flex items-center md:w-auto relative">
                                 <!-- <button "
                                     class="inline-flex items-center p-0.5 text-sm font-medium rounded-lg">
@@ -834,156 +822,129 @@ const handleJSON = (filteredReports) => {
                             </div>
                         </div>
 
-                        <button @click="toggleFilters"
-                            :class="[!isFilterContainerOpen ? 'w-full md:w-auto flex items-center justify-center py-2 px-4  text-sm font-medium rounded-lg border bg-white hover:bg-gray-200 dark:bg-slate-700 dark:border-black dark:text-white dark:hover:bg-slate-600' : 'w-full md:w-auto flex items-center justify-center py-2 px-4  text-sm font-medium rounded-lg border bg-white hover:bg-gray-500 dark:bg-slate-900 dark:border-black dark:text-white dark:hover:bg-slate-600']"
-                            id="filterDropdownButton">
-                            <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2"
-                                viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            Filters
-                        </button>
-
-
-                    </div>
-                </div>
-
-                <!-- Filter Button -->
-                <div>
-                    <div v-show="isFilterContainerOpen" class="flex flex-wrap justify-end mb-3 space-x-2">
-
-                        <!-- Date Range Filter -->
-                        <div
-                            class="w-full md:w-auto flex flex-col md:flex-row items-stretch md:items-center justify-end flex-shrink-0">
+                        <div class="w-full md:w-auto flex flex-col md:flex-row items-stretch md:items-center justify-end flex-shrink-0">
                             <DateRangePicker class="max-w-xs" @dateRangeSelected="updateDateRange" />
                         </div>
-
-                        <!-- Assistance Filter -->
-                        <div
-                            class="w-full md:w-auto flex flex-col md:flex-row items-stretch md:items-center justify-end flex-shrink-0">
-                            <div class="flex items-center md:w-auto relative">
-                                <button @click="toggleFilterDropdown"
-                                    class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
-                                    id="filterDropdownButton">
-                                    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2"
-                                        viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                            d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    Assistance
-                                </button>
-
-                                <div id="filterDropdown" v-show="isFilterDropdownOpen"
-                                    class="absolute top-full right-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-hidden">
-                                    <h6 class="mb-3 text-sm font-medium">Choose Assistance</h6>
-                                    <ul class="space-y-2 text-sm">
-                                        <li v-for="classification in classifications" :key="classification.id"
-                                            class="flex items-center">
-                                            <input type="checkbox" :id="classification.id" :value="classification.id"
-                                                v-model="selectedClassifications" class="w-4 h-4" />
-                                            <label :for="classification.id" class="ml-2 text-sm font-medium">{{
-                                                classification.assistance }}</label>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Urgency Filter -->
-                        <div
-                            class="w-full md:w-auto flex flex-col md:flex-row items-stretch md:items-center justify-end flex-shrink-0">
-
-                            <div class="flex items-center md:w-auto relative">
-                                <button @click="toggleUrgencyFilterDropdown"
-                                    class="w-full md:w-auto flex items-center justify-center py-2 px-4  text-sm font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
-                                    id="urgencyFilterDropdownButton">
-                                    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2"
-                                        viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                            d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    Urgency
-                                </button>
-
-                                <div id="urgencyFilterDropdown" v-show="isUrgencyFilterDropdownOpen"
-                                    class="absolute top-full right-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-hidden">
-                                    <h6 class="mb-3 text-sm font-medium">Choose Urgency</h6>
-                                    <ul class="space-y-2 text-sm">
-                                        <li v-for="urgency in urgencies" :key="urgency.id" class="flex items-center">
-                                            <input type="checkbox" :id="'urgency-' + urgency.id" :value="urgency.id"
-                                                v-model="selectedUrgencies" class="w-4 h-4" />
-                                            <label :for="'urgency-' + urgency.id" class="ml-2 text-sm font-medium">{{
-                                                urgency.urgency }}</label>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Assistance Filter -->
-                        <div
-                            class="w-full md:w-auto flex flex-col md:flex-row items-stretch md:items-center justify-end flex-shrink-0">
-
-                            <div class="flex items-center md:w-auto relative">
-                                <button @click="toggleActionsFilterDropdown"
-                                    class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
-                                    id="actionsFilterDropdownButton">
-                                    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2"
-                                        viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                            d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    Actions Taken
-                                </button>
-
-                                <div id="actionsFilterDropdown" v-show="isActionsFilterDropdownOpen"
-                                    class="absolute top-full right-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-hidden">
-                                    <h6 class="mb-3 text-sm font-medium">Choose Actions Taken</h6>
-                                    <ul class="space-y-2 text-sm">
-                                        <li v-for="action in actions" :key="action.id" class="flex items-center">
-                                            <input type="checkbox" :id="'action-' + action.id" :value="action.id"
-                                                v-model="selectedActions" class="w-4 h-4" />
-                                            <label :for="'action-' + action.id" class="ml-2 text-sm font-medium">{{
-                                                action.actions }}</label>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
+                
 
                 <table class="w-full text-sm text-left">
                     <thead class="text-xs uppercase bg-teal-300 text-gray-800 dark:bg-slate-950 dark:text-gray-300">
                         <tr>
                             <th scope="col" class="px-4 py-3 text-center"></th>
-                            <th scope="col" class="px-4 py-3 text-center">ID</th>
-                            <th scope="col" class="px-4 py-3 text-center"><button class=""
-                                    @click="toggleSortSource">SOURCE <i
+                            <!-- <th scope="col" class="px-4 py-3 text-center">ID</th> -->
+                            <th scope="col" class="px-4 py-3 text-center">
+                                <button class="" @click="toggleSortSource">SOURCE <i
                                         :class="sortSource === 'asc' ? 'pi pi-sort-alpha-up' : (sortSource === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
                             </th>
-                            <th scope="col" class="px-4 py-3 text-center"><button class=""
-                                    @click="toggleSortAssistance">ASSISTANCE <i
-                                        :class="sortAssistance === 'asc' ? 'pi pi-sort-alpha-up' : (sortAssistance === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
+                            <th scope="col" class="px-4 py-3 text-center">
+                                <div class="flex items-center justify-center">
+                                    <div class="flex items-center md:w-auto relative">
+                                        <button @click="toggleFilterDropdown"
+                                            class="w-full md:w-auto flex items-center justify-center py-2  text-sm font-medium  text-gray-700 dark:text-gray-200 hover:text-teal-500 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
+                                            id="filterDropdownButton">
+                                            <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
+                                                class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd"
+                                                    d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </button>
+
+                                        <div id="filterDropdown" v-show="isFilterDropdownOpen"
+                                            class="absolute top-full left-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-hidden">
+                                            <h6 class="mb-3 text-sm font-medium">Choose Assistance</h6>
+                                            <ul class="space-y-2 text-sm">
+                                                <li v-for="classification in classifications" :key="classification.id"
+                                                    class="flex items-center text-left">
+                                                    <input type="checkbox" :id="classification.id"
+                                                        :value="classification.id" v-model="selectedClassifications"
+                                                        class="w-4 h-4" />
+                                                    <label :for="classification.id" class="ml-2 text-sm font-medium">{{
+                                                        classification.assistance }}</label>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <button class="" @click="toggleSortAssistance">ASSISTANCE <i
+                                            :class="sortAssistance === 'asc' ? 'pi pi-sort-alpha-up' : (sortAssistance === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
+                                </div>
                             </th>
-                            <th scope="col" class="px-4 py-3 text-center"><button class=""
-                                    @click="toggleSortIncident">INCIDENT/CASE <i
+                            <th scope="col" class="px-4 py-3 text-center">
+                                <button class="" @click="toggleSortIncident">INCIDENT/CASE <i
                                         :class="sortIncident === 'asc' ? 'pi pi-sort-alpha-up' : (sortIncident === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
                             </th>
-                            <th scope="col" class="px-4 py-3 text-center"><button class=""
-                                    @click="toggleSortActions">ACTIONS <i
-                                        :class="sortActions === 'asc' ? 'pi pi-sort-alpha-up' : (sortActions === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
+                            <th scope="col" class="px-4 py-3 text-center">
+                                <div class="flex items-center justify-center">
+                                    <div class="flex items-center md:w-auto relative">
+                                        <button @click="toggleActionsFilterDropdown"
+                                            class="w-full md:w-auto flex items-center justify-center py-2  text-sm font-medium  text-gray-700 dark:text-gray-200 hover:text-teal-500 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
+                                            id="actionsFilterDropdownButton">
+                                            <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
+                                                class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd"
+                                                    d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </button>
+
+                                        <div id="actionsFilterDropdown" v-show="isActionsFilterDropdownOpen"
+                                            class="absolute top-full left-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-hidden">
+                                            <h6 class="mb-3 text-sm font-medium">Choose Actions Taken</h6>
+                                            <ul class="space-y-2 text-sm">
+                                                <li v-for="action in actions" :key="action.id"
+                                                    class="flex items-center text-left">
+                                                    <input type="checkbox" :id="'action-' + action.id"
+                                                        :value="action.id" v-model="selectedActions" class="w-4 h-4" />
+                                                    <label :for="'action-' + action.id"
+                                                        class="ml-2 text-sm font-medium">{{
+                                                            action.actions }}</label>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <button class="" @click="toggleSortActions">ACTIONS <i
+                                            :class="sortActions === 'asc' ? 'pi pi-sort-alpha-up' : (sortActions === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
+                                </div>
                             </th>
-                            <th scope="col" class="px-4 py-3 text-center"><button class=""
-                                    @click="toggleSortUrgency">URGENCY <i
-                                        :class="sortUrgency === 'asc' ? 'pi pi-sort-alpha-up' : (sortUrgency === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
+                            <th scope="col" class="px-4 py-3 text-center">
+                                <div class="flex items-center justify-center">
+                                    <div class="flex items-center md:w-auto relative">
+                                        <button @click="toggleUrgencyFilterDropdown"
+                                            class="w-full md:w-auto flex items-center justify-center py-2  text-sm font-medium  text-gray-700 dark:text-gray-200 hover:text-teal-500 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
+                                            id="urgencyFilterDropdownButton">
+                                            <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
+                                                class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd"
+                                                    d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </button>
+
+                                        <div id="urgencyFilterDropdown" v-show="isUrgencyFilterDropdownOpen"
+                                            class="absolute top-full left-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-hidden">
+                                            <h6 class="mb-3 text-sm font-medium">Choose Urgency</h6>
+                                            <ul class="space-y-2 text-sm">
+                                                <li v-for="urgency in urgencies" :key="urgency.id"
+                                                    class="flex items-center">
+                                                    <input type="checkbox" :id="'urgency-' + urgency.id"
+                                                        :value="urgency.id" v-model="selectedUrgencies"
+                                                        class="w-4 h-4 text-left" />
+                                                    <label :for="'urgency-' + urgency.id"
+                                                        class="ml-2 text-sm font-medium">{{
+                                                            urgency.urgency }}</label>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <button class="" @click="toggleSortUrgency">URGENCY <i
+                                            :class="sortUrgency === 'asc' ? 'pi pi-sort-alpha-up' : (sortUrgency === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
+                                </div>
                             </th>
-                            <th scope="col" class="px-4 py-3 text-center">Location</th>
+                            <th scope="col" class="px-4 py-3 text-center">
+                                <button class="" @click="toggleSortBarangay">LOCATION</button>
+                            </th>
                             <th scope="col" class="px-4 py-3 text-center">Actions</th>
                         </tr>
                     </thead>
@@ -992,7 +953,7 @@ const handleJSON = (filteredReports) => {
                             class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
                             <td class="px-4 py-3 text-center"><input type="checkbox" :value="report"
                                     v-model="selectedReports" class="w-4 h-4" /></td>
-                            <td class="px-4 py-3 text-center">{{ report.id }}</td>
+                            <!-- <td class="px-4 py-3 text-center">{{ report.id }}</td> -->
                             <td class="px-4 py-3 text-center">{{ report.source.sources }}</td>
                             <td class="px-4 py-3 text-center">{{ report.assistance.assistance }}</td>
                             <td class="px-4 py-3 text-center">{{ report.incident.type }}</td>
@@ -1005,50 +966,52 @@ const handleJSON = (filteredReports) => {
                                 {{ report.urgency.urgency }}
                             </td>
                             <td class="px-4 py-3 text-center">{{ report.barangay.name }}</td>
-                            <td class="px-4 py-3 flex items-center justify-center relative">
-                                <!-- Dropdown Button -->
+                            <td class="px-4 py-3 text-center flex items-center relative justify-center">
                                 <button @click.stop="toggleDropdown(report.id)"
-                                    class="inline-flex items-center p-0.5 text-sm font-medium rounded-lg" type="button">
-                                    <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
-                                        xmlns="http://www.w3.org/2000/svg">
+                                    class="inline-flex items-center p-0.5 text-sm font-medium rounded-lg">
+                                    <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
                                         <path
                                             d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
                                     </svg>
                                 </button>
-                                <!-- Dropdown Menu -->
-                                <ul v-if="openDropdownId === report.id" :ref="el => dropdownRefs[report.id] = el"
-                                    class="absolute z-[10] w-44 top-full right-0 shadow-sm border rounded-md bg-white dark:bg-slate-700"
+
+                                <div 
+                                v-if="openDropdownId === report.id"
+                                :ref="el => dropdownRefs[report.id] = el"
+                                    class="absolute z-10 w-44 top-full right-0 shadow-sm border rounded-md bg-white dark:bg-slate-700"
                                     @click.stop>
-                                    <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
-                                        <RouterLink @click="passingData(report)"
-                                            :to="{ name: 'ReportViewDetails', params: { id: report.id } }"
-                                            class="block px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-slate-600">
-                                            View Details
-                                        </RouterLink>
-                                    </li>
-                                    <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
-                                        <RouterLink @click="passingData(report)"
-                                            :to="{ name: 'EditReport', params: { id: report.id } }"
-                                            class="block px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-slate-600">
-                                            Edit Report
-                                        </RouterLink>
-                                    </li>
-                                    <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
-                                        <PopupModal Title="Are you sure you want to delete this report?"
-                                            ModalButton="Delete" Icon="cancel" Classes="" :show="isDeleteModalOpen"
+
+                                    <ul class=" text-sm">
+                                        <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
+                                            <RouterLink @click="passingData(report)"
+                                                :to="{ name: 'ReportViewDetails', params: { id: report.id } }"
+                                                class="block px-4 py-2 text-left">
+                                                View Details
+                                            </RouterLink>
+                                        </li>
+                                        <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
+                                            <RouterLink @click="passingData(report)"
+                                                :to="{ name: 'EditReport', params: { id: report.id } }"
+                                                class="block px-4 py-2 text-left">
+                                                Edit Report
+                                            </RouterLink>
+                                        </li>
+                                        <PopupModal
+                                            Title="Are you sure you want to delete this report?" ModalButton="Delete"
+                                            Icon="cancel" Classes="" :show="isDeleteModalOpen"
                                             @update:show="isDeleteModalOpen = $event"
                                             ButtonClass="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
                                             <template #modalContent>
-                                                <div class="p-6 space-x-2">
+                                                <div class="flex gap-3">
                                                     <PrimaryButton @click="openDropdownId = null" name="Cancel"
-                                                        class="bg-gray-500 hover:bg-gray-600 text-gray-100 shadow-md" />
+                                                        class="w-1/2 bg-gray-500 hover:bg-gray-600 text-gray-100 shadow-md" />
                                                     <PrimaryButton @click.prevent="formSubmit(report.id)" name="Delete"
-                                                        class="bg-red-500 hover:bg-red-600 text-gray-100 shadow-md" />
+                                                        class="w-1/2 bg-red-500 hover:bg-red-600 text-gray-100 shadow-md" />
                                                 </div>
                                             </template>
                                         </PopupModal>
-                                    </li>
-                                </ul>
+                                    </ul>
+                                </div>
                             </td>
                         </tr>
                     </tbody>

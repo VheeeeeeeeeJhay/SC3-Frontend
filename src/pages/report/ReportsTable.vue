@@ -465,7 +465,6 @@ const errors = ref('');
 const success = ref('');
 
 const formSubmit = async (report_Id) => {
-
     // Close modal
     isDeleteModalOpen.value = false;
 
@@ -699,6 +698,9 @@ const handleJSON = (filteredReports) => {
         <!-- Titleee -->
         <div class="mt-6 px-2 flex justify-between">
             <h1 class="text-2xl font-bold dark:text-white">Reports Management</h1>
+            <div class="w-full md:w-auto flex flex-col md:flex-row items-stretch md:items-center justify-end flex-shrink-0">
+                <DateRangePicker class="max-w-xs" @dateRangeSelected="updateDateRange" />
+            </div>
         </div>
 
         <div class="mt-6 w-full">
@@ -808,33 +810,7 @@ const handleJSON = (filteredReports) => {
                                     </template>
                                 </PopupModal>
                             </div>
-                            <!-- report button -->
-                            <!-- <div
-                                class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-                                <button @click="handlePrint"
-                                    class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
-                                    Print Reports
-                                </button>
-                            </div> -->
-                            <!-- <div
-                                class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-                                <button @click="handleCSV(filteredReports)"
-                                    class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
-                                    Export to CSV
-                                </button>
-                            </div>
-                            <div
-                                class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-                                <button @click="handleJSON(filteredReports)"
-                                    class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
-                                    Export to JSON
-                                </button>
-                            </div> -->
                             <div class="flex items-center md:w-auto relative">
-                                <!-- <button "
-                                    class="inline-flex items-center p-0.5 text-sm font-medium rounded-lg">
-                                    Export
-                                </button> -->
                                 <button @click.stop="toggleExportDropdown(73)"
                                     class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
                                     Export
@@ -868,126 +844,6 @@ const handleJSON = (filteredReports) => {
                             </div>
                         </div>
 
-                        <!-- <button @click="toggleFilters"
-                            :class="[!isFilterContainerOpen ? 'w-full md:w-auto flex items-center justify-center py-2 px-4  text-sm font-medium rounded-lg border bg-white hover:bg-gray-200 dark:bg-slate-700 dark:border-black dark:text-white dark:hover:bg-slate-600' : 'w-full md:w-auto flex items-center justify-center py-2 px-4  text-sm font-medium rounded-lg border bg-white hover:bg-gray-500 dark:bg-slate-900 dark:border-black dark:text-white dark:hover:bg-slate-600']"
-                            id="filterDropdownButton">
-                            <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2"
-                                viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            Filters
-                        </button> -->
-
-                    </div>
-                </div>
-
-                <!-- Filter Button -->
-                <div>
-                    <div v-show="isFilterContainerOpen" class="flex flex-wrap justify-end mb-3 space-x-2">
-
-                        <!-- Date Range Filter -->
-                        <div
-                            class="w-full md:w-auto flex flex-col md:flex-row items-stretch md:items-center justify-end flex-shrink-0">
-                            <DateRangePicker class="max-w-xs" @dateRangeSelected="updateDateRange" />
-                        </div>
-
-                        <!-- Assistance Filter -->
-                        <div
-                            class="w-full md:w-auto flex flex-col md:flex-row items-stretch md:items-center justify-end flex-shrink-0">
-                            <div class="flex items-center md:w-auto relative">
-                                <button @click="toggleFilterDropdown"
-                                    class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
-                                    id="filterDropdownButton">
-                                    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2"
-                                        viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                            d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    Assistance
-                                </button>
-
-                                <div id="filterDropdown" v-show="isFilterDropdownOpen"
-                                    class="absolute top-full right-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-hidden">
-                                    <h6 class="mb-3 text-sm font-medium">Choose Assistance</h6>
-                                    <ul class="space-y-2 text-sm">
-                                        <li v-for="classification in classifications" :key="classification.id"
-                                            class="flex items-center">
-                                            <input type="checkbox" :id="classification.id" :value="classification.id"
-                                                v-model="selectedClassifications" class="w-4 h-4" />
-                                            <label :for="classification.id" class="ml-2 text-sm font-medium">{{
-                                                classification.assistance }}</label>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Urgency Filter -->
-                        <div
-                            class="w-full md:w-auto flex flex-col md:flex-row items-stretch md:items-center justify-end flex-shrink-0">
-
-                            <div class="flex items-center md:w-auto relative">
-                                <button @click="toggleUrgencyFilterDropdown"
-                                    class="w-full md:w-auto flex items-center justify-center py-2 px-4  text-sm font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
-                                    id="urgencyFilterDropdownButton">
-                                    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2"
-                                        viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                            d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    Urgency
-                                </button>
-
-                                <div id="urgencyFilterDropdown" v-show="isUrgencyFilterDropdownOpen"
-                                    class="absolute top-full right-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-hidden">
-                                    <h6 class="mb-3 text-sm font-medium">Choose Urgency</h6>
-                                    <ul class="space-y-2 text-sm">
-                                        <li v-for="urgency in urgencies" :key="urgency.id" class="flex items-center">
-                                            <input type="checkbox" :id="'urgency-' + urgency.id" :value="urgency.id"
-                                                v-model="selectedUrgencies" class="w-4 h-4" />
-                                            <label :for="'urgency-' + urgency.id" class="ml-2 text-sm font-medium">{{
-                                                urgency.urgency }}</label>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Assistance Filter -->
-                        <div
-                            class="w-full md:w-auto flex flex-col md:flex-row items-stretch md:items-center justify-end flex-shrink-0">
-
-                            <div class="flex items-center md:w-auto relative">
-                                <button @click="toggleActionsFilterDropdown"
-                                    class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
-                                    id="actionsFilterDropdownButton">
-                                    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2"
-                                        viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                            d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    Actions Taken
-                                </button>
-
-                                <div id="actionsFilterDropdown" v-show="isActionsFilterDropdownOpen"
-                                    class="absolute top-full right-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-hidden">
-                                    <h6 class="mb-3 text-sm font-medium">Choose Actions Taken</h6>
-                                    <ul class="space-y-2 text-sm">
-                                        <li v-for="action in actions" :key="action.id" class="flex items-center">
-                                            <input type="checkbox" :id="'action-' + action.id" :value="action.id"
-                                                v-model="selectedActions" class="w-4 h-4" />
-                                            <label :for="'action-' + action.id" class="ml-2 text-sm font-medium">{{
-                                                action.actions }}</label>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
