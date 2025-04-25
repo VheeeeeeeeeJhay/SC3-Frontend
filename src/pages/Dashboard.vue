@@ -356,7 +356,7 @@ const toggleMinimize = () => {
   </div>
 
   <!-- Main Dashboard -->
-  <div class="min-h-screen px-12 pt-6 pb-10 bg-gray-50 dark:bg-gray-950 transition-colors">
+  <div class="min-h-screen px-12 pt-6 pb-10 bg-gradient-to-br from-white via-[#f4f4f9] to-[#000000] dark:bg-gradient-to-br dark:from-black dark:via-[#004D4F] dark:to-black text-black dark:text-white shadow-[rgba(0,0,255,0.3)_0px_15px_25px,_rgba(255,0,0,0.22)_0px_10px_10px] transition-colors">
 
     <div class="flex justify-between items-center px-2">
       <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Dashboard Overview</h1>

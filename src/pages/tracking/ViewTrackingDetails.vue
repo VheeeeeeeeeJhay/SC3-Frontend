@@ -257,14 +257,14 @@ const restoreReport = async (event, report) => {
                           </dl>
                         </td>
                         <td v-if="storage.action === 'Deleted' || storage.action === 'Multiple Delete'" class="px-4 py-3 text-center">
-                          <!-- <PrimaryButton @click="(e) => restoreReport(e, item)" name="Restore" class="bg-green-500 hover:bg-green-600" /> -->
+                          <!-- <PrimaryButton @click="(e) => restoreReport(e, item)" name="Restore" class="bg-teal-500 hover:bg-teal-600" /> -->
                             <PrimaryButton
                             :disabled="restoredReports.has(item.id)"
                             @click="(e) => restoreReport(e, item)"
                             name="Restore"
                             :class="restoredReports.has(item.id)
                             ? 'bg-gray-400 pointer-events-none text-white'
-                            : 'bg-green-500 hover:bg-green-600 text-white'"
+                            : 'bg-teal-500 hover:bg-teal-600 text-white'"
                         />
                         </td>
                     </tr>

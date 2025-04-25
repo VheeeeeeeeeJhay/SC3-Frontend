@@ -84,6 +84,39 @@ const inventoryRole = async (user) => {
     }
 };
 
+// Traffic Role
+const trafficRole = async (user) => {
+    const newRoleStatus = user.for_traffic === 1 ? 0 : 1; // Toggle based on user state
+
+    // Prevent both roles from being false at the same time
+    if (newRoleStatus === 0 && user.for_911 === 0) {
+        addToast('At least 1 role must be active', 'error', 'error');
+        return;
+    }
+
+    try {
+        const response = await axiosClient.patch(`/api/911/user-inventory-role/${user.id}`, { for_inventory: newRoleStatus },
+            {
+                headers: {
+                    'x-api-key': import.meta.env.VITE_API_KEY
+                }
+            });
+
+        // Update local state instantly
+        user.for_inventory = newRoleStatus;
+        addToast(response.data.message, 'success', 'check_circle');
+        databaseStore.fetchData();
+        clearInterval(refreshInterval);
+        refreshInterval = setInterval(() => {
+            databaseStore.fetchData(); // runs again every 50s
+        }, 50000);
+    } catch (error) {
+        console.error(error.response?.data?.message || error.message);
+        errors.value = error.response?.data?.error;
+        addToast(errors.value, 'error', 'error');
+    }
+};
+
 // Archive User
 const archiveUser = async (user) => {
     try {
@@ -454,6 +487,11 @@ const handlePrint = () => {
                                         </li>
                                         <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
                                             <PrimaryButton @click.prevent="inventoryRole(user)"
+                                                :name="user.for_inventory === 1 ? 'Deactive Inventory Access' : 'Activate Inventory Access'"
+                                                class="mt-2 hover:text-gray-700 dark:hover:text-gray-300" />
+                                        </li>
+                                        <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
+                                            <PrimaryButton @click.prevent="trafficRole(user)"
                                                 :name="user.for_inventory === 1 ? 'Deactive Inventory Access' : 'Activate Inventory Access'"
                                                 class="mt-2 hover:text-gray-700 dark:hover:text-gray-300" />
                                         </li>
