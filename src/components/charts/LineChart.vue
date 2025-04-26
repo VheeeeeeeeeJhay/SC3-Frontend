@@ -1,120 +1,230 @@
 <script setup>
-import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from "vue";
+import axiosClient from "../../axios.js";
 import ApexCharts from 'apexcharts';
-import { useThemeStore } from '../../stores/themeStore';
+import { debounce } from 'lodash';
+import loader1 from "../loading/loader1.vue";
 
-const themeStore = useThemeStore();
-const themeClasses = computed(() => {
-  return themeStore.isDarkMode ? "bg-slate-800 border-black text-white" : "bg-sky-50 border-gray-200 text-sky-900"
-})
-const selectedDateFilter = ref('');
-const dateFilters = ref([
-  { name: 'Last 7 Days', value: '7d' },
-  { name: 'Last 30 Days', value: '30d' },
-  { name: 'Last 6 Months', value: '6m' }
-]);
+const source = ref([]);
+const report = ref([]);
+const isLoading = ref(true);
+
+
+const lineChart = ref(null);
+let chart = null;
+
+const props = defineProps({
+  startDate: String,
+  endDate: String
+});
 
 const options = ref({
+  colors: ["#4A90E2", "#50C878", "#FF6B6B", "#FFD700"],
+  series: [],
   chart: {
-    height: 350,
-    maxWidth: "100%",
     type: "line",
+    height: "100%",
     fontFamily: "Inter, sans-serif",
     toolbar: {
       show: true,
       tools: {
         download: true,
-      }
+      },
     },
-  },
-  tooltip: {
-    enabled: true,
-    x: {
-      show: false,
-    },
-  },
-  dataLabels: {
-    enabled: false,
   },
   stroke: {
+    curve: "smooth",
     width: 4,
-    curve: 'smooth'
+  },
+  tooltip: {
+    shared: true,
+    intersect: false,
+    followCursor: true,
+    theme: 'dark',
+    style: {
+      fontSize: '12px',
+      fontFamily: 'Inter, sans-serif',
+    },
+    y: {
+      formatter: (value) => `${value} Reports`,
+    },
   },
   grid: {
     show: true,
     strokeDashArray: 4,
+    borderColor: '#e0e0e0',
   },
-  series: [
-    {
-      name: "Clicks",
-      data: [6500, 6418, 6456, 6526, 6356, 6456],
-      color: "#1A56DB",
-    },
-    {
-      name: "CPC",
-      data: [6456, 6356, 6526, 6332, 6418, 6500],
-      color: "#7E3AF2",
-    },
-  ],
-  xaxis: {
-    categories: ['01 Feb', '02 Feb', '03 Feb', '04 Feb', '05 Feb', '06 Feb'],
+  dataLabels: {
+    enabled: false,
+  },
+  legend: {
+    show: true,
+    position: 'top',
+    horizontalAlign: 'center',
     labels: {
+      useSeriesColors: true,
+    },
+  },
+  xaxis: {
+    categories: [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ],
+    labels: {
+      show: true,
       style: {
         fontFamily: "Inter, sans-serif",
-        cssClass: 'text-xs font-normal fill-gray-500 dark:fill-gray-400'
-      }
+        fontSize: "14px",
+        fontWeight: 'bold',
+        colors: '#ffffff',
+      },
     },
     axisBorder: {
-      show: false,
+      show: true,
+      color: '#e0e0e0',
     },
     axisTicks: {
-      show: false,
+      show: true,
+      color: '#e0e0e0',
     },
   },
   yaxis: {
-    show: false,
+    title: {
+      text: "Number of Reports",
+      style: {
+        fontSize: '14px',
+        fontFamily: 'Inter, sans-serif',
+        fontWeight: 'bold',
+        color: '#ffffff',
+      },
+    },
+    labels: {
+      style: {
+        fontSize: "12px",
+        fontFamily: "Inter, sans-serif",
+        fontWeight: 'bold',
+        colors: '#ffffff',
+      },
+    },
+  },
+  fill: {
+    opacity: 0.5,
+  },
+  markers: {
+    size: 6,
+    colors: ['#4A90E2', '#50C878', '#FF6B6B', '#FFD700'],
+    strokeColor: '#fff',
+    strokeWidth: 2,
   },
 });
 
-const lineChart = ref(null);
-let chart = null;
-
-const updateChart = () => {
-  if (chart) {
-    chart.updateOptions(options.value);
+const fetchChartData = async () => {
+  try {
+    const res = await axiosClient.get('/api/911/dashboard', {
+      headers: {
+        'x-api-key': import.meta.env.VITE_API_KEY
+      }
+    });
+    source.value = res.data.source;
+    report.value = res.data.report;
+  } catch (error) {
+    console.error('Error fetching data:', error);
   }
 };
 
-watch(selectedDateFilter, () => {
-  // Simulate new data based on selected filter
-  options.value.series[0].data = options.value.series[0].data.map(() => Math.floor(Math.random() * 7000));
-  options.value.series[1].data = options.value.series[1].data.map(() => Math.floor(Math.random() * 7000));
-  updateChart();
-});
-
-onMounted(() => {
+const renderChart = () => {
   if (lineChart.value) {
     chart = new ApexCharts(lineChart.value, options.value);
     chart.render();
+  }
+};
+
+const updateChart = () => {
+  if (!source.value.length || !report.value.length) {
+    console.log("No data to update the chart.");
+    return;
+  }
+
+  let filteredReports = report.value;
+
+  if (props.startDate || props.endDate) {
+    filteredReports = filteredReports.filter(rep => {
+      const reportDate = new Date(rep.date_received);
+      let isValid = true;
+      if (props.startDate && reportDate < new Date(props.startDate)) isValid = false;
+      if (props.endDate && reportDate > new Date(props.endDate)) isValid = false;
+      return isValid;
+    });
+  }
+
+  const counts = {};
+  filteredReports.forEach(rep => {
+    counts[rep.source_id] = (counts[rep.source_id] || 0) + 1;
+  });
+
+const reportCounts = source.value.map(src => counts[src.id] || 0);
+
+  options.value.series = [{
+    name: "Number of Reports",
+    data: reportCounts
+  }];
+
+  options.value.xaxis.categories = source.value.map(src => src.sources);
+
+  if (chart) {
+    chart.updateOptions(options.value);
+  } else {
+    renderChart();
+  }
+};
+
+onMounted(async () => {
+  isLoading.value = true;
+  try {
+    await fetchChartData();
+    renderChart();
+    updateChart();
+  } finally {
+    isLoading.value = false;
   }
 });
 
 onUnmounted(() => {
   if (chart) chart.destroy();
 });
-</script>
 
+const debouncedUpdateChart = debounce(updateChart, 300);
+watch(() => [props.startDate, props.endDate],
+  debouncedUpdateChart,
+  { immediate: true }
+);
+</script>
 <template>
-  <div class="w-full p-4" :class="themeClasses">
+  <div class="w-full h-full p-4 dark:text-white text-gray-800 relative">
+    <!-- Title -->
     <div class="flex justify-between items-center mb-4">
-      <h2 class="text-xl font-semibold">Crime Statistics</h2>
-      <select v-model="selectedDateFilter" class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600">
-        <option value="" disabled>Select Date Range</option>
-        <option v-for="filter in dateFilters" :key="filter.value" :value="filter.value">
-          {{ filter.name }}
-        </option>
-      </select>
+      <h2 class="text-xl font-semibold">Report Trend</h2>
     </div>
-    <div ref="lineChart" class="h-64"></div>
+
+    <transition name="fade">
+  <div v-if="isLoading" class="absolute inset-0 z-10 flex items-center justify-center bg-[#1f2937] rounded-xl">
+    <loader1 />
+  </div>
+</transition>
+
+    <!-- CHART CONTAINER -->
+    <div class="h-64" ref="lineChart" />
   </div>
 </template>
+
+
+
+<style scoped>
+/* Add this to a global CSS or <style scoped> */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}</style>
+  

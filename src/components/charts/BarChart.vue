@@ -1,67 +1,45 @@
 <script setup>
-import { ref, onMounted, onUnmounted, watch, computed } from "vue";
+import { ref, onMounted, onUnmounted, watch, computed} from "vue";
 import ApexCharts from 'apexcharts';
-import { useThemeStore } from '../../stores/themeStore';
+import { useDatabaseStore } from '../../stores/databaseStore';
 
-const themeStore = useThemeStore();
-const themeClasses = computed(() => {
-  return themeStore.isDarkMode ? "bg-slate-800 border-black text-white" : "bg-sky-50 border-gray-200 text-sky-900"
-})
-const props = defineProps({
-    dateRange: Object // Expecting { start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' }
+let refreshInterval = null;
+const databaseStore = useDatabaseStore();
+
+onMounted(() => {
+    databaseStore.fetchData();
+    refreshInterval = setInterval(() => {
+        databaseStore.fetchData();
+    }, 50000);
 });
 
-const emit = defineEmits(['periodChange']);
+onUnmounted(() => {
+  // Clear the interval when the component is unmounted or page is reloaded
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+  }
+});
 
-// Reactive date range
-const selectedDateFilter = ref("");
-const dateFilters = ref([
-  { name: "Last 7 Days", value: "7d" },
-  { name: "Last 30 Days", value: "30d" },
-  { name: "Last 90 Days", value: "90d" }
-]);
+// const computedProperties = {
+//     report: "reportsList",
+//     source: "sources",
+// };
 
-const selectedCaseFilter = ref("");
-const caseFilters = ref([
-  { name: "Police Assistance", value: "police" },
-  { name: "Fire Assistance", value: "fire" },
-  { name: "Medical Assistance", value: "medical" },
-  { name: "Search and Rescue Assistance", value: "rescue" },
-  { name: "Medical Non-Emergency", value: "medNonEmer" },
-  { name: "Other Non-Emergency", value: "otherNonEmer" },
-]);
+// const {
+//     report,
+//     source,
+// } = Object.fromEntries(
+//     Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
+// );
+const report = computed(() => databaseStore.reportsList);
+const source = computed(() => databaseStore.sources);
 
-const generateSampleData = (start, end) => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    const days = [];
-    const data = {};
-    caseFilters.value.forEach(filter => {
-        data[filter.value] = [];
-    });
-
-    while (startDate <= endDate) {
-        const formattedDate = startDate.toISOString().split('T')[0];
-        days.push(formattedDate);
-
-        caseFilters.value.forEach(filter => {
-            data[filter.value].push(Math.floor(Math.random() * 100));
-        });
-
-        startDate.setDate(startDate.getDate() + 1);
-    }
-
-    return { data, categories: days };
-};
 
 const options = ref({
-    colors: ["#bf1029", "#3f8f29", "#4A90E2", "#50E3C2", "#B8E986", "#F5A623"],
-    series: caseFilters.value.map(filter => ({
-        name: filter.name,
-        data: [],
-    })),
+    colors: ["#4A90E2", "#E24A4A", "#4AE24A", "#E2E24A"], // Blue, Red, Green, Yellow
+    series: [],
     chart: {
-        type: "bar",
+        type: "bar",  // Bar chart type
         height: "100%",
         fontFamily: "Inter, sans-serif",
         toolbar: {
@@ -70,106 +48,209 @@ const options = ref({
                 download: true,
             },
         },
+        foreColor: '#ffffff', // Default text color to white for visibility
+        zoom: {
+            enabled: true, // Enable zoom
+            type: 'xy', // You can zoom both horizontally and vertically
+            zoomedArea: {
+                fill: {
+                    color: '#90CAF9', // Light blue fill color for zoomed area
+                    opacity: 0.4,     // Set the opacity of the zoomed area
+                },
+                stroke: {
+                    color: '#42A5F5', // Outline color for zoomed area
+                    width: 2,         // Outline width
+                },
+            },
+        },
     },
     plotOptions: {
         bar: {
             horizontal: false,
-            columnWidth: "70%",
-            borderRadiusApplication: "end",
-            borderRadius: 8,
-        },
+            columnWidth: "55%", // Adjust bar width
+            endingShape: "rounded",
+        }
     },
     tooltip: {
         shared: true,
         intersect: false,
         followCursor: true,
+        theme: 'dark',  // Dark tooltip for better contrast
         style: {
-            fontFamily: "Inter, sans-serif",
+            fontSize: '12px',
+            fontFamily: 'Inter, sans-serif',
         },
-    },
-    stroke: {
-        show: true,
-        width: 0,
-        colors: ["transparent"],
+        y: {
+            formatter: function (value) {
+                return `${value} Reports`; // Adding "Reports" to tooltip values
+            },
+        },
     },
     grid: {
-        show: false,
+        show: true,
         strokeDashArray: 4,
-        padding: {
-            left: 2,
-            right: 2,
-            top: -14
-        },
+        borderColor: '#e0e0e0',  // Light grid border color for clarity
     },
     dataLabels: {
         enabled: false,
     },
     legend: {
         show: true,
+        position: 'top', // Place the legend at the top for better visibility
+        horizontalAlign: 'center',  // Center-aligned legend
+        labels: {
+            colors: '#ffffff', // White text for the legend
+        },
     },
     xaxis: {
-        floating: false,
-        categories: [],
+        categories: [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ],
         labels: {
             show: true,
             style: {
                 fontFamily: "Inter, sans-serif",
-                cssClass: 'text-xs font-normal fill-gray-500 dark:fill-gray-400'
+                fontSize: "14px",  // Increased font size for better readability
+                fontWeight: 'bold', // Bold labels for clarity
+                colors: '#ffffff', // White color for x-axis labels
             }
         },
         axisBorder: {
-            show: false,
+            show: true,
+            color: '#e0e0e0',  // Light border color
         },
         axisTicks: {
-            show: false,
+            show: true,
+            color: '#e0e0e0',  // Light color for axis ticks
         },
     },
     yaxis: {
-        show: false,
+        title: {
+            text: "Number of Reports",
+            style: {
+                fontSize: '14px', // Increased font size for the y-axis title
+                fontFamily: 'Inter, sans-serif',
+                fontWeight: 'bold', // Bold y-axis title
+                color: '#ffffff',  // White title color
+            }
+        },
+        labels: {
+            style: {
+                fontSize: "12px",  // Increased font size for better readability
+                fontFamily: "Inter, sans-serif",
+                fontWeight: 'bold', // Bold y-axis labels
+                colors: '#ffffff', // White color for y-axis labels
+            }
+        }
     },
     fill: {
-        opacity: 1,
+        opacity: 1,  // Full opacity for bars
     },
+    markers: {
+        size: 6,  // Larger markers for bar chart data points
+        colors: ['#4A90E2', '#E24A4A', '#4AE24A', '#E2E24A'],  // Same colors as the bars
+        strokeColor: '#fff',  // White stroke for better visibility
+        strokeWidth: 2,  // Thicker stroke for markers
+    },
+});
+
+const props = defineProps({
+  startDate: String,  // (format YYYY-MM-DD)
+  endDate: String
 });
 
 const barChart = ref(null);
 let chart = null;
 
 const updateChart = () => {
-    if (props.dateRange?.start && props.dateRange?.end) {
-        const chartData = generateSampleData(props.dateRange.start, props.dateRange.end);
-        options.value.series = caseFilters.value.map(filter => ({
-            name: filter.name,
-            data: chartData.data[filter.value],
-        }));
-        options.value.xaxis.categories = chartData.categories;
-        emit('periodChange', props.dateRange);
-        if (chart) {
-            chart.updateOptions(options.value);
-        }
+    if (!source.value.length || !report.value.length) {
+        console.log("No data to update the chart.");
+        return;
+    }
+
+    const sourceNames = source.value.map(src => src.sources);
+    const seriesData = sourceNames.map(() => Array(12).fill(0)); // 12 months
+
+    let filteredReports = report.value;
+
+    // Apply date range filter
+    if (props.startDate || props.endDate) {
+        filteredReports = filteredReports.filter(rep => {
+            const reportDate = new Date(rep.date_received);
+
+            // Filter by startDate 
+            if (props.startDate && reportDate < new Date(props.startDate)) return false;
+            // Filter by endDate 
+            if (props.endDate && reportDate > new Date(props.endDate)) return false;
+
+            return true;
+        });
+    }
+
+    // Populate series data
+    filteredReports.forEach(rep => {
+        const sourceIndex = source.value.findIndex(src => src.id === rep.source_id);
+        if (sourceIndex === -1) return;
+
+        const reportMonthIndex = new Date(rep.date_received).getMonth(); // 0-based
+        seriesData[sourceIndex][reportMonthIndex]++;
+    });
+
+    // Determine which months have data
+    const monthPresence = Array(12).fill(false);
+    seriesData.forEach(sourceArr => {
+        sourceArr.forEach((count, idx) => {
+            if (count > 0) monthPresence[idx] = true;
+        });
+    });
+
+    const monthLabels = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+    const filteredMonthLabels = monthLabels.filter((_, idx) => monthPresence[idx]);
+
+    const trimmedSeries = seriesData.map((data, idx) => ({
+        name: sourceNames[idx],
+        data: data.filter((_, i) => monthPresence[i]) // Only include active months
+    }));
+
+    console.log("✅ Final Chart Series:", trimmedSeries);
+    console.log("📅 Filtered Month Labels:", filteredMonthLabels);
+
+    // Update chart
+    options.value.series = trimmedSeries;
+    options.value.xaxis.categories = filteredMonthLabels;
+
+    if (chart) {
+        chart.updateOptions(options.value);
+    } else {
+        renderChart();
     }
 };
 
-const handleDateFilterChange = () => {
-    const today = new Date();
-    let start = new Date();
-    if (selectedDateFilter.value === "7d") start.setDate(today.getDate() - 7);
-    if (selectedDateFilter.value === "30d") start.setDate(today.getDate() - 30);
-    if (selectedDateFilter.value === "90d") start.setDate(today.getDate() - 90);
-    props.dateRange.start = start.toISOString().split("T")[0];
-    props.dateRange.end = today.toISOString().split("T")[0];
-    updateChart();
-};
 
-watch(() => props.dateRange, updateChart, { deep: true });
-watch(selectedDateFilter, handleDateFilterChange);
 
 onMounted(() => {
     if (barChart.value) {
         chart = new ApexCharts(barChart.value, options.value);
         chart.render();
+        // updateChart();
+    }
+});
+
+watch([source, report], ([newSource, newReport]) => {
+    if (newSource.length && newReport.length) {
+        console.log("🔄 Data updated! Running updateChart()");
         updateChart();
     }
+});
+
+
+watch([() => props.startDate, () => props.endDate], () => {
+  console.log("🔄 Date props changed: Running updateChart()");
+  updateChart();
 });
 
 onUnmounted(() => {
@@ -178,17 +259,16 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="w-full p-4" :class="themeClasses">   
+  <div class="w-full h-full p-4 dark:text-white text-gray-800">   
     <div class="flex justify-between items-center mb-4">
-      <h2 class="text-xl font-semibold">Case Statistics????</h2>
-      <select v-model="selectedDateFilter" class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600">
-        <option value="" disabled>Select Date Range</option>
-        <option v-for="filter in dateFilters" :key="filter.value" :value="filter.value">
-          {{ filter.name }}
-        </option>
-      </select>
+      <h2 class="text-xl font-semibold">Report Per Source
+        <p class="text-xs text-gray-500 dark:text-gray-400">
+            Reports from {{ startDate }} to {{ endDate }}
+        </p>
+      </h2>
+      
     </div>
     <!-- BAR CHART -->
-    <div ref="barChart"></div>
+    <div class="dark:text-gray-800 h-64" ref="barChart"></div>
   </div>
 </template>
