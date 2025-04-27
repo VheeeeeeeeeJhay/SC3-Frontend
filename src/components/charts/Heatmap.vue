@@ -149,10 +149,6 @@ const renderChart = () => {
         enabled: false
       }
     },
-    title: {
-      text: 'Accident Peak Times',
-      align: 'center'
-    },
     subtitle: {
       text: props.startDate && props.endDate 
         ? `${props.startDate} - ${props.endDate}`

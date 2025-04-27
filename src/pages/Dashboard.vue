@@ -1,7 +1,5 @@
 <script setup>
-
-import { ref, computed, onMounted, watch, onUnmounted } from "vue";
-import axiosClient from "../axios.js";
+import { ref, computed, onMounted } from "vue";
 import PieChart from "../components/charts/PieChart.vue";
 import LineChart from "../components/charts/LineChart.vue";
 import BarChart from "../components/charts/BarChart.vue";
@@ -14,7 +12,8 @@ import monthYearPicker from "../components/monthYearPicker.vue";
 import TestMail from "../mail/TestMail.vue";
 import UnifiedDatePicker from "../components/datePickers/UnifiedDatePicker.vue";
 import StackedBarChart from "../components/charts/StackedBarChart.vue";
-import Sankey from "../components/charts/Heatmap.vue";
+import Heatmap from "../components/charts/Heatmap.vue";
+import domtoimage from 'dom-to-image';
 
 // /👾👾👾👾👾👾👾👾/ //
 // Fetch Data From Backend //
@@ -151,12 +150,13 @@ const fullscreenCardComponent = computed(() => {
   return componentMap[fullscreenCard.value] || null;
 });
 
-import domtoimage from 'dom-to-image';
+
 
 // Refs for capture targets
 const captureTarget1 = ref(null);
 const captureTarget2 = ref(null);
 const captureTarget3 = ref(null);
+const captureTarget4 = ref(null);
 
 // Array to hold the exported image URLs
 const exportedImageUrls = ref([]);
@@ -172,6 +172,8 @@ const exportAsImage = (chartNumber) => {
     captureTarget = captureTarget2;
   } else if (chartNumber === 3) {
     captureTarget = captureTarget3;
+  } else if (chartNumber === 4) {
+    captureTarget = captureTarget4;
   }
 
   if (!captureTarget.value) return;
@@ -375,7 +377,7 @@ const toggleMinimize = () => {
             class="absolute right-0 mt-2 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-40">
             <button @click="exportAsImage(1)"
               class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center gap-2">
-              <span class="material-icons">show_chart</span> Line Chart
+              <span class="material-icons">show_chart</span> Stacked Bar Graph
             </button>
             <button @click="exportAsImage(2)"
               class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center gap-2">
@@ -384,6 +386,10 @@ const toggleMinimize = () => {
             <button @click="exportAsImage(3)"
               class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center gap-2">
               <span class="material-icons">incomplete_circle</span> Pie Chart
+            </button>
+            <button @click="exportAsImage(4)"
+              class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center gap-2">
+              <span class="material-icons">apps</span> Heatmap Chart
             </button>
           </div>
         </div>
@@ -474,8 +480,8 @@ const toggleMinimize = () => {
         </div>
 
         <div class="card relative" ref="captureTarget4">
-          <button @click="expandCard('Sankey')" class="expand-btn">⛶</button>
-          <Sankey :startDate="startDate" :endDate="endDate" />
+          <button @click="expandCard('Heatmap')" class="expand-btn">⛶</button>
+          <Heatmap :startDate="startDate" :endDate="endDate" />
         </div>
       </div>
     </main>

@@ -141,13 +141,6 @@ const updateChart = () => {
         colors: strokeColors.reverse() // Reverse stroke colors to match series order
       },
       colors: colors.reverse(), // Reverse colors array to match series order
-      title: {
-        text: 'Reports by Urgency Level',
-        style: {
-          fontSize: '16px',
-          fontWeight: 'bold'
-        }
-      },
       xaxis: {
         categories: months,
         title: {
