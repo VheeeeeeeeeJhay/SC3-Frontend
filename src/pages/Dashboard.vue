@@ -14,7 +14,7 @@ import monthYearPicker from "../components/monthYearPicker.vue";
 import TestMail from "../mail/TestMail.vue";
 import UnifiedDatePicker from "../components/datePickers/UnifiedDatePicker.vue";
 import StackedBarChart from "../components/charts/StackedBarChart.vue";
-import Sankey from "../components/charts/Sankey.vue";
+import Sankey from "../components/charts/Heatmap.vue";
 
 // /👾👾👾👾👾👾👾👾/ //
 // Fetch Data From Backend //
