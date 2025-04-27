@@ -65,6 +65,10 @@ const generateHeatmapData = () => {
     return Math.floor(days / 7) + 1  // Week number (1, 2, 3, etc.)
   }
 
+  // Get min and max values for color scaling
+  let minValue = Infinity
+  let maxValue = -Infinity
+
   // Generate week labels based on the date range
   const startDate = new Date(props.startDate)
   const endDate = new Date(props.endDate)
@@ -111,6 +115,10 @@ const generateHeatmapData = () => {
         // Increment the count for the specific week and day
         if (weekIndex !== -1) {
           dataMatrix[weekIndex][dayOfWeek] += 1
+          // Update min/max values
+          const currentValue = dataMatrix[weekIndex][dayOfWeek]
+          if (currentValue < minValue) minValue = currentValue
+          if (currentValue > maxValue) maxValue = currentValue
         }
       }
     } catch (error) {
@@ -156,7 +164,7 @@ const renderChart = () => {
     },
     xaxis: {
       type: 'category',
-      categories: daysOfWeek,  // Each day of the week is a category on the X axis
+      categories: daysOfWeek,
       labels: {
         style: {
           fontSize: '12px'
@@ -164,7 +172,7 @@ const renderChart = () => {
       }
     },
     yaxis: {
-      categories: weeks,  // Each week is a category on the Y axis
+      categories: weeks,
       labels: {
         style: {
           fontSize: '12px'
@@ -180,26 +188,50 @@ const renderChart = () => {
     plotOptions: {
       heatmap: {
         colorScale: {
-          gradient: {
-            shade: 'light',
-            type: 'vertical',
-            shadeIntensity: 0.5,
-            inverseColors: false,
-            colorStops: [
-              { offset: 0, color: '#FFFFFF', opacity: 1 },
-              { offset: 20, color: '#ADD8E6', opacity: 1 },
-              { offset: 40, color: '#00FF00', opacity: 1 },
-              { offset: 60, color: '#FFFF00', opacity: 1 },
-              { offset: 80, color: '#FFA500', opacity: 1 },
-              { offset: 100, color: '#FF0000', opacity: 1 }
-            ]
-          }
+          ranges: [
+            { 
+              from: 0, 
+              to: 0, 
+              color: '#FFFFFF',
+              name: 'No Reports'
+            },
+            { 
+              from: 1, 
+              to: 5, 
+              color: '#FFE4E1',
+              name: '1-5 Reports'
+            },
+            { 
+              from: 6, 
+              to: 10, 
+              color: '#FF9999',
+              name: '6-10 Reports'
+            },
+            { 
+              from: 11, 
+              to: 15, 
+              color: '#FF6666',
+              name: '11-15 Reports'
+            },
+            { 
+              from: 16, 
+              to: 20, 
+              color: '#FF3333',
+              name: '16-20 Reports'
+            },
+            { 
+              from: 21, 
+              to: Infinity, 
+              color: '#B22222',
+              name: '21+ Reports'
+            }
+          ]
         }
       }
     },
     series: series.map((row, index) => ({
-      name: weeks[index],  // Each row is labeled with the corresponding week
-      data: row  // Each row contains accident counts for each day of the week
+      name: weeks[index],
+      data: row
     })),
     tooltip: {
       enabled: true,
