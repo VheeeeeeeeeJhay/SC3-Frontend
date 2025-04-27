@@ -17,7 +17,7 @@ const data = ref({
   for_inventory: true,
 })
 
-const { firstNameError, lastNameError, emailError, passwordError } = useAuthValidation(data);
+const { firstNameError, lastNameError, emailError, passwordError, confirmPasswordError } = useAuthValidation(data);
 
 const success = ref({
   message: [],
@@ -101,7 +101,7 @@ const submit = () => {
       <!-- Registration Form -->
       <div class="bg-white p-6 rounded-xl shadow-lg max-w-lg">
         <h2 class="text-gray-800 text-lg font-semibold mb-4">Account Registration</h2>
-        <form @submit.prevent="submit" class="flex grid grid-cols-3 gap-4">
+        <form @submit.prevent="submit" class="grid grid-cols-3 gap-4">
           <div>
             <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>
             <input type="text" name="firstName" id="firstName" v-model="data.firstName"

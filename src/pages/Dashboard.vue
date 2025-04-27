@@ -13,7 +13,8 @@ import DateRangePicker from "../components/DateRangePicker.vue";
 import monthYearPicker from "../components/monthYearPicker.vue";
 import TestMail from "../mail/TestMail.vue";
 import UnifiedDatePicker from "../components/datePickers/UnifiedDatePicker.vue";
-
+import StackedBarChart from "../components/charts/StackedBarChart.vue";
+import Sankey from "../components/charts/Sankey.vue";
 
 // /👾👾👾👾👾👾👾👾/ //
 // Fetch Data From Backend //
@@ -390,7 +391,7 @@ const toggleMinimize = () => {
     </div>
 
     <!-- Cards -->
-    <main class="grid gap-6 mt-8 sm:grid-cols-2 lg:grid-cols-3">
+    <!-- <main class="grid gap-6 mt-8 sm:grid-cols-2 lg:grid-cols-3">
       <div class="card relative z-10">
         <button @click="expandCard('IncidentGrowthRate')" class="expand-btn">⛶</button>
         <IncidentGrowthRate />
@@ -409,6 +410,7 @@ const toggleMinimize = () => {
       <div class="card relative" ref="captureTarget1">
         <button @click="expandCard('LineChart')" class="expand-btn">⛶</button>
         <LineChart :startDate="startDate" :endDate="endDate" />
+        <StackedBarChart :startDate="startDate" :endDate="endDate" />
       </div>
 
       <div class="card relative" ref="captureTarget2">
@@ -424,6 +426,57 @@ const toggleMinimize = () => {
       <div class="card relative col-span-full" ref="captureTarget3">
         <button @click="expandCard('PieChart')" class="expand-btn">⛶</button>
         <PieChart :startDate="startDate" :endDate="endDate" />
+      </div>
+
+      <div class="card relative col-span-full" ref="captureTarget3">
+        <button @click="expandCard('PieChart')" class="expand-btn">⛶</button>
+        <Sankey :startDate="startDate" :endDate="endDate" />
+      </div>
+    </main> -->
+    <main class="grid gap-6 mt-8 sm:grid-cols-2 lg:grid-cols-3">
+      <!-- Existing cards remain the same -->
+      <div class="card relative z-10">
+        <button @click="expandCard('IncidentGrowthRate')" class="expand-btn">⛶</button>
+        <IncidentGrowthRate />
+      </div>
+
+      <div class="card relative z-1">
+        <button @click="expandCard('TotalReportsReceived')" class="expand-btn">⛶</button>
+        <TotalReportsReceived :startDate="startDate" :endDate="endDate" />
+      </div>
+
+      <div class="card relative z-10">
+        <button @click="expandCard('TopPerforming')" class="expand-btn">⛶</button>
+        <TopPerforming :startDate="startDate" :endDate="endDate" />
+      </div>
+
+      <div class="card relative" ref="captureTarget1">
+        <!-- <button @click="expandCard('LineChart')" class="expand-btn">⛶</button>
+        <LineChart :startDate="startDate" :endDate="endDate" /> -->
+        <StackedBarChart :startDate="startDate" :endDate="endDate" />
+      </div>
+
+      <div class="card relative" ref="captureTarget2">
+        <button @click="expandCard('BarChart')" class="expand-btn">⛶</button>
+        <BarChart :startDate="startDate" :endDate="endDate" />
+      </div>
+
+      <div class="card relative">
+        <button @click="expandCard('RecentIncident')" class="expand-btn">⛶</button>
+        <RecentIncident />
+      </div>
+
+      <!-- New grid layout for PieChart and Sankey -->
+      <div class="grid grid-cols-2 gap-6 col-span-full">
+        <div class="card relative" ref="captureTarget3">
+          <button @click="expandCard('PieChart')" class="expand-btn">⛶</button>
+          <PieChart :startDate="startDate" :endDate="endDate" />
+        </div>
+
+        <div class="card relative" ref="captureTarget4">
+          <button @click="expandCard('Sankey')" class="expand-btn">⛶</button>
+          <Sankey :startDate="startDate" :endDate="endDate" />
+        </div>
       </div>
     </main>
 
