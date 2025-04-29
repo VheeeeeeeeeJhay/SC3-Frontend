@@ -305,6 +305,56 @@ const toggleMinimize = () => {
   console.log(minimized.value);
 };
 
+
+
+
+import draggable from 'vuedraggable'
+const cardOrder = ref([
+  {
+    key: 'IncidentGrowthRate',
+    component: IncidentGrowthRate,
+    props: {}
+  },
+  {
+    key: 'TotalReportsReceived',
+    component: TotalReportsReceived,
+    props: { startDate, endDate }
+  },
+  {
+    key: 'TopPerforming',
+    component: TopPerforming,
+    props: { startDate, endDate }
+  },
+  {
+    key: 'StackedBarChart',
+    component: StackedBarChart,
+    props: { startDate, endDate }
+  },
+  {
+    key: 'BarChart',
+    component: BarChart,
+    props: { startDate, endDate }
+  },
+  {
+    key: 'RecentIncident',
+    component: RecentIncident,
+    props: {}
+  },
+  // {
+  //   key: 'PieChart',
+  //   component: PieChart,
+  //   props: { startDate, endDate }
+  // },
+  // {
+  //   key: 'Heatmap',
+  //   component: Heatmap,
+  //   props: { startDate, endDate }
+  // }
+])
+
+// function expandCard(key) {
+//   console.log('Expanding', key)
+// }
 </script>
 
 <template>
@@ -485,6 +535,42 @@ const toggleMinimize = () => {
         </div>
       </div>
     </main>
+
+    <main class="grid gap-6 mt-8 sm:grid-cols-2 lg:grid-cols-3">
+  <draggable
+    v-model="cardOrder"
+    item-key="key"
+    class="contents"
+    :animation="200"
+    handle=".drag-handle"
+  >
+    <template #item="{ element }">
+      <div class="card relative z-10">
+        <button @click="expandCard(element.key)" class="expand-btn drag-handle">⛶</button>
+        <component :is="element.component" v-bind="element.props" />
+      </div>
+    </template>
+  </draggable>
+</main>
+
+<!-- Separate grid for PieChart and Heatmap -->
+<div class="grid grid-cols-2 gap-6 col-span-full">
+  <draggable
+    v-model="cardOrder"
+    item-key="key"
+    class="contents"
+    :animation="200"
+    handle=".drag-handle"
+    :list="cardOrder.filter(card => ['PieChart', 'Heatmap'].includes(card.key))"
+  >
+    <template #item="{ element }">
+      <div class="card relative z-10">
+        <button @click="expandCard(element.key)" class="expand-btn drag-handle">⛶</button>
+        <component :is="element.component" v-bind="element.props" />
+      </div>
+    </template>
+  </draggable>
+</div>
 
     <!-- Fullscreen Modal -->
     <transition name="modal-fade">
