@@ -411,7 +411,30 @@ if (mapData && mapData.features) {
     .geoJSON(mapData, {
       onEachFeature: (feature, layer) => {
         const barangayName = feature.properties.adm4_en || feature.properties.name;
-        console.log("Feature geometry type:", feature.geometry.type);
+        
+        // Create a formatted popup content with all properties
+        const properties = feature.properties;
+        const popupContent = `
+          <div class="p-2">
+            <h4 class="font-bold mb-2">${barangayName}</h4>
+            <div class="space-y-1">
+              ${Object.entries(properties).map(([key, value]) => 
+                `<div class="flex justify-between">
+                  <span class="font-medium">${key}:</span>
+                  <span>${value}</span>
+                </div>`
+              ).join('')}
+            </div>
+          </div>
+        `;
+
+        layer.on("click", () => {
+          layer.bindPopup(popupContent, {
+            maxWidth: 300,
+            closeButton: true
+          }).openPopup();
+        });
+
         layer.on("mouseover", () => {
           if (mapStore.showGeoJSONBorders) {
             layer.setStyle({
@@ -437,7 +460,7 @@ if (mapData && mapData.features) {
               weight: 2,
               color: "#007FFF",
               fill: true,
-              fillColor: getBarangayColor(barangayName), // Optional: reset fill on mouse out
+              fillColor: getBarangayColor(barangayName),
               fillOpacity: 0.2,
             });
           } else {
