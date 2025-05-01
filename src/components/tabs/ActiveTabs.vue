@@ -20,10 +20,10 @@ let refreshInterval = null;
 const databaseStore = useDatabaseStore()
 
 const dashboardRole = async (user) => {
-    const newRoleStatus = user.for_911 === 1 ? 0 : 1; // Toggle based on user state
+    const newRoleStatus = !user.for_911; // Toggle boolean value directly
 
-    // Prevent both roles from being false at the same time
-    if (newRoleStatus === 0 && user.for_inventory === 0) {
+    // Prevent all roles from being false at the same time
+    if (!newRoleStatus && !user.for_inventory && !user.for_traffic) {
         addToast('At least 1 role must be active', 'error', 'error');
         return;
     }
@@ -53,10 +53,10 @@ const dashboardRole = async (user) => {
 
 // Inventory Role
 const inventoryRole = async (user) => {
-    const newRoleStatus = user.for_inventory === 1 ? 0 : 1; // Toggle based on user state
+    const newRoleStatus = !user.for_inventory; // Toggle boolean value directly
 
-    // Prevent both roles from being false at the same time
-    if (newRoleStatus === 0 && user.for_911 === 0) {
+    // Prevent all roles from being false at the same time
+    if (!newRoleStatus && !user.for_911 && !user.for_traffic) {
         addToast('At least 1 role must be active', 'error', 'error');
         return;
     }
@@ -68,7 +68,6 @@ const inventoryRole = async (user) => {
                     'x-api-key': import.meta.env.VITE_API_KEY
                 }
             });
-
         // Update local state instantly
         user.for_inventory = newRoleStatus;
         addToast(response.data.message, 'success', 'check_circle');
@@ -78,32 +77,31 @@ const inventoryRole = async (user) => {
             databaseStore.fetchData(); // runs again every 50s
         }, 50000);
     } catch (error) {
-        console.error(error.response?.data?.message || error.message);
+        console.error(error.response?.data?.error);
         errors.value = error.response?.data?.error;
         addToast(errors.value, 'error', 'error');
     }
 };
-
+    
 // Traffic Role
 const trafficRole = async (user) => {
-    const newRoleStatus = user.for_traffic === 1 ? 0 : 1; // Toggle based on user state
+    const newRoleStatus = !user.for_traffic; // Toggle boolean value directly
 
-    // Prevent both roles from being false at the same time
-    if (newRoleStatus === 0 && user.for_911 === 0) {
+    // Prevent all roles from being false at the same time
+    if (!newRoleStatus && !user.for_911 && !user.for_inventory) {
         addToast('At least 1 role must be active', 'error', 'error');
         return;
     }
 
     try {
-        const response = await axiosClient.patch(`/api/911/user-inventory-role/${user.id}`, { for_inventory: newRoleStatus },
+        const response = await axiosClient.patch(`/api/911/user-traffic-role/${user.id}`, { for_traffic: newRoleStatus },
             {
                 headers: {
                     'x-api-key': import.meta.env.VITE_API_KEY
                 }
             });
-
         // Update local state instantly
-        user.for_inventory = newRoleStatus;
+        user.for_traffic = newRoleStatus;
         addToast(response.data.message, 'success', 'check_circle');
         databaseStore.fetchData();
         clearInterval(refreshInterval);
@@ -112,7 +110,7 @@ const trafficRole = async (user) => {
         }, 50000);
     } catch (error) {
         console.error(error.response?.data?.message || error.message);
-        errors.value = error.response?.data?.error;
+        errors.value = error.response?.data?.error || 'Failed to archive user';
         addToast(errors.value, 'error', 'error');
     }
 };
@@ -464,8 +462,8 @@ const handlePrint = () => {
                                 <Badge :Message="user.for_inventory ? `Has Access` : `No Access`"
                                     :class="[user.for_inventory ? 'bg-green-700' : 'bg-red-700', 'text-white']" />
                                 Traffic: 
-                                <Badge :Message="'Pending'"
-                                    :class="['bg-yellow-700 text-white']" />
+                                <Badge :Message="user.for_traffic ? `Has Access` : `No Access`"
+                                    :class="[user.for_traffic ? 'bg-green-700' : 'bg-red-700', 'text-white']" />
                             </td>
                             <td class="px-4 py-3 flex items-center justify-center relative">
                                 <button @click.stop="toggleDropdown(user.id)"
@@ -492,7 +490,7 @@ const handlePrint = () => {
                                         </li>
                                         <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
                                             <PrimaryButton @click.prevent="trafficRole(user)"
-                                                :name="user.for_inventory === 1 ? 'Deactive Inventory Access' : 'Activate Inventory Access'"
+                                                :name="user.for_traffic === 1 ? 'Deactive Traffic Access' : 'Activate Traffic Access'"
                                                 class="mt-2 hover:text-gray-700 dark:hover:text-gray-300" />
                                         </li>
                                         <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
