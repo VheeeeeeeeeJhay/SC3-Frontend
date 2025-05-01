@@ -40,7 +40,7 @@ onUnmounted(() => {
         <div class="w-full px-4 sm:px-8 py-8 bg-black/50 backdrop-blur-md  shadow-inner">
             <div class="flex flex-col  justify-center items-center max-w-6xl mx-auto">
                 <img :src="logo" alt="City of Baguio Logo" class="w-70 mx-auto" />
-                <h1 class="text-[90px] font-bold tracking-tight text-gray-900 text-red-500">Restricted Access</h1>
+                <h1 class="text-[90px] font-bold tracking-tigh text-red-500">Restricted Access</h1>
                 <p class="text-white text-[20px] font-bold">Access denied: User is not authorized for 911 system</p>
                 <p class="text-white text-[20px] font-bold">Please contact your administrator for assistance.</p>
                 <PrimaryButton @click="logout"

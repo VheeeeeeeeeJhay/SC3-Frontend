@@ -26,7 +26,7 @@ const passingData = (report) => {
     store.setData(report);
 }
 
-const addToast = inject('addToast'); 
+const addToast = inject('addToast');
 
 // onUnmounted(() => {
 //     store.clearData();
@@ -360,7 +360,7 @@ const visiblePages = computed(() => {
 
 // for printing reports
 const handlePrint = async () => {
-    try{
+    try {
         const printWindow = window.open('', '_blank', 'width=800,height=600');
 
         // Wait for the image to load
@@ -445,7 +445,7 @@ const handlePrint = async () => {
 
         printWindow.document.close();
 
-        
+
 
         // Wait for the new window to finish rendering before printing
         await new Promise((resolve) => setTimeout(resolve, 500));
@@ -599,7 +599,7 @@ const handleCSV = (filteredReports) => {
     }
 
     try {
-    // Flatten each report
+        // Flatten each report
         const flatReports = filteredReports.map(report => ({
             id: report.id,
             name: report.name,
@@ -675,23 +675,23 @@ const handleJSON = (filteredReports) => {
     }
 
     try {
-    const jsonContent = JSON.stringify(filteredReports, null, 2); // Pretty print with 2 spaces
-    const blob = new Blob([jsonContent], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
+        const jsonContent = JSON.stringify(filteredReports, null, 2); // Pretty print with 2 spaces
+        const blob = new Blob([jsonContent], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
 
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', 'filtered_reports.json');
-    document.body.appendChild(link);
-    link.click();
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'filtered_reports.json');
+        document.body.appendChild(link);
+        link.click();
 
-    addToast('Exported JSON successfully!', 'success', 'check_circle');
+        addToast('Exported JSON successfully!', 'success', 'check_circle');
 
-    // Clean up
-    setTimeout(() => {
-        URL.revokeObjectURL(url);
-        document.body.removeChild(link);
-    }, 100);
+        // Clean up
+        setTimeout(() => {
+            URL.revokeObjectURL(url);
+            document.body.removeChild(link);
+        }, 100);
     } catch (error) {
         console.error('Error exporting JSON:', error);
         addToast('Failed to export JSON. Please try again.', 'error', 'error');
@@ -704,14 +704,17 @@ const handleJSON = (filteredReports) => {
         <!-- Titleee -->
         <div class="mt-6 px-2 flex justify-between">
             <h1 class="text-2xl font-bold dark:text-white">Reports Management</h1>
-            <div class="w-full md:w-auto flex flex-col md:flex-row items-stretch md:items-center justify-end flex-shrink-0">
+            <div
+                class="w-full md:w-auto flex flex-col md:flex-row items-stretch md:items-center justify-end flex-shrink-0">
                 <DateRangePicker class="max-w-xs" @dateRangeSelected="updateDateRange" />
             </div>
         </div>
 
         <div class="mt-6 w-full">
-            <div class="relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
-                <div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
+            <div
+                class="relative shadow-md sm:rounded-lg bg-sky-50 border-gray-200 text-gray-800 dark:bg-slate-800 dark:border-black dark:text-white">
+                <div
+                    class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
                     <div class="w-full md:w-1/2">
                         <form class="flex items-center">
                             <label for="simple-search" class="sr-only">Search</label>
@@ -726,7 +729,8 @@ const handleJSON = (filteredReports) => {
                         </form>
                     </div>
 
-                    <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+                    <div
+                        class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
 
                         <div v-if="selectedReports.length > 0">
                             <!-- modal delete -->
@@ -976,8 +980,27 @@ const handleJSON = (filteredReports) => {
                     <tbody>
                         <tr v-for="report in paginatedReports" :key="report.id"
                             class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
-                            <td class="px-4 py-3 text-center"><input type="checkbox" :value="report"
-                                    v-model="selectedReports" class="w-4 h-4" /></td>
+                            <td class="px-4 py-3 text-center">
+                                <!-- <input type="checkbox" :value="report" v-model="selectedReports" class="w-4 h-4" /> -->
+                                <div class="inline-flex items-center">
+                                    <label class="relative flex cursor-pointer items-center rounded-full p-3"
+                                        for="checkbox-1" data-ripple-dark="true">
+                                        <input type="checkbox" :value="report" v-model="selectedReports"
+                                            class="before:content[''] peer relative h-5 w-5 cursor-pointer appearance-none rounded-md border border-blue-gray-200 transition-all before:absolute before:top-2/4 before:left-2/4 before:block before:h-12 before:w-12 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full before:bg-blue-gray-500 before:opacity-0 before:transition-opacity checked:border-teal-500 checked:bg-teal-500 checked:before:bg-teal-500 hover:before:opacity-10"
+                                            id="checkbox-1" checked />
+                                        <div
+                                            class="pointer-events-none absolute top-2/4 left-2/4 -translate-y-2/4 -translate-x-2/4 text-white opacity-0 transition-opacity peer-checked:opacity-100">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5"
+                                                viewBox="0 0 20 20" fill="currentColor" stroke="currentColor"
+                                                stroke-width="1">
+                                                <path fill-rule="evenodd"
+                                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                    clip-rule="evenodd"></path>
+                                            </svg>
+                                        </div>
+                                    </label>
+                                </div>
+                            </td>
                             <!-- <td class="px-4 py-3 text-center">{{ report.id }}</td> -->
                             <td class="px-4 py-3 text-center">{{ report.source.sources }}</td>
                             <td class="px-4 py-3 text-center">{{ report.assistance.assistance }}</td>
@@ -1000,9 +1023,7 @@ const handleJSON = (filteredReports) => {
                                     </svg>
                                 </button>
 
-                                <div 
-                                v-if="openDropdownId === report.id"
-                                :ref="el => dropdownRefs[report.id] = el"
+                                <div v-if="openDropdownId === report.id" :ref="el => dropdownRefs[report.id] = el"
                                     class="absolute z-10 w-44 top-full right-0 shadow-sm border rounded-md bg-white dark:bg-slate-700"
                                     @click.stop>
 
@@ -1021,9 +1042,8 @@ const handleJSON = (filteredReports) => {
                                                 Edit Report
                                             </RouterLink>
                                         </li>
-                                        <PopupModal
-                                            Title="Are you sure you want to delete this report?" ModalButton="Delete"
-                                            Icon="cancel" Classes="" :show="isDeleteModalOpen"
+                                        <PopupModal Title="Are you sure you want to delete this report?"
+                                            ModalButton="Delete" Icon="cancel" Classes="" :show="isDeleteModalOpen"
                                             @update:show="isDeleteModalOpen = $event"
                                             ButtonClass="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600">
                                             <template #modalContent>
@@ -1046,7 +1066,7 @@ const handleJSON = (filteredReports) => {
                     class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">
                     <span class="text-sm font-normal">Showing {{ filteredReports.length > 0 ? (currentPage - 1) *
                         itemsPerPage + 1 : 0
-                    }} to {{
+                        }} to {{
                             Math.min(currentPage *
                                 itemsPerPage, filteredReports.length) }} of {{ filteredReports.length }}</span>
                     <ul class="inline-flex items-stretch -space-x-px">

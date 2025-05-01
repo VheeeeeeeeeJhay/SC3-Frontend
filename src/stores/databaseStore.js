@@ -96,14 +96,16 @@ export const useDatabaseStore = defineStore('database', {
         this.reportsList = resReports.data[0] || [];
         this.classificationsList = resReports.data[1] || [];
         this.urgenciesList = resReports.data[2] || [];
+        console.log(this.urgenciesList , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is urgenciesList', 'color: red');
         this.actionsList = resReports.data[3] || [];
-
+        
         // axiosClient.get('/api/911/report', { headers: { 'x-api-key': API_KEY } }),
         this.sources = resReportDatas.data.sources || [];
         this.actions = resReportDatas.data.actions || [];
         this.incidents = resReportDatas.data.incidents || [];
         this.assistance = resReportDatas.data.assistance || [];
         this.urgencies = resReportDatas.data.urgencies || [];
+        console.log(this.urgencies , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is urgencies', 'color: red');
         this.barangays = resReportDatas.data.barangays || [];
 
         // axiosClient.get('/api/911/recent', { headers: { 'x-api-key': API_KEY } }),

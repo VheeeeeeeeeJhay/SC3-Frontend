@@ -19,7 +19,7 @@ import breathe from '../../assets/breathe-baguio.png';
           <img :src="logo" alt="City of Baguio Logo" class="w-70 mx-auto" />
           <img :src="breathe" alt="Breathe Baguio" class="w-120 mx-auto" />
         </div>
-        <h1 class="text-[90px] font-bold tracking-tight text-gray-900 text-red-500">404</h1>
+        <h1 class="text-[90px] font-bold tracking-tigh text-red-500">404</h1>
         <p class="text-white text-[45px] font-bold">Ooops, Page not found</p>
         <RouterLink :to="{ name: 'Overview' }">
           <PrimaryButton class="bg-teal-500 hover:bg-teal-600 hover:shadow-md font-bold text-white" name="Go Back"

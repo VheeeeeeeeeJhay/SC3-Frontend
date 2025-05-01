@@ -105,7 +105,7 @@ const options = ref({
   },
   stroke: { colors: ["white"], width: 1 },
   labels: [],
-  dataLabels: { enabled: false },
+  dataLabels: { enabled: true },
   legend: {
     position: "bottom",
     fontSize: "12px",

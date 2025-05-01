@@ -4,11 +4,14 @@ import { useDatabaseStore } from '../../stores/databaseStore';
 import { useArrayStore } from '../../stores/arrayStore';
 import DateRangePicker from '../../components/DateRangePicker.vue';
 import { useActionDropdown } from '../../composables/useActionDropdown';
+import Badge from '../../components/Badge.vue';
 
 const addToast = inject('addToast');
 
 const databaseStore = useDatabaseStore();
 const store = useArrayStore();
+
+let count = ref(0);
 
 // Auto-refresh logs
 let refreshInterval = null;
@@ -16,6 +19,8 @@ onMounted(() => {
     databaseStore.fetchData();
     refreshInterval = setInterval(() => {
         databaseStore.fetchData();
+        count.value++;
+        addToast(`Logs data refreshed! ${count.value} times!`, 'success', 'info');
     }, 50000);
 });
 
@@ -122,10 +127,6 @@ const passingData = (log) => {
     store.setData(log);
 };
 
-// onUnmounted(() => {
-//     store.clearData();
-// })
-
 const formattedDate = computed(() => {
   return (dateString) => {
     if (!dateString) return '';
@@ -196,7 +197,7 @@ const updateDateRange = ({ start, end }) => {
                     <tr v-for="log in paginatedLogs" :key="log.id" class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
                         <td class="px-4 py-3 text-center">{{ log.id }}</td>
                         <td class="px-4 py-3 text-center">{{ log.category }}</td>
-                        <td class="px-4 py-3 text-center">{{ log.action }}</td>
+                        <td class="px-4 py-3 text-center"><Badge :Class="log.action === 'Created' ? 'bg-green-300 text-green-800' : log.action === 'Updated' ? 'bg-blue-300 text-blue-800' : log.action === 'Deleted' ? 'bg-rose-300 text-rose-800' : log.action === 'Restored' ? 'bg-emerald-300 text-emerald-800' : log.action === 'Multiple Delete' ? 'bg-red-300 text-red-800' : 'bg-gray-300 text-gray-800'" :Message="log.action" /></td>
                         <td class="px-4 py-3 text-center">{{ log.description }}</td>
                         <td class="px-4 py-3 text-center">{{ formattedDate(log.created_at) }}</td>
                         <td class="px-4 py-3 text-center relative">
