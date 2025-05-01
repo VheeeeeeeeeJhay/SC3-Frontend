@@ -90,24 +90,25 @@ const passingData = (barangay) => {
 
 
 <template>
-    <!-- Title -->
-    <h2 class="text-base font-medium dark:text-white">
-        Barangay with the Most Cases
-    </h2>
+  <!-- Title -->
+  <h2 class="text-base font-medium dark:text-white text-gray-900">
+    Barangay with the Most Cases
+  </h2>
 
-    <ul class="mt-2 text-white text-sm space-y-2">
-      <li v-for="(barangay, index) in topBarangays" :key="barangay.id">
-        <RouterLink @click="passingData(barangay)"
-          :to="`/barangay-statistics/${barangay.id}`"
-          class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-700 cursor-pointer"
-        >
-          <span class="text-teal-400">#{{ index + 1 }}</span>
-          <span>{{ barangay.name }} ({{ barangay.count }})</span>
-        </RouterLink>
-      </li>
-    </ul>
-
-
+  <ul class="mt-2 text-sm space-y-2">
+    <li v-for="(barangay, index) in topBarangays" :key="barangay.id">
+      <RouterLink @click="passingData(barangay)"
+        :to="`/barangay-statistics/${barangay.id}`"
+        class="flex items-center space-x-2 p-2 rounded-lg 
+               hover:bg-gray-300 dark:hover:bg-teal-600 cursor-pointer">
+        <span class="text-teal-400">#{{ index + 1 }}</span>
+        <!-- Text color based on light/dark mode -->
+        <span class="dark:text-white text-gray-900">{{ barangay.name }} ({{ barangay.count }})</span>
+      </RouterLink>
+    </li>
+  </ul>
 </template>
+
+
 
 <style scoped></style>
