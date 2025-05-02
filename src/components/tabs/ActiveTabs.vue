@@ -483,6 +483,11 @@ const handlePrint = () => {
                                     class="absolute z-10 w-48 top-full right-0 shadow-sm border rounded-md bg-white dark:bg-slate-700">
                                     <ul class="py-2 text-sm">
                                         <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
+                                            <PrimaryButton @click="'Change Password'"
+                                                :name="'Change Password'"
+                                                class="mt-2 hover:text-gray-700 dark:hover:text-gray-300" />
+                                        </li>
+                                        <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
                                             <PrimaryButton @click.prevent="dashboardRole(user)"
                                                 :name="user.for_911 === 1 ? 'Deactive 911 Access' : 'Activate 911 Access'"
                                                 class="mt-2 hover:text-gray-700 dark:hover:text-gray-300" />
