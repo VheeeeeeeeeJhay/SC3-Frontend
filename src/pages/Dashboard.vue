@@ -1,7 +1,5 @@
 <script setup>
-
-import { ref, computed, onMounted, watch, onUnmounted } from "vue";
-import axiosClient from "../axios.js";
+import { ref, computed, onMounted } from "vue";
 import PieChart from "../components/charts/PieChart.vue";
 import LineChart from "../components/charts/LineChart.vue";
 import BarChart from "../components/charts/BarChart.vue";
@@ -13,7 +11,9 @@ import DateRangePicker from "../components/DateRangePicker.vue";
 import monthYearPicker from "../components/monthYearPicker.vue";
 import TestMail from "../mail/TestMail.vue";
 import UnifiedDatePicker from "../components/datePickers/UnifiedDatePicker.vue";
-
+import StackedBarChart from "../components/charts/StackedBarChart.vue";
+import Heatmap from "../components/charts/Heatmap.vue";
+import domtoimage from 'dom-to-image';
 
 // /👾👾👾👾👾👾👾👾/ //
 // Fetch Data From Backend //
@@ -150,12 +150,13 @@ const fullscreenCardComponent = computed(() => {
   return componentMap[fullscreenCard.value] || null;
 });
 
-import domtoimage from 'dom-to-image';
+
 
 // Refs for capture targets
 const captureTarget1 = ref(null);
 const captureTarget2 = ref(null);
 const captureTarget3 = ref(null);
+const captureTarget4 = ref(null);
 
 // Array to hold the exported image URLs
 const exportedImageUrls = ref([]);
@@ -171,6 +172,8 @@ const exportAsImage = (chartNumber) => {
     captureTarget = captureTarget2;
   } else if (chartNumber === 3) {
     captureTarget = captureTarget3;
+  } else if (chartNumber === 4) {
+    captureTarget = captureTarget4;
   }
 
   if (!captureTarget.value) return;
@@ -313,7 +316,7 @@ const toggleMinimize = () => {
         <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Export Preview</h3>
         <div class="flex gap-2">
           <button @click="toggleMinimize" class="text-gray-500 hover:text-gray-700 dark:hover:text-white transition">
-            —
+            — 
           </button>
           <button @click="clearAllImages" class="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition">
             ✕
@@ -356,6 +359,7 @@ const toggleMinimize = () => {
   </div>
 
   <!-- Main Dashboard -->
+
   <div class="min-h-screen px-12 pt-6 pb-10 bg-gradient-to-br from-white via-[#f4f4f9] to-[#000000] dark:bg-gradient-to-br dark:from-black dark:via-[#004D4F] dark:to-black text-black dark:text-white shadow-[rgba(0,0,255,0.3)_0px_15px_25px,_rgba(255,0,0,0.22)_0px_10px_10px] transition-colors">
 
     <div class="flex justify-between items-center px-2">
@@ -374,7 +378,7 @@ const toggleMinimize = () => {
             class="absolute right-0 mt-2 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-40">
             <button @click="exportAsImage(1)"
               class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center gap-2">
-              <span class="material-icons">show_chart</span> Line Chart
+              <span class="material-icons">show_chart</span> Stacked Bar Graph
             </button>
             <button @click="exportAsImage(2)"
               class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center gap-2">
@@ -384,13 +388,17 @@ const toggleMinimize = () => {
               class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center gap-2">
               <span class="material-icons">incomplete_circle</span> Pie Chart
             </button>
+            <button @click="exportAsImage(4)"
+              class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center gap-2">
+              <span class="material-icons">apps</span> Heatmap Chart
+            </button>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Cards -->
-    <main class="grid gap-6 mt-8 sm:grid-cols-2 lg:grid-cols-3">
+    <!-- <main class="grid gap-6 mt-8 sm:grid-cols-2 lg:grid-cols-3">
       <div class="card relative z-10">
         <button @click="expandCard('IncidentGrowthRate')" class="expand-btn">⛶</button>
         <IncidentGrowthRate />
@@ -409,6 +417,7 @@ const toggleMinimize = () => {
       <div class="card relative" ref="captureTarget1">
         <button @click="expandCard('LineChart')" class="expand-btn">⛶</button>
         <LineChart :startDate="startDate" :endDate="endDate" />
+        <StackedBarChart :startDate="startDate" :endDate="endDate" />
       </div>
 
       <div class="card relative" ref="captureTarget2">
@@ -424,6 +433,57 @@ const toggleMinimize = () => {
       <div class="card relative col-span-full" ref="captureTarget3">
         <button @click="expandCard('PieChart')" class="expand-btn">⛶</button>
         <PieChart :startDate="startDate" :endDate="endDate" />
+      </div>
+
+      <div class="card relative col-span-full" ref="captureTarget3">
+        <button @click="expandCard('PieChart')" class="expand-btn">⛶</button>
+        <Sankey :startDate="startDate" :endDate="endDate" />
+      </div>
+    </main> -->
+    <main class="grid gap-6 mt-8 sm:grid-cols-2 lg:grid-cols-3">
+      <!-- Existing cards remain the same -->
+      <div class="card relative z-10">
+        <button @click="expandCard('IncidentGrowthRate')" class="expand-btn">⛶</button>
+        <IncidentGrowthRate />
+      </div>
+
+      <div class="card relative z-1">
+        <button @click="expandCard('TotalReportsReceived')" class="expand-btn">⛶</button>
+        <TotalReportsReceived :startDate="startDate" :endDate="endDate" />
+      </div>
+
+      <div class="card relative z-10">
+        <button @click="expandCard('TopPerforming')" class="expand-btn">⛶</button>
+        <TopPerforming :startDate="startDate" :endDate="endDate" />
+      </div>
+
+      <div class="card relative" ref="captureTarget1">
+        <!-- <button @click="expandCard('LineChart')" class="expand-btn">⛶</button>
+        <LineChart :startDate="startDate" :endDate="endDate" /> -->
+        <StackedBarChart :startDate="startDate" :endDate="endDate" />
+      </div>
+
+      <div class="card relative" ref="captureTarget2">
+        <button @click="expandCard('BarChart')" class="expand-btn">⛶</button>
+        <BarChart :startDate="startDate" :endDate="endDate" />
+      </div>
+
+      <div class="card relative">
+        <button @click="expandCard('RecentIncident')" class="expand-btn">⛶</button>
+        <RecentIncident />
+      </div>
+
+      <!-- New grid layout for PieChart and Sankey -->
+      <div class="grid grid-cols-2 gap-6 col-span-full">
+        <div class="card relative" ref="captureTarget3">
+          <button @click="expandCard('PieChart')" class="expand-btn">⛶</button>
+          <PieChart :startDate="startDate" :endDate="endDate" />
+        </div>
+
+        <div class="card relative" ref="captureTarget4">
+          <button @click="expandCard('Heatmap')" class="expand-btn">⛶</button>
+          <Heatmap :startDate="startDate" :endDate="endDate" />
+        </div>
       </div>
     </main>
 
@@ -446,6 +506,27 @@ const toggleMinimize = () => {
 </template>
 
 <style scoped>
+/* Updated Light Mode Gradient */
+/* Updated Light Mode Gradient */
+.bg-light-gradient {
+  background: linear-gradient(to bottom right, #d8d8d8, #303030);
+}
+
+/* Updated Dark Mode Gradient */
+.dark .bg-light-gradient {
+  background: linear-gradient(to bottom right, #000000, #0e1d31);
+}
+
+/* Default Dark Mode Gradient */
+.bg-dark-gradient {
+  background: linear-gradient(to bottom right, #000000, #111b29);
+}
+
+/* Light Mode Gradient for Dark Mode */
+.dark .bg-dark-gradient {
+  background: linear-gradient(to bottom right, #e4e4e4, #f0f0f0);
+}
+
 .card {
   background-color: white;
   border: 1px solid #e5e7eb;

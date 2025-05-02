@@ -74,17 +74,22 @@ export const useDatabaseStore = defineStore('database', {
 
         // axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }),
         this.activeUsers = resActiveUsers.data.filter(user => 
-            ((user.for_911 === 1 && user.for_inventory === 1) || 
-            (user.for_911 === 1 && user.for_inventory === 0) || 
-            (user.for_911 === 0 && user.for_inventory === 1)) && 
+            ((user.for_911 === 1 && user.for_inventory === 1 && user.for_traffic === 1) || 
+            (user.for_911 === 1 && user.for_inventory === 0 && user.for_traffic === 1) || 
+            (user.for_911 === 0 && user.for_inventory === 1 && user.for_traffic === 1)) ||
+            (user.for_911 === 1 && user.for_inventory === 1 && user.for_traffic === 0) ||
+            (user.for_911 === 1 && user.for_inventory === 0 && user.for_traffic === 0) ||
+            (user.for_911 === 0 && user.for_inventory === 1 && user.for_traffic === 0) ||
+            (user.for_911 === 0 && user.for_inventory === 0 && user.for_traffic === 1) && 
             (user.is_deleted === 0) 
         );
-        // console.log(this.activeUsers , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is activeUsers', 'color: blue');
+        console.log(this.activeUsers , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is activeUsers', 'color: blue');
 
         // axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }),
         this.archivedUsers = resArchivedUsers.data.filter(user => 
             (user.is_deleted === 1)
         );
+        console.log(this.archivedUsers , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is archivedUsers', 'color: red');
 
         // axiosClient.get('/api/911/barangay', { headers: { 'x-api-key': API_KEY } }),
         this.barangaysList = resBarangays.data.barangays;
@@ -96,14 +101,16 @@ export const useDatabaseStore = defineStore('database', {
         this.reportsList = resReports.data[0] || [];
         this.classificationsList = resReports.data[1] || [];
         this.urgenciesList = resReports.data[2] || [];
+        console.log(this.urgenciesList , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is urgenciesList', 'color: red');
         this.actionsList = resReports.data[3] || [];
-
+        
         // axiosClient.get('/api/911/report', { headers: { 'x-api-key': API_KEY } }),
         this.sources = resReportDatas.data.sources || [];
         this.actions = resReportDatas.data.actions || [];
         this.incidents = resReportDatas.data.incidents || [];
         this.assistance = resReportDatas.data.assistance || [];
         this.urgencies = resReportDatas.data.urgencies || [];
+        console.table(this.urgencies , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is urgencies', 'color: red');
         this.barangays = resReportDatas.data.barangays || [];
 
         // axiosClient.get('/api/911/recent', { headers: { 'x-api-key': API_KEY } }),
