@@ -443,7 +443,7 @@ const handlePrint = () => {
                                         :class="sortEmail === 'asc' ? 'pi pi-sort-alpha-up' : (sortEmail === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
                             </th>
                             <th scope="col" class="px-4 py-3 text-center">Roles</th>
-                            <!-- <th scope="col" class="px-4 py-3">Inventory</th> -->
+                            <th scope="col" class="px-4 py-3">Verified</th>
                             <th scope="col" class="px-4 py-3 text-center">Actions</th>
                         </tr>
                     </thead>
@@ -464,6 +464,10 @@ const handlePrint = () => {
                                 Traffic: 
                                 <Badge :Message="user.for_traffic ? `Has Access` : `No Access`"
                                     :class="[user.for_traffic ? 'bg-green-700' : 'bg-red-700', 'text-white']" />
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                <Badge :Message="user.email_verified_at ? `Verified` : `Not Verified`"
+                                    :class="[user.email_verified_at ? 'bg-green-700' : 'bg-red-700', 'text-white']" />
                             </td>
                             <td class="px-4 py-3 flex items-center justify-center relative">
                                 <button @click.stop="toggleDropdown(user.id)"
