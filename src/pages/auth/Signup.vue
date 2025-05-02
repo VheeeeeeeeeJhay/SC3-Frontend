@@ -12,7 +12,8 @@ const data = ref({
   password: '',
   password_confirmation: '',
   for_911: true,
-  for_inventory: true,
+  for_inventory: false,
+  for_traffic: false,
 })
 
 const { firstNameError, lastNameError, emailError, passwordError, confirmPasswordError } = useAuthValidation(data);

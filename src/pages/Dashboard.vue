@@ -316,7 +316,7 @@ const toggleMinimize = () => {
         <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Export Preview</h3>
         <div class="flex gap-2">
           <button @click="toggleMinimize" class="text-gray-500 hover:text-gray-700 dark:hover:text-white transition">
-            —
+            — 
           </button>
           <button @click="clearAllImages" class="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition">
             ✕
@@ -359,6 +359,7 @@ const toggleMinimize = () => {
   </div>
 
   <!-- Main Dashboard -->
+
   <div class="min-h-screen px-12 pt-6 pb-10 bg-gradient-to-br from-white via-[#f4f4f9] to-[#000000] dark:bg-gradient-to-br dark:from-black dark:via-[#004D4F] dark:to-black text-black dark:text-white shadow-[rgba(0,0,255,0.3)_0px_15px_25px,_rgba(255,0,0,0.22)_0px_10px_10px] transition-colors">
 
     <div class="flex justify-between items-center px-2">
@@ -505,6 +506,27 @@ const toggleMinimize = () => {
 </template>
 
 <style scoped>
+/* Updated Light Mode Gradient */
+/* Updated Light Mode Gradient */
+.bg-light-gradient {
+  background: linear-gradient(to bottom right, #d8d8d8, #303030);
+}
+
+/* Updated Dark Mode Gradient */
+.dark .bg-light-gradient {
+  background: linear-gradient(to bottom right, #000000, #0e1d31);
+}
+
+/* Default Dark Mode Gradient */
+.bg-dark-gradient {
+  background: linear-gradient(to bottom right, #000000, #111b29);
+}
+
+/* Light Mode Gradient for Dark Mode */
+.dark .bg-dark-gradient {
+  background: linear-gradient(to bottom right, #e4e4e4, #f0f0f0);
+}
+
 .card {
   background-color: white;
   border: 1px solid #e5e7eb;
