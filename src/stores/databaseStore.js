@@ -74,14 +74,13 @@ export const useDatabaseStore = defineStore('database', {
 
         // axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }),
         this.activeUsers = resActiveUsers.data.filter(user => 
-            ((user.for_911 === 1 && user.for_inventory === 1 && user.for_traffic === 1) || 
-            (user.for_911 === 1 && user.for_inventory === 0 && user.for_traffic === 1) || 
-            (user.for_911 === 0 && user.for_inventory === 1 && user.for_traffic === 1)) ||
-            (user.for_911 === 1 && user.for_inventory === 1 && user.for_traffic === 0) ||
-            (user.for_911 === 1 && user.for_inventory === 0 && user.for_traffic === 0) ||
-            (user.for_911 === 0 && user.for_inventory === 1 && user.for_traffic === 0) ||
-            (user.for_911 === 0 && user.for_inventory === 0 && user.for_traffic === 1) && 
-            (user.is_deleted === 0) 
+            ((user.for_911 === 1 && user.for_inventory === 1 && user.for_traffic === 1 && user.is_deleted === 0) || 
+            (user.for_911 === 1 && user.for_inventory === 0 && user.for_traffic === 1 && user.is_deleted === 0) || 
+            (user.for_911 === 0 && user.for_inventory === 1 && user.for_traffic === 1 && user.is_deleted === 0) ||
+            (user.for_911 === 1 && user.for_inventory === 1 && user.for_traffic === 0 && user.is_deleted === 0) ||
+            (user.for_911 === 1 && user.for_inventory === 0 && user.for_traffic === 0 && user.is_deleted === 0) ||
+            (user.for_911 === 0 && user.for_inventory === 1 && user.for_traffic === 0 && user.is_deleted === 0) ||
+            (user.for_911 === 0 && user.for_inventory === 0 && user.for_traffic === 1 && user.is_deleted === 0)) 
         );
         console.log(this.activeUsers , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is activeUsers', 'color: blue');
 

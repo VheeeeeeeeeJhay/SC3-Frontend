@@ -12,6 +12,7 @@ import { useArrayStore } from '../../stores/arrayStore';
 import DeleteModal from '../../components/modal/DeleteModal.vue';
 import logo from '../../assets/baguio-logo.png';
 import { useActionDropdown } from '../../composables/useActionDropdown';
+import { usePagination } from '../../composables/usePagination';
 
 const router = useRouter();
 const id = String(useRoute().params.id);
@@ -223,7 +224,10 @@ const filteredReports = computed(() => {
             // Adjust these fields as needed for your data
             report.source.sources.toLowerCase().includes(query) ||
             report.assistance.assistance.toLowerCase().includes(query) ||
-            report.incident.type.toLowerCase().includes(query)
+            report.incident.type.toLowerCase().includes(query) ||
+            report.actions.actions.toLowerCase().includes(query) ||
+            report.barangay.name.toLowerCase().includes(query) ||
+            report.urgency.urgency.toLowerCase().includes(query)
             // Add more fields if needed
         );
     }
@@ -297,59 +301,75 @@ const formSubmit = async (report_Id) => {
 };
 
 
-// Pagination
-const currentPage = ref(1);
-const itemsPerPage = ref(10);
-// Total pages based on filtered results
-const totalPages = computed(() => {
-    return Math.ceil(filteredReports.value.length / itemsPerPage.value);
-});
-// Get paginated reports
-const paginatedReports = computed(() => {
-    const start = (currentPage.value - 1) * itemsPerPage.value;
-    const end = start + itemsPerPage.value;
-    return filteredReports.value.slice(start, end);
-});
-// Pagination controls
-const nextPage = () => {
-    if (currentPage.value < totalPages.value) {
-        currentPage.value++;
-    }
-};
-const prevPage = () => {
-    if (currentPage.value > 1) {
-        currentPage.value--;
-    }
-};
-const goToPage = (page) => {
-    if (page >= 1 && page <= totalPages.value) {
-        currentPage.value = page;
-    }
-};
-// Reset to first page when searching
-watch(searchQuery, () => {
-    currentPage.value = 1;
-});
+// // Pagination
+// const currentPage = ref(1);
+// const itemsPerPage = ref(10);
+// // Total pages based on filtered results
+// const totalPages = computed(() => {
+//     return Math.ceil(filteredReports.value.length / itemsPerPage.value);
+// });
+// // Get paginated reports
+// const paginatedReports = computed(() => {
+//     const start = (currentPage.value - 1) * itemsPerPage.value;
+//     const end = start + itemsPerPage.value;
+//     return filteredReports.value.slice(start, end);
+// });
+// // Pagination controls
+// const nextPage = () => {
+//     if (currentPage.value < totalPages.value) {
+//         currentPage.value++;
+//     }
+// };
+// const prevPage = () => {
+//     if (currentPage.value > 1) {
+//         currentPage.value--;
+//     }
+// };
+// const goToPage = (page) => {
+//     if (page >= 1 && page <= totalPages.value) {
+//         currentPage.value = page;
+//     }
+// };
+// // Reset to first page when searching
+// watch(searchQuery, () => {
+//     currentPage.value = 1;
+// });
 
-const maxVisiblePages = 3;
+// const maxVisiblePages = 3;
 
-const paginationStart = computed(() => {
-    if (currentPage.value <= Math.floor(maxVisiblePages / 2)) {
-        return 1;
-    } else if (currentPage.value + Math.floor(maxVisiblePages / 2) >= totalPages.value) {
-        return Math.max(1, totalPages.value - maxVisiblePages + 1);
-    } else {
-        return currentPage.value - Math.floor(maxVisiblePages / 2);
-    }
-});
+// const paginationStart = computed(() => {
+//     if (currentPage.value <= Math.floor(maxVisiblePages / 2)) {
+//         return 1;
+//     } else if (currentPage.value + Math.floor(maxVisiblePages / 2) >= totalPages.value) {
+//         return Math.max(1, totalPages.value - maxVisiblePages + 1);
+//     } else {
+//         return currentPage.value - Math.floor(maxVisiblePages / 2);
+//     }
+// });
 
-const paginationEnd = computed(() => {
-    return Math.min(totalPages.value, paginationStart.value + maxVisiblePages - 1);
-});
+// const paginationEnd = computed(() => {
+//     return Math.min(totalPages.value, paginationStart.value + maxVisiblePages - 1);
+// });
 
-const visiblePages = computed(() => {
-    return Array.from({ length: paginationEnd.value - paginationStart.value + 1 }, (_, i) => paginationStart.value + i);
-});
+// const visiblePages = computed(() => {
+//     return Array.from({ length: paginationEnd.value - paginationStart.value + 1 }, (_, i) => paginationStart.value + i);
+// });
+
+const {
+    currentPage,
+    itemsPerPage,
+    totalPages,
+    paginatedData,   // <-- this replaces paginatedReports
+    visiblePages,    // <-- replaces paginationStart/paginationEnd logic
+    nextPage,
+    prevPage,
+    goToPage,
+    resetPage
+} = usePagination(filteredReports, { itemsPerPage: 10, maxVisiblePages: 3 })
+
+watch(searchQuery, () => resetPage())
+
+
 
 const isModalOpen = ref(false);
 
@@ -948,14 +968,11 @@ const handleJSON = (filteredReports) => {
                                             :class="sortUrgency === 'asc' ? 'pi pi-sort-alpha-up' : (sortUrgency === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
                                 </div>
                             </th>
-                            <th scope="col" class="px-4 py-3 text-center">
-                                <button class="" @click="toggleSortBarangay">LOCATION</button>
-                            </th>
                             <th scope="col" class="px-4 py-3 text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="report in paginatedReports" :key="report.id"
+                        <tr v-for="report in paginatedData" :key="report.id"
                             class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
                             <td class="px-4 py-3 text-center">
                                 <!-- <input type="checkbox" :value="report" v-model="selectedReports" class="w-4 h-4" /> -->
@@ -990,7 +1007,6 @@ const handleJSON = (filteredReports) => {
                                             'text-gray-500', 'font-bold']">
                                 {{ report.urgency.urgency }}
                             </td>
-                            <td class="px-4 py-3 text-center">{{ report.barangay.name }}</td>
                             <td class="px-4 py-3 text-center flex items-center relative justify-center">
                                 <button @click.stop="toggleDropdown(report.id)"
                                     class="inline-flex items-center p-0.5 text-sm font-medium rounded-lg">
@@ -1057,7 +1073,7 @@ const handleJSON = (filteredReports) => {
                             </button>
                         </li>
 
-                        <li v-if="paginationStart > 1">
+                        <li v-if="visiblePages[0] > 1">
                             <button @click="goToPage(1)"
                                 class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600">1</button>
                             <button disabled class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</button>
@@ -1070,7 +1086,7 @@ const handleJSON = (filteredReports) => {
                             </button>
                         </li>
 
-                        <li v-if="paginationEnd < totalPages">
+                        <li v-if="visiblePages[visiblePages.length - 1] < totalPages">
                             <button disabled class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</button>
                             <button @click="goToPage(totalPages)"
                                 class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600">{{
