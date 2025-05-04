@@ -9,6 +9,7 @@ import { useArrayStore } from '../../stores/arrayStore';
 import DeleteModal from '../../components/modal/DeleteModal.vue';
 import DateRangePicker from "../../components/DateRangePicker.vue";
 import { useActionDropdown } from '../../composables/useActionDropdown';
+import { usePagination } from '../../composables/usePagination';
 
 const searchQuery = ref("");
 const selectedClassifications = ref([]);
@@ -188,7 +189,10 @@ const filteredReports = computed(() => {
             // Adjust these fields as needed for your data
             report.source.sources.toLowerCase().includes(query) ||
             report.assistance.assistance.toLowerCase().includes(query) ||
-            report.incident.type.toLowerCase().includes(query)
+            report.incident.type.toLowerCase().includes(query) ||
+            report.actions.actions.toLowerCase().includes(query) ||
+            report.barangay.name.toLowerCase().includes(query) ||
+            report.urgency.urgency.toLowerCase().includes(query)
             // Add more fields if needed
         );
     }
@@ -301,62 +305,79 @@ const closeDropdowns = (event) => {
 
 document.addEventListener("click", closeDropdowns);
 
-// Pagination
-const currentPage = ref(1);
-const itemsPerPage = ref(10);
-// Total pages based on filtered results
-const totalPages = computed(() => {
-    return Math.ceil(filteredReports.value.length / itemsPerPage.value);
-});
-// Get paginated reports
-const paginatedReports = computed(() => {
-    const start = (currentPage.value - 1) * itemsPerPage.value;
-    const end = start + itemsPerPage.value;
-    return filteredReports.value.slice(start, end);
-});
+// // Pagination
+// const currentPage = ref(1);
+// const itemsPerPage = ref(10);
+// // Total pages based on filtered results
+// const totalPages = computed(() => {
+//     return Math.ceil(filteredReports.value.length / itemsPerPage.value);
+// });
+// // Get paginated reports
+// const paginatedReports = computed(() => {
+//     const start = (currentPage.value - 1) * itemsPerPage.value;
+//     const end = start + itemsPerPage.value;
+//     return filteredReports.value.slice(start, end);
+// });
 
-// Pagination controls
-const nextPage = () => {
-    if (currentPage.value < totalPages.value) {
-        currentPage.value++;
-    }
-};
-const prevPage = () => {
-    if (currentPage.value > 1) {
-        currentPage.value--;
-    }
-};
-const goToPage = (page) => {
-    if (page >= 1 && page <= totalPages.value) {
-        currentPage.value = page;
-    }
-};
-// Reset to first page when searching
-watch(searchQuery, () => {
-    currentPage.value = 1;
-});
+// // Pagination controls
+// const nextPage = () => {
+//     if (currentPage.value < totalPages.value) {
+//         currentPage.value++;
+//     }
+// };
+// const prevPage = () => {
+//     if (currentPage.value > 1) {
+//         currentPage.value--;
+//     }
+// };
+// const goToPage = (page) => {
+//     if (page >= 1 && page <= totalPages.value) {
+//         currentPage.value = page;
+//     }
+// };
+// // Reset to first page when searching
+// watch(searchQuery, () => {
+//     currentPage.value = 1;
+// });
+
+// // SCRIPT TO LIMIT PAGINATION NAV, THEN FIND <ul> THEN COPY AND PASTE TO YOUR CODE
+// const maxVisiblePages = 3;
+
+// const paginationStart = computed(() => {
+//     if (currentPage.value <= Math.floor(maxVisiblePages / 2)) {
+//         return 1;
+//     } else if (currentPage.value + Math.floor(maxVisiblePages / 2) >= totalPages.value) {
+//         return Math.max(1, totalPages.value - maxVisiblePages + 1);
+//     } else {
+//         return currentPage.value - Math.floor(maxVisiblePages / 2);
+//     }
+// });
+
+// const paginationEnd = computed(() => {
+//     return Math.min(totalPages.value, paginationStart.value + maxVisiblePages - 1);
+// });
+
+// const visiblePages = computed(() => {
+//     return Array.from({ length: paginationEnd.value - paginationStart.value + 1 }, (_, i) => paginationStart.value + i);
+// });
+const {
+    currentPage,
+    itemsPerPage,
+    totalPages,
+    paginatedData,   // <-- this replaces paginatedReports
+    visiblePages,    // <-- replaces paginationStart/paginationEnd logic
+    nextPage,
+    prevPage,
+    goToPage,
+    resetPage
+} = usePagination(filteredReports, { itemsPerPage: 10, maxVisiblePages: 3 })
+
+watch(searchQuery, () => resetPage())
 
 
-// SCRIPT TO LIMIT PAGINATION NAV, THEN FIND <ul> THEN COPY AND PASTE TO YOUR CODE
-const maxVisiblePages = 3;
 
-const paginationStart = computed(() => {
-    if (currentPage.value <= Math.floor(maxVisiblePages / 2)) {
-        return 1;
-    } else if (currentPage.value + Math.floor(maxVisiblePages / 2) >= totalPages.value) {
-        return Math.max(1, totalPages.value - maxVisiblePages + 1);
-    } else {
-        return currentPage.value - Math.floor(maxVisiblePages / 2);
-    }
-});
-
-const paginationEnd = computed(() => {
-    return Math.min(totalPages.value, paginationStart.value + maxVisiblePages - 1);
-});
-
-const visiblePages = computed(() => {
-    return Array.from({ length: paginationEnd.value - paginationStart.value + 1 }, (_, i) => paginationStart.value + i);
-});
+const isModalOpen = ref(false);
+const isDeleteModalOpen = ref(false);
 
 // for printing reports
 const handlePrint = async () => {
@@ -490,8 +511,8 @@ const formSubmit = async (report_Id) => {
 };
 
 
-const isModalOpen = ref(false);
-const isDeleteModalOpen = ref(false);
+// const isModalOpen = ref(false);
+// const isDeleteModalOpen = ref(false);
 
 
 // show all filter
@@ -978,16 +999,16 @@ const handleJSON = (filteredReports) => {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="report in paginatedReports" :key="report.id"
+                        <tr v-for="report in paginatedData" :key="report.id"
                             class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
                             <td class="px-4 py-3 text-center">
                                 <!-- <input type="checkbox" :value="report" v-model="selectedReports" class="w-4 h-4" /> -->
                                 <div class="inline-flex items-center">
                                     <label class="relative flex cursor-pointer items-center rounded-full p-3"
-                                        for="checkbox-1" data-ripple-dark="true">
+                                        :for="report.id" data-ripple-dark="true">
                                         <input type="checkbox" :value="report" v-model="selectedReports"
                                             class="before:content[''] peer relative h-5 w-5 cursor-pointer appearance-none rounded-md border border-blue-gray-200 transition-all before:absolute before:top-2/4 before:left-2/4 before:block before:h-12 before:w-12 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full before:bg-blue-gray-500 before:opacity-0 before:transition-opacity checked:border-teal-500 checked:bg-teal-500 checked:before:bg-teal-500 hover:before:opacity-10"
-                                            id="checkbox-1" checked />
+                                            :id="report.id" />
                                         <div
                                             class="pointer-events-none absolute top-2/4 left-2/4 -translate-y-2/4 -translate-x-2/4 text-white opacity-0 transition-opacity peer-checked:opacity-100">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5"
@@ -1077,7 +1098,7 @@ const handleJSON = (filteredReports) => {
                             </button>
                         </li>
 
-                        <li v-if="paginationStart > 1">
+                        <li v-if="visiblePages[0] > 1">
                             <button @click="goToPage(1)"
                                 class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600">1</button>
                             <button disabled class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</button>
@@ -1090,7 +1111,7 @@ const handleJSON = (filteredReports) => {
                             </button>
                         </li>
 
-                        <li v-if="paginationEnd < totalPages">
+                        <li v-if="visiblePages[visiblePages.length - 1] < totalPages">
                             <button disabled class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</button>
                             <button @click="goToPage(totalPages)"
                                 class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600">{{

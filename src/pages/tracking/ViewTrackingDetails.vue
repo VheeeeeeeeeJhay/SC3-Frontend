@@ -3,6 +3,7 @@ import { ref, computed, watch, inject } from 'vue';
 import { useArrayStore } from '../../stores/arrayStore';
 import { useRouter } from 'vue-router';
 import axiosClient from  '../../axios.js';
+import { usePagination } from '../../composables/usePagination';
 
 const addToast = inject('addToast');
 
@@ -26,12 +27,8 @@ const parsedInnerData = computed(() => {
 
 const searchQuery = ref("");
 
-// Pagination
-const currentPage = ref(1);
-const itemsPerPage = ref(10);
-
 // 1. Filtered reports based on search query
-const filteredReports = computed(() => {
+const filteredData = computed(() => {
   if (!searchQuery.value.trim()) return parsedInnerData.value;
 
   const query = searchQuery.value.toLowerCase();
@@ -46,57 +43,75 @@ const filteredReports = computed(() => {
   });
 });
 
-// 2. Total pages based on filtered results
-const totalPages = computed(() => {
-  return Math.ceil(filteredReports.value.length / itemsPerPage.value);
-});
 
-// 3. Paginated reports based on filtered data
-const paginatedReports = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return filteredReports.value.slice(start, end);
-});
+// // Pagination
+// const currentPage = ref(1);
+// const itemsPerPage = ref(10);
 
-// Pagination controls
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) currentPage.value++;
-};
-const prevPage = () => {
-  if (currentPage.value > 1) currentPage.value--;
-};
-const goToPage = (page) => {
-  if (page >= 1 && page <= totalPages.value) currentPage.value = page;
-};
+// // 2. Total pages based on filtered results
+// const totalPages = computed(() => {
+//   return Math.ceil(filteredReports.value.length / itemsPerPage.value);
+// });
 
-// Reset to first page when searching
-watch(searchQuery, () => {
-  currentPage.value = 1;
-});
+// // 3. Paginated reports based on filtered data
+// const paginatedReports = computed(() => {
+//   const start = (currentPage.value - 1) * itemsPerPage.value;
+//   const end = start + itemsPerPage.value;
+//   return filteredReports.value.slice(start, end);
+// });
 
-// Visible pages for pagination
-const maxVisiblePages = 3;
+// // Pagination controls
+// const nextPage = () => {
+//   if (currentPage.value < totalPages.value) currentPage.value++;
+// };
+// const prevPage = () => {
+//   if (currentPage.value > 1) currentPage.value--;
+// };
+// const goToPage = (page) => {
+//   if (page >= 1 && page <= totalPages.value) currentPage.value = page;
+// };
 
-const paginationStart = computed(() => {
-  if (currentPage.value <= Math.floor(maxVisiblePages / 2)) {
-    return 1;
-  } else if (currentPage.value + Math.floor(maxVisiblePages / 2) >= totalPages.value) {
-    return Math.max(1, totalPages.value - maxVisiblePages + 1);
-  } else {
-    return currentPage.value - Math.floor(maxVisiblePages / 2);
-  }
-});
+// // Reset to first page when searching
+// watch(searchQuery, () => {
+//   currentPage.value = 1;
+// });
 
-const paginationEnd = computed(() => {
-  return Math.min(totalPages.value, paginationStart.value + maxVisiblePages - 1);
-});
+// // Visible pages for pagination
+// const maxVisiblePages = 3;
 
-const visiblePages = computed(() => {
-  return Array.from(
-    { length: paginationEnd.value - paginationStart.value + 1 },
-    (_, i) => paginationStart.value + i
-  );
-});
+// const paginationStart = computed(() => {
+//   if (currentPage.value <= Math.floor(maxVisiblePages / 2)) {
+//     return 1;
+//   } else if (currentPage.value + Math.floor(maxVisiblePages / 2) >= totalPages.value) {
+//     return Math.max(1, totalPages.value - maxVisiblePages + 1);
+//   } else {
+//     return currentPage.value - Math.floor(maxVisiblePages / 2);
+//   }
+// });
+
+// const paginationEnd = computed(() => {
+//   return Math.min(totalPages.value, paginationStart.value + maxVisiblePages - 1);
+// });
+
+// const visiblePages = computed(() => {
+//   return Array.from(
+//     { length: paginationEnd.value - paginationStart.value + 1 },
+//     (_, i) => paginationStart.value + i
+//   );
+// });
+const {
+  currentPage,
+  itemsPerPage,
+  totalPages,
+  paginatedData,   // <-- this replaces paginatedReports
+  visiblePages,    // <-- replaces paginationStart/paginationEnd logic
+  nextPage,
+  prevPage,
+  goToPage,
+  resetPage
+} = usePagination(filteredData, { itemsPerPage: 10, maxVisiblePages: 3 })
+
+watch(searchQuery, () => resetPage())
 
 const formattedStorageDate = computed(() => {
   if (!storage.value?.created_at) return '';
@@ -210,7 +225,7 @@ const restoreReport = async (event, report) => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="item in paginatedReports" :key="item.id" class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
+                    <tr v-for="item in paginatedData" :key="item.id" class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
                         <td class="px-4 py-3 text-center">{{ item.id }}</td>
                         <td class="px-4 py-3 text-center">{{ item.name }}</td>
                         <td class="px-4 py-3">
@@ -275,11 +290,11 @@ const restoreReport = async (event, report) => {
             <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">
                 <span class="text-sm font-normal">
                 Showing
-                {{ filteredReports.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}
+                {{ filteredData.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}
                 to
-                {{ Math.min(currentPage * itemsPerPage, filteredReports.length) }}
+                {{ Math.min(currentPage * itemsPerPage, filteredData.length) }}
                 of
-                {{ filteredReports.length }} entries
+                {{ filteredData.length }} entries
                 </span>
                 <ul class="inline-flex items-stretch -space-x-px">
                     <li>
