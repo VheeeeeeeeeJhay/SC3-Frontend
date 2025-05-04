@@ -2,6 +2,7 @@
 import { reactive, ref, onMounted, watchEffect, inject } from 'vue'
 import { storeToRefs } from 'pinia'
 import useUserStore from '../../stores/user.js'
+import axiosClient from '../../axios.js'
 
 const addToast = inject('addToast')
 
@@ -37,17 +38,34 @@ watchEffect(() => {
 })
 
 const saveChanges = async () => {
-  try {
-    await userStore.updateUser(editData)
-    addToast('Profile updated successfully', 'success', 'check_circle')
-    showModal.value = false
-    showPasswordModal.value = false
-    editData.old_password = ''
-    editData.password = ''
-    editData.password_confirmation = ''
-  } catch (error) {
-    addToast(error.response?.data?.error || error.message, 'error', 'error')
-  }
+  // try {
+  //   await userStore.updateUser(editData)
+  //   addToast('Profile updated successfully', 'success', 'check_circle')
+  //   showModal.value = false
+  //   showPasswordModal.value = false
+  //   editData.old_password = ''
+  //   editData.password = ''
+  //   editData.password_confirmation = ''
+  // } catch (error) {
+  //   addToast(error.response?.data?.error || error.message, 'error', 'error')
+  // }
+      try {
+        const { data } = await axiosClient.put(`/api/911/user/${user.value.id}`, editData, {
+          headers: {
+            "x-api-key": import.meta.env.VITE_API_KEY
+          }
+        });
+        user.value = data.data;
+        addToast('Profile updated successfully', 'success', 'check_circle')
+        showModal.value = false
+        showPasswordModal.value = false
+        editData.old_password = ''
+        editData.password = ''
+        editData.password_confirmation = ''
+      } catch (error) {
+        console.error("Error updating user:", error);
+        addToast(error.response?.data?.error || error.message, 'error', 'error')
+      }
 }
 </script>
 

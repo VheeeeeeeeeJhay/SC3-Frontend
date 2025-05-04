@@ -25,19 +25,19 @@ const useUserStore = defineStore("user", {
     },
 
     // Update the user profile data
-    async updateUser(updatedData) {
-      try {
-        const { data } = await axiosClient.put(`/api/911/user/${this.user.id}`, updatedData, {
-          headers: {
-            "x-api-key": import.meta.env.VITE_API_KEY
-          }
-        });
-        this.user = data.data;
-      } catch (error) {
-        console.error("Error updating user:", error);
-        throw error;
-      }
-    }    
+    // async updateUser(updatedData) {
+    //   try {
+    //     const { data } = await axiosClient.put(`/api/911/user/${this.user.id}`, updatedData, {
+    //       headers: {
+    //         "x-api-key": import.meta.env.VITE_API_KEY
+    //       }
+    //     });
+    //     this.user = data.data;
+    //   } catch (error) {
+    //     console.error("Error updating user:", error);
+    //     throw error;
+    //   }
+    // }    
   }
 });
 
