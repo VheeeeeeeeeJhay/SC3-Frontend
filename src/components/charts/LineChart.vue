@@ -2,7 +2,6 @@
 import { ref, onMounted, onUnmounted, watch } from "vue";
 import axiosClient from "../../axios.js";
 import ApexCharts from 'apexcharts';
-import { debounce } from 'lodash';
 import loader1 from "../loading/loader1.vue";
 
 const source = ref([]);
