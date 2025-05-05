@@ -98,7 +98,10 @@ const clearData = () => {
     currentStep.value = 1;
 };
 
+const isLoading = ref(false);
+
 const verifyFileData = async () => {
+    isLoading.value = true;
     if (!selectedFile) {
         errorMessage.value = 'Please upload a file before submitting.';
         return;
@@ -121,26 +124,15 @@ const verifyFileData = async () => {
         console.error('Error uploading file:', error);
         errorMessage.value = error.response?.data?.message || 'Something went wrong!';
         addToast(error.response?.data.message, 'error', 'error');
+    })
+    .finally(() => {
+        isLoading.value = false;
     });
 };
 
-// const submitFileData = async () => {
-//     await axiosClient.post('/api/911/import-excel-data', { data: contained_data.value }, {
-//         headers: {
-//             'Content-Type': 'application/json',
-//             'x-api-key': import.meta.env.VITE_API_KEY,
-//         },
-//     })
-//     .then(response => {
-//         addToast(response.data.message, 'success', 'check_circle');
-//         contained_data.value = response.data.data;
-//         currentStep.value = 3;
-//     })
-//     .catch(error => {
-//         addToast(error.response?.data.message, 'error', 'error');
-//     });
-// };
 const submitFileData = async () => {
+    isLoading.value = true;
+    console.table(contained_data.value);
     try {
         await axiosClient.post('/api/911/import-excel-data', { data: contained_data.value }, {
             headers: {
@@ -153,6 +145,9 @@ const submitFileData = async () => {
         currentStep.value = 3; // ✅ Go to Step 3 on success
     } catch (error) {
         addToast(error.response?.data?.message || 'Failed to import data.', 'error', 'error');
+    }
+    finally {
+        isLoading.value = false;
     }
 };
 
@@ -174,10 +169,6 @@ const goToStep1AndClearFiles = () => {
     if (fileInput.value) {
         fileInput.value.value = ''; // Reset the file input field
     }
-};
-
-const goBackToReportTable = () => {
-    router.push('/report-table'); // Adjust the route according to your actual report table route
 };
 </script>
 
@@ -237,7 +228,7 @@ const goBackToReportTable = () => {
                          @dragleave.prevent="handleDragLeave" 
                          @drop.prevent="handleDrop">
                         <label v-if="!uploadedFileName" for="dropzone-file"
-                            class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+                            class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
                             <div class="flex flex-col items-center justify-center pt-5 pb-6">
                                 <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
                                     xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
@@ -267,8 +258,8 @@ const goBackToReportTable = () => {
                         <button type="button" @click="removeFile" class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 w-1/2">
                             Remove File
                         </button>
-                        <button type="submit" class="px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 w-1/2">
-                            Verify Contents
+                        <button :disabled="isLoading" type="submit" :class="[isLoading ? 'px-6 py-2 bg-teal-800 text-white rounded-lg hover:bg-teal-600 w-1/2' : 'px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 w-1/2']">
+                            {{ isLoading ? 'Verifying, Please wait a moment...' : 'Verify Contents'}}
                         </button>
                     </div>
                 </form>
@@ -281,21 +272,27 @@ const goBackToReportTable = () => {
                     <button @click="clearData" class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 w-1/2">
                         Cancel Transaction
                     </button>
-                    <button @click="submitFileData" class="px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 w-1/2">
-                        Submit Report Data
+                    <button :disabled="isLoading" @click="submitFileData" :class="[isLoading ? 'px-6 py-2 bg-teal-800 text-white rounded-lg hover:bg-teal-600 w-1/2' : 'px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 w-1/2']">
+                        {{ isLoading ? 'Submitting, Please wait a moment...' : 'Submit Report Data' }}
                     </button>
                 </div>
             </div>
 
             <!-- Step 3: Success -->
             <div v-if="currentStep === 3" class="">
-                <img src="../../assets/pill.jpg" alt="Success" class="w-1/2 mx-auto">
+                <div class="flex flex-col justify-center items-center">
+                    <div class="flex w-1/2">
+                        <img src="../../assets/baguio-logo.png" alt="Success" class="w-1/2">
+                        <img src="../../assets/breathe-baguio.png" alt="Success" class="w-1/2">
+                    </div>
+                    <h1 class="text-2xl font-bold dark:text-white mb-2 text-center italic">You have successfully imported the file.</h1>
+                </div>
 
                 <div class="flex justify-between gap-4 py-4">
-                    <button @click="goToStep1AndClearFiles" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 w-1/2">
+                    <button @click="goToStep1AndClearFiles" class="px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 w-1/2">
                         Upload A New File
                     </button>
-                    <button @click="goBackToReportTable" class="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 w-1/2">
+                    <button @click="(() => router.push('/report-table'))" class="px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 w-1/2">
                         Back to Report Table
                     </button>
                 </div>
