@@ -42,7 +42,7 @@ const routes = [
       {path: '/report-edit/:id', name: 'EditReport', component: EditReports, meta: { title: 'Edit Report' }},
 
       {path: '/barangay', name: 'Barangay', component: Barangay, meta: { title: 'Barangay Management' }},
-      {path: '/barangay-edit/:id', name: 'EditBarangay', component: EditBarangay, meta: { title: 'Edit Barangay' }},
+      {path: '/barangay-fetch/:id', name: 'EditBarangay', component: EditBarangay, meta: { title: 'Edit Barangay' }},
       {path: '/barangay-update/:id', name: 'UpdateBarangay', component: Barangay, meta: { title: 'Update Barangay' }},
       {path: '/barangay-delete/:id', name: 'DeleteBarangay', component: Barangay, meta: { title: 'Delete Barangay' }},
       {path: '/barangay-statistics/:id', name: 'BarangayStatistics', component: ViewRelatedIncidents, meta: { title: 'Barangay Statistics' }},

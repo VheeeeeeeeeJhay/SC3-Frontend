@@ -25,7 +25,7 @@ const data = ref({ name: "", longitude: 0, latitude: 0 });
 const fetchData = () => {
   if (!viewId.value) return;
   axiosClient
-    .get(`/api/911/barangay-edit/${viewId.value}`, {
+    .get(`/api/911/barangay-fetch/${viewId.value}`, {
       headers: { "x-api-key": import.meta.env.VITE_API_KEY },
     })
     .then((res) => {
