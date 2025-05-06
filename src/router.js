@@ -36,7 +36,7 @@ const routes = [
 
       {path: '/report-add-form', name: 'AddReport', component: AddReport, meta: { title: 'Add Report' }},
       {path: '/import-file', name: 'ImportFile', component: ImportFile, meta: { title: 'Import File' }},
-      {path: '/report-display', name: 'ReportViewDetails', component: ReportViewDetails, meta: { title: 'View Report' }},
+      // {path: '/report-display', name: 'ReportViewDetails', component: ReportViewDetails, meta: { title: 'View Report' }},
       {path: '/report-table', name: 'ReportTable', component: ReportTable, meta: { title: 'Report Table' }},
       {path: '/report-view/:id', name: 'ReportViewDetails', component: ReportViewDetails, meta: { title: 'Report View' }},
       {path: '/report-edit/:id', name: 'EditReport', component: EditReports, meta: { title: 'Edit Report' }},
