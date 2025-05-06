@@ -149,21 +149,15 @@ const renderChart = () => {
         enabled: false
       }
     },
-    subtitle: {
-      text: props.startDate && props.endDate 
-        ? `${props.startDate} - ${props.endDate}`
-        : 'No date range selected',
-      align: 'center',
-      style: {
-        fontSize: '12px'
-      }
-    },
     xaxis: {
       type: 'category',
       categories: daysOfWeek,
       labels: {
         style: {
-          fontSize: '12px'
+          fontSize: '12px',
+          fontFamily: "Inter, sans-serif",
+          fontWeight: 'bold', // Bold y-axis labels
+          colors: '#ffffff',
         }
       }
     },
@@ -171,60 +165,74 @@ const renderChart = () => {
       categories: weeks,
       labels: {
         style: {
-          fontSize: '12px'
+          fontSize: '12px',
+          fontFamily: "Inter, sans-serif",
+          fontWeight: 'bold', // Bold y-axis labels
+          colors: '#ffffff',
         }
       }
     },
     dataLabels: {
       enabled: true,
       style: {
-        fontSize: '10px'
+        fontSize: '10px',
+        color: '#ffffff',
+        fontFamily: "Inter, sans-serif",
+        fontWeight: 'bold', // Bold y-axis labels
       }
+    },
+    legend: {
+        show: true,
+        position: 'bottom', // Place the legend at the top for better visibility
+        horizontalAlign: 'center',  // Center-aligned legend
+        labels: {
+            colors: '#ffffff', // White text for the legend
+        },
     },
     plotOptions: {
-      heatmap: {
-        colorScale: {
-          ranges: [
-            { 
-              from: 0, 
-              to: 0, 
-              color: '#FFFFFF',
-              name: 'No Reports'
-            },
-            { 
-              from: 1, 
-              to: 5, 
-              color: '#FFE4E1',
-              name: '1-5 Reports'
-            },
-            { 
-              from: 6, 
-              to: 10, 
-              color: '#FF9999',
-              name: '6-10 Reports'
-            },
-            { 
-              from: 11, 
-              to: 15, 
-              color: '#FF6666',
-              name: '11-15 Reports'
-            },
-            { 
-              from: 16, 
-              to: 20, 
-              color: '#FF3333',
-              name: '16-20 Reports'
-            },
-            { 
-              from: 21, 
-              to: Infinity, 
-              color: '#B22222',
-              name: '21+ Reports'
-            }
-          ]
-        }
+    heatmap: {
+      colorScale: {
+        ranges: [
+          { 
+            from: 0, 
+            to: 0, 
+            color: '#E0F2F1', // very light teal (no reports)
+            name: 'No Reports'
+          },
+          { 
+            from: 1, 
+            to: 5, 
+            color: '#A7F3D0', // light green
+            name: '1-5 Reports'
+          },
+          { 
+            from: 6, 
+            to: 10, 
+            color: '#7DD3FC', // light blue
+            name: '6-10 Reports'
+          },
+          { 
+            from: 11, 
+            to: 15, 
+            color: '#FCD34D', // yellow
+            name: '11-15 Reports'
+          },
+          { 
+            from: 16, 
+            to: 20, 
+            color: '#FB923C', // orange
+            name: '16-20 Reports'
+          },
+          { 
+            from: 21, 
+            to: Infinity, 
+            color: '#EF4444', // red
+            name: '21+ Reports'
+          }
+        ]
       }
-    },
+    }
+  },
     series: series.map((row, index) => ({
       name: weeks[index],
       data: row
@@ -280,7 +288,7 @@ onUnmounted(() => {
       <h2 class="text-xl font-semibold">Accident Peak Times</h2>
     </div>
 
-    <div class="w-full">
+    <div class="w-full text-black">
       <div ref="chartRef"></div>
     </div>
   </div>

@@ -55,14 +55,14 @@ const getMonthsBetweenDates = () => {
   const startDateObj = new Date(props.startDate)
   const endDateObj = new Date(props.endDate)
 
-  console.log('Start Date:', startDateObj, 'End Date:', endDateObj)  // Verify date parsing
+  // console.log('Start Date:', startDateObj, 'End Date:', endDateObj)  // Verify date parsing
 
   for (let d = startDateObj; d <= endDateObj; d.setMonth(d.getMonth() + 1)) {
     const monthName = new Date(d).toLocaleString('default', { month: 'short' })
     months.push(monthName)
   }
 
-  console.log('Months:', months)  // Verify the month list
+  // console.log('Months:', months)  // Verify the month list
   return months
 }
 
@@ -98,7 +98,7 @@ const groupReportsByMonth = () => {
       }
     })
 
-    console.log('Month:', month, 'Reports:', monthReports)
+    // console.log('Month:', month, 'Reports:', monthReports)
 
     Object.keys(groupedReports).forEach(level => {
       const count = monthReports.filter(r => {
@@ -110,7 +110,7 @@ const groupReportsByMonth = () => {
     })
   })
 
-  console.log('Final Grouped Reports:', groupedReports)
+  // console.log('Final Grouped Reports:', groupedReports)
   return groupedReports
 }
 

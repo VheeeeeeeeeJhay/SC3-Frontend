@@ -216,8 +216,8 @@ const updateChart = () => {
         data: data.filter((_, i) => monthPresence[i]) // Only include active months
     }));
 
-    console.log("✅ Final Chart Series:", trimmedSeries);
-    console.log("📅 Filtered Month Labels:", filteredMonthLabels);
+    // console.log("✅ Final Chart Series:", trimmedSeries);
+    // console.log("📅 Filtered Month Labels:", filteredMonthLabels);
 
     // Update chart
     options.value.series = trimmedSeries;
@@ -226,7 +226,9 @@ const updateChart = () => {
     if (chart) {
         chart.updateOptions(options.value);
     } else {
-        renderChart();
+        // renderChart();
+        chart.render();
+
     }
 };
 
@@ -236,20 +238,19 @@ onMounted(() => {
     if (barChart.value) {
         chart = new ApexCharts(barChart.value, options.value);
         chart.render();
-        // updateChart();
     }
 });
 
 watch([source, report], ([newSource, newReport]) => {
     if (newSource.length && newReport.length) {
-        console.log("🔄 Data updated! Running updateChart()");
+        // console.log("🔄 Data updated! Running updateChart()");
         updateChart();
     }
 });
 
 
 watch([() => props.startDate, () => props.endDate], () => {
-  console.log("🔄 Date props changed: Running updateChart()");
+//   console.log("🔄 Date props changed: Running updateChart()");
   updateChart();
 });
 
