@@ -96,7 +96,7 @@ const options = ref({
     },
     legend: {
         show: true,
-        position: 'top', // Place the legend at the top for better visibility
+        position: 'bottom', // Place the legend at the top for better visibility
         horizontalAlign: 'center',  // Center-aligned legend
         labels: {
             colors: '#ffffff', // White text for the legend
@@ -269,6 +269,6 @@ onUnmounted(() => {
       
     </div>
     <!-- BAR CHART -->
-    <div class="dark:text-gray-800 h-64" ref="barChart"></div>
+    <div class="dark:text-gray-800 h-full" ref="barChart"></div>
   </div>
 </template>

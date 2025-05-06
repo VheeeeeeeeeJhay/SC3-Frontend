@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch, onUnmounted } from 'vue'
 import ApexCharts from 'apexcharts'
 import { useDatabaseStore } from '../../stores/databaseStore'
 
@@ -10,15 +10,44 @@ const props = defineProps({
 
 const databaseStore = useDatabaseStore()
 const chartRef = ref(null)
-const chart = ref(null)
+let chart = null;
 const isLoading = ref(true)
 const error = ref(null)
+let refreshInterval = null;
+
+const theme = ref(localStorage.getItem('theme') || 'light');
+
+//tbd
+watch(theme, () => {
+  updateChart(); // Reapply dark/light mode styles
+});
+const observeThemeChange = () => {
+  const observer = new MutationObserver(() => {
+    const isDark = document.documentElement.classList.contains('dark');
+    const newTheme = isDark ? 'dark' : 'light';
+    if (newTheme !== theme.value) {
+      theme.value = newTheme;
+    }
+  });
+
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class']
+  });
+
+  onUnmounted(() => {
+    observer.disconnect();
+  });
+};
+
 
 // Store Fetch Data From Backend In An Array
-const report = computed(() => {
-  console.log('Reports:', databaseStore.reportsList)  // Check reportsList
-  return databaseStore.reportsList
-})
+const report = computed(() => databaseStore.reportsList);
+
+// const report = computed(() => {
+//   console.log('Reports:', databaseStore.reportsList)  // Check reportsList
+//   return databaseStore.reportsList
+// })
 
 // Helper: Get months between start and end date
 const getMonthsBetweenDates = () => {
@@ -106,6 +135,9 @@ const updateChart = () => {
       return darkened
     })
 
+    const isDarkMode = localStorage.getItem("theme") === "dark" ||
+    document.documentElement.classList.contains("dark");
+
     const options = {
       series: [
         { name: 'Low Priority', data: groupedReports['Low Priority'] },
@@ -116,13 +148,16 @@ const updateChart = () => {
       ],
       chart: {
         type: 'bar',
-        height: 350,
+        height: 400,
+        width: '100%',
         stacked: true,
+        background: isDarkMode ? '#1F2937' : '#ffffff', // background for dark mode
         dropShadow: {
           enabled: true,
           blur: 1,
           opacity: 0.5
-        }
+        },
+        foreColor: isDarkMode ? '#F9FAFB' : '#000000', // light text for dark mode
       },
       plotOptions: {
         bar: {
@@ -133,7 +168,7 @@ const updateChart = () => {
       dataLabels: {
         enabled: true,
         style: {
-          colors: ['#000000'] // Dark text for better visibility
+          colors: [isDarkMode ? '#F9FAFB' : '#000000'] // adjust data label color based on theme
         }
       },
       stroke: {
@@ -146,12 +181,14 @@ const updateChart = () => {
         title: {
           text: 'Month',
           style: {
-            fontSize: '14px'
+            fontSize: '14px',
+            color: isDarkMode ? '#F9FAFB' : '#000000'
           }
         },
         labels: {
           style: {
-            fontSize: '12px'
+            fontSize: '12px',
+            colors: isDarkMode ? '#D1D5DB' : '#000000'
           }
         }
       },
@@ -159,16 +196,19 @@ const updateChart = () => {
         title: {
           text: 'Number of Reports',
           style: {
-            fontSize: '14px'
+            fontSize: '14px',
+            color: isDarkMode ? '#F9FAFB' : '#000000'
           }
         },
         labels: {
           style: {
-            fontSize: '12px'
+            fontSize: '12px',
+            colors: isDarkMode ? '#D1D5DB' : '#000000'
           }
         }
       },
       tooltip: {
+        theme: isDarkMode ? 'dark' : 'light',
         shared: true,
         intersect: false,
         y: {
@@ -176,6 +216,9 @@ const updateChart = () => {
             return val
           }
         }
+      },
+      grid: {
+        borderColor: isDarkMode ? '#374151' : '#E5E7EB' // grid line color for dark mode
       },
       fill: {
         opacity: 1,
@@ -190,44 +233,58 @@ const updateChart = () => {
         position: 'bottom',
         horizontalAlign: 'center',
         offsetY: 10,
-        fontSize: '12px'
+        fontSize: '12px',
+        labels: {
+          colors: isDarkMode ? '#F3F4F6' : '#000000' // legend label color based on theme
+        }
       }
     }
 
-    if (chartRef.value) {
-      if (chart.value) {
-        chart.value.updateOptions(options)
-      } else {
-        chart.value = new ApexCharts(chartRef.value, options)
-        chart.value.render()
-      }
+    if (!chart && chartRef.value) {
+      chart = new ApexCharts(chartRef.value, options);
+      chart.render();
+    } else if (chart) {
+      chart.updateOptions(options);
     }
-    isLoading.value = false
+
+    // isLoading.value = false
   } catch (err) {
     error.value = err.message
-    isLoading.value = false
+    // isLoading.value = false
   }
 }
 
 onMounted(() => {
-  isLoading.value = true
-  databaseStore.fetchData()
-  console.log('Fetching data...')
-  // Check if data is populated
-  console.log('Reports List:', databaseStore.reportsList)  // This should log the reports
-  updateChart()
-})
+  // isLoading.value = true
+  if (!report.value.length) {
+    databaseStore.fetchData(); // only fetch if not already loaded
+  }
 
-watch([() => props.startDate, () => props.endDate], () => {
-  isLoading.value = true
-  error.value = null
-  updateChart()
-})
+  refreshInterval = setInterval(() => {
+    databaseStore.fetchData();
+  }, 50000);
 
-watch(() => databaseStore.reportsList, () => {
-  console.log('Reports List Updated:', databaseStore.reportsList)  // Check if reportsList is updated
-  updateChart()
-})
+  updateChart();
+  observeThemeChange(); // Watch for theme changes
+
+});
+
+onUnmounted(() => {
+  if (refreshInterval) clearInterval(refreshInterval);
+  if (chart) {
+    chart.destroy();
+    chart = null;
+  }
+});
+
+watch(
+  [() => props.startDate, () => props.endDate, () => report.value],
+  () => {
+    if (chartRef.value) {
+      updateChart();
+    }
+  }
+);
 </script>
 
 <template>
@@ -236,17 +293,17 @@ watch(() => databaseStore.reportsList, () => {
       <h2 class="text-xl font-semibold">Reports by Urgency Level</h2>
     </div>
 
-    <div v-if="isLoading" class="flex justify-center items-center h-32">
+    <!-- <div v-if="isLoading" class="flex justify-center items-center h-32">
       <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-    </div>
+    </div> -->
 
-    <div v-else-if="error" class="text-red-500">
+    <div v-if="error" class="text-red-500">
       {{ error }}
     </div>
 
-    <div v-else class="w-full flex flex-col items-center">
-      <div class="chart-wrapper">
-        <div ref="chartRef"></div>
+    <div v-else class="flex flex-col items-center">
+      <div class="w-full">
+        <div ref="chartRef" ></div>
       </div>
       <div class="legend-wrapper">
         <div class="legend-scrollable"></div>

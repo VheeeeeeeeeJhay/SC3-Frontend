@@ -403,7 +403,7 @@ const handlePrint = () => {
                     <span v-if="barangay.report && barangay.report.total_reports">{{ barangay.report.total_reports }}</span>
                     <Badge v-else Message="No Data for No. of Cases" />
                   </td>
-                  <td class="px-4 py-3 text-center text-blue-800 hover:text-blue-600 hover:underline font-bold">
+                  <td class="px-4 py-3 text-center text-teal-800 hover:text-teal-600 hover:underline font-bold">
                     <RouterLink @click="passingData(barangay)" :to="`/barangay-statistics/${barangay.id}`">View Incidents</RouterLink>
                     <ToolTip :Information="`Click to visit barangay and view incidents`" />
                   </td>

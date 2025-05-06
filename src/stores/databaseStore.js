@@ -100,7 +100,7 @@ export const useDatabaseStore = defineStore('database', {
         this.reportsList = resReports.data[0] || [];
         this.classificationsList = resReports.data[1] || [];
         this.urgenciesList = resReports.data[2] || [];
-        console.log(this.urgenciesList , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is urgenciesList', 'color: red');
+        // console.log(this.urgenciesList , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is urgenciesList', 'color: red');
         this.actionsList = resReports.data[3] || [];
         
         // axiosClient.get('/api/911/report', { headers: { 'x-api-key': API_KEY } }),
@@ -109,7 +109,7 @@ export const useDatabaseStore = defineStore('database', {
         this.incidents = resReportDatas.data.incidents || [];
         this.assistance = resReportDatas.data.assistance || [];
         this.urgencies = resReportDatas.data.urgencies || [];
-        console.table(this.urgencies , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is urgencies', 'color: red');
+        // console.table(this.urgencies , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is urgencies', 'color: red');
         this.barangays = resReportDatas.data.barangays || [];
 
         // axiosClient.get('/api/911/recent', { headers: { 'x-api-key': API_KEY } }),

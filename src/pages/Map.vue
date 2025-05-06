@@ -65,19 +65,19 @@ let legendControl;
 
 const startDate = ref(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
 const endDate = ref(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0));
-console.log("Start Date:", startDate.value);
-console.log("End Date:", endDate.value);
+// console.log("Start Date:", startDate.value);
+// console.log("End Date:", endDate.value);
 const updateDateRange = ({ start, end }) => {
   startDate.value = start;
   endDate.value = end;
-  console.log("📅 Date range updated:", start, "to", end);
+  // console.log("📅 Date range updated:", start, "to", end);
 
   addBarangayMarkers(); // Refresh markers based on the new date range
 };
 
 watch([startDate, endDate], () => {
   addBarangayMarkers();
-  console.log("nacall naman date range");
+  // console.log("nacall naman date range");
 });
 
 const groupedReportsByBarangay = computed(() => { 
@@ -558,14 +558,14 @@ const getBarangayColor = (barangayName) => {
 let markers = []; // Store markers for clearing later
 
 const addBarangayMarkers = () => {
-  console.log("🟢 Running addBarangayMarkers...");
+  // console.log("🟢 Running addBarangayMarkers...");
   
   if (!map || groupedReportsByBarangay.value.length === 0) {
-    console.warn("⚠️ No grouped reports available for markers.");
+    // console.warn("⚠️ No grouped reports available for markers.");
     return;
   }
 
-  console.log("📊 Total Barangays to Process:", groupedReportsByBarangay.value.length);
+  // console.log("📊 Total Barangays to Process:", groupedReportsByBarangay.value.length);
 
   // Remove old markers
   markers.forEach(marker => map.removeLayer(marker));
@@ -576,12 +576,12 @@ const addBarangayMarkers = () => {
   const maxReports = Math.max(...reportsArray);
 
   groupedReportsByBarangay.value.forEach((barangay) => {
-    console.log(
-      `📍 Processing Barangay: ${barangay.name}, Lat: ${barangay.latitude}, Lng: ${barangay.longitude}`
-    );
+    // console.log(
+    //   `📍 Processing Barangay: ${barangay.name}, Lat: ${barangay.latitude}, Lng: ${barangay.longitude}`
+    // );
 
     if (!barangay.latitude || !barangay.longitude) {
-      console.warn(`⚠️ Skipping ${barangay.name}: Missing coordinates`);
+      // console.warn(`⚠️ Skipping ${barangay.name}: Missing coordinates`);
       return;
     }
 
@@ -611,21 +611,21 @@ const addBarangayMarkers = () => {
     markers.push(marker);
   });
 
-  console.log("✅ Markers added successfully.");
+  // console.log("✅ Markers added successfully.");
 };
 
 
 // 🏁 Run when component is mounted
 onMounted(() => {
   databaseStore.fetchData().then(() => {
-    console.log("🔄 Data fetched, adding markers...");
+    // console.log("🔄 Data fetched, adding markers...");
     addBarangayMarkers();
   });
 });
 
 // 🔄 Refresh markers when grouped reports change
 watch(groupedReportsByBarangay, () => {
-  console.log("🟡 Detected change in barangay reports, refreshing markers...");
+  // console.log("🟡 Detected change in barangay reports, refreshing markers...");
   addBarangayMarkers();
 }, { deep: true });
 
@@ -812,7 +812,7 @@ const dropdownRef = ref(null)
 const minimized = ref(false);
 const toggleMinimize = () => {
   minimized.value = !minimized.value;
-  console.log(minimized.value);
+  // console.log(minimized.value);
 };
 </script>
 <template>
