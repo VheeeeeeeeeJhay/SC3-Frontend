@@ -204,7 +204,7 @@ const addGeoJSONLayer = () => {
   if (!map || !mapData.features || !barangay_name.value) return;
 
   const filteredFeatures = mapData.features.filter(
-    (feature) => feature.properties.name === barangay_name.value
+    (feature) => feature.properties.name.toUpperCase() === barangay_name.value.toUpperCase()
   );
 
   console.log(`Filtered GeoJSON for '${barangay_name.value}':`, filteredFeatures);
