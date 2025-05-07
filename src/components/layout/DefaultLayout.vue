@@ -61,13 +61,9 @@ const navigation = [
   { name: "Map", to: { name: "Map" }, icon: "map" },
   { name: "Report", to: { name: "ReportTable" }, icon: "report" },
   { name: "Barangays", to: { name: "Barangay" }, icon: "home" },
-  {
-    name: "Users",
-    to: { name: "UsersTable" },
-    icon: "people",
-    requiredRole: 1,
-  }, // Add a requiredRole property for role-based access
+  { name: "Users", to: { name: "UsersTable" }, icon: "people", requiredRole: 1 },
   { name: "Logs", to: { name: "Logs" }, icon: "lock", requiredRole: 1 },
+  { name: "Emergency Contacts", to: { name: "EmergencyContacts" }, icon: "phone" },
 ];
 
 const isActive = (item) => {
@@ -85,11 +81,11 @@ const filteredNavigation = computed(() => {
   });
 });
 
-const logout = () => {
-  axiosClient.post("/logout").then(() => {
-    router.push({ name: "Login" });
-  });
-};
+// const logout = () => {
+//   axiosClient.post("/logout").then(() => {
+//     router.push({ name: "Login" });
+//   });
+// };
 
 const signoutConfirmationVisible = ref(false);
 const showSignoutConfirmation = () => {
@@ -117,7 +113,7 @@ const closeSidebar = () => {
               border-r-5 border-solid dark:border-gray-950 
               ring-1 ring-gray-300 dark:ring-slate-900 rounded-r-1xl
               backdrop-blur-md overflow-hidden"
-    :class="sidebarVisible ? 'translate-x-0' : '-translate-x-full sm:translate-x-0'">
+      :class="sidebarVisible ? 'translate-x-0' : '-translate-x-full sm:translate-x-0'">
 
       <div class="h-full flex flex-col justify-between relative z-10 px-1 pb-4 overflow-y-auto">
         <!-- Logo Section -->
@@ -132,13 +128,12 @@ const closeSidebar = () => {
         <nav class="flex-1 mt-6 space-y-2">
           <ul class="space-y-1">
             <li v-for="item in filteredNavigation" :key="item.name">
-              <RouterLink :to="item.to"
-                :class="[
-                  'flex items-center gap-3 p-3 rounded-lg transition-all duration-200 group',
-                  isActive(item)
-                    ? 'bg-sky-100 dark:bg-slate-700 text-slate-800 dark:text-white font-semibold shadow-sm'
-                    : 'hover:bg-sky-50 dark:hover:bg-slate-800'
-                ]">
+              <RouterLink :to="item.to" :class="[
+                'flex items-center gap-3 p-3 rounded-lg transition-all duration-200 group',
+                isActive(item)
+                  ? 'bg-sky-100 dark:bg-slate-700 text-slate-800 dark:text-white font-semibold shadow-sm'
+                  : 'hover:bg-sky-50 dark:hover:bg-slate-800'
+              ]">
                 <span class="material-icons text-base group-hover:scale-110 transition-transform duration-200"
                   :class="isActive(item) ? 'text-indigo-600 dark:text-teal-300' : 'text-slate-600 dark:text-slate-300'">
                   {{ item.icon }}
@@ -152,11 +147,8 @@ const closeSidebar = () => {
         <!-- User -->
         <div class="mt-6 pt-4 border-t border-gray-200 dark:border-slate-700">
           <div class="flex items-center gap-3 px-2">
-            <button
-              @click.stop="dropdownOpen = !dropdownOpen"
-              type="button"
-              class="flex justify-center items-center bg-gray-800 rounded-full hover:ring-4 hover:ring-teal-500 transition-all duration-300"
-            >
+            <button @click.stop="dropdownOpen = !dropdownOpen" type="button"
+              class="flex justify-center items-center bg-gray-800 rounded-full hover:ring-4 hover:ring-teal-500 transition-all duration-300">
               <div
                 class="w-10 h-10 flex items-center justify-center rounded-full bg-teal-600 text-white text-lg font-bold shadow ring-2 ring-white dark:ring-teal-400">
                 {{ user?.email?.charAt(0).toUpperCase() || '?' }}
@@ -164,7 +156,8 @@ const closeSidebar = () => {
             </button>
             <div class="flex flex-col">
               <p class="text-sm font-medium">{{ user?.firstName || 'Guest' }}
-                <span class="text-xs font-normal text-slate-500 dark:text-slate-400">({{ user?.role === 1 ? 'Admin' : 'User' }})</span>
+                <span class="text-xs font-normal text-slate-500 dark:text-slate-400">({{ user?.role === 1 ? 'Admin' :
+                  'User' }})</span>
               </p>
               <p class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ user?.email || 'No email' }}</p>
             </div>
@@ -187,56 +180,45 @@ const closeSidebar = () => {
         </div>
 
         <ul class="py-1 space-y-1">
-  <li>
-    <RouterLink
-      to="/profile"
-      class="block px-4 py-2 text-sm hover:bg-[#D9D9B3] dark:hover:bg-slate-600 dark:hover:text-white"
-    >
-      Profile
-    </RouterLink>
-  </li>
-  <li>
-    <a
-      @click="showSignoutConfirmation"
-      class="block px-4 py-2 text-sm hover:bg-[#D9D9B3] dark:hover:bg-slate-600 dark:hover:text-white"
-    >
-      Sign Out
-    </a>
-  </li>
+          <li>
+            <RouterLink to="/profile"
+              class="block px-4 py-2 text-sm hover:bg-[#D9D9B3] dark:hover:bg-slate-600 dark:hover:text-white">
+              Profile
+            </RouterLink>
+          </li>
+          <li>
+            <a @click="showSignoutConfirmation"
+              class="block px-4 py-2 text-sm hover:bg-[#D9D9B3] dark:hover:bg-slate-600 dark:hover:text-white">
+              Sign Out
+            </a>
+          </li>
 
-  <!-- Theme Toggle Separator -->
-  <li class="border-t border-gray-200 dark:border-slate-600 mt-2"></li>
+          <!-- Theme Toggle Separator -->
+          <li class="border-t border-gray-200 dark:border-slate-600 mt-2"></li>
 
-  <!-- Theme Switch Label -->
-  <li class="px-4 pt-3">
-    <p class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">
-      {{ theme === 'dark' ? 'Dark Mode' : 'Light Mode' }}
-    </p>
-  </li>
+          <!-- Theme Switch Label -->
+          <li class="px-4 pt-3">
+            <p class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">
+              {{ theme === 'dark' ? 'Dark Mode' : 'Light Mode' }}
+            </p>
+          </li>
 
-  <!-- Theme Switch -->
-  <li class="px-4 pb-2 flex justify-start">
-    <label class="switch">
-      <input
-        type="checkbox"
-        :checked="theme === 'dark'"
-        @change="toggleTheme"
-      />
-      <span class="slider">
-        <div class="star star_1"></div>
-        <div class="star star_2"></div>
-        <div class="star star_3"></div>
-        <svg viewBox="0 0 16 16" class="cloud_1 cloud">
-          <path
-            transform="matrix(.77976 0 0 .78395-299.99-418.63)"
-            fill="#fff"
-            d="m391.84 540.91c-.421-.329-.949-.524-1.523-.524-1.351 0-2.451 1.084-2.485 2.435-1.395.526-2.388 1.88-2.388 3.466 0 1.874 1.385 3.423 3.182 3.667v.034h12.73v-.006c1.775-.104 3.182-1.584 3.182-3.395 0-1.747-1.309-3.186-2.994-3.379.007-.106.011-.214.011-.322 0-2.707-2.271-4.901-5.072-4.901-2.073 0-3.856 1.202-4.643 2.925"
-          />
-        </svg>
-      </span>
-    </label>
-  </li>
-</ul>
+          <!-- Theme Switch -->
+          <li class="px-4 pb-2 flex justify-start">
+            <label class="switch">
+              <input type="checkbox" :checked="theme === 'dark'" @change="toggleTheme" />
+              <span class="slider">
+                <div class="star star_1"></div>
+                <div class="star star_2"></div>
+                <div class="star star_3"></div>
+                <svg viewBox="0 0 16 16" class="cloud_1 cloud">
+                  <path transform="matrix(.77976 0 0 .78395-299.99-418.63)" fill="#fff"
+                    d="m391.84 540.91c-.421-.329-.949-.524-1.523-.524-1.351 0-2.451 1.084-2.485 2.435-1.395.526-2.388 1.88-2.388 3.466 0 1.874 1.385 3.423 3.182 3.667v.034h12.73v-.006c1.775-.104 3.182-1.584 3.182-3.395 0-1.747-1.309-3.186-2.994-3.379.007-.106.011-.214.011-.322 0-2.707-2.271-4.901-5.072-4.901-2.073 0-3.856 1.202-4.643 2.925" />
+                </svg>
+              </span>
+            </label>
+          </li>
+        </ul>
 
       </div>
     </transition>
@@ -260,7 +242,8 @@ const closeSidebar = () => {
             <button @click="cancelSignout" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">
               Cancel
             </button>
-            <button @click="logout" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+            <button @click="(() => router.push({ name: 'Login' }))"
+              class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
               Sign out
             </button>
           </div>
@@ -320,6 +303,7 @@ const closeSidebar = () => {
   filter: blur(12px);
   opacity: 0.8;
 }
+
 .switch {
   position: relative;
   display: inline-block;
@@ -382,13 +366,11 @@ const closeSidebar = () => {
   transition: transform 0.4s ease;
 }
 
-input:checked + .slider {
+input:checked+.slider {
   background: #2e3a59;
 }
 
-input:checked + .slider .cloud_1 {
+input:checked+.slider .cloud_1 {
   transform: translateX(-20px);
 }
-
-
 </style>

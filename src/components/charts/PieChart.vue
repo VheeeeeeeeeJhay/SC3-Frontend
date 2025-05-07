@@ -34,7 +34,7 @@ onUnmounted(() => {
 });
 
 const computedProperties = {
-    report: "reportsList",
+    report: "reports",
     incidents: "incidents",
     assistance: "assistance",
 };
@@ -72,7 +72,7 @@ watch(
   () => [report.value, incidents.value, assistance.value],
   () => {
     updateChart();
-    console.log("%cData updated, chart re-rendered.", "color: red; font-weight: bold;");
+    // console.log("%cData updated, chart re-rendered.", "color: red; font-weight: bold;");
   }
 );
 // // Filter The Incident/Case Base On The Assistance Type
@@ -140,7 +140,7 @@ const updateChart = () => {
     const startISO = new Date(props.startDate).toISOString().split("T")[0];
     const endISO = new Date(props.endDate).toISOString().split("T")[0];
 
-    console.log("📅 Filtering reports from", startISO, "to", endISO);
+    // console.log("📅 Filtering reports from", startISO, "to", endISO);
 
     filteredReports = report.value.filter(reportItem => {
       if (!reportItem.date_received) return false;
@@ -151,11 +151,11 @@ const updateChart = () => {
 
   } else {
     // No date range received
-    console.log("⚠️ No valid date range provided. Skipping chart update.");
+    // console.log("⚠️ No valid date range provided. Skipping chart update.");
     return;
   }
 
-  console.log("📊 Filtered Reports:", filteredReports);
+  // console.log("📊 Filtered Reports:", filteredReports);
 
   if (!data.value.incidentType) {
     // No specific incident filter → Show all classifications
@@ -167,7 +167,7 @@ const updateChart = () => {
       return acc;
     }, {});
 
-    console.log("📈 Classification Counts:", classificationCounts);
+    // console.log("📈 Classification Counts:", classificationCounts);
 
     const classificationLabels = Object.keys(classificationCounts)
       .map(id => {
@@ -181,14 +181,14 @@ const updateChart = () => {
     // ✅ Update chart data
     options.value.series = classificationData;
     options.value.labels = classificationLabels;
-    console.log("📊 Final Chart Labels:", classificationLabels);
+    // console.log("📊 Final Chart Labels:", classificationLabels);
   } else {
     // 🚀 Filter incidents based on classification
     const selectedIncidents = incidents.value.filter(
       incident => incident.assistance_id === data.value.incidentType
     );
 
-    console.log("📌 Filtered Incidents:", selectedIncidents);
+    // console.log("📌 Filtered Incidents:", selectedIncidents);
 
     // ✅ Count reports only for selected incidents
     const incidentCounts = filteredReports.reduce((acc, reportItem) => {
@@ -198,7 +198,7 @@ const updateChart = () => {
       return acc;
     }, {});
 
-    console.log("📊 Filtered Incident Counts:", incidentCounts);
+    // console.log("📊 Filtered Incident Counts:", incidentCounts);
 
     const validIncidents = selectedIncidents.filter(incident => incidentCounts[incident.id]);
     const incidentCountsArray = validIncidents.map(incident => incidentCounts[incident.id] || 0);
@@ -217,7 +217,7 @@ const updateChart = () => {
 
 // Watch for changes and update the chart
 watch([() => props.startDate, () => props.endDate], () => {
-  console.log("🔄 Date filters changed, updating chart...");
+  // console.log("🔄 Date filters changed, updating chart...");
   updateChart();
 });
 

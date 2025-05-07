@@ -24,6 +24,7 @@ import ResetPassword from "./pages/auth/ResetPassword.vue";
 import NoAccess from "./pages/auth/NoAccess.vue";
 import NotVerifiedEmail from "./pages/auth/NotVerifiedEmail.vue";
 import VerifiedEmail from "./pages/auth/VerifiedEmail.vue";
+import EmergencyContacts from "./pages/contact/EmergencyContacts.vue";
 
 const routes = [
   {
@@ -53,6 +54,8 @@ const routes = [
       {path: '/log-view/:id', name: 'LogViewDetails', component: ViewTrackingDetails, meta: { title: 'Log Details View' }},
 
       {path: '/profile', name: 'Profile', component: Profile, meta: { title: 'Profile' }},
+
+      {path: '/emergency-contacts', name: 'EmergencyContacts', component: EmergencyContacts, meta: { title: 'Emergency Contacts' }},
     ],
     beforeEnter: async (to, from, next) => {
       try {

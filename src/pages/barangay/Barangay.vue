@@ -31,6 +31,18 @@ onUnmounted(() => {
   }
 });
 
+//date range
+import DateRangePicker from "../../components/DateRangePicker.vue";
+
+const startDate = ref(null);
+const endDate = ref(null);
+
+const updateDateRange = ({ start, end }) => {
+    startDate.value = start;
+    endDate.value = end;
+    console.log("Date Range:", startDate.value, endDate.value);
+};
+
 const store = useArrayStore();
 const passingData = (barangay) => {
     store.setBarangayData(barangay);
@@ -47,13 +59,13 @@ const errors = ref('');
 const addToast = inject('addToast');
 
 const computedProperties = {
-  barangaysList: "barangaysList",
-  reportsPerBarangay: "reportsPerBarangay",
+  barangaysList: "barangays",
+  reports: "reports",
 };
 
 const {
   barangaysList,
-  reportsPerBarangay,
+  reports,
 } = Object.fromEntries(
     Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
 );
@@ -62,25 +74,31 @@ const {
 
 // Create a new computed property for the combined list
 const combinedList = computed(() => {
-  // Ensure both arrays are valid
-  if (Array.isArray(barangaysList.value) && Array.isArray(reportsPerBarangay.value)) {
-    if (!reportsPerBarangay.value || reportsPerBarangay.value.length === 0) {
-      console.log(barangaysList.value)
-      return barangaysList.value;
-    }
-
-    return barangaysList.value.map(barangay => {
-      // Find the corresponding report based on matching id/barangay_id
-      const matchingReport = reportsPerBarangay.value.find(report => report.barangay_id === barangay.id);
-
-      return {
-        ...barangay, // Spread the barangay properties
-        report: matchingReport || null // If found, add report; otherwise, null
-      };
-    });
+  if (!Array.isArray(barangaysList.value) || !Array.isArray(reports.value)) {
+    return [];
   }
-  return []; // Return an empty array if data isn't valid
+
+  const start = startDate.value ? new Date(startDate.value) : null;
+  const end = endDate.value ? new Date(endDate.value) : null;
+
+  return barangaysList.value.map(barangay => {
+    const filteredReports = reports.value.filter(report => {
+      const reportDate = new Date(report.date_received);
+      const isInRange =
+        (!start || reportDate >= start) &&
+        (!end || reportDate <= end);
+      return report.barangay_id === barangay.id && isInRange;
+    });
+
+    return {
+      ...barangay,
+      reports: filteredReports,
+      reportCount: filteredReports.length
+    };
+  });
 });
+
+
 
 
 
@@ -108,6 +126,7 @@ const filteredBarangays = computed(() => {
     String(barangay.latitude ?? "").toLowerCase().includes(query) ||
     String(barangay.longitude ?? "").toLowerCase().includes(query)
   );
+
 });
 
 // Pass The ID To Delete
@@ -313,6 +332,10 @@ const handlePrint = () => {
     <!-- Titleee -->
     <div class="mt-6 px-2 flex justify-between">
       <h1 class="text-2xl font-bold dark:text-white">Barangay Management</h1>
+      <div
+        class="w-full md:w-auto flex flex-col md:flex-row items-stretch md:items-center justify-end flex-shrink-0">
+        <DateRangePicker class="max-w-xs" @dateRangeSelected="updateDateRange" />
+      </div>
     </div>
 
     <section class="w-full">
@@ -399,11 +422,11 @@ const handlePrint = () => {
                     <br>
                     Lat: <span v-if="barangay.latitude" class="font-bold">{{ barangay.latitude }}</span>
                   </td>
-                  <td class="px-4 py-3 text-center">
-                    <span v-if="barangay.report && barangay.report.total_reports">{{ barangay.report.total_reports }}</span>
+                  <td class="px-4 py-3 text-center"> 
+                    <span v-if="barangay.reportCount">{{barangay.reportCount  }}</span>
                     <Badge v-else Message="No Data for No. of Cases" />
                   </td>
-                  <td class="px-4 py-3 text-center text-blue-800 hover:text-blue-600 hover:underline font-bold">
+                  <td class="px-4 py-3 text-center text-teal-800 hover:text-teal-600 hover:underline font-bold">
                     <RouterLink @click="passingData(barangay)" :to="`/barangay-statistics/${barangay.id}`">View Incidents</RouterLink>
                     <ToolTip :Information="`Click to visit barangay and view incidents`" />
                   </td>
