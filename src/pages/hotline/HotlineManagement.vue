@@ -73,6 +73,10 @@ const fetchHotlines = () => {
 onMounted(() => {
   fetchHotlines();
 });
+
+import { useActionDropdown } from "../../composables/useActionDropdown";
+const { openDropdownId, dropdownRefs, closeDropdown, toggleDropdown } =
+  useActionDropdown();
 </script>
 
 <template>
@@ -189,13 +193,13 @@ onMounted(() => {
 
 
 
-    <div class="mt-6 w-full flex flex-row gap-4">
+    <div class="mt-6 w-full flex flex-wrap gap-4 px-4">
       <div
-        class="max-w-sm bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700"
+        class="w-64 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 relative"
         v-for="hotline in hotlines"
         :key="hotline.id"
       >
-      <div class="flex justify-center items-center w-48 h-48 overflow-hidden">
+      <div class="relative flex justify-center items-center w-full h-48 overflow-hidden">
         <img
           v-if="hotline.image_path"
           class="w-full h-full object-cover rounded-t-lg"
@@ -208,8 +212,21 @@ onMounted(() => {
           src="../../assets/baguio-logo.png"
           alt="Logo"
         />
-      </div>
-        <div class="p-5">
+
+        <button
+          @click.stop="toggleDropdown(hotline.id)"
+          class="absolute top-2 right-2 bg-white/80 hover:bg-white text-gray-700 p-1 rounded-full shadow-md"
+          type="button"
+        >
+          <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
+            xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+          </svg>
+        </button>
+          
+        </div>
+        <div class="p-4">
           <a href="#">
             <h5
               class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
@@ -231,10 +248,29 @@ onMounted(() => {
               {{ hotline.email }}
             </p>
           </div>
+          <!-- ✅ Dropdown menu placed here -->
+            <div
+              v-if="openDropdownId === hotline.id"
+              ref="dropdownRefs"
+              class="absolute top-full right-2 mt-1 z-100 w-44 shadow-sm border rounded-md bg-white dark:bg-slate-700"
+              @click.stop
+            >
+              <div class="py-2 text-sm flex flex-col w-full items-center">
+                <span class="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600 cursor-pointer">
+                  Edit
+                </span>
+                <span class="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600 cursor-pointer">
+                  Delete
+                </span>
+              </div>
+            </div>
         </div>
       </div>
     </div>
   </section>
+
+
 </template>
 
 <style scoped></style>
+
