@@ -842,11 +842,11 @@ const toggleMinimize = () => {
 
 
   <!-- Map wrapper -->
-  <div class="h-full w-full">
-    <div id="map-wrapper" ref="captureTarget">
-      <div id="map" class="z-10"></div>
-    </div>
+  <div class="w-full h-[580px] sm:h-[400px] md:h-[640px] lg:h-[660px]">
+  <div id="map-wrapper" ref="captureTarget" class="w-full h-full">
+    <div id="map" class="z-10 w-90 h-90"></div>
   </div>
+</div>
 </template>
 
 <style scoped>

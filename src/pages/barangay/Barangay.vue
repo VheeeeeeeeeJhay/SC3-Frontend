@@ -310,7 +310,7 @@ const handlePrint = () => {
 
 <template>
   <div class="min-h-screen p-4">
-    <!-- Titleee -->
+    <!-- Title -->
     <div class="mt-6 px-2 flex justify-between">
       <h1 class="text-2xl font-bold dark:text-white">Barangay Management</h1>
     </div>
@@ -333,7 +333,6 @@ const handlePrint = () => {
                   <input v-model="searchQuery" type="text" id="simple-search"
                     class="border text-sm rounded-lg block w-full pl-10 p-2 bg-white dark:bg-slate-700 dark:text-white dark:border-black placeholder-gray-500 dark:placeholder-gray-300"
                     placeholder="Search..." />
-
                 </div>
               </form>
             </div>
@@ -351,7 +350,7 @@ const handlePrint = () => {
                 </template>
               </PopupModal>
 
-              <!--Generate PDF File Button -->
+              <!-- Generate PDF File Button -->
               <div
                 class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
                 <button @click="handlePrint"
@@ -360,29 +359,15 @@ const handlePrint = () => {
                 </button>
               </div>
 
-              <!-- Filter Button -->
-              <!-- <button @click="toggleFilters"
-                :class="[!isFilterContainerOpen ? 'w-full md:w-auto flex items-center justify-center py-2 px-4  text-sm font-medium rounded-lg border bg-white hover:bg-gray-200 dark:bg-slate-700 dark:border-black dark:text-white dark:hover:bg-slate-600' : 'w-full md:w-auto flex items-center justify-center py-2 px-4  text-sm font-medium rounded-lg border bg-white hover:bg-gray-500 dark:bg-slate-900 dark:border-black dark:text-white dark:hover:bg-slate-600']"
-                id="filterDropdownButton">
-                <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2" viewBox="0 0 20 20"
-                  fill="currentColor">
-                  <path fill-rule="evenodd"
-                    d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
-                    clip-rule="evenodd" />
-                </svg>
-                Date Filter
-              </button> -->
             </div>
           </div>
 
-          <div class="">
+          <div class="overflow-x-auto">
             <table class="w-full text-sm text-left">
               <thead class="text-xs uppercase dark:bg-slate-900 dark:text-gray-300 bg-teal-300 text-gray-800">
                 <tr>
                   <th scope="col" class="px-4 py-3 text-center">ID</th>
                   <th scope="col" class="px-4 py-3 text-center">Name</th>
-                  <!-- <th scope="col" class="px-4 py-3">Longitude</th>
-                  <th scope="col" class="px-4 py-3">Latitude</th> -->
                   <th scope="col" class="px-4 py-3 text-center">Coordinates</th>
                   <th scope="col" class="px-4 py-3 text-center">No. of Cases</th>
                   <th scope="col" class="px-4 py-3 text-center">Visit Barangay</th>
@@ -421,8 +406,6 @@ const handlePrint = () => {
                     <div v-if="openDropdownId === barangay.id" ref="dropdownRefs"
                       class="absolute z-[10] w-44 top-full right-0 shadow-sm border rounded-md bg-white dark:bg-slate-700"
                       @click.stop>
-
-                      <!-- Dropdown Items Container -->
                       <div class="py-2 text-sm flex flex-col w-full items-center">
                         <!-- Edit Button -->
                         <PopupModal class="" Title="Edit Barangay" ModalButton="Edit" Icon="edit" Classes="" :show="isModalOpen"
@@ -492,8 +475,7 @@ const handlePrint = () => {
               <li v-if="visiblePages[visiblePages.length - 1] < totalPages">
                 <button disabled class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</button>
                 <button @click="goToPage(totalPages)"
-                  class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600">{{
-                    totalPages }}</button>
+                  class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600">{{ totalPages }}</button>
               </li>
 
               <li>

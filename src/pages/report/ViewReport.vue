@@ -87,7 +87,7 @@ const data = ref({
 <template>
  <div class="min-h-screen p-4 text-black dark:text-white bg-white dark:bg-gradient-to-br from-gray-900 via-gray-950 to-black ">
   <!-- Back Button -->
-  <div class="mb-4 flex justify-end">
+  <div class="mb-4 flex justify-start sm:justify-end">
   <button
     type="button"
     name="Back"
@@ -115,7 +115,7 @@ const data = ref({
 
       <!-- Headline Content -->
       <div class="relative z-10 p-6">
-        <h1 class="text-7xl font-extrabold uppercase tracking-wide">
+        <h1 class="text-3xl sm:text-5xl lg:text-7xl font-extrabold uppercase tracking-wide">
           <span class="text-white">{{ data.incident }}</span>
         </h1>
         <p class="mt-2 text-lg text-blue-200">{{ data.barangay }}</p>
@@ -130,12 +130,13 @@ const data = ref({
         urgencyShadowColor
       ]"
     >
+    <div class="w-full overflow-x-hidden">
       <div class="flex flex-col md:flex-row gap-6">
         
         <!-- Left Side: Incident Details -->
         <div class="md:w-1/2">
           <h2 class="text-xl font-bold mb-4 border-b border-blue-400 pb-2">Incident Details</h2>
-          <div class="grid grid-cols-2 gap-4 text-sm">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <div>
               <p><span class="font-semibold text-blue-500 dark:text-blue-300">Name:</span> {{ data.name }}</p>
               <p><span class="font-semibold text-blue-500 dark:text-blue-300">Incident Type:</span> {{ data.incident }}</p>
@@ -173,10 +174,11 @@ const data = ref({
             v-if="data.latitude && data.longitude"
             :reportLat="data.latitude"
             :reportLong="data.longitude"
-            class="w-full h-64 rounded-lg shadow-lg"
+            class="w-full h-64 sm:h-80 lg:h-96 rounded-lg shadow-lg"
           />
         </div>
       </div>
+    </div>
     </div>
   </div>
 </template>

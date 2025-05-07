@@ -877,18 +877,18 @@ const handleJSON = (filteredReports) => {
 
                     </div>
                 </div>
-
+                <div class="overflow-x-auto w-full">
                 <table class="w-full text-sm text-left">
                     <thead class="text-xs uppercase bg-teal-300 text-gray-800 dark:bg-slate-950 dark:text-gray-300">
                         <tr>
-                            <th scope="col" class="px-4 py-3 text-center"></th>
+                            <th scope="col" class="px-4 py-3 text-center text-wrap break-words"></th>
                             <!-- <th scope="col" class="px-4 py-3 text-center">ID</th> -->
-                            <th scope="col" class="px-4 py-3 text-center">
+                            <th scope="col" class="px-4 py-3 text-center text-wrap break-words">
                                 <button class="" @click="toggleSortSource">SOURCE <i
                                         :class="sortSource === 'asc' ? 'pi pi-sort-alpha-up' : (sortSource === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
                             </th>
-                            <th scope="col" class="px-4 py-3 text-center">
-                                <div class="flex items-center justify-center">
+                            <th scope="col" class="px-4 py-3 text-center text-wrap break-words">
+                                <div class="flex flex-col sm:flex-row sm:items-center gap-2 justify-center">
                                     <div class="flex items-center md:w-auto relative">
                                         <button @click="toggleFilterDropdown"
                                             class="w-full md:w-auto flex items-center justify-center py-2  text-sm font-medium  text-gray-700 dark:text-gray-200 hover:text-teal-500 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
@@ -902,7 +902,7 @@ const handleJSON = (filteredReports) => {
                                         </button>
 
                                         <div id="filterDropdown" v-show="isFilterDropdownOpen"
-                                            class="absolute top-full left-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-hidden">
+                                            class="absolute top-full left-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-auto max-h-64">
                                             <h6 class="mb-3 text-sm font-medium">Choose Assistance</h6>
                                             <ul class="space-y-2 text-sm">
                                                 <li v-for="classification in classifications" :key="classification.id"
@@ -920,12 +920,12 @@ const handleJSON = (filteredReports) => {
                                             :class="sortAssistance === 'asc' ? 'pi pi-sort-alpha-up' : (sortAssistance === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
                                 </div>
                             </th>
-                            <th scope="col" class="px-4 py-3 text-center">
+                            <th scope="col" class="px-4 py-3 text-center text-wrap break-words">
                                 <button class="" @click="toggleSortIncident">INCIDENT/CASE <i
                                         :class="sortIncident === 'asc' ? 'pi pi-sort-alpha-up' : (sortIncident === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
                             </th>
-                            <th scope="col" class="px-4 py-3 text-center">
-                                <div class="flex items-center justify-center">
+                            <th scope="col" class="px-4 py-3 text-center text-wrap break-words">
+                                <div class="flex flex-col sm:flex-row sm:items-center gap-2 justify-center">
                                     <div class="flex items-center md:w-auto relative">
                                         <button @click="toggleActionsFilterDropdown"
                                             class="w-full md:w-auto flex items-center justify-center py-2  text-sm font-medium  text-gray-700 dark:text-gray-200 hover:text-teal-500 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
@@ -939,7 +939,7 @@ const handleJSON = (filteredReports) => {
                                         </button>
 
                                         <div id="actionsFilterDropdown" v-show="isActionsFilterDropdownOpen"
-                                            class="absolute top-full left-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-hidden">
+                                            class="absolute top-full left-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-auto max-h-64">
                                             <h6 class="mb-3 text-sm font-medium">Choose Actions Taken</h6>
                                             <ul class="space-y-2 text-sm">
                                                 <li v-for="action in actions" :key="action.id"
@@ -957,8 +957,8 @@ const handleJSON = (filteredReports) => {
                                             :class="sortActions === 'asc' ? 'pi pi-sort-alpha-up' : (sortActions === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
                                 </div>
                             </th>
-                            <th scope="col" class="px-4 py-3 text-center">
-                                <div class="flex items-center justify-center">
+                            <th scope="col" class="px-4 py-3 text-center text-wrap break-words">
+                                <div class="flex flex-col sm:flex-row sm:items-center gap-2 justify-center">
                                     <div class="flex items-center md:w-auto relative">
                                         <button @click="toggleUrgencyFilterDropdown"
                                             class="w-full md:w-auto flex items-center justify-center py-2  text-sm font-medium  text-gray-700 dark:text-gray-200 hover:text-teal-500 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
@@ -972,7 +972,7 @@ const handleJSON = (filteredReports) => {
                                         </button>
 
                                         <div id="urgencyFilterDropdown" v-show="isUrgencyFilterDropdownOpen"
-                                            class="absolute top-full left-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-hidden">
+                                            class="absolute top-full left-0 z-10 w-48 p-3 rounded-lg shadow bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-auto max-h-64">
                                             <h6 class="mb-3 text-sm font-medium">Choose Urgency</h6>
                                             <ul class="space-y-2 text-sm">
                                                 <li v-for="urgency in urgencies" :key="urgency.id"
@@ -991,17 +991,17 @@ const handleJSON = (filteredReports) => {
                                             :class="sortUrgency === 'asc' ? 'pi pi-sort-alpha-up' : (sortUrgency === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
                                 </div>
                             </th>
-                            <th scope="col" class="px-4 py-3 text-center">
+                            <th scope="col" class="px-4 py-3 text-center text-wrap break-words">
                                 <button class="" @click="toggleSortBarangay">LOCATION <i
                                         :class="sortBarangay === 'asc' ? 'pi pi-sort-alpha-up' : (sortBarangay === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
                             </th>
-                            <th scope="col" class="px-4 py-3 text-center">Actions</th>
+                            <th scope="col" class="px-4 py-3 text-center text-wrap break-words">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="report in paginatedData" :key="report.id"
                             class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
-                            <td class="px-4 py-3 text-center">
+                            <td class="px-4 py-3 text-center text-wrap break-words">
                                 <!-- <input type="checkbox" :value="report" v-model="selectedReports" class="w-4 h-4" /> -->
                                 <div class="inline-flex items-center">
                                     <label class="relative flex cursor-pointer items-center rounded-full p-3"
@@ -1023,19 +1023,19 @@ const handleJSON = (filteredReports) => {
                                 </div>
                             </td>
                             <!-- <td class="px-4 py-3 text-center">{{ report.id }}</td> -->
-                            <td class="px-4 py-3 text-center">{{ report.source.sources }}</td>
-                            <td class="px-4 py-3 text-center">{{ report.assistance.assistance }}</td>
-                            <td class="px-4 py-3 text-center">{{ report.incident.type }}</td>
-                            <td class="px-4 py-3 text-center">{{ report.actions.actions }}</td>
-                            <td class="px-4 py-3 text-center" :class="[report.urgency.urgency === 'Life-Saving' ? 'text-red-500' :
+                            <td class="px-4 py-3 text-center text-wrap break-words">{{ report.source.sources }}</td>
+                            <td class="px-4 py-3 text-center text-wrap break-words">{{ report.assistance.assistance }}</td>
+                            <td class="px-4 py-3 text-center text-wrap break-words">{{ report.incident.type }}</td>
+                            <td class="px-4 py-3 text-center text-wrap break-words">{{ report.actions.actions }}</td>
+                            <td class="px-4 py-3 text-center text-wrap break-words" :class="[report.urgency.urgency === 'Life-Saving' ? 'text-red-500' :
                                 report.urgency.urgency === 'Critical' ? 'text-orange-500' :
                                     report.urgency.urgency === 'High Priority' ? 'text-yellow-500' :
                                         report.urgency.urgency === 'Moderate' ? 'text-green-500' :
                                             'text-gray-500', 'font-bold']">
                                 {{ report.urgency.urgency }}
                             </td>
-                            <td class="px-4 py-3 text-center">{{ report.barangay.name }}</td>
-                            <td class="px-4 py-3 text-center flex items-center relative justify-center">
+                            <td class="px-4 py-3 text-center text-wrap break-words">{{ report.barangay.name }}</td>
+                            <td class="px-4 py-3 text-center text-wrap break-words flex items-center relative justify-center">
                                 <button @click.stop="toggleDropdown(report.id)"
                                     class="inline-flex items-center p-0.5 text-sm font-medium rounded-lg">
                                     <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
@@ -1082,9 +1082,10 @@ const handleJSON = (filteredReports) => {
                         </tr>
                     </tbody>
                 </table>
+                </div>
 
                 <nav
-                    class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">
+                    class="flex flex-col md:flex-row justify-between items-start sm:items-center gap-4 space-y-3 md:space-y-0 p-4">
                     <span class="text-sm font-normal">Showing {{ filteredReports.length > 0 ? (currentPage - 1) *
                         itemsPerPage + 1 : 0
                         }} to {{

@@ -444,10 +444,11 @@ const handlePrint = () => {
                     </div>
                 </div>
 
-                <div v-if="isLoading" class="flex justify-center">
+               
+                <div class="overflow-x-auto w-full">
+                    <div v-if="isLoading" class="flex justify-center">
                     <Loader1 />
                 </div>
-
                 <table v-else class="w-full text-sm text-left">
                     <thead class="text-xs uppercase bg-teal-300 text-gray-800 dark:bg-slate-950 dark:text-gray-300">
                         <tr>
@@ -530,6 +531,7 @@ const handlePrint = () => {
                         </tr>
                     </tbody>
                 </table>
+            </div>
 
                 <nav
                     class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">

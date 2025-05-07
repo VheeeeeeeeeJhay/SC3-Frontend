@@ -333,7 +333,7 @@ const closeDropdown = () => {
   <div class="min-h-screen p-1">
     <!-- Titleee -->
     <div class="mt-6 px-2 flex justify-between">
-      <h1 class="text-2xl font-bold dark:text-white mb-2">Add a New Report</h1>
+      <h1 class="text-2xl font-bold text-black dark:text-white mb-2">Add a New Report</h1>
       <button type="button" name="Back" @click.prevent="router.back()"
         class="px-3 py-1 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition duration-200 flex items-center">
         <span class="material-icons mr-2"> arrow_back </span>
@@ -344,15 +344,14 @@ const closeDropdown = () => {
     <main class="flex-1 px-2">
 
       <form @submit.prevent="submitForm" class="space-y-6 mt-6 mx-auto max-w-6xl">
-        <div
-          class="p-6 rounded-lg shadow-lg shadow-blue-500/40 ring-2 ring-blue-500/90 flex bg-sky-50 text-gray-800 dark:bg-black dark:text-white">
+        <div class="p-6 rounded-lg shadow-lg shadow-blue-500/40 ring-2 ring-blue-500/90 flex flex-col lg:flex-row ...">
 
-          <div class="w-1/2 pr-4">
-            <h2 class="text-2xl font-bold mb-4 ">Report Information</h2>
-            <div class="grid grid-cols-2 grid-rows-1 gap-2">
+          <div class="w-full lg:w-1/2 lg:pr-4">
+            <h2 class="text-lg font-semibold mb-4 text-black dark:text-white">Report Information</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
               <div class="form-group">
-                <label for="source_id" class="block text-sm font-medium mb-2">Source of
+                <label for="source_id" class="block text-sm font-medium mb-2 text-black dark:text-white">Source of
                   Report
                   <ToolTip Information="This is the source of the report." />
                 </label>
@@ -368,7 +367,7 @@ const closeDropdown = () => {
               </div>
 
               <div class="form-group">
-                <label for="actions_id" class="block text-sm font-medium mb-2">Type of
+                <label for="actions_id" class="block text-sm font-medium mb-2 text-black dark:text-white">Type of
                   Action
                   <ToolTip Information="This is the type of action that is being reported." />
                 </label>
@@ -382,7 +381,7 @@ const closeDropdown = () => {
               </div>
 
               <div class="form-group">
-                <label for="assistance_id" class="block text-sm font-medium mb-2">Case
+                <label for="assistance_id" class="block text-sm font-medium mb-2 text-black dark:text-white">Case
                   Classification
                   <ToolTip Information="This is the type of assistance that is being reported." />
                 </label>
@@ -397,7 +396,7 @@ const closeDropdown = () => {
               </div>
 
               <div class="form-group">
-                <label for="incident_id" class="block text-sm font-medium mb-2">
+                <label for="incident_id" class="block text-sm font-medium mb-2 text-black dark:text-white">
                   Incident/Case
                   <ToolTip Information="This is the incident or case that is being reported." />
                 </label>
@@ -417,7 +416,7 @@ const closeDropdown = () => {
               </div>
 
               <div class="form-group col-span-2">
-                <label for="description" class="block text-sm font-medium mb-2">Description
+                <label for="description" class="block text-sm font-medium mb-2 text-black dark:text-white">Description
                   <ToolTip Information="This is the description of the report." />
                 </label>
                 <textarea id="description" v-model="data.description" placeholder="Enter description of case"
@@ -425,7 +424,7 @@ const closeDropdown = () => {
               </div>
 
               <div class="form-group row-start-4">
-                <label for="urgency_id" class="block text-sm font-medium mb-2">Urgency
+                <label for="urgency_id" class="block text-sm font-medium mb-2 text-black dark:text-white">Urgency
                   <ToolTip Information="This is the urgency of the report." />
                 </label>
                 <select id="urgency_id" v-model="data.urgency_id"
@@ -440,10 +439,10 @@ const closeDropdown = () => {
               </div>
             </div>
 
-            <h2 class="text-2xl font-bold mb-4 mt-6">Time Information</h2>
-            <div class="grid grid-cols-2 grid-rows-1 gap-2">
+            <h2 class="text-2xl font-bold mb-4 mt-6 text-black dark:text-white">Time Information</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="form-group relative">
-                <label for="date_received" class="block text-sm font-medium mb-2">
+                <label for="date_received" class="block text-sm font-medium mb-2 text-black dark:text-white">
                   Date Received
                   <ToolTip Information="This is the date the report was received." />
                 </label>
@@ -456,7 +455,7 @@ const closeDropdown = () => {
                   errors.date_received[0] }}</span>
               </div>
               <div class="form-group relative">
-                <label for="arrivalDate" class="block text-sm font-medium mb-2">
+                <label for="arrivalDate" class="block text-sm font-medium mb-2 text-black dark:text-white">
                   Time of Arrival on Site
                   <ToolTip Information="This is the time the report was received." />
                 </label>
@@ -469,7 +468,7 @@ const closeDropdown = () => {
                   errors.arrival_on_site[0] }}</span>
               </div>
               <div class="form-group relative">
-                <label for="time" class="block text-sm font-medium mb-2">
+                <label for="time" class="block text-sm font-medium mb-2 text-black dark:text-white">
                   Time of Incident
                   <ToolTip Information="This is the time of the incident." />
                 </label>
@@ -483,15 +482,15 @@ const closeDropdown = () => {
             </div>
           </div>
 
-          <div class="w-px bg-gray-300 mx-4"></div>
+          <div class="hidden lg:block w-px bg-gray-300 mx-4"></div>
 
           <!-- right side -->
-          <div class="w-1/2 pl-4">
-            <h2 class="text-2xl font-bold mb-6">Place Information</h2>
+          <div class="w-full lg:w-1/2 lg:pl-4">
+            <h2 class="text-2xl font-bold mb-6 text-black dark:text-white">Place Information</h2>
             <div class="space-y-4">
-              <div class="grid grid-cols-2 gap-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="form-group relative">
-                  <label for="place" class="block text-sm font-medium mb-2">
+                  <label for="place" class="block text-sm font-medium mb-2 text-black dark:text-white">
                     Place of Incident
                     <ToolTip Information="This is the place of the incident." />
                   </label>
@@ -517,7 +516,7 @@ const closeDropdown = () => {
                   </span>
                 </div>
                 <div class="form-group">
-                  <label for="landmark" class="block text-sm font-medium mb-2">
+                  <label for="landmark" class="block text-sm font-medium mb-2 text-black dark:text-white">
                     Location Details
                     <ToolTip Information="This is the location details of the incident." />
                   </label>
@@ -531,9 +530,9 @@ const closeDropdown = () => {
               <div class="form-group">
                 <div id="map" class="mb-4 h-64 z-10"></div>
               </div>
-              <div class="grid grid-cols-2 gap-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="form-group">
-                  <label for="longitude" class="block text-sm font-medium mb-2">
+                  <label for="longitude" class="block text-sm font-medium mb-2 text-black dark:text-white">
                     Longitude
                     <ToolTip Information="This is the longitude of the incident." />
                   </label>
@@ -543,7 +542,7 @@ const closeDropdown = () => {
                     errors.longitude[0] }}</span>
                 </div>
                 <div class="form-group">
-                  <label for="latitude" class="block text-sm font-medium mb-2">
+                  <label for="latitude" class="block text-sm font-medium mb-2 text-black dark:text-white">
                     Latitude
                     <ToolTip Information="This is the latitude of the incident." />
                   </label>
