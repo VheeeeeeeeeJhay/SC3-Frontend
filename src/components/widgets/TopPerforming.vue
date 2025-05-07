@@ -27,7 +27,7 @@ onUnmounted(() => {
 });
 
 // Reactive reports list
-const reports = computed(() => databaseStore.reportsList);
+const reports = computed(() => databaseStore.reports);
 
 // 🧠 Top 3 Barangays
 const topBarangays = computed(() => {

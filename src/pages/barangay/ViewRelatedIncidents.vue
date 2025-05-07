@@ -46,10 +46,10 @@ onUnmounted(() => {
 });
 
 const computedProperties = {
-    reportArray: "reportsList",
-    classifications: "classificationsList",
-    urgencies: "urgenciesList",
-    actions: "actionsList",
+    reportArray: "reports",
+    classifications: "assistance",
+    urgencies: "urgencies",
+    actions: "actions",
 };
 
 const {

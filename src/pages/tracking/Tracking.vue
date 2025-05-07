@@ -12,16 +12,12 @@ const addToast = inject('addToast');
 const databaseStore = useDatabaseStore();
 const store = useArrayStore();
 
-let count = ref(0);
-
 // Auto-refresh logs
 let refreshInterval = null;
 onMounted(() => {
     databaseStore.fetchData();
     refreshInterval = setInterval(() => {
         databaseStore.fetchData();
-        count.value++;
-        addToast(`Logs data refreshed! ${count.value} times!`, 'success', 'info');
     }, 50000);
 });
 

@@ -59,14 +59,12 @@ const errors = ref('');
 const addToast = inject('addToast');
 
 const computedProperties = {
-  barangaysList: "barangaysList",
-  reportsPerBarangay: "reportsPerBarangay",
-  reports: "reportsList",
+  barangaysList: "barangays",
+  reports: "reports",
 };
 
 const {
   barangaysList,
-  reportsPerBarangay,
   reports,
 } = Object.fromEntries(
     Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])

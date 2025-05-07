@@ -42,7 +42,7 @@ const observeThemeChange = () => {
 
 
 // Store Fetch Data From Backend In An Array
-const report = computed(() => databaseStore.reportsList);
+const report = computed(() => databaseStore.reports);
 
 // const report = computed(() => {
 //   console.log('Reports:', databaseStore.reportsList)  // Check reportsList
@@ -80,7 +80,7 @@ const groupReportsByMonth = () => {
   const startDateObj = new Date(props.startDate)
 
   // Create a map of urgency IDs to their names
-  const urgencyMap = new Map(databaseStore.urgenciesList.map(u => [u.id, u.urgency]))
+  const urgencyMap = new Map(databaseStore.urgencies.map(u => [u.id, u.urgency]))
 
   months.forEach(month => {
     const monthReports = report.value.filter(report => {

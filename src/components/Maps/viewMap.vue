@@ -59,11 +59,12 @@ let persistentPopup = null; // ✅ Store reference for persistent popups
 // ✅ **Fetch Reports (Filtered by Barangay)**
 const fetchReports = () => {
   axiosClient
-    .get("/api/911/report-display", {
+    .get("/api/911/report", {
       headers: { "x-api-key": import.meta.env.VITE_API_KEY },
     })
     .then((res) => {
-      const allReports = res.data[0] || [];
+      const allReports = res.data || [];
+      console.log("📦 All Reports:", allReports);
 
       // ✅ Filter reports by barangay name
       reports.value = allReports.filter(
