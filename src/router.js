@@ -24,6 +24,7 @@ import ResetPassword from "./pages/auth/ResetPassword.vue";
 import NoAccess from "./pages/auth/NoAccess.vue";
 import NotVerifiedEmail from "./pages/auth/NotVerifiedEmail.vue";
 import VerifiedEmail from "./pages/auth/VerifiedEmail.vue";
+import HotlineManagement from "./pages/hotline/HotlineManagement.vue";
 
 const routes = [
   {
@@ -53,6 +54,8 @@ const routes = [
       {path: '/log-view/:id', name: 'LogViewDetails', component: ViewTrackingDetails, meta: { title: 'Log Details View' }},
 
       {path: '/profile', name: 'Profile', component: Profile, meta: { title: 'Profile' }},
+
+      {path: '/hotline-management', name: 'HotlineManagement', component: HotlineManagement, meta: { title: 'Hotline Management' }},
     ],
     beforeEnter: async (to, from, next) => {
       try {
