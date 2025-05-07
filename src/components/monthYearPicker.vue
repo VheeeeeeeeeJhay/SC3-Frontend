@@ -3,7 +3,7 @@
     <!-- Month Picker Toggle -->
     <div 
       @click="openPicker" 
-      class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 px-2 py-1.5 border border-gray-300 dark:border-gray-700 rounded-md shadow cursor-pointer flex items-center justify-between w-auto min-w-[6rem]"
+      class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 px-2 py-1.5 rounded-md shadow cursor-pointer flex items-center justify-between w-auto min-w-[6rem]"
     >
       <span class="text-xs font-medium whitespace-nowrap">
         {{ months[selectedMonth - 1] }} {{ selectedYear }}

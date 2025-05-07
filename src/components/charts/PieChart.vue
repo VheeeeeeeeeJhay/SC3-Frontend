@@ -240,7 +240,7 @@ onUnmounted(() => {
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-semibold">Number of Cases</h2>
       <select id="incidentType" v-model="data.incidentType"
-        class="px-1 py-0.5 text-xxs bg-white text-gray-800 border border-gray-300 rounded hover:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 w-32">
+        class="px-2 py-1 text-sm bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded w-32">
         <option value="">All Categories</option>
         <option v-for="assistance in assistance" :key="assistance.id" :value="assistance.id">{{ assistance.assistance }}
         </option>

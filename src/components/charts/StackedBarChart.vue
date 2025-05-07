@@ -151,7 +151,7 @@ const updateChart = () => {
         height: 400,
         width: '100%',
         stacked: true,
-        background: isDarkMode ? '#1F2937' : '#ffffff', // background for dark mode
+        // background: isDarkMode ? '#1F2937' : '#ffffff', // background for dark mode
         dropShadow: {
           enabled: true,
           blur: 1,
