@@ -455,16 +455,8 @@ if (mapData && mapData.features) {
         // Create a formatted popup content with all properties
         const properties = feature.properties;
         const popupContent = `
-          <div class="p-2">
-            <h4 class="font-bold mb-2">${barangayName}</h4>
-            <div class="space-y-1">
-              ${Object.entries(properties).map(([key, value]) => 
-                `<div class="flex justify-between">
-                  <span class="font-medium">${key}:</span>
-                  <span>${value}</span>
-                </div>`
-              ).join('')}
-            </div>
+          <div class="p-1">
+            <h4 class="font-bold">${barangayName}</h4>
           </div>
         `;
 

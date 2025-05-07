@@ -69,17 +69,12 @@ const fetchReports = () => {
       reports.value = allReports.filter(
         (report) => report.barangay?.name === barangay_name.value
       );
-      const reportCount = reports.value.length;
-      console.log("📦 Reports Count:", reportCount);
-
-      console.log(`Filtered Reports for '${barangay_name.value}':`, reports.value); //2 
 
       // ✅ Call marker update with lat/lng/name/count
       updateBarangayMarkers(
         barangay_lat.value,
         barangay_long.value,
         barangay_name.value,
-        reportCount
       );
     })
     .catch((error) => console.error("Error fetching reports:", error));
@@ -160,7 +155,7 @@ const addMarker = (lat, lng) => {
 // const barangayMarkers = ref([]);
 // const barangayID = ref(props.viewID);
 
-const updateBarangayMarkers = (lat, lng, name, count) => {
+const updateBarangayMarkers = (lat, lng, name) => {
   if (!map) return;
 
   // Remove old marker if it exists
@@ -180,14 +175,14 @@ const updateBarangayMarkers = (lat, lng, name, count) => {
     .addTo(map)
     .bindPopup(`
       <strong>Barangay:</strong> ${name}<br/>
-      <strong>Total Reports:</strong> ${count}
     `);
 
   // Manually set the popup's anchor point
   marker.value.on('popupopen', () => {
     const popup = marker.value.getPopup();
-    const offset = leaflet.point(0, -15); // 15px above marker
-    popup.setLatLng(marker.value.getLatLng()).setOffset(offset);
+    popup.setLatLng(marker.value.getLatLng())
+    // const offset = leaflet.point(0, -15); // 15px above marker
+    // popup.setLatLng(marker.value.getLatLng()).setOffset(offset);
   });
 
   // Open the popup immediately
@@ -204,7 +199,7 @@ const addGeoJSONLayer = () => {
   if (!map || !mapData.features || !barangay_name.value) return;
 
   const filteredFeatures = mapData.features.filter(
-    (feature) => feature.properties.name === barangay_name.value
+    (feature) => feature.properties.name.toUpperCase() === barangay_name.value.toUpperCase()
   );
 
   console.log(`Filtered GeoJSON for '${barangay_name.value}':`, filteredFeatures);
