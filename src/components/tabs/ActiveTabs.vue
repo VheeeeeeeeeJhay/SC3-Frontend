@@ -5,6 +5,7 @@ import Badge from '../../components/Badge.vue';
 import { useDatabaseStore } from "../../stores/databaseStore";
 import { useActionDropdown } from '../../composables/useActionDropdown';
 import { usePagination } from '../../composables/usePagination';
+import AddUser from '../form/AddUser.vue';
 
 const addToast = inject('addToast');
 
@@ -37,35 +38,20 @@ const {
 } = Object.fromEntries(
     Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
 );
-const users = usersList.value.filter(user => 
-    ((user.for_911 === 1 && user.for_inventory === 1 && user.for_traffic === 1 && user.is_deleted === 0) || 
-    (user.for_911 === 1 && user.for_inventory === 0 && user.for_traffic === 1 && user.is_deleted === 0) || 
-    (user.for_911 === 0 && user.for_inventory === 1 && user.for_traffic === 1 && user.is_deleted === 0) ||
-    (user.for_911 === 1 && user.for_inventory === 1 && user.for_traffic === 0 && user.is_deleted === 0) ||
-    (user.for_911 === 1 && user.for_inventory === 0 && user.for_traffic === 0 && user.is_deleted === 0) ||
-    (user.for_911 === 0 && user.for_inventory === 1 && user.for_traffic === 0 && user.is_deleted === 0) ||
-    (user.for_911 === 0 && user.for_inventory === 0 && user.for_traffic === 1 && user.is_deleted === 0)) 
-);
+// Create a computed property for filtered users
+const users = computed(() => usersList.value.filter(user => (user.for_911 === 1 && user.is_deleted === 0)));
 
 const dashboardRole = async (user) => {
-    const newRoleStatus = !user.for_911; // Toggle boolean value directly
-
-    // Prevent all roles from being false at the same time
-    if (!newRoleStatus && !user.for_inventory && !user.for_traffic) {
-        addToast('At least 1 role must be active', 'error', 'error');
-        return;
-    }
-
     try {
         const response = await axiosClient.patch(`/api/911/user-dashboard-role/${user.id}`, {
-            for_911: newRoleStatus
+            for_911: user.for_911 === 1 ? 0 : 1
         }, {
             headers: {
                 'x-api-key': import.meta.env.VITE_API_KEY
             }
         });
         // Update local state instantly
-        user.for_911 = newRoleStatus;
+        user.for_911 = user.for_911 === 1 ? 0 : 1;
         addToast(response.data.message, 'success', 'check_circle');
         databaseStore.fetchData();
         clearInterval(refreshInterval);
@@ -79,69 +65,69 @@ const dashboardRole = async (user) => {
     }
 };
 
-// Inventory Role
-const inventoryRole = async (user) => {
-    const newRoleStatus = !user.for_inventory; // Toggle boolean value directly
+// // Inventory Role
+// const inventoryRole = async (user) => {
+//     const newRoleStatus = !user.for_inventory; // Toggle boolean value directly
 
-    // Prevent all roles from being false at the same time
-    if (!newRoleStatus && !user.for_911 && !user.for_traffic) {
-        addToast('At least 1 role must be active', 'error', 'error');
-        return;
-    }
+//     // Prevent all roles from being false at the same time
+//     if (!newRoleStatus && !user.for_911 && !user.for_traffic) {
+//         addToast('At least 1 role must be active', 'error', 'error');
+//         return;
+//     }
 
-    try {
-        const response = await axiosClient.patch(`/api/911/user-inventory-role/${user.id}`, { for_inventory: newRoleStatus },
-            {
-                headers: {
-                    'x-api-key': import.meta.env.VITE_API_KEY
-                }
-            });
-        // Update local state instantly
-        user.for_inventory = newRoleStatus;
-        addToast(response.data.message, 'success', 'check_circle');
-        databaseStore.fetchData();
-        clearInterval(refreshInterval);
-        refreshInterval = setInterval(() => {
-            databaseStore.fetchData(); // runs again every 50s
-        }, 50000);
-    } catch (error) {
-        console.error(error.response?.data?.error);
-        errors.value = error.response?.data?.error;
-        addToast(errors.value, 'error', 'error');
-    }
-};
+//     try {
+//         const response = await axiosClient.patch(`/api/911/user-inventory-role/${user.id}`, { for_inventory: newRoleStatus },
+//             {
+//                 headers: {
+//                     'x-api-key': import.meta.env.VITE_API_KEY
+//                 }
+//             });
+//         // Update local state instantly
+//         user.for_inventory = newRoleStatus;
+//         addToast(response.data.message, 'success', 'check_circle');
+//         databaseStore.fetchData();
+//         clearInterval(refreshInterval);
+//         refreshInterval = setInterval(() => {
+//             databaseStore.fetchData(); // runs again every 50s
+//         }, 50000);
+//     } catch (error) {
+//         console.error(error.response?.data?.error);
+//         errors.value = error.response?.data?.error;
+//         addToast(errors.value, 'error', 'error');
+//     }
+// };
     
-// Traffic Role
-const trafficRole = async (user) => {
-    const newRoleStatus = !user.for_traffic; // Toggle boolean value directly
+// // Traffic Role
+// const trafficRole = async (user) => {
+//     const newRoleStatus = !user.for_traffic; // Toggle boolean value directly
 
-    // Prevent all roles from being false at the same time
-    if (!newRoleStatus && !user.for_911 && !user.for_inventory) {
-        addToast('At least 1 role must be active', 'error', 'error');
-        return;
-    }
+//     // Prevent all roles from being false at the same time
+//     if (!newRoleStatus && !user.for_911 && !user.for_inventory) {
+//         addToast('At least 1 role must be active', 'error', 'error');
+//         return;
+//     }
 
-    try {
-        const response = await axiosClient.patch(`/api/911/user-traffic-role/${user.id}`, { for_traffic: newRoleStatus },
-            {
-                headers: {
-                    'x-api-key': import.meta.env.VITE_API_KEY
-                }
-            });
-        // Update local state instantly
-        user.for_traffic = newRoleStatus;
-        addToast(response.data.message, 'success', 'check_circle');
-        databaseStore.fetchData();
-        clearInterval(refreshInterval);
-        refreshInterval = setInterval(() => {
-            databaseStore.fetchData(); // runs again every 50s
-        }, 50000);
-    } catch (error) {
-        console.error(error.response?.data?.message || error.message);
-        errors.value = error.response?.data?.error || 'Failed to archive user';
-        addToast(errors.value, 'error', 'error');
-    }
-};
+//     try {
+//         const response = await axiosClient.patch(`/api/911/user-traffic-role/${user.id}`, { for_traffic: newRoleStatus },
+//             {
+//                 headers: {
+//                     'x-api-key': import.meta.env.VITE_API_KEY
+//                 }
+//             });
+//         // Update local state instantly
+//         user.for_traffic = newRoleStatus;
+//         addToast(response.data.message, 'success', 'check_circle');
+//         databaseStore.fetchData();
+//         clearInterval(refreshInterval);
+//         refreshInterval = setInterval(() => {
+//             databaseStore.fetchData(); // runs again every 50s
+//         }, 50000);
+//     } catch (error) {
+//         console.error(error.response?.data?.message || error.message);
+//         errors.value = error.response?.data?.error || 'Failed to archive user';
+//         addToast(errors.value, 'error', 'error');
+//     }
+// };
 
 // Archive User
 const archiveUser = async (user) => {
@@ -193,7 +179,7 @@ const toggleSortEmail = () => {
 // Computed property for dynamic search and filtering
 const filteredUsers = computed(() => {
     // Step 1: Filter users
-    const result = users.filter(user => {
+    const result = users.value.filter(user => {
         const matchesSearch = searchQuery.value
             ? user.firstName?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
             user.middleName?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
@@ -256,60 +242,7 @@ const closeDropdowns = (event) => {
 
 document.addEventListener("click", closeDropdowns);
 
-// // Pagination
-// const currentPage = ref(1);
-// const itemsPerPage = ref(10);
-// // Total pages based on filtered results
-// const totalPages = computed(() => {
-//     return Math.ceil(filteredUsers.value.length / itemsPerPage.value);
-// });
-// // Get paginated reports
-// const paginatedUsers = computed(() => {
-//     const start = (currentPage.value - 1) * itemsPerPage.value;
-//     const end = start + itemsPerPage.value;
-//     return filteredUsers.value.slice(start, end);
-// });
 
-// // Pagination controls
-// const nextPage = () => {
-//     if (currentPage.value < totalPages.value) {
-//         currentPage.value++;
-//     }
-// };
-// const prevPage = () => {
-//     if (currentPage.value > 1) {
-//         currentPage.value--;
-//     }
-// };
-// const goToPage = (page) => {
-//     if (page >= 1 && page <= totalPages.value) {
-//         currentPage.value = page;
-//     }
-// };
-// // Reset to first page when searching
-// watch(searchQuery, () => {
-//     currentPage.value = 1;
-// });
-
-// const maxVisiblePages = 3;
-
-// const paginationStart = computed(() => {
-//     if (currentPage.value <= Math.floor(maxVisiblePages / 2)) {
-//         return 1;
-//     } else if (currentPage.value + Math.floor(maxVisiblePages / 2) >= totalPages.value) {
-//         return Math.max(1, totalPages.value - maxVisiblePages + 1);
-//     } else {
-//         return currentPage.value - Math.floor(maxVisiblePages / 2);
-//     }
-// });
-
-// const paginationEnd = computed(() => {
-//     return Math.min(totalPages.value, paginationStart.value + maxVisiblePages - 1);
-// });
-
-// const visiblePages = computed(() => {
-//     return Array.from({ length: paginationEnd.value - paginationStart.value + 1 }, (_, i) => paginationStart.value + i);
-// });
 const {
     currentPage,
     itemsPerPage,
@@ -445,6 +378,18 @@ const handlePrint = () => {
                             class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
                             Print Users
                         </button>
+                        <!-- <button @click="(() => console.log('Add User'))"
+                            class="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
+                            Add User
+                        </button> -->
+                        <PopupModal Title="Please fill all the required fields"
+                            ModalButton="Add User" Icon="" Classes="" :show="isModalOpen"
+                            @update:show="isModalOpen = $event"
+                            ButtonClass="flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600">
+                            <template #modalContent>
+                                <AddUser />
+                            </template>
+                        </PopupModal>
                     </div>
                 </div>
 
@@ -465,8 +410,8 @@ const handlePrint = () => {
                                     @click="toggleSortEmail">EMAIL <i
                                         :class="sortEmail === 'asc' ? 'pi pi-sort-alpha-up' : (sortEmail === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
                             </th>
-                            <th scope="col" class="px-4 py-3 text-center">Roles</th>
-                            <th scope="col" class="px-4 py-3">Verified</th>
+                            <th scope="col" class="px-4 py-3 text-center">911</th>
+                            <th scope="col" class="px-4 py-3 text-center">Verified</th>
                             <th scope="col" class="px-4 py-3 text-center">Actions</th>
                         </tr>
                     </thead>
@@ -478,19 +423,12 @@ const handlePrint = () => {
                                 user.lastName }}</td>
                             <td class="px-4 py-3 text-center">{{ maskEmail(user.email) }}</td>
                             <td class="px-4 py-3 text-center">
-                                911: 
                                 <Badge :Message="user.for_911 ? `Has Access` : `No Access`"
-                                    :class="[user.for_911 ? 'bg-green-700' : 'bg-red-700', 'text-white']" />
-                                Inventory: 
-                                <Badge :Message="user.for_inventory ? `Has Access` : `No Access`"
-                                    :class="[user.for_inventory ? 'bg-green-700' : 'bg-red-700', 'text-white']" />
-                                Traffic: 
-                                <Badge :Message="user.for_traffic ? `Has Access` : `No Access`"
-                                    :class="[user.for_traffic ? 'bg-green-700' : 'bg-red-700', 'text-white']" />
+                                    :class="[user.for_911 ? 'bg-green-700 text-emerald-200' : 'bg-red-700 text-rose-200']" />
                             </td>
                             <td class="px-4 py-3 text-center">
                                 <Badge :Message="user.email_verified_at ? `Verified` : `Not Verified`"
-                                    :class="[user.email_verified_at ? 'bg-green-700' : 'bg-red-700', 'text-white']" />
+                                    :class="[user.email_verified_at ? 'bg-green-700 text-emerald-200' : 'bg-red-700 text-rose-200']" />
                             </td>
                             <td class="px-4 py-3 flex items-center justify-center relative">
                                 <button @click.stop="toggleDropdown(user.id)"
@@ -515,7 +453,7 @@ const handlePrint = () => {
                                                 :name="user.for_911 === 1 ? 'Deactive 911 Access' : 'Activate 911 Access'"
                                                 class="mt-2 hover:text-gray-700 dark:hover:text-gray-300" />
                                         </li>
-                                        <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
+                                        <!-- <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
                                             <PrimaryButton @click.prevent="inventoryRole(user)"
                                                 :name="user.for_inventory === 1 ? 'Deactive Inventory Access' : 'Activate Inventory Access'"
                                                 class="mt-2 hover:text-gray-700 dark:hover:text-gray-300" />
@@ -524,7 +462,7 @@ const handlePrint = () => {
                                             <PrimaryButton @click.prevent="trafficRole(user)"
                                                 :name="user.for_traffic === 1 ? 'Deactive Traffic Access' : 'Activate Traffic Access'"
                                                 class="mt-2 hover:text-gray-700 dark:hover:text-gray-300" />
-                                        </li>
+                                        </li> -->
                                         <li class="hover:bg-gray-300 dark:hover:bg-gray-600">
                                             <PrimaryButton @click.prevent="archiveUser(user)" :name="'Archive User'"
                                                 class="mt-2 hover:text-gray-700 dark:hover:text-gray-300" />

@@ -1,6 +1,5 @@
 <script setup>
 import TabNavigation from '../../components/tabs/TabNavigation.vue';
-
 </script>
 
 <template>
@@ -13,7 +12,10 @@ import TabNavigation from '../../components/tabs/TabNavigation.vue';
         </div>
         
         <!-- Tab Navigation -->
-        <TabNavigation class="mt-4" />
+        <TabNavigation />
     </section>
 </template>
+
+<style scoped>
+</style>
 
