@@ -387,7 +387,7 @@ const handlePrint = () => {
 
           <div class="overflow-x-auto">
             <table class="w-full text-sm text-left">
-              <thead class="text-xs uppercase dark:bg-slate-900 dark:text-gray-300 bg-teal-300 text-gray-800">
+              <thead class="text-xs uppercase dark:bg-slate-950 dark:text-gray-300 bg-teal-300 text-gray-800">
                 <tr>
                   <th scope="col" class="px-4 py-3 text-center">ID</th>
                   <th scope="col" class="px-4 py-3 text-center">Name</th>
