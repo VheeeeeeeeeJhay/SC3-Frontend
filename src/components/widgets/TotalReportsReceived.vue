@@ -8,7 +8,7 @@ const props = defineProps({
 });
 
 const databaseStore = useDatabaseStore();
-const reports = computed(() => databaseStore.reportsList);
+const reports = computed(() => databaseStore.reports);
 
 const filteredReports = computed(() => {
   if (!reports.value || reports.value.length === 0) return 0;

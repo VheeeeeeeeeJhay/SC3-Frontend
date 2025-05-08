@@ -27,7 +27,7 @@ provide('addToast', addToast);
   <RouterView />
 
 
-  <div class="flex flex-col fixed top-17 right-5 w-1/2 items-end">
+  <div class="flex flex-col fixed top-17 right-5 w-1/2 items-end z-100">
     <Toast 
       v-for="toast in toasts" 
       :key="toast.id" 

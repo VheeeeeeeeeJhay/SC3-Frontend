@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="h-full bg-[#FCFCF7] dark:bg-slate-900">
+<html lang="en" class="h-full">
 
 <head>
   <meta charset="UTF-8" />
@@ -20,9 +20,20 @@
 
 </head>
 
-<body class="h-full">
+<body class="h-full bg-gradient-to-br from-white via-sky-200 to-teal-600 dark:from-slate-900 dark:via-gray-950 dark:to-teal-900 dark:bg-gradient-to-br">
   <div id="app"></div>
   <script type="module" src="/src/main.js"></script>
 </body>
 
 </html>
+
+<style>
+  body {
+    /* background: radial-gradient(circle at top left, #0f1127, #272b57, #17294b); */
+    background-attachment: fixed; /* Prevent background from moving on scroll */
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
+  /* bg-[#FCFCF7] dark:bg-red-950 */
+</style>

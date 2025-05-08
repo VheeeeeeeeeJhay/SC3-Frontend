@@ -31,7 +31,7 @@ onUnmounted(() => {
 // } = Object.fromEntries(
 //     Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
 // );
-const report = computed(() => databaseStore.reportsList);
+const report = computed(() => databaseStore.reports);
 const source = computed(() => databaseStore.sources);
 
 
@@ -96,7 +96,7 @@ const options = ref({
     },
     legend: {
         show: true,
-        position: 'top', // Place the legend at the top for better visibility
+        position: 'bottom', // Place the legend at the top for better visibility
         horizontalAlign: 'center',  // Center-aligned legend
         labels: {
             colors: '#ffffff', // White text for the legend
@@ -216,8 +216,8 @@ const updateChart = () => {
         data: data.filter((_, i) => monthPresence[i]) // Only include active months
     }));
 
-    console.log("✅ Final Chart Series:", trimmedSeries);
-    console.log("📅 Filtered Month Labels:", filteredMonthLabels);
+    // console.log("✅ Final Chart Series:", trimmedSeries);
+    // console.log("📅 Filtered Month Labels:", filteredMonthLabels);
 
     // Update chart
     options.value.series = trimmedSeries;
@@ -226,7 +226,9 @@ const updateChart = () => {
     if (chart) {
         chart.updateOptions(options.value);
     } else {
-        renderChart();
+        // renderChart();
+        chart.render();
+
     }
 };
 
@@ -236,20 +238,19 @@ onMounted(() => {
     if (barChart.value) {
         chart = new ApexCharts(barChart.value, options.value);
         chart.render();
-        // updateChart();
     }
 });
 
 watch([source, report], ([newSource, newReport]) => {
     if (newSource.length && newReport.length) {
-        console.log("🔄 Data updated! Running updateChart()");
+        // console.log("🔄 Data updated! Running updateChart()");
         updateChart();
     }
 });
 
 
 watch([() => props.startDate, () => props.endDate], () => {
-  console.log("🔄 Date props changed: Running updateChart()");
+//   console.log("🔄 Date props changed: Running updateChart()");
   updateChart();
 });
 
@@ -269,6 +270,6 @@ onUnmounted(() => {
       
     </div>
     <!-- BAR CHART -->
-    <div class="dark:text-gray-800 h-64" ref="barChart"></div>
+    <div class="dark:text-gray-800 h-full" ref="barChart"></div>
   </div>
 </template>

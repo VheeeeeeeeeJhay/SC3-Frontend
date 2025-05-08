@@ -8,7 +8,31 @@ import { usePagination } from '../../composables/usePagination';
 
 const addToast = inject('addToast');
 
+let refreshInterval = null;
 const databaseStore = useDatabaseStore();
+onMounted(() => {
+    databaseStore.fetchData();
+    refreshInterval = setInterval(() => {
+        databaseStore.fetchData();
+    }, 50000);
+});
+onUnmounted(() => {
+  // Clear the interval when the component is unmounted or page is reloaded
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+  }
+});
+const computedProperties = {
+    usersList: "users",
+};
+const { 
+    usersList
+} = Object.fromEntries(
+    Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
+);
+const users = usersList.value.filter(user => 
+    (user.is_deleted === 1)
+);
 
 const searchQuery = ref("");
 const isLoading = ref(false);
@@ -17,7 +41,7 @@ const selectedClassifications = ref([]);
 
 const errors = ref("");
 
-let refreshInterval = null;
+
 
 const sortName = ref('none'); // 'none', 'asc', 'desc'
 const toggleSortName = () => {
@@ -46,7 +70,7 @@ const toggleSortEmail = () => {
 // Computed property for dynamic search and filtering
 const filteredUsers = computed(() => {
     // Step 1: Filter users
-    const result = users.value.filter(user => {
+    const result = users.filter(user => {
         const matchesSearch = searchQuery.value
             ? user.firstName?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
               user.middleName?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
@@ -80,31 +104,6 @@ const filteredUsers = computed(() => {
     return result;
 });
 
-
-onMounted(() => {
-    databaseStore.fetchData();
-
-    refreshInterval = setInterval(() => {
-        databaseStore.fetchData();
-    }, 50000);
-
-});
-onUnmounted(() => {
-  // Clear the interval when the component is unmounted or page is reloaded
-  if (refreshInterval) {
-    clearInterval(refreshInterval);
-  }
-});
-
-const computedProperties = {
-    users: "archivedUsers",
-};
-
-const { 
-    users
-} = Object.fromEntries(
-    Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
-);
 
 const { openDropdownId, dropdownRefs, toggleDropdown } = useActionDropdown();
 

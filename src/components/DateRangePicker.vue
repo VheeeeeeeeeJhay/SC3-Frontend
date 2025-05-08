@@ -113,7 +113,7 @@ const handleApply = () => {
 };
 
 
-const handleClear = () => {
+const handleReset = () => {
   const now = new Date();
   const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
@@ -170,7 +170,7 @@ onUnmounted(() => {
   <div class="relative w-full">
     <!-- Input Field -->
     <div
-      class="w-65 px-3 py-2 flex items-center bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
+      class="w-65 px-3 py-2 flex items-center bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
       ref="datepickerRef" @click="toggleDatepicker">
       <span class="mr-3 text-gray-500 dark:text-gray-300">
         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -229,9 +229,9 @@ onUnmounted(() => {
 
       <!-- Actions -->
       <div class="flex justify-end space-x-2 border-t border-gray-200 dark:border-gray-700 p-3">
-        <button @click="handleClear"
+        <button @click="handleReset"
           class="px-4 py-2 text-sm font-medium text-teal-500 dark:text-teal-400 border border-teal-500 dark:border-teal-400 rounded-lg hover:bg-teal-50 dark:hover:bg-gray-700">
-          clear
+          Reset
         </button>
         <button @click="handleApply"
           class="px-4 py-2 text-sm font-medium text-white bg-teal-500 dark:bg-teal-600 rounded-lg hover:bg-teal-600 dark:hover:bg-teal-700">

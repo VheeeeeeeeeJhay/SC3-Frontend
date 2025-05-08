@@ -47,7 +47,7 @@ onUnmounted(() => {
 });
 
 const computedProperties = {
-    reports: "reportsList",
+    reports: "reports",
 };
 
 const {
@@ -59,24 +59,25 @@ const {
 // Access Pinia store for GeoJSON border visibility
 const mapStore = useMapStore();
 const errors = ref("");
+let legendControl; 
 
 
 
 const startDate = ref(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
 const endDate = ref(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0));
-console.log("Start Date:", startDate.value);
-console.log("End Date:", endDate.value);
+// console.log("Start Date:", startDate.value);
+// console.log("End Date:", endDate.value);
 const updateDateRange = ({ start, end }) => {
   startDate.value = start;
   endDate.value = end;
-  console.log("📅 Date range updated:", start, "to", end);
+  // console.log("📅 Date range updated:", start, "to", end);
 
   addBarangayMarkers(); // Refresh markers based on the new date range
 };
 
 watch([startDate, endDate], () => {
   addBarangayMarkers();
-  console.log("nacall naman date range");
+  // console.log("nacall naman date range");
 });
 
 const groupedReportsByBarangay = computed(() => { 
@@ -150,9 +151,9 @@ dropdownControl.onAdd = function () {
     <div class="dropdown">
       <button class="dropbtn">⚙️</button>
       <div class="dropdown-content">
-        <button id="darkModeToggleBtn" class="dark-mode-toggle">🌙 Dark Mode</button>
-        <button id="toggleBordersBtn" class="border-toggle-btn">🥷 Borders</button>
-        <button id="captureMapBtn" class="capture-map-btn">📸 Capture Map</button>
+        <button id="darkModeToggleBtn" class="dark-mode-toggle"></button>
+        <button id="toggleBordersBtn" class="border-toggle-btn">Borders</button>
+        <button id="captureMapBtn" class="capture-map-btn">Capture Map</button>
       </div>
     </div>
   `;
@@ -173,19 +174,37 @@ dropdownControl.onAdd = function () {
 
 dropdownControl.addTo(map);
 
+// Initialize tile layers
+const lightTileLayer = leaflet.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 19,
+  attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+});
+
+const darkTileLayer = leaflet.tileLayer("https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png", {
+  maxZoom: 19,
+  attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+});
+
   /// ✅ Check the dark mode state on page load
   const checkDarkMode = () => {
-    const isDarkMode = localStorage.getItem('darkMode') === 'true';
+  const isDarkMode = localStorage.getItem('darkMode') === 'true';
+  if (isDarkMode) {
+    map.removeLayer(lightTileLayer);
+    map.addLayer(darkTileLayer);
+  } else {
+    map.removeLayer(darkTileLayer);
+    map.addLayer(lightTileLayer);
+  }
+  updateToggleButton(isDarkMode);
+};
 
-    // If dark mode is enabled, apply it
-    if (isDarkMode) {
-      document.querySelector("#map-wrapper").classList.add("dark-mode");
-      document.getElementById("darkModeToggleBtn").innerHTML = "☀️ Light Mode";
-    } else {
-      document.querySelector("#map-wrapper").classList.remove("dark-mode");
-      document.getElementById("darkModeToggleBtn").innerHTML = "🌙 Dark Mode";
-    }
-  };
+// ✅ Update the toggle button UI
+const updateToggleButton = (isDarkMode) => {
+  const button = document.getElementById("darkModeToggleBtn");
+  if (button) {
+    button.innerHTML = isDarkMode ? "Default Tile" : "Dark Tile";
+  }
+};
 
     // ✅ Add Custom Control for Dark Mode Toggle
     const darkModeControl = leaflet.control({ position: "topleft" });
@@ -210,17 +229,23 @@ dropdownControl.addTo(map);
     checkDarkMode();
 
     // ✅ Function to Toggle Dark Mode
-    const toggleDarkMode = () => {
-      const mapContainer = document.querySelector("#map-wrapper");
-      const isDarkMode = mapContainer.classList.toggle("dark-mode");
 
-      // Save dark mode state to localStorage
-      localStorage.setItem('darkMode', isDarkMode);
-      // Change button text dynamically
-      const button = document.getElementById("darkModeToggleBtn");
-      button.innerHTML = isDarkMode ? "☀️ Light Mode" : "🌙 Dark Mode";
-    };
+// ✅ Toggle dark mode by switching tile layers
+const toggleDarkMode = () => {
+  const isCurrentlyDark = localStorage.getItem('darkMode') === 'true';
+  const newDarkMode = !isCurrentlyDark;
 
+  localStorage.setItem('darkMode', newDarkMode.toString());
+
+  if (newDarkMode) {
+    map.removeLayer(lightTileLayer);
+    map.addLayer(darkTileLayer);
+  } else {
+    map.removeLayer(darkTileLayer);
+    map.addLayer(lightTileLayer);
+  }
+  updateToggleButton(newDarkMode);
+};
 
   // Create another control for the new button
   const anotherControl = leaflet.control({ position: "topright" });
@@ -237,41 +262,44 @@ dropdownControl.addTo(map);
   anotherControl.addTo(map);
 
   // Add legend control
-  const legendControl = leaflet.control({ position: "bottomleft" });
+  watch(groupedReportsByBarangay, (newVal) => {
+  // Only proceed if data is present
+  if (!newVal || newVal.length === 0) return;
+
+  // Remove existing legend (if any) to avoid duplication
+  if (legendControl) {
+    map.removeControl(legendControl);
+  }
+
+  // Define legend control
+  legendControl = leaflet.control({ position: "bottomleft" });
 
   legendControl.onAdd = function () {
     const div = leaflet.DomUtil.create("div", "legend leaflet-control");
-    const reportsArray = groupedReportsByBarangay.value
+
+    const reportsArray = newVal
       .map((b) => b.totalReports)
-      .filter((r) => !isNaN(r) && r !== undefined); // Ensure only valid numbers
+      .filter((r) => !isNaN(r) && r !== undefined);
 
-    const minReports = reportsArray.length ? Math.min(...reportsArray) : 1;
-    const maxReports = reportsArray.length ? Math.max(...reportsArray) : 10;
+    const minReports = reportsArray.length ? Math.min(...reportsArray) : 0;
+    const maxReports = reportsArray.length ? Math.max(...reportsArray) : 3;
 
-    // Define legend steps (Low, Medium, High)
-    const legendSteps = [
-  { label: "Low", size: 10, color: "hsl(120, 100%, 50%)" },   // Green, small
-  { label: "Medium", size: 20, color: "hsl(60, 100%, 50%)" }, // Orange, medium
-  { label: "High", size: 30, color: "hsl(0, 100%, 50%)" },    // Red, large
-];
-
-    // Generate legend dynamically based on marker size & color logic
-    let legendHTML = `<h4>Incident Reports</h4>`;
-
-    legendSteps.forEach((step) => {
-    legendHTML += `
-      <div class="legend-item">
-        <span class="legend-circle" style="background: ${step.color}; width: ${step.size}px; height: ${step.size}px;"></span>
-        <span>${step.label}</span>
+    const legendHTML = `
+      <h4>Incident Reports</h4>
+      <div class="legend-gradient">
+        <span>${minReports}</span>
+        <div class="gradient-bar"></div>
+        <span>${maxReports}</span>
       </div>
     `;
-      });
 
-      div.innerHTML = legendHTML;
-      return div;
-    };
+    div.innerHTML = legendHTML;
+    return div;
+  };
 
-  legendControl.addTo(map);
+  legendControl.addTo(map); // ✅ Add legend only when data is ready
+});
+
 
   // ✅ Style the Buttons and Legend with CSS
   const style = document.createElement("style");
@@ -354,15 +382,27 @@ dropdownControl.addTo(map);
     .legend-item {
       display: flex;
       align-items: center;
-      margin: 5px 0;
+      margin-bottom: 6px;
     }
-
     .legend-circle {
+      display: inline-block;
       border-radius: 50%;
       margin-right: 8px;
-      display: inline-block;
-      border: 1px solid #666;
+      border: 1px solid #444;
     }
+
+    .legend-gradient {
+      display: flex;
+      align-items: center;
+    }
+    .gradient-bar {
+      flex: 1;
+      height: 12px;
+      margin: 0 8px;
+      background: linear-gradient(to right, hsl(120, 100%, 50%), hsl(0, 100%, 50%));
+      border: 1px solid #aaa;
+    }
+
     .dark-mode-toggle {
     background: white;
     border: none;
@@ -415,16 +455,8 @@ if (mapData && mapData.features) {
         // Create a formatted popup content with all properties
         const properties = feature.properties;
         const popupContent = `
-          <div class="p-2">
-            <h4 class="font-bold mb-2">${barangayName}</h4>
-            <div class="space-y-1">
-              ${Object.entries(properties).map(([key, value]) => 
-                `<div class="flex justify-between">
-                  <span class="font-medium">${key}:</span>
-                  <span>${value}</span>
-                </div>`
-              ).join('')}
-            </div>
+          <div class="p-1">
+            <h4 class="font-bold">${barangayName}</h4>
           </div>
         `;
 
@@ -488,6 +520,7 @@ if (mapData && mapData.features) {
   // updateHeatmap();
 });
 
+
 const getBarangayColor = (barangayName) => {
   const safeName = (name) => (typeof name === "string" ? name.trim().toLowerCase() : "");
   const barangayData = groupedReportsByBarangay.value.find(
@@ -517,14 +550,14 @@ const getBarangayColor = (barangayName) => {
 let markers = []; // Store markers for clearing later
 
 const addBarangayMarkers = () => {
-  console.log("🟢 Running addBarangayMarkers...");
+  // console.log("🟢 Running addBarangayMarkers...");
   
   if (!map || groupedReportsByBarangay.value.length === 0) {
-    console.warn("⚠️ No grouped reports available for markers.");
+    // console.warn("⚠️ No grouped reports available for markers.");
     return;
   }
 
-  console.log("📊 Total Barangays to Process:", groupedReportsByBarangay.value.length);
+  // console.log("📊 Total Barangays to Process:", groupedReportsByBarangay.value.length);
 
   // Remove old markers
   markers.forEach(marker => map.removeLayer(marker));
@@ -535,12 +568,12 @@ const addBarangayMarkers = () => {
   const maxReports = Math.max(...reportsArray);
 
   groupedReportsByBarangay.value.forEach((barangay) => {
-    console.log(
-      `📍 Processing Barangay: ${barangay.name}, Lat: ${barangay.latitude}, Lng: ${barangay.longitude}`
-    );
+    // console.log(
+    //   `📍 Processing Barangay: ${barangay.name}, Lat: ${barangay.latitude}, Lng: ${barangay.longitude}`
+    // );
 
     if (!barangay.latitude || !barangay.longitude) {
-      console.warn(`⚠️ Skipping ${barangay.name}: Missing coordinates`);
+      // console.warn(`⚠️ Skipping ${barangay.name}: Missing coordinates`);
       return;
     }
 
@@ -570,21 +603,21 @@ const addBarangayMarkers = () => {
     markers.push(marker);
   });
 
-  console.log("✅ Markers added successfully.");
+  // console.log("✅ Markers added successfully.");
 };
 
 
 // 🏁 Run when component is mounted
 onMounted(() => {
   databaseStore.fetchData().then(() => {
-    console.log("🔄 Data fetched, adding markers...");
+    // console.log("🔄 Data fetched, adding markers...");
     addBarangayMarkers();
   });
 });
 
 // 🔄 Refresh markers when grouped reports change
 watch(groupedReportsByBarangay, () => {
-  console.log("🟡 Detected change in barangay reports, refreshing markers...");
+  // console.log("🟡 Detected change in barangay reports, refreshing markers...");
   addBarangayMarkers();
 }, { deep: true });
 
@@ -771,7 +804,7 @@ const dropdownRef = ref(null)
 const minimized = ref(false);
 const toggleMinimize = () => {
   minimized.value = !minimized.value;
-  console.log(minimized.value);
+  // console.log(minimized.value);
 };
 </script>
 <template>

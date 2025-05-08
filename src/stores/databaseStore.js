@@ -4,22 +4,17 @@ import axiosClient from '../axios'
 
 export const useDatabaseStore = defineStore('database', {
   state: () => ({
-    activeUsers: [], // container for fetched users
-    archivedUsers: [],
-    barangaysList: [],
-    reportsPerBarangay: [],
-    reportsList: [],
-    classificationsList: [],
-    urgenciesList: [],
-    actionsList: [],
+    users: [],
+    barangays: [],
+    reports: [],
     sources: [],
     actions: [],
     incidents: [],
     assistance: [],
     urgencies: [],
-    barangays: [],
     recents: [],
     logs: [],
+    contacts: [],
   }),
   actions: {
     async fetchData() {
@@ -27,98 +22,95 @@ export const useDatabaseStore = defineStore('database', {
       try {
         // Execute all requests concurrently
         const [
-          resActiveUsers,
-          resArchivedUsers,
+          resUsers,
           resBarangays,
           resReports,
-          resReportDatas,
+          resSources,
+          resActions,
+          resIncidents,
+          resAssistance,
+          resUrgencies,
           resRecents,
-          resLogs
+          resLogs,
+          resContacts
         ] = await Promise.all([
-
           axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }).catch(error => {
             console.error('Error fetching active users:', error);
-            return { data: [] }; // Default empty data in case of error
-          }),
-
-          axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }).catch(error => {
-            console.error('Error fetching archived users:', error);
-            return { data: [] }; // Default empty data in case of error
+            return { data: [] }; 
           }),
 
           axiosClient.get('/api/911/barangay', { headers: { 'x-api-key': API_KEY } }).catch(error => {
             console.error('Error fetching barangays:', error);
-            return { data: { barangays: [], reportsPerBarangay: [] } }; // Default empty data in case of error
-          }),
-
-          axiosClient.get('/api/911/report-display', { headers: { 'x-api-key': API_KEY } }).catch(error => {
-            console.error('Error fetching report-display:', error);
-            return { data: [] }; // Default empty data in case of error
+            return { data: [] }; 
           }),
 
           axiosClient.get('/api/911/report', { headers: { 'x-api-key': API_KEY } }).catch(error => {
-            console.error('Error fetching report data:', error);
-            return { data: { sources: [], actions: [], incidents: [], assistance: [], urgencies: [], barangays: [] } }; // Default empty data in case of error
+            console.error('Error fetching report:', error);
+            return { data: [] }; 
+          }),
+
+          axiosClient.get('/api/911/source', { headers: { 'x-api-key': API_KEY } }).catch(error => {
+            console.error('Error fetching sources:', error);
+            return { data: [] }; 
+          }),
+
+          axiosClient.get('/api/911/action_taken', { headers: { 'x-api-key': API_KEY } }).catch(error => {
+            console.error('Error fetching actions:', error);
+            return { data: [] }; 
+          }),
+
+          axiosClient.get('/api/911/incident', { headers: { 'x-api-key': API_KEY } }).catch(error => {
+            console.error('Error fetching incidents:', error);
+            return { data: [] }; 
+          }),
+
+          axiosClient.get('/api/911/assistance', { headers: { 'x-api-key': API_KEY } }).catch(error => {
+            console.error('Error fetching assistance:', error);
+            return { data: [] }; 
+          }),
+
+          axiosClient.get('/api/911/urgency', { headers: { 'x-api-key': API_KEY } }).catch(error => {
+            console.error('Error fetching urgencies:', error);
+            return { data: [] }; 
           }),
 
           axiosClient.get('/api/911/recent', { headers: { 'x-api-key': API_KEY } }).catch(error => {
             console.error('Error fetching recent data:', error);
-            return { data: [] }; // Default empty data in case of error
+            return { data: [] }; 
           }),
 
           axiosClient.get('/api/911/tracking', { headers: { 'x-api-key': API_KEY } }).catch(error => {
             console.error('Error fetching recent data:', error);
-            return { data: [] }; // Default empty data in case of error
+            return { data: [] }; 
+          }),
+
+          axiosClient.get('/api/911/emergency-contacts', { headers: { 'x-api-key': API_KEY } }).catch(error => {
+            console.error('Error fetching recent data:', error);
+            return { data: [] }; 
           })
         ]);
-
-        // axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }),
-        this.activeUsers = resActiveUsers.data.filter(user => 
-            ((user.for_911 === 1 && user.for_inventory === 1 && user.for_traffic === 1 && user.is_deleted === 0) || 
-            (user.for_911 === 1 && user.for_inventory === 0 && user.for_traffic === 1 && user.is_deleted === 0) || 
-            (user.for_911 === 0 && user.for_inventory === 1 && user.for_traffic === 1 && user.is_deleted === 0) ||
-            (user.for_911 === 1 && user.for_inventory === 1 && user.for_traffic === 0 && user.is_deleted === 0) ||
-            (user.for_911 === 1 && user.for_inventory === 0 && user.for_traffic === 0 && user.is_deleted === 0) ||
-            (user.for_911 === 0 && user.for_inventory === 1 && user.for_traffic === 0 && user.is_deleted === 0) ||
-            (user.for_911 === 0 && user.for_inventory === 0 && user.for_traffic === 1 && user.is_deleted === 0)) 
-        );
-        console.log(this.activeUsers , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is activeUsers', 'color: blue');
-
-        // axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }),
-        this.archivedUsers = resArchivedUsers.data.filter(user => 
-            (user.is_deleted === 1)
-        );
-        console.log(this.archivedUsers , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is archivedUsers', 'color: red');
-
-        // axiosClient.get('/api/911/barangay', { headers: { 'x-api-key': API_KEY } }),
-        this.barangaysList = resBarangays.data.barangays;
-        // console.log(this.barangaysList , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is barangaysList', 'color: yellow');
-        this.reportsPerBarangay = resBarangays.data.reportsPerBarangay;
-        // console.log(this.reportsPerBarangay , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is reportsPerBarangay', 'color: green');
-
-        // axiosClient.get('/api/911/report-display', { headers: { 'x-api-key': API_KEY } }),
-        this.reportsList = resReports.data[0] || [];
-        this.classificationsList = resReports.data[1] || [];
-        this.urgenciesList = resReports.data[2] || [];
-        console.log(this.urgenciesList , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is urgenciesList', 'color: red');
-        this.actionsList = resReports.data[3] || [];
         
-        // axiosClient.get('/api/911/report', { headers: { 'x-api-key': API_KEY } }),
-        this.sources = resReportDatas.data.sources || [];
-        this.actions = resReportDatas.data.actions || [];
-        this.incidents = resReportDatas.data.incidents || [];
-        this.assistance = resReportDatas.data.assistance || [];
-        this.urgencies = resReportDatas.data.urgencies || [];
-        console.table(this.urgencies , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is urgencies', 'color: red');
-        this.barangays = resReportDatas.data.barangays || [];
+        this.users = resUsers.data || [];
+        
+        this.barangays = resBarangays.data || [];
+       
+        this.reports = resReports.data || [];
+        
+        this.sources = resSources.data || [];
 
-        // axiosClient.get('/api/911/recent', { headers: { 'x-api-key': API_KEY } }),
+        this.actions = resActions.data || [];
+        
+        this.incidents = resIncidents.data || [];
+        
+        this.assistance = resAssistance.data || [];
+        
+        this.urgencies = resUrgencies.data || [];
+        
         this.recents = resRecents.data.recents || [];
-
-        // axiosClient.get('/api/911/tracking', { headers: { 'x-api-key': API_KEY } }),
+        
         this.logs = resLogs.data || [];
-        // console.log(this.logs , '%c++++++++++++++++++++++++++++++++++++++++++++++ this is logs', 'color: red');
-
+        
+        this.contacts = resContacts.data || [];
       } catch (error) {
         console.error('Error fetching data:', error)
       }

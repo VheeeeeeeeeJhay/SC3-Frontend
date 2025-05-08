@@ -61,13 +61,9 @@ const navigation = [
   { name: "Map", to: { name: "Map" }, icon: "map" },
   { name: "Report", to: { name: "ReportTable" }, icon: "report" },
   { name: "Barangays", to: { name: "Barangay" }, icon: "home" },
-  {
-    name: "Users",
-    to: { name: "UsersTable" },
-    icon: "people",
-    requiredRole: 1,
-  }, // Add a requiredRole property for role-based access
+  { name: "Users", to: { name: "UsersTable" }, icon: "people", requiredRole: 1 },
   { name: "Logs", to: { name: "Logs" }, icon: "lock", requiredRole: 1 },
+  { name: "Emergency Contacts", to: { name: "EmergencyContacts" }, icon: "phone" },
 ];
 
 const isActive = (item) => {
@@ -85,11 +81,11 @@ const filteredNavigation = computed(() => {
   });
 });
 
-const logout = () => {
-  axiosClient.post("/logout").then(() => {
-    router.push({ name: "Login" });
-  });
-};
+// const logout = () => {
+//   axiosClient.post("/logout").then(() => {
+//     router.push({ name: "Login" });
+//   });
+// };
 
 const signoutConfirmationVisible = ref(false);
 const showSignoutConfirmation = () => {
@@ -109,6 +105,7 @@ const closeSidebar = () => {
 </script>
 
 <template>
+
   <div class="min-h-screen flex flex-col sm:flex-row">
 
     <!-- Header with toggle button (only visible on mobile) -->
@@ -121,11 +118,11 @@ const closeSidebar = () => {
 
     <!-- Sidebar (Main) -->
     <aside id="logo-sidebar"
-      class="fixed top-0 left-0 z-40 w-56 h-screen transition-transform duration-300 bg-white dark:bg-black dark:text-white 
-             shadow-[rgba(0,0,255,0.3)_0px_15px_25px,_rgba(255,0,0,0.22)_0px_10px_10px] 
-             border-r-5 border-solid dark:border-gray-950 
-             ring-1 ring-gray-300 dark:ring-slate-900 rounded-r-1xl backdrop-blur-md overflow-hidden sm:translate-x-0"
-      :class="sidebarVisible ? 'translate-x-0' : '-translate-x-full sm:translate-x-0'">
+          class="fixed top-0 left-0 z-40 w-56 h-screen transition-transform duration-300
+                dark:text-white overflow-hidden
+                bg-white/30 dark:bg-black/20 backdrop-blur-sm
+                border-r border-white/10 shadow-lg"
+          :class="sidebarVisible ? 'translate-x-0' : '-translate-x-full sm:translate-x-0'">
 
       <!-- Content inside sidebar -->
       <div class="h-full flex flex-col justify-between relative z-10 px-1 pb-4 overflow-y-auto">
@@ -141,11 +138,13 @@ const closeSidebar = () => {
         <nav class="flex-1 mt-6 space-y-2">
           <ul class="space-y-1">
             <li v-for="item in filteredNavigation" :key="item.name">
+
               <RouterLink :to="item.to"
                 :class="[ 'flex items-center gap-3 p-3 rounded-lg transition-all duration-200 group',
                   isActive(item)
                     ? 'bg-sky-100 dark:bg-slate-700 text-slate-800 dark:text-white font-semibold shadow-sm'
                     : 'hover:bg-sky-50 dark:hover:bg-slate-800']">
+
                 <span class="material-icons text-base group-hover:scale-110 transition-transform duration-200"
                   :class="isActive(item) ? 'text-indigo-600 dark:text-teal-300' : 'text-slate-600 dark:text-slate-300'">
                   {{ item.icon }}
@@ -159,7 +158,8 @@ const closeSidebar = () => {
         <!-- User Section -->
         <div class="mt-6 pt-4 border-t border-gray-200 dark:border-slate-700">
           <div class="flex items-center gap-3 px-2">
-            <button @click.stop="dropdownOpen = !dropdownOpen"
+
+            <button @click.stop="dropdownOpen = !dropdownOpen" type="button"
               class="flex justify-center items-center bg-gray-800 rounded-full hover:ring-4 hover:ring-teal-500 transition-all duration-300">
               <div
                 class="w-10 h-10 flex items-center justify-center rounded-full bg-teal-600 text-white text-lg font-bold shadow ring-2 ring-white dark:ring-teal-400">
@@ -193,20 +193,29 @@ const closeSidebar = () => {
         <ul class="py-1 space-y-1">
           <li>
             <RouterLink to="/profile" class="block px-4 py-2 text-sm hover:bg-[#D9D9B3] dark:hover:bg-slate-600 dark:hover:text-white">
+
               Profile
             </RouterLink>
           </li>
           <li>
-            <a @click="showSignoutConfirmation" class="block px-4 py-2 text-sm hover:bg-[#D9D9B3] dark:hover:bg-slate-600 dark:hover:text-white">
+            <a @click="showSignoutConfirmation"
+              class="block px-4 py-2 text-sm hover:bg-[#D9D9B3] dark:hover:bg-slate-600 dark:hover:text-white">
               Sign Out
             </a>
           </li>
+
+          <!-- Theme Toggle Separator -->
           <li class="border-t border-gray-200 dark:border-slate-600 mt-2"></li>
+
+          <!-- Theme Switch Label -->
           <li class="px-4 pt-3">
             <p class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">
               {{ theme === 'dark' ? 'Dark Mode' : 'Light Mode' }}
             </p>
           </li>
+
+          <!-- Theme Switch -->
+
           <li class="px-4 pb-2 flex justify-start">
             <label class="switch">
               <input type="checkbox" :checked="theme === 'dark'" @change="toggleTheme" />
@@ -222,11 +231,12 @@ const closeSidebar = () => {
             </label>
           </li>
         </ul>
+
       </div>
     </transition>
 
-    <!-- Main Content -->
-    <div class="sm:ml-56 flex-1 bg-white dark:bg-gray-950 transition-all duration-300 p-4">
+    <!-- Content Area -->
+    <div class="sm:ml-56 flex-1 transition-all duration-300 p-4">
       <router-view />
     </div>
 
@@ -238,8 +248,13 @@ const closeSidebar = () => {
           <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Sign out</h3>
           <p class="mb-6 text-gray-700 dark:text-gray-300">Are you sure you want to sign out?</p>
           <div class="flex justify-end gap-2">
-            <button @click="cancelSignout" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">Cancel</button>
-            <button @click="logout" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Sign out</button>
+            <button @click="cancelSignout" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">
+              Cancel
+            </button>
+            <button @click="(() => router.push({ name: 'Login' }))"
+              class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+              Sign out
+            </button>
           </div>
         </div>
       </div>
@@ -248,6 +263,11 @@ const closeSidebar = () => {
 </template>
 
 <style scoped>
+.mainBody {
+  background: radial-gradient(circle at top left, #1d1f33, #0d0e20);
+  color: white;
+  font-family: 'Inter', sans-serif;
+}
 .slide-enter-active,
 .slide-leave-active {
   transition: all 0.3s ease;
@@ -289,14 +309,15 @@ const closeSidebar = () => {
   left: 0;
   bottom: 0;
   right: 0;
-  border-right: 2px solid transparent;
+  /* border-right: 2px solid transparent;
   border-radius: 0 1rem 1rem 0;
   pointer-events: none;
   z-index: 0;
   background: linear-gradient(to right, transparent, rgba(0, 4, 58, 0.411));
   filter: blur(12px);
-  opacity: 0.8;
+  opacity: 0.8; */
 }
+
 .switch {
   position: relative;
   display: inline-block;
@@ -359,13 +380,11 @@ const closeSidebar = () => {
   transition: transform 0.4s ease;
 }
 
-input:checked + .slider {
+input:checked+.slider {
   background: #2e3a59;
 }
 
-input:checked + .slider .cloud_1 {
+input:checked+.slider .cloud_1 {
   transform: translateX(-20px);
 }
-
-
 </style>

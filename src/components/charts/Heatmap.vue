@@ -19,10 +19,10 @@ const props = defineProps({
 
 // Setup computed properties for databaseStore
 const computedProperties = {
-  reports: 'reportsList',
-  classifications: 'classificationsList',
-  urgencies: 'urgenciesList',
-  actions: 'actionsList',
+  reports: 'reports',
+  classifications: 'assistance',
+  urgencies: 'urgencies',
+  actions: 'actions',
 }
 
 const {
@@ -131,97 +131,118 @@ const generateHeatmapData = () => {
 
 const renderChart = () => {
   if (!chartRef.value) {
-    console.log('Chart ref not available yet')
-    return
+    console.log('Chart ref not available yet');
+    return;
   }
 
-  const { daysOfWeek, weeks, series } = generateHeatmapData()
+  const { daysOfWeek, weeks, series } = generateHeatmapData();
 
   const options = {
     chart: {
       type: 'heatmap',
       height: 350,
       width: '100%',
-      toolbar: {
-        show: true
-      },
-      animations: {
-        enabled: false
-      }
-    },
-    subtitle: {
-      text: props.startDate && props.endDate 
-        ? `${props.startDate} - ${props.endDate}`
-        : 'No date range selected',
-      align: 'center',
-      style: {
-        fontSize: '12px'
-      }
+      toolbar: { show: true },
+      animations: { enabled: false },
+      background: 'transparent', // Makes background blend with glass UI
+      fontFamily: 'Inter, sans-serif'
     },
     xaxis: {
       type: 'category',
       categories: daysOfWeek,
       labels: {
         style: {
-          fontSize: '12px'
+          fontSize: '13px',
+          fontWeight: 600,
+          colors: '#e0e0e0'
         }
+      },
+      axisBorder: {
+        show: false
+      },
+      axisTicks: {
+        show: false
       }
     },
     yaxis: {
       categories: weeks,
       labels: {
         style: {
-          fontSize: '12px'
+          fontSize: '13px',
+          fontWeight: 600,
+          colors: '#e0e0e0'
         }
+      },
+      axisBorder: {
+        show: false
+      },
+      axisTicks: {
+        show: false
       }
     },
     dataLabels: {
       enabled: true,
       style: {
-        fontSize: '10px'
+        fontSize: '10px',
+        fontWeight: 600,
+        colors: ['#111827']
+      }
+    },
+    legend: {
+      show: true,
+      position: 'bottom',
+      horizontalAlign: 'center',
+      labels: {
+        colors: '#e0e0e0',
+        useSeriesColors: false
+      },
+      itemMargin: {
+        horizontal: 10,
+        vertical: 4
       }
     },
     plotOptions: {
       heatmap: {
+        useFillColorAsStroke: false,
         colorScale: {
           ranges: [
-            { 
-              from: 0, 
-              to: 0, 
-              color: '#FFFFFF',
-              name: 'No Reports'
-            },
-            { 
-              from: 1, 
-              to: 5, 
-              color: '#FFE4E1',
-              name: '1-5 Reports'
-            },
-            { 
-              from: 6, 
-              to: 10, 
-              color: '#FF9999',
-              name: '6-10 Reports'
-            },
-            { 
-              from: 11, 
-              to: 15, 
-              color: '#FF6666',
-              name: '11-15 Reports'
-            },
-            { 
-              from: 16, 
-              to: 20, 
-              color: '#FF3333',
-              name: '16-20 Reports'
-            },
-            { 
-              from: 21, 
-              to: Infinity, 
-              color: '#B22222',
-              name: '21+ Reports'
-            }
-          ]
+    {
+      from: 0,
+      to: 0,
+      color: '#f3f4f6', // light gray
+      name: 'No Reports'
+    },
+    {
+      from: 1,
+      to: 5,
+      color: '#c7d2fe', // soft indigo
+      name: '1–5 Reports'
+    },
+    {
+      from: 6,
+      to: 10,
+      color: '#a5f3fc', // light cyan
+      name: '6–10 Reports'
+    },
+    {
+      from: 11,
+      to: 15,
+      color: '#fde68a', // soft yellow
+      name: '11–15 Reports'
+    },
+    {
+      from: 16,
+      to: 20,
+      color: '#fca5a5', // soft red
+      name: '16–20 Reports'
+    },
+    {
+      from: 21,
+      to: Infinity,
+      color: '#f87171', // more saturated red
+      name: '21+ Reports'
+    }
+  ]
         }
       }
     },
@@ -229,24 +250,32 @@ const renderChart = () => {
       name: weeks[index],
       data: row
     })),
+    grid: {
+      borderColor: 'rgba(255, 255, 255, 0.1)',
+      strokeDashArray: 4,
+      padding: { top: 10, bottom: 10, left: 10, right: 10 }
+    },
     tooltip: {
-      enabled: true,
+      theme: 'dark',
+      style: {
+        fontSize: '13px',
+        fontFamily: 'Inter, sans-serif'
+      },
       y: {
-        formatter: function (val) {
-          return `${val} accidents`
-        }
+        formatter: (val) => `${val} accidents`
       }
     }
-  }
+  };
 
-  // If chart already exists, destroy and recreate
+  // Destroy existing chart if needed
   if (chartInstance) {
-    chartInstance.destroy()
+    chartInstance.destroy();
   }
 
-  chartInstance = new ApexCharts(chartRef.value, options)
-  chartInstance.render()
-}
+  chartInstance = new ApexCharts(chartRef.value, options);
+  chartInstance.render();
+};
+
 
 onMounted(() => {
   // Fetch initial data
@@ -280,7 +309,7 @@ onUnmounted(() => {
       <h2 class="text-xl font-semibold">Accident Peak Times</h2>
     </div>
 
-    <div class="w-full">
+    <div class="w-full text-black">
       <div ref="chartRef"></div>
     </div>
   </div>
