@@ -105,7 +105,17 @@ const closeSidebar = () => {
 </script>
 
 <template>
-  <div class="min-h-screen flex">
+
+  <div class="min-h-screen flex flex-col sm:flex-row">
+
+    <!-- Header with toggle button (only visible on mobile) -->
+    <header class="flex sm:hidden items-center justify-between bg-white dark:bg-black shadow p-4">
+      <button @click="sidebarVisible = !sidebarVisible" class="text-gray-700 dark:text-white focus:outline-none">
+        <span class="material-icons text-2xl">menu</span>
+      </button>
+      <span class="text-lg font-bold dark:text-white">SC3-911 Dashboard</span>
+    </header>
+
     <!-- Sidebar (Main) -->
     <aside id="logo-sidebar"
           class="fixed top-0 left-0 z-40 w-56 h-screen transition-transform duration-300
@@ -114,8 +124,9 @@ const closeSidebar = () => {
                 border-r border-white/10 shadow-lg"
           :class="sidebarVisible ? 'translate-x-0' : '-translate-x-full sm:translate-x-0'">
 
+      <!-- Content inside sidebar -->
       <div class="h-full flex flex-col justify-between relative z-10 px-1 pb-4 overflow-y-auto">
-        <!-- Logo Section -->
+        <!-- Logo -->
         <div class="pt-11 flex flex-col items-center">
           <span class="text-center text-lg font-semibold sm:text-xl text-gray-800 dark:text-white">
             SC3-911 Dashboard
@@ -127,12 +138,13 @@ const closeSidebar = () => {
         <nav class="flex-1 mt-6 space-y-2">
           <ul class="space-y-1">
             <li v-for="item in filteredNavigation" :key="item.name">
-              <RouterLink :to="item.to" :class="[
-                'flex items-center gap-3 p-3 rounded-lg transition-all duration-200 group',
-                isActive(item)
-                  ? 'bg-sky-100 dark:bg-slate-700 text-slate-800 dark:text-white font-semibold shadow-sm'
-                  : 'hover:bg-sky-50 dark:hover:bg-slate-800'
-              ]">
+
+              <RouterLink :to="item.to"
+                :class="[ 'flex items-center gap-3 p-3 rounded-lg transition-all duration-200 group',
+                  isActive(item)
+                    ? 'bg-sky-100 dark:bg-slate-700 text-slate-800 dark:text-white font-semibold shadow-sm'
+                    : 'hover:bg-sky-50 dark:hover:bg-slate-800']">
+
                 <span class="material-icons text-base group-hover:scale-110 transition-transform duration-200"
                   :class="isActive(item) ? 'text-indigo-600 dark:text-teal-300' : 'text-slate-600 dark:text-slate-300'">
                   {{ item.icon }}
@@ -143,9 +155,10 @@ const closeSidebar = () => {
           </ul>
         </nav>
 
-        <!-- User -->
+        <!-- User Section -->
         <div class="mt-6 pt-4 border-t border-gray-200 dark:border-slate-700">
           <div class="flex items-center gap-3 px-2">
+
             <button @click.stop="dropdownOpen = !dropdownOpen" type="button"
               class="flex justify-center items-center bg-gray-800 rounded-full hover:ring-4 hover:ring-teal-500 transition-all duration-300">
               <div
@@ -154,9 +167,9 @@ const closeSidebar = () => {
               </div>
             </button>
             <div class="flex flex-col">
-              <p class="text-sm font-medium">{{ user?.firstName || 'Guest' }}
-                <span class="text-xs font-normal text-slate-500 dark:text-slate-400">({{ user?.role === 1 ? 'Admin' :
-                  'User' }})</span>
+              <p class="text-sm font-medium">
+                {{ user?.firstName || 'Guest' }}
+                <span class="text-xs font-normal text-slate-500 dark:text-slate-400">({{ user?.role === 1 ? 'Admin' : 'User' }})</span>
               </p>
               <p class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ user?.email || 'No email' }}</p>
             </div>
@@ -165,23 +178,22 @@ const closeSidebar = () => {
       </div>
     </aside>
 
-    <!-- Right Sidebar Modal with Bottom-Up Slide Animation -->
+    <!-- Overlay for mobile menu -->
+    <div v-if="sidebarVisible" @click="sidebarVisible = false"
+      class="fixed inset-0 bg-black bg-opacity-40 sm:hidden z-30 transition-opacity"></div>
+
+    <!-- Right Dropdown Modal -->
     <transition name="slide">
       <div v-show="dropdownOpen" ref="dropdownModalRef"
         class="fixed bottom-[6rem] left-4 z-50 w-45 rounded-xl bg-white dark:bg-slate-700 shadow-lg text-gray-800 dark:text-white p-4 transition-all duration-300">
         <div class="px-4 py-3">
-          <p class="text-sm text-gray-800 dark:text-white">
-            {{ user?.firstname || 'Guest' }}
-          </p>
-          <p class="text-sm font-medium truncate text-gray-600 dark:text-gray-300">
-            {{ user?.email || 'No email' }}
-          </p>
+          <p class="text-sm text-gray-800 dark:text-white">{{ user?.firstname || 'Guest' }}</p>
+          <p class="text-sm font-medium truncate text-gray-600 dark:text-gray-300">{{ user?.email || 'No email' }}</p>
         </div>
-
         <ul class="py-1 space-y-1">
           <li>
-            <RouterLink to="/profile"
-              class="block px-4 py-2 text-sm hover:bg-[#D9D9B3] dark:hover:bg-slate-600 dark:hover:text-white">
+            <RouterLink to="/profile" class="block px-4 py-2 text-sm hover:bg-[#D9D9B3] dark:hover:bg-slate-600 dark:hover:text-white">
+
               Profile
             </RouterLink>
           </li>
@@ -203,6 +215,7 @@ const closeSidebar = () => {
           </li>
 
           <!-- Theme Switch -->
+
           <li class="px-4 pb-2 flex justify-start">
             <label class="switch">
               <input type="checkbox" :checked="theme === 'dark'" @change="toggleTheme" />
@@ -223,17 +236,14 @@ const closeSidebar = () => {
     </transition>
 
     <!-- Content Area -->
-    <div class="sm:ml-56 flex-1 transition-all duration-300">
+    <div class="sm:ml-56 flex-1 transition-all duration-300 p-4">
       <router-view />
     </div>
 
     <!-- Sign Out Confirmation Modal -->
     <transition name="modal-fade">
       <div v-if="signoutConfirmationVisible" class="fixed inset-0 z-[1000] flex items-center justify-center">
-        <!-- Backdrop -->
         <div class="absolute inset-0 bg-black bg-opacity-60 backdrop-blur-sm z-[1000]"></div>
-
-        <!-- Modal Content -->
         <div class="relative z-[1001] p-6 max-w-sm w-full rounded-lg shadow-xl bg-sky-50 dark:bg-slate-800">
           <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Sign out</h3>
           <p class="mb-6 text-gray-700 dark:text-gray-300">Are you sure you want to sign out?</p>

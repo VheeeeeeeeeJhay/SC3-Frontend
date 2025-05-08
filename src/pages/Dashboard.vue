@@ -310,46 +310,38 @@ const toggleMinimize = () => {
   <div v-if="exportedImageUrls.length > 0">
     <!-- Export Drawer -->
     <div v-if="!minimized"
-      class="fixed bottom-6 right-6 z-50 w-[26rem] rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-2xl border border-gray-200 dark:border-gray-700 transition-all duration-300">
+      class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-full max-w-md sm:max-w-lg md:max-w-xl rounded-2xl bg-white dark:bg-gray-900 p-4 sm:p-6 shadow-2xl border border-gray-200 dark:border-gray-700 transition-all duration-300">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Export Preview</h3>
         <div class="flex gap-2">
-          <button @click="toggleMinimize" class="text-gray-500 hover:text-gray-700 dark:hover:text-white transition">
-            — 
-          </button>
-          <button @click="clearAllImages" class="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition">
-            ✕
-          </button>
+          <button @click="toggleMinimize" class="text-gray-500 hover:text-gray-700 dark:hover:text-white transition">—</button>
+          <button @click="clearAllImages" class="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition">✕</button>
         </div>
       </div>
 
-      <div class="flex space-x-4 overflow-x-auto scrollbar-thin">
-        <div v-for="(image, index) in exportedImageUrls" :key="index" class="relative flex-shrink-0">
-          <img :src="image" alt="Exported Chart" class="w-24 h-24 object-cover rounded-lg border" />
+      <div class="flex flex-wrap gap-4 overflow-y-auto max-h-48 sm:max-h-none">
+        <div v-for="(image, index) in exportedImageUrls" :key="index" class="relative w-24 h-24">
+          <img :src="image" alt="Exported Chart" class="w-full h-full object-cover rounded-lg border" />
           <button @click="downloadImage(image, index)"
-            class="absolute top-1 right-1 text-white text-xs bg-gray-800 hover:bg-gray-700 p-1 rounded-full">
-            ⬇
-          </button>
+            class="absolute top-1 right-1 text-white text-xs bg-gray-800 hover:bg-gray-700 p-1 rounded-full">⬇</button>
           <button @click="removeImage(index)"
-            class="absolute top-1 left-1 text-red-500 hover:text-red-700 text-xs p-1 rounded-full">
-            ✕
-          </button>
+            class="absolute top-1 left-1 text-red-500 hover:text-red-700 text-xs p-1 rounded-full">✕</button>
         </div>
       </div>
 
       <!-- Drawer Footer -->
       <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-2">
         <button @click="downloadAll"
-          class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg py-2 text-sm shadow">Download All</button>
+          class="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-lg py-2 text-sm shadow">Download All</button>
         <button @click="handlePrint" :disabled="!exportedImageUrls.length"
-          class="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg py-2 text-sm shadow">Save as PDF</button>
+          class="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg py-2 text-sm shadow">Save as PDF</button>
         <button @click="clearAllImages"
-          class="bg-rose-600 hover:bg-rose-700 text-white rounded-lg py-2 text-sm shadow">Clear</button>
+          class="w-full bg-rose-600 hover:bg-rose-700 text-white rounded-lg py-2 text-sm shadow">Clear</button>
       </div>
     </div>
 
     <!-- Reopen Button -->
-    <div class="fixed bottom-6 right-6 z-40">
+    <div class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40">
       <button v-if="minimized" @click="toggleMinimize"
         class="w-14 h-14 rounded-full bg-teal-600 hover:bg-teal-700 flex items-center justify-center text-white shadow-lg">
         <span class="material-icons">output</span>
@@ -358,18 +350,19 @@ const toggleMinimize = () => {
   </div>
 
   <!-- Main Dashboard -->
+  <div
+    class="min-h-screen px-4 sm:px-8 md:px-12 pt-6 pb-10 dark:to-black text-black dark:text-white transition-colors">
 
-  <div class="min-h-screen px-12 pt-6 pb-10  dark:to-black text-black dark:text-white  transition-colors">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 px-2">
+      <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Dashboard Overview</h1>
 
-    <div class="flex justify-between items-center px-2">
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Dashboard Overview</h1>
 
-      <div class="flex items-center gap-4">
-        <DateRangePicker class="max-w-xs" @dateRangeSelected="updateDateRange" />
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
+        <DateRangePicker class="w-full sm:max-w-xs" @dateRangeSelected="updateDateRange" />
 
-        <div class="relative">
+        <div class="relative w-full sm:w-auto">
           <button @click="toggleExportMenu"
-            class="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-700 transition">
+            class="w-full sm:w-auto bg-gray-800 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-700 transition">
             Export
           </button>
 
@@ -396,8 +389,10 @@ const toggleMinimize = () => {
       </div>
     </div>
 
-    <main class="grid gap-6 mt-8 sm:grid-cols-2 lg:grid-cols-3">
-      <!-- Existing cards remain the same -->
+
+    <!-- Cards -->
+    <main class="grid gap-6 mt-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+
       <div class="card relative z-10">
         <button @click="expandCard('IncidentGrowthRate')" class="expand-btn">⛶</button>
         <IncidentGrowthRate />
@@ -414,8 +409,6 @@ const toggleMinimize = () => {
       </div>
 
       <div class="card relative" ref="captureTarget1">
-        <!-- <button @click="expandCard('LineChart')" class="expand-btn">⛶</button>
-        <LineChart :startDate="startDate" :endDate="endDate" /> -->
         <StackedBarChart :startDate="startDate" :endDate="endDate" />
       </div>
 
@@ -429,8 +422,8 @@ const toggleMinimize = () => {
         <RecentIncident />
       </div>
 
-      <!-- New grid layout for PieChart and Sankey -->
-      <div class="grid grid-cols-2 gap-6 col-span-full">
+      <!-- Grid for PieChart and Heatmap -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 col-span-full">
         <div class="card relative" ref="captureTarget3">
           <button @click="expandCard('PieChart')" class="expand-btn">⛶</button>
           <PieChart :startDate="startDate" :endDate="endDate" />
@@ -445,21 +438,20 @@ const toggleMinimize = () => {
 
     <!-- Fullscreen Modal -->
     <transition name="modal-fade">
-      <div v-if="fullscreenCard"
-        class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-5xl max-h-[90vh] p-6 overflow-auto">
+      <div v-if="fullscreenCard" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-5xl max-h-[90vh] p-4 sm:p-6 overflow-auto">
           <div class="flex justify-between items-center mb-4">
             <h2 class="text-xl font-semibold dark:text-white">{{ fullscreenCard }}</h2>
             <button @click="closeFullscreen" class="text-xl dark:text-white hover:text-red-600">✕</button>
           </div>
           <component :is="fullscreenCardComponent" :selectedYear="selectedYear1"
-            :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate"
-            class="w-full h-[60vh]" />
+            :selectedMonth="selectedMonth1" :startDate="startDate" :endDate="endDate" class="w-full h-[60vh]" />
         </div>
       </div>
     </transition>
   </div>
 </template>
+
 
 <style scoped>
 /* Updated Light Mode Gradient */
