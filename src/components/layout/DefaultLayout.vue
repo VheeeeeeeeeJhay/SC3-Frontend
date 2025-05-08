@@ -231,7 +231,7 @@ const closeSidebar = () => {
     </transition>
 
     <!-- Main Content -->
-    <div class="sm:ml-56 flex-1 transition-all duration-300 p-4">
+    <div class="sm:ml-56 flex-1 transition-all duration-300">
       <router-view />
     </div>
 
