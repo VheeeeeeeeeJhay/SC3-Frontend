@@ -17,8 +17,35 @@ const errors = ref('');
 const isLoading = ref(false);
 
 let refreshInterval = null;
-
 const databaseStore = useDatabaseStore()
+onMounted(() => {
+    databaseStore.fetchData();
+    refreshInterval = setInterval(() => {
+        databaseStore.fetchData();
+    }, 50000);
+});
+onUnmounted(() => {
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+    }
+});
+const computedProperties = {
+    usersList: "users",
+};
+const {
+    usersList
+} = Object.fromEntries(
+    Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
+);
+const users = usersList.value.filter(user => 
+    ((user.for_911 === 1 && user.for_inventory === 1 && user.for_traffic === 1 && user.is_deleted === 0) || 
+    (user.for_911 === 1 && user.for_inventory === 0 && user.for_traffic === 1 && user.is_deleted === 0) || 
+    (user.for_911 === 0 && user.for_inventory === 1 && user.for_traffic === 1 && user.is_deleted === 0) ||
+    (user.for_911 === 1 && user.for_inventory === 1 && user.for_traffic === 0 && user.is_deleted === 0) ||
+    (user.for_911 === 1 && user.for_inventory === 0 && user.for_traffic === 0 && user.is_deleted === 0) ||
+    (user.for_911 === 0 && user.for_inventory === 1 && user.for_traffic === 0 && user.is_deleted === 0) ||
+    (user.for_911 === 0 && user.for_inventory === 0 && user.for_traffic === 1 && user.is_deleted === 0)) 
+);
 
 const dashboardRole = async (user) => {
     const newRoleStatus = !user.for_911; // Toggle boolean value directly
@@ -166,7 +193,7 @@ const toggleSortEmail = () => {
 // Computed property for dynamic search and filtering
 const filteredUsers = computed(() => {
     // Step 1: Filter users
-    const result = users.value.filter(user => {
+    const result = users.filter(user => {
         const matchesSearch = searchQuery.value
             ? user.firstName?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
             user.middleName?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
@@ -202,30 +229,7 @@ const filteredUsers = computed(() => {
 
 
 
-onMounted(() => {
-    // fetchData();
-    databaseStore.fetchData();
 
-    refreshInterval = setInterval(() => {
-        databaseStore.fetchData();
-    }, 50000);
-});
-onUnmounted(() => {
-    // Clear the interval when the component is unmounted or page is reloaded
-    if (refreshInterval) {
-        clearInterval(refreshInterval);
-    }
-});
-
-const computedProperties = {
-    users: "activeUsers",
-};
-
-const {
-    users
-} = Object.fromEntries(
-    Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
-);
 
 // composable action dropdown activator
 const { openDropdownId, dropdownRefs, toggleDropdown } = useActionDropdown();

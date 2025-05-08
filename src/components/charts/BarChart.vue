@@ -31,7 +31,7 @@ onUnmounted(() => {
 // } = Object.fromEntries(
 //     Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
 // );
-const report = computed(() => databaseStore.reportsList);
+const report = computed(() => databaseStore.reports);
 const source = computed(() => databaseStore.sources);
 
 

@@ -44,7 +44,7 @@ onUnmounted(() => {
 });
 
 const computedProperties = {
-    reports: "reportsList",
+    reports: "reports",
 };
 
 const {

@@ -24,7 +24,7 @@ import ResetPassword from "./pages/auth/ResetPassword.vue";
 import NoAccess from "./pages/auth/NoAccess.vue";
 import NotVerifiedEmail from "./pages/auth/NotVerifiedEmail.vue";
 import VerifiedEmail from "./pages/auth/VerifiedEmail.vue";
-import HotlineManagement from "./pages/hotline/HotlineManagement.vue";
+import EmergencyContacts from "./pages/contact/EmergencyContacts.vue";
 
 const routes = [
   {
@@ -37,7 +37,7 @@ const routes = [
 
       {path: '/report-add-form', name: 'AddReport', component: AddReport, meta: { title: 'Add Report' }},
       {path: '/import-file', name: 'ImportFile', component: ImportFile, meta: { title: 'Import File' }},
-      {path: '/report-display', name: 'ReportViewDetails', component: ReportViewDetails, meta: { title: 'View Report' }},
+      // {path: '/report-display', name: 'ReportViewDetails', component: ReportViewDetails, meta: { title: 'View Report' }},
       {path: '/report-table', name: 'ReportTable', component: ReportTable, meta: { title: 'Report Table' }},
       {path: '/report-view/:id', name: 'ReportViewDetails', component: ReportViewDetails, meta: { title: 'Report View' }},
       {path: '/report-edit/:id', name: 'EditReport', component: EditReports, meta: { title: 'Edit Report' }},
@@ -55,7 +55,7 @@ const routes = [
 
       {path: '/profile', name: 'Profile', component: Profile, meta: { title: 'Profile' }},
 
-      {path: '/hotline-management', name: 'HotlineManagement', component: HotlineManagement, meta: { title: 'Hotline Management' }},
+      {path: '/emergency-contacts', name: 'EmergencyContacts', component: EmergencyContacts, meta: { title: 'Emergency Contacts' }},
     ],
     beforeEnter: async (to, from, next) => {
       try {

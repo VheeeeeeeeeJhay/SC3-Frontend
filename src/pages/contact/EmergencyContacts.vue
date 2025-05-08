@@ -1,13 +1,33 @@
 <script setup>
-import { ref, inject, onMounted } from "vue";
+import { ref, inject, onMounted, onUnmounted, computed } from "vue";
 import PopupModal from "../../components/PopupModal.vue";
-import DateRangePicker from "../../components/DateRangePicker.vue";
 import axiosClient from "../../axios.js";
+import { useDatabaseStore } from "../../stores/databaseStore";
 
 const addToast = inject("addToast");
 
 const backend_url = import.meta.env.VITE_BACKEND_URL;
-console.log(backend_url);
+
+const databaseStore = useDatabaseStore();
+let refreshInterval = null;
+onMounted(() => {
+  databaseStore.fetchData();
+  refreshInterval = setInterval(() => {
+    databaseStore.fetchData();
+  }, 50000);
+});
+onUnmounted(() => {
+  clearInterval(refreshInterval);
+});
+
+const computedProperties = {
+    hotlines: "contacts",
+};
+const {
+    hotlines
+} = Object.fromEntries(
+    Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
+);
 
 const isModalOpen = ref(false);
 
@@ -38,7 +58,7 @@ const addHotline = () => {
   formData.append("email", data.value.email);
 
   axiosClient
-    .post("/api/911/hotline", formData, {
+    .post("/api/911/emergency-contacts", formData, {
       headers: {
         "x-api-key": import.meta.env.VITE_API_KEY,
       },
@@ -53,28 +73,7 @@ const addHotline = () => {
     });
 };
 
-const hotlines = ref([]);
-const fetchHotlines = () => {
-  axiosClient
-    .get("/api/911/hotline", {
-      headers: {
-        "x-api-key": import.meta.env.VITE_API_KEY,
-      },
-    })
-    .then((res) => {
-      hotlines.value = res.data;
-      console.log(hotlines.value);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-};
-
-onMounted(() => {
-  fetchHotlines();
-});
-
-import { useActionDropdown } from "../../composables/useActionDropdown";
+import { useActionDropdown } from "../../composables/useActionDropdown.js";
 const { openDropdownId, dropdownRefs, closeDropdown, toggleDropdown } =
   useActionDropdown();
 </script>
@@ -256,10 +255,10 @@ const { openDropdownId, dropdownRefs, closeDropdown, toggleDropdown } =
               @click.stop
             >
               <div class="py-2 text-sm flex flex-col w-full items-center">
-                <span class="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600 cursor-pointer">
+                <span class="inline-flex w-full px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600 cursor-pointer">
                   Edit
                 </span>
-                <span class="inline-flex w-full block px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600 cursor-pointer">
+                <span class="inline-flex w-full px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600 cursor-pointer">
                   Delete
                 </span>
               </div>
