@@ -259,6 +259,7 @@ const archiveUser = async (user) => {
                         </form>
                     </div>
                 </div>
+                <div class="overflow-x-auto w-full">
 
                 <div v-if="isLoading" class="flex justify-center">
                     <Loader1 />
@@ -306,7 +307,7 @@ const archiveUser = async (user) => {
                         </tr>
                     </tbody>
                 </table>
-
+</div>
                 <nav
                     class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4">
                     <span class="text-sm font-normal">Showing {{ filteredUsers.length > 0 ? (currentPage - 1) *
