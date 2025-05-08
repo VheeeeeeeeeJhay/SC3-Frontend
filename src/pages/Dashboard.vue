@@ -359,7 +359,7 @@ const toggleMinimize = () => {
 
   <!-- Main Dashboard -->
 
-  <div class="min-h-screen px-12 pt-6 pb-10 bg-gradient-to-br from-white via-[#f4f4f9] to-[#000000] dark:bg-gradient-to-br dark:from-black dark:via-[#004D4F] dark:to-black text-black dark:text-white shadow-[rgba(0,0,255,0.3)_0px_15px_25px,_rgba(255,0,0,0.22)_0px_10px_10px] transition-colors">
+  <div class="min-h-screen px-12 pt-6 pb-10  dark:to-black text-black dark:text-white  transition-colors">
 
     <div class="flex justify-between items-center px-2">
       <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Dashboard Overview</h1>
@@ -396,49 +396,6 @@ const toggleMinimize = () => {
       </div>
     </div>
 
-    <!-- Cards -->
-    <!-- <main class="grid gap-6 mt-8 sm:grid-cols-2 lg:grid-cols-3">
-      <div class="card relative z-10">
-        <button @click="expandCard('IncidentGrowthRate')" class="expand-btn">⛶</button>
-        <IncidentGrowthRate />
-      </div>
-
-      <div class="card relative z-1">
-        <button @click="expandCard('TotalReportsReceived')" class="expand-btn">⛶</button>
-        <TotalReportsReceived :startDate="startDate" :endDate="endDate" />
-      </div>
-
-      <div class="card relative z-10">
-        <button @click="expandCard('TopPerforming')" class="expand-btn">⛶</button>
-        <TopPerforming :startDate="startDate" :endDate="endDate" />
-      </div>
-
-      <div class="card relative" ref="captureTarget1">
-        <button @click="expandCard('LineChart')" class="expand-btn">⛶</button>
-        <LineChart :startDate="startDate" :endDate="endDate" />
-        <StackedBarChart :startDate="startDate" :endDate="endDate" />
-      </div>
-
-      <div class="card relative" ref="captureTarget2">
-        <button @click="expandCard('BarChart')" class="expand-btn">⛶</button>
-        <BarChart :startDate="startDate" :endDate="endDate" />
-      </div>
-
-      <div class="card relative">
-        <button @click="expandCard('RecentIncident')" class="expand-btn">⛶</button>
-        <RecentIncident />
-      </div>
-
-      <div class="card relative col-span-full" ref="captureTarget3">
-        <button @click="expandCard('PieChart')" class="expand-btn">⛶</button>
-        <PieChart :startDate="startDate" :endDate="endDate" />
-      </div>
-
-      <div class="card relative col-span-full" ref="captureTarget3">
-        <button @click="expandCard('PieChart')" class="expand-btn">⛶</button>
-        <Sankey :startDate="startDate" :endDate="endDate" />
-      </div>
-    </main> -->
     <main class="grid gap-6 mt-8 sm:grid-cols-2 lg:grid-cols-3">
       <!-- Existing cards remain the same -->
       <div class="card relative z-10">
@@ -507,42 +464,36 @@ const toggleMinimize = () => {
 <style scoped>
 /* Updated Light Mode Gradient */
 /* Updated Light Mode Gradient */
-.bg-light-gradient {
-  background: linear-gradient(to bottom right, #d8d8d8, #303030);
+/* .bg-gradient-to-br {
+  background-image: linear-gradient(to bottom right, #e2e8f0, #f8fafc);
 }
+.dark .bg-gradient-to-br {
+  background-image: linear-gradient(to bottom right, #0f172a, #1e293b);
+} */
 
-/* Updated Dark Mode Gradient */
-.dark .bg-light-gradient {
-  background: linear-gradient(to bottom right, #000000, #0e1d31);
-}
-
-/* Default Dark Mode Gradient */
-.bg-dark-gradient {
-  background: linear-gradient(to bottom right, #000000, #111b29);
-}
-
-/* Light Mode Gradient for Dark Mode */
-.dark .bg-dark-gradient {
-  background: linear-gradient(to bottom right, #e4e4e4, #f0f0f0);
-}
 
 .card {
-  background-color: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 1rem;
-  padding: 1rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.1); /* Light transparent layer */
+  border-radius: 1.5rem;
+  padding: 1.25rem;
+  backdrop-filter: blur(16px); /* Frosted glass effect */
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
 .dark .card {
-  background-color: #1f2937;
-  border-color: #374151;
+  background: rgba(30, 41, 59, 0.3); /* Transparent dark layer */
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.15);
+  transform: scale(1.015);
+  box-shadow: 0 12px 28px rgba(34, 211, 238, 0.3);
 }
+
+
 
 .expand-btn {
   position: absolute;

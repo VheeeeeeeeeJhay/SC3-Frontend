@@ -107,13 +107,12 @@ const closeSidebar = () => {
 <template>
   <div class="min-h-screen flex">
     <!-- Sidebar (Main) -->
-    <aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-56 h-screen transition-transform duration-300
-              bg-white dark:bg-black dark:text-white 
-              shadow-[rgba(0,0,255,0.3)_0px_15px_25px,_rgba(255,0,0,0.22)_0px_10px_10px] 
-              border-r-5 border-solid dark:border-gray-950 
-              ring-1 ring-gray-300 dark:ring-slate-900 rounded-r-1xl
-              backdrop-blur-md overflow-hidden"
-      :class="sidebarVisible ? 'translate-x-0' : '-translate-x-full sm:translate-x-0'">
+    <aside id="logo-sidebar"
+          class="fixed top-0 left-0 z-40 w-56 h-screen transition-transform duration-300
+                dark:text-white overflow-hidden
+                bg-white/30 dark:bg-black/20 backdrop-blur-sm
+                border-r border-white/10 shadow-lg"
+          :class="sidebarVisible ? 'translate-x-0' : '-translate-x-full sm:translate-x-0'">
 
       <div class="h-full flex flex-col justify-between relative z-10 px-1 pb-4 overflow-y-auto">
         <!-- Logo Section -->
@@ -224,7 +223,7 @@ const closeSidebar = () => {
     </transition>
 
     <!-- Content Area -->
-    <div class="sm:ml-56 flex-1 bg-white dark:bg-gray-950 transition-all duration-300">
+    <div class="sm:ml-56 flex-1 transition-all duration-300">
       <router-view />
     </div>
 
@@ -254,6 +253,11 @@ const closeSidebar = () => {
 </template>
 
 <style scoped>
+.mainBody {
+  background: radial-gradient(circle at top left, #1d1f33, #0d0e20);
+  color: white;
+  font-family: 'Inter', sans-serif;
+}
 .slide-enter-active,
 .slide-leave-active {
   transition: all 0.3s ease;
@@ -295,13 +299,13 @@ const closeSidebar = () => {
   left: 0;
   bottom: 0;
   right: 0;
-  border-right: 2px solid transparent;
+  /* border-right: 2px solid transparent;
   border-radius: 0 1rem 1rem 0;
   pointer-events: none;
   z-index: 0;
   background: linear-gradient(to right, transparent, rgba(0, 4, 58, 0.411));
   filter: blur(12px);
-  opacity: 0.8;
+  opacity: 0.8; */
 }
 
 .switch {
