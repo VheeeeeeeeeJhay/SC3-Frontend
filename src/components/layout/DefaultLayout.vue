@@ -258,10 +258,8 @@ const closeSidebar = () => {
 </template>
 
 <style scoped>
-.mainBody {
+.bodyPic {
   background: radial-gradient(circle at top left, #1d1f33, #0d0e20);
-  color: white;
-  font-family: 'Inter', sans-serif;
 }
 .slide-enter-active,
 .slide-leave-active {

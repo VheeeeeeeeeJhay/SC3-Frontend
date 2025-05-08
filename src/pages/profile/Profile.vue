@@ -70,7 +70,7 @@ const saveChanges = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-white via-[#f4f4f9] to-[#000000] dark:bg-gradient-to-br dark:from-black dark:via-[#004D4F] dark:to-black text-black dark:text-white shadow-[rgba(0,0,255,0.3)_0px_15px_25px,_rgba(255,0,0,0.22)_0px_10px_10px] flex items-center justify-center p-6 transition-colors duration-500">
+  <div class="min-h-screen text-black dark:text-white flex items-center justify-center p-6 transition-colors duration-500">
 
     <div class="bg-white/10 dark:bg-black/30 backdrop-blur-lg rounded-3xl shadow-2xl w-full max-w-5xl p-10 transition-all duration-300 border border-white/10 dark:border-gray-800">
       <div class="flex flex-col md:flex-row items-center justify-between">

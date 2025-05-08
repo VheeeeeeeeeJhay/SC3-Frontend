@@ -682,7 +682,7 @@ const handleJSON = (filteredReports) => {
                                         <p class="text-gray-500 dark:text-gray-300">Are you sure you want to delete the
                                             following record/s?</p>
                                     </div>
-                                    <div class="overflow-x-auto">
+                                    <div class="overflow-x-auto overflow-y-auto max-h-[600px]">
                                         <table
                                             class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 rounded-lg">
                                             <thead class="bg-gray-50 dark:bg-gray-900">
