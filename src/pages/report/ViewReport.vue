@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import viewMap from '../../components/Maps/viewMap.vue';
+import ViewMap from '../../components/maps/ViewMap.vue';
 import { useArrayStore } from '../../stores/arrayStore';
 import { computed } from 'vue';
 
@@ -170,7 +170,7 @@ const data = ref({
 
         <!-- Right Side: Map -->
         <div class="md:w-1/2 flex justify-center items-center bg-gray-100 dark:bg-[#0f172a] rounded-lg p-4">
-          <viewMap
+          <ViewMap
             v-if="data.latitude && data.longitude"
             :reportLat="data.latitude"
             :reportLong="data.longitude"

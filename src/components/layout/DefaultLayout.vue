@@ -57,20 +57,23 @@ const user = computed(() => userStore.user);
 const route = useRoute();
 
 const navigation = [
+  // User Only Access
   { name: "Overview", to: { name: "Overview" }, icon: "bar_chart" },
   { name: "Map", to: { name: "Map" }, icon: "map" },
-  { name: "Report", to: { name: "ReportTable" }, icon: "report" },
-  { name: "Barangays", to: { name: "Barangay" }, icon: "home" },
-  { name: "Users", to: { name: "UsersTable" }, icon: "people", requiredRole: 1 },
-  { name: "Logs", to: { name: "Logs" }, icon: "lock", requiredRole: 1 },
+  { name: "Report", to: { name: "ReportsManagement" }, icon: "report" },
+  { name: "Barangays", to: { name: "BarangayManagement" }, icon: "home" },
   { name: "Emergency Contacts", to: { name: "EmergencyContacts" }, icon: "phone" },
+
+  // Admin Only Access
+  { name: "Users", to: { name: "UsersManagement" }, icon: "people", requiredRole: 1 },
+  { name: "Audit", to: { name: "AuditManagement" }, icon: "lock", requiredRole: 1 },
 ];
 
 const isActive = (item) => {
   if (route.name === item.to.name) return true;
-  if (item.to.name === 'ReportTable' && ['AddReport', 'ReportViewDetails', 'EditReport', 'ImportFile'].includes(route.name)) return true;
-  if (item.to.name === 'Barangay' && ['EditBarangay', 'UpdateBarangay', 'DeleteBarangay', 'BarangayStatistics'].includes(route.name)) return true;
-  if (item.to.name === 'Logs' && ['LogViewDetails'].includes(route.name)) return true;
+  if (item.to.name === 'ReportsManagement' && ['AddReport', 'ReportViewDetails', 'EditReport', 'ImportFile'].includes(route.name)) return true;
+  if (item.to.name === 'BarangayManagement' && ['EditBarangay', 'UpdateBarangay', 'DeleteBarangay', 'BarangayInfo'].includes(route.name)) return true;
+  if (item.to.name === 'AuditManagement' && ['DetailedAuditReport'].includes(route.name)) return true;
   return false;
 };
 
