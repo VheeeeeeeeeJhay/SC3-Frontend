@@ -7,18 +7,18 @@ import NotFound from "./pages/auth/NotFound.vue";
 import useUserStore from "./stores/user.js";
 import Dashboard from "./pages/Dashboard.vue";
 import Map from "./pages/Map.vue";
-import Barangay from "./pages/barangay/Barangay.vue";
+import BarangayManagement from "./pages/barangay/BarangayManagement.vue";
 import EditBarangay from "./pages/barangay/EditBarangay.vue";
 import ReportTable from "./pages/report/ReportsTable.vue";
 import ReportViewDetails from "./pages/report/ViewReport.vue";
 import EditReports from "./pages/report/EditReport.vue";
 import AddReport from "./pages/report/AddReport.vue";
-import UsersTable from "./pages/user/UsersTable.vue";
-import ViewRelatedIncidents from "./pages/barangay/ViewRelatedIncidents.vue";
+import UsersManagement from "./pages/user/UsersManagement.vue";
+import BarangayInfo from "./pages/barangay/BarangayInfo.vue";
 import ImportFile from "./pages/report/ImportFile.vue";
 import Profile from "./pages/profile/Profile.vue";
-import Tracking from "./pages/tracking/Tracking.vue";
-import ViewTrackingDetails from "./pages/tracking/ViewTrackingDetails.vue";
+import AuditManagement from "./pages/audit/AuditManagement.vue";
+import DetailedAuditReport from "./pages/audit/DetailedAuditReport.vue";
 import ForgotPassword from "./pages/auth/ForgotPassword.vue";
 import ResetPassword from "./pages/auth/ResetPassword.vue";
 import NoAccess from "./pages/auth/NoAccess.vue";
@@ -42,16 +42,16 @@ const routes = [
       {path: '/report-view/:id', name: 'ReportViewDetails', component: ReportViewDetails, meta: { title: 'Report View' }},
       {path: '/report-edit/:id', name: 'EditReport', component: EditReports, meta: { title: 'Edit Report' }},
 
-      {path: '/barangay', name: 'Barangay', component: Barangay, meta: { title: 'Barangay Management' }},
+      {path: '/barangay-management', name: 'BarangayManagement', component: BarangayManagement, meta: { title: 'Barangay Management' }},
       {path: '/barangay-fetch/:id', name: 'EditBarangay', component: EditBarangay, meta: { title: 'Edit Barangay' }},
-      {path: '/barangay-update/:id', name: 'UpdateBarangay', component: Barangay, meta: { title: 'Update Barangay' }},
-      {path: '/barangay-delete/:id', name: 'DeleteBarangay', component: Barangay, meta: { title: 'Delete Barangay' }},
-      {path: '/barangay-statistics/:id', name: 'BarangayStatistics', component: ViewRelatedIncidents, meta: { title: 'Barangay Statistics' }},
+      {path: '/barangay-update/:id', name: 'UpdateBarangay', component: BarangayManagement, meta: { title: 'Update Barangay' }},
+      {path: '/barangay-delete/:id', name: 'DeleteBarangay', component: BarangayManagement, meta: { title: 'Delete Barangay' }},
+      {path: '/barangay-informations/:id', name: 'BarangayInformations', component: BarangayInfo, meta: { title: 'Barangay Information' }},
 
-      {path: '/user', name: 'UsersTable', component: UsersTable, meta: { title: 'User Management' }},
+      {path: '/users-management', name: 'UsersManagement', component: UsersManagement, meta: { title: 'User Management' }},
 
-      {path: '/log', name: 'Logs', component: Tracking, meta: { title: 'Logs Management' }},
-      {path: '/log-view/:id', name: 'LogViewDetails', component: ViewTrackingDetails, meta: { title: 'Log Details View' }},
+      {path: '/log', name: 'AuditManagement', component: AuditManagement, meta: { title: 'Audit Management' }},
+      {path: '/log-view/:id', name: 'DetailedAuditReport', component: DetailedAuditReport, meta: { title: 'Detailed Audit Report' }},
 
       {path: '/profile', name: 'Profile', component: Profile, meta: { title: 'Profile' }},
 

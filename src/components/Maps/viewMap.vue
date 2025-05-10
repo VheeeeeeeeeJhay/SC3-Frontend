@@ -13,11 +13,10 @@ const props = defineProps({
   reportLong: Number,
 });
 
-console.log("📦 Props:", props.reportLat);
 const viewId = ref(props.viewID);
 const barangay_name = ref("");
-const barangay_lat = ref(props.reportLat || 0);
-const barangay_long = ref(props.reportLong || 0);
+const barangay_lat = ref(props.reportLat || 16.4023);
+const barangay_long = ref(props.reportLong || 120.5960);
 const marker = ref(null);
 const data = ref({ name: "", longitude: 0, latitude: 0 });
 

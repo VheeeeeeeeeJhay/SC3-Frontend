@@ -98,7 +98,7 @@ const passingData = (barangay) => {
   <ul class="mt-2 text-sm space-y-2">
     <li v-for="(barangay, index) in topBarangays" :key="barangay.id">
       <RouterLink @click="passingData(barangay)"
-        :to="`/barangay-statistics/${barangay.id}`"
+        :to="`/barangay-informations/${barangay.id}`"
         class="flex items-center space-x-2 p-2 rounded-lg 
                hover:bg-gray-300 dark:hover:bg-teal-600 cursor-pointer">
         <span class="text-teal-400">#{{ index + 1 }}</span>

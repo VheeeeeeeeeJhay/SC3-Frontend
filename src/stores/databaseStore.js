@@ -84,8 +84,11 @@ export const useDatabaseStore = defineStore('database', {
             return { data: [] }; 
           }),
 
-          axiosClient.get('/api/911/emergency-contacts', { headers: { 'x-api-key': API_KEY } }).catch(error => {
-            console.error('Error fetching recent data:', error);
+          axiosClient.get('/api/911/emergency-contacts', { 
+            headers: { 'x-api-key': API_KEY } 
+          })
+          .catch(error => {
+            console.error('Error fetching emergency contacts:', error);
             return { data: [] }; 
           })
         ]);
@@ -115,5 +118,32 @@ export const useDatabaseStore = defineStore('database', {
         console.error('Error fetching data:', error)
       }
     },
+
+    async updateReports() {
+      try {
+        const res = await axiosClient.get('/api/911/report', { headers: { 'x-api-key': import.meta.env.VITE_API_KEY } });
+        this.reports = res.data;
+      } catch (error) {
+        console.error('Error fetching reports:', error)
+      }
+    },
+
+    async updateBarangays() {
+      try {
+        const res = await axiosClient.get('/api/911/barangay', { headers: { 'x-api-key': import.meta.env.VITE_API_KEY } });
+        this.barangays = res.data;
+      } catch (error) {
+        console.error('Error fetching barangays:', error)
+      }
+    },
+
+    async restoreReports() {
+      try {
+        const res = await axiosClient.get('/api/911/report', { headers: { 'x-api-key': import.meta.env.VITE_API_KEY } });
+        this.reports = res.data;
+      } catch (error) {
+        console.error('Error fetching sources:', error)
+      }
+    }
   },
 })
