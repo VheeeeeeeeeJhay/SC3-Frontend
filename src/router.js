@@ -9,7 +9,7 @@ import Dashboard from "./pages/Dashboard.vue";
 import Map from "./pages/Map.vue";
 import BarangayManagement from "./pages/barangay/BarangayManagement.vue";
 import EditBarangay from "./pages/barangay/EditBarangay.vue";
-import ReportTable from "./pages/report/ReportsTable.vue";
+import ReportsManagement from "./pages/report/ReportsManagement.vue";
 import ReportViewDetails from "./pages/report/ViewReport.vue";
 import EditReports from "./pages/report/EditReport.vue";
 import AddReport from "./pages/report/AddReport.vue";
@@ -37,8 +37,7 @@ const routes = [
 
       {path: '/report-add-form', name: 'AddReport', component: AddReport, meta: { title: 'Add Report' }},
       {path: '/import-file', name: 'ImportFile', component: ImportFile, meta: { title: 'Import File' }},
-      // {path: '/report-display', name: 'ReportViewDetails', component: ReportViewDetails, meta: { title: 'View Report' }},
-      {path: '/report-table', name: 'ReportTable', component: ReportTable, meta: { title: 'Report Table' }},
+      {path: '/reports-management', name: 'ReportsManagement', component: ReportsManagement, meta: { title: 'Reports Management' }},
       {path: '/report-view/:id', name: 'ReportViewDetails', component: ReportViewDetails, meta: { title: 'Report View' }},
       {path: '/report-edit/:id', name: 'EditReport', component: EditReports, meta: { title: 'Edit Report' }},
 

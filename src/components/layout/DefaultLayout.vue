@@ -60,7 +60,7 @@ const navigation = [
   // User Only Access
   { name: "Overview", to: { name: "Overview" }, icon: "bar_chart" },
   { name: "Map", to: { name: "Map" }, icon: "map" },
-  { name: "Report", to: { name: "ReportTable" }, icon: "report" },
+  { name: "Report", to: { name: "ReportsManagement" }, icon: "report" },
   { name: "Barangays", to: { name: "BarangayManagement" }, icon: "home" },
   { name: "Emergency Contacts", to: { name: "EmergencyContacts" }, icon: "phone" },
 
@@ -71,7 +71,7 @@ const navigation = [
 
 const isActive = (item) => {
   if (route.name === item.to.name) return true;
-  if (item.to.name === 'ReportTable' && ['AddReport', 'ReportViewDetails', 'EditReport', 'ImportFile'].includes(route.name)) return true;
+  if (item.to.name === 'ReportsManagement' && ['AddReport', 'ReportViewDetails', 'EditReport', 'ImportFile'].includes(route.name)) return true;
   if (item.to.name === 'BarangayManagement' && ['EditBarangay', 'UpdateBarangay', 'DeleteBarangay', 'BarangayInfo'].includes(route.name)) return true;
   if (item.to.name === 'AuditManagement' && ['DetailedAuditReport'].includes(route.name)) return true;
   return false;
