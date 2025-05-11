@@ -38,7 +38,6 @@ const submit = () => {
       }
     })
       .then(response => {
-        console.log('Login successful:', response.data);
         addToast('Login successful!', 'success', 'check_circle');
         router.push({ name: 'Overview' })
       })

@@ -11,12 +11,29 @@ import DateRangePicker from "../../components/DateRangePicker.vue";
 import { useActionDropdown } from '../../composables/useActionDropdown';
 import { usePagination } from '../../composables/usePagination';
 
+const props = defineProps({
+    startDate: {
+        type: [String, Date],
+        default: null
+    },
+    endDate: {
+        type: [String, Date],
+        default: null
+    }
+})
+
 const searchQuery = ref("");
 const selectedClassifications = ref([]);
 const selectedUrgencies = ref([]);
 const selectedActions = ref([]);
-const startDate = ref(null);
-const endDate = ref(null);
+const startDate = ref();
+const endDate = ref();
+watch(() => [props.startDate, props.endDate], ([newStart, newEnd]) => {
+    console.log('Date range changed:', { newStart, newEnd });
+    // This will trigger a re-computation of filteredReports
+    startDate.value = newStart;
+    endDate.value = newEnd;
+}, { immediate: true });
 
 const databaseStore = useDatabaseStore();
 
@@ -501,17 +518,6 @@ const checkboxDelete = async () => {
     }
 };
 
-const props = defineProps({
-    startDate: {
-        type: [Date, String],
-        default: null
-    },
-    endDate: {
-        type: [Date, String],
-        default: null
-    }
-});
-
 const updateDateRange = ({ start, end }) => {
     startDate.value = props.startDate;
     endDate.value = props.endDate;
@@ -647,6 +653,58 @@ const handleJSON = (filteredReports) => {
         addToast('Failed to export JSON. Please try again.', 'error', 'error');
     }
 };
+
+
+
+const result = ref([]);
+
+// Update your searchAPI function to handle the response
+// const searchAPI = async () => {
+//     try {
+//         const response = await axiosClient.get('/api/911/report-pagination', {
+//             search: search.value
+//         }, {
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 'x-api-key': import.meta.env.VITE_API_KEY
+//             }
+//         });
+//         result.value = response.data;
+//         console.log(result.value);
+//     } catch (error) {
+//         console.error('API Error:', error);
+//         // Add proper error handling here
+//     }
+// };
+
+const searchTesting = ref('');
+
+// Use a ref to store the timeout
+const searchTimeout = ref(null);
+
+watch([searchTesting, startDate, endDate], async () => {
+  if (searchTimeout.value) {
+    clearTimeout(searchTimeout.value);
+  }
+  
+  searchTimeout.value = setTimeout(async () => {
+    await databaseStore.Reports({
+      searchTesting: searchTesting.value,
+      startDate: startDate.value,
+      endDate: endDate.value
+    });
+  }, 300);
+}, { immediate: true });
+
+// Add cleanup in onUnmounted
+onUnmounted(() => {
+    if (searchTimeout.value) {
+        clearTimeout(searchTimeout.value);
+    }
+});
+
+console.log(startDate);
+console.log(endDate);
 </script>
 
 <template>
@@ -662,7 +720,7 @@ const handleJSON = (filteredReports) => {
                                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                     <span class="material-icons text-gray-500 dark:text-gray-300">search</span>
                                 </div>
-                                <input v-model="searchQuery" type="text" id="simple-search"
+                                <input v-model="searchTesting" type="text" id="simple-search"
                                     class="border text-sm rounded-lg block w-full pl-10 p-2 bg-white dark:bg-slate-700 dark:text-white dark:border-black placeholder-gray-500 dark:placeholder-gray-300"
                                     placeholder="Search..." />
                             </div>
@@ -918,8 +976,12 @@ const handleJSON = (filteredReports) => {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="report in paginatedData" :key="report.id"
+                        <!-- <tr v-for="report in paginatedData" :key="report.id"
+                            class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700"> -->
+                            <tr v-for="report in paginatedData" :key="report.id"
                             class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
+                                
+                            
                             <td class="px-4 py-3 text-center text-wrap break-words">
                                 <!-- <input type="checkbox" :value="report" v-model="selectedReports" class="w-4 h-4" /> -->
                                 <div class="inline-flex items-center">
@@ -941,7 +1003,6 @@ const handleJSON = (filteredReports) => {
                                     </label>
                                 </div>
                             </td>
-                            <!-- <td class="px-4 py-3 text-center">{{ report.id }}</td> -->
                             <td class="px-4 py-3 text-center text-wrap break-words">{{ report.source.sources }}</td>
                             <td class="px-4 py-3 text-center text-wrap break-words">{{ report.assistance.assistance }}</td>
                             <td class="px-4 py-3 text-center text-wrap break-words">{{ report.incident.type }}</td>

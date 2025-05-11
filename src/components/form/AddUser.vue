@@ -34,49 +34,7 @@ const isModalOpen = ref(false);
 const isLoading = ref(false);
 
 const submit = () => {
-    isLoading.value = true;
-    
-    // Transform boolean values to integers for backend compatibility
-    const formData = {
-        ...data.value,
-        for_911: data.value.for_911 ? 1 : 0,
-        for_inventory: data.value.for_inventory ? 1 : 0,
-        for_traffic: data.value.for_traffic ? 1 : 0
-    };
-
-    axiosClient.post("/register", formData, {
-      headers: {
-        'x-api-key': import.meta.env.VITE_API_KEY
-      }
-    })
-      .then(response => {
-        console.log(response.data);
-        addToast(response.data.message, 'success', 'check_circle');
-        // Close the modal after successful registration
-        isModalOpen.value = false;
-        // Clear form data
-        Object.keys(data.value).forEach(key => data.value[key] = '');
-        // Clear errors
-        Object.keys(errors.value).forEach(key => errors.value[key] = []);
-      })
-      .catch(error => {
-        console.error('Registration error:', error.response?.data);
-        if (error.response?.data?.errors) {
-            // Set all errors at once
-            errors.value = error.response.data.errors;
-            // Show all error messages
-            Object.values(errors.value).forEach(fieldErrors => {
-                fieldErrors.forEach(error => {
-                    addToast(error, 'error', 'error');
-                });
-            });
-        } else {
-            addToast('An error occurred during registration', 'error', 'error');
-        }
-      })
-      .finally(() => {
-        isLoading.value = false;
-      })
+    console.log('testing');
 }
 
 </script>
