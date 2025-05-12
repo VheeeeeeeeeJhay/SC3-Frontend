@@ -12,74 +12,59 @@ const addToast = inject('addToast');
 const databaseStore = useDatabaseStore();
 const store = useArrayStore();
 
-// Auto-refresh logs
-let refreshInterval = null;
-onMounted(() => {
-    databaseStore.fetchData();
-    refreshInterval = setInterval(() => {
-        databaseStore.fetchData();
-    }, 50000);
-});
+// // Auto-refresh logs
+// let refreshInterval = null;
+// onMounted(() => {
+//     databaseStore.fetchData();
+//     refreshInterval = setInterval(() => {
+//         databaseStore.fetchData();
+//     }, 50000);
+// });
 
-onUnmounted(() => {
-  // Clear the interval when the component is unmounted or page is reloaded
-  if (refreshInterval) {
-    clearInterval(refreshInterval);
-  }
-});
+// onUnmounted(() => {
+//   // Clear the interval when the component is unmounted or page is reloaded
+//   if (refreshInterval) {
+//     clearInterval(refreshInterval);
+//   }
+// });
 
-// Get logs from the store
-const logs = computed(() => databaseStore.logs || []);
+// // Get logs from the store
+// const logs = computed(() => databaseStore.logs || []);
 
-// Search and pagination
-const searchQuery = ref("");
+// // Search and pagination
+// const searchQuery = ref("");
 
+// // Filter logs based on search query
+// const filteredLogs = computed(() => {
+//   let filtered = logs.value;
 
-// Filter logs based on search query
-const filteredLogs = computed(() => {
-  let filtered = logs.value;
+//   // 🔍 Step 1: Search filter
+//   if (searchQuery.value) {
+//     filtered = filtered.filter(log =>
+//       Object.values(log).some(val =>
+//         String(val).toLowerCase().includes(searchQuery.value.toLowerCase())
+//       )
+//     );
+//   }
 
-  // 🔍 Step 1: Search filter
-  if (searchQuery.value) {
-    filtered = filtered.filter(log =>
-      Object.values(log).some(val =>
-        String(val).toLowerCase().includes(searchQuery.value.toLowerCase())
-      )
-    );
-  }
+//   // 📅 Step 2: Date range filter based on startDate & endDate refs
+//   if (startDate.value || endDate.value) {
+//     const start = startDate.value ? new Date(startDate.value) : null;
+//     const end = endDate.value ? new Date(endDate.value) : null;
 
-  // 📅 Step 2: Date range filter based on startDate & endDate refs
-  if (startDate.value || endDate.value) {
-    const start = startDate.value ? new Date(startDate.value) : null;
-    const end = endDate.value ? new Date(endDate.value) : null;
+//     filtered = filtered.filter(log => {
+//       const logDate = new Date(log.created_at);
+//       if (start && logDate < start) return false;
+//       if (end && logDate > end) return false;
+//       return true;
+//     });
 
-    filtered = filtered.filter(log => {
-      const logDate = new Date(log.created_at);
-      if (start && logDate < start) return false;
-      if (end && logDate > end) return false;
-      return true;
-    });
+//     console.log(`📆 Filtering logs from ${startDate.value || 'any'} to ${endDate.value || 'any'}`);
+//     console.log(`✅ Found ${filtered.length} logs in range.`);
+//   }
 
-    console.log(`📆 Filtering logs from ${startDate.value || 'any'} to ${endDate.value || 'any'}`);
-    console.log(`✅ Found ${filtered.length} logs in range.`);
-  }
-
-  return filtered;
-});
-
-const {
-  currentPage,
-  itemsPerPage,
-  totalPages,
-  paginatedData,   // <-- this replaces paginatedReports
-  visiblePages,    // <-- replaces paginationStart/paginationEnd logic
-  nextPage,
-  prevPage,
-  goToPage,
-  resetPage
-} = usePagination(filteredLogs, { itemsPerPage: 10, maxVisiblePages: 3 })
-
-watch(searchQuery, () => resetPage())
+//   return filtered;
+// });
 
 
 // composable action dropdown activator
@@ -88,7 +73,6 @@ const { openDropdownId, dropdownRefs, toggleDropdown } = useActionDropdown();
 // Pass data to store
 const passingData = (log) => {
     store.clearData();
-
     store.setData(log);
 };
 
@@ -115,6 +99,110 @@ const updateDateRange = ({ start, end }) => {
   endDate.value = end;
   console.log("Date Range:", startDate.value, endDate.value);
 };
+
+const search = ref('');
+
+// Use a ref to store the timeout
+let searchTimeout = null;
+let refreshInterval = null;
+
+// Create a computed property for testReports
+const audits = computed(() => databaseStore.audits);
+
+// Initial data fetch
+onMounted(() => {
+  refreshInterval = setInterval(() => {
+    databaseStore.Audits({
+      search: search.value,
+      startDate: startDate.value,
+      endDate: endDate.value,
+      page: audits.value.current_page || 1,
+    });
+  }, 120000);
+});
+
+// Watch for search parameter changes
+watch([search, startDate, endDate], () => {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout);
+  }
+  
+  searchTimeout = setTimeout(() => {
+    databaseStore.Audits({
+      search: search.value,
+      startDate: startDate.value,
+      endDate: endDate.value,
+      page: audits.value.current_page,
+    });
+  }, 300);
+
+});
+// Add cleanup in onUnmounted
+onUnmounted(() => {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout);
+  }
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+  }
+  databaseStore.Audits({
+      search: '',
+      startDate: startDate.value,
+      endDate: endDate.value
+    });
+});
+
+// Computed properties
+const visiblePages = computed(() => {
+    if (!audits.value || !audits.value.last_page) return;
+    
+    const current = audits.value.current_page;
+    const last = audits.value.last_page;
+    const delta = 2;
+    const range = [];
+    
+    for (let i = Math.max(2, current - delta); i <= Math.min(last - 1, current + delta); i++) {
+        range.push(i);
+    }
+    
+    if (current - delta > 2) {
+        range.unshift('...');
+    }
+    if (current + delta < last - 1) {
+        range.push('...');
+    }
+    
+    range.unshift(1);
+    if (last !== 1) range.push(last);
+    
+    return range;
+});
+
+// Methods
+const goToPage = (page) => {
+    if (page === '...') return;
+    databaseStore.Audits({
+        page: page,
+        search: search.value,
+        startDate: startDate.value,
+        endDate: endDate.value
+    });
+};
+
+const nextPage = () => {
+    if (audits.value.next_page_url) {
+        goToPage(audits.value.current_page + 1);
+    }
+};
+
+//goods
+const prevPage = () => {
+    if (audits.value.prev_page_url) {
+        goToPage(audits.value.current_page - 1);
+    }
+};
+
+
 </script>
 
 <template>
@@ -128,7 +216,7 @@ const updateDateRange = ({ start, end }) => {
                         <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                         <span class="material-icons text-gray-500 dark:text-gray-300">search</span>
                         </div>
-                        <input v-model="searchQuery" type="text" id="simple-search"
+                        <input v-model="search" type="text" id="simple-search"
                         class="border text-sm rounded-lg block w-full pl-10 p-2 bg-white dark:bg-slate-700 dark:text-white dark:border-black placeholder-gray-500 dark:placeholder-gray-300"
                         placeholder="Search..." />
                     </div>
@@ -154,7 +242,7 @@ const updateDateRange = ({ start, end }) => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="log in paginatedData" :key="log.id" class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
+                    <tr v-for="log in audits.data" :key="log.id" class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
                         <td class="px-4 py-3 text-center">{{ log.id }}</td>
                         <td class="px-4 py-3 text-center">{{ log.category }}</td>
                         <td class="px-4 py-3 text-center"><Badge :Class="log.action === 'Created' ? 'bg-green-300 text-green-800' : log.action === 'Updated' ? 'bg-blue-300 text-blue-800' : log.action === 'Deleted' ? 'bg-rose-300 text-rose-800' : log.action === 'Restored' ? 'bg-emerald-300 text-emerald-800' : log.action === 'Multiple Delete' ? 'bg-red-300 text-red-800' : 'bg-gray-300 text-gray-800'" :Message="log.action" /></td>
@@ -187,34 +275,76 @@ const updateDateRange = ({ start, end }) => {
             </table>
 
             <!-- Pagination -->
-            <nav class="flex flex-col md:flex-row justify-between items-start md:items-center p-4">
+            <nav class="flex flex-col md:flex-row justify-between items-start sm:items-center gap-4 space-y-3 md:space-y-0 p-4">
+                <!-- Update the showing text to use the pagination data from the API -->
                 <span class="text-sm font-normal">
-                    Showing {{ paginatedData.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}
-                    to {{ Math.min(currentPage * itemsPerPage, filteredLogs.length) }} of {{ filteredLogs.length }}
+                    Showing {{ audits.from ? audits.from : 0 }} to {{ audits.to ? audits.to : 0 }} of {{ audits.total ? audits.total : 0 }}
                 </span>
+                
                 <ul class="inline-flex items-stretch -space-x-px">
-                    <li><button @click="prevPage" :disabled="currentPage === 1" class="px-3 py-1 rounded-l-lg border hover:bg-gray-300 dark:hover:bg-slate-600">Previous</button></li>
-
-                    <li v-if="visiblePages[0] > 1">
-                        <button @click="goToPage(1)" class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600">1</button>
-                        <button disabled class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</button>
+                    <!-- Previous Button -->
+                    <li>
+                        <button 
+                            @click="prevPage" 
+                            :disabled="!audits?.prev_page_url"
+                            class="px-3 py-1 rounded-l-lg border hover:bg-gray-300 dark:hover:bg-slate-600 disabled:opacity-50"
+                            :class="{ 'cursor-not-allowed': !audits?.prev_page_url }"
+                        >
+                            Previous
+                        </button>
                     </li>
 
+                    <!-- First Page -->
+                    <li v-if="audits.current_page > 2">
+                        <button 
+                            @click="goToPage(1)" 
+                            class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600"
+                        >
+                            1
+                        </button>
+                        <span v-if="audits?.current_page > 3" class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</span>
+                    </li>
+
+                    <!-- Page Numbers -->
                     <li v-for="page in visiblePages" :key="page">
-                        <button @click="goToPage(page)"
-                            :class="['px-3 py-1 border', currentPage === page ? 'bg-slate-500 text-white border-black' : 'hover:bg-gray-300 dark:hover:bg-slate-600']">
+                        <button 
+                            @click="goToPage(page)"
+                            :class="[
+                                'px-3 py-1 border', 
+                                audits.current_page === page 
+                                    ? 'bg-teal-500 text-white border-teal-800' 
+                                    : 'hover:bg-gray-300 dark:hover:bg-slate-600'
+                            ]"
+                        >
                             {{ page }}
                         </button>
                     </li>
 
-                    <li v-if="visiblePages[visiblePages.length - 1] < totalPages">
-                        <button disabled class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</button>
-                        <button @click="goToPage(totalPages)" class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600">{{ totalPages }}</button>
+                    <!-- Last Page -->
+                    <li v-if="audits?.current_page < audits?.last_page - 1">
+                        <span v-if="audits?.current_page < audits?.last_page - 2" class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</span>
+                        <button 
+                            @click="goToPage(audits.last_page)" 
+                            class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600"
+                        >
+                            {{ audits.last_page }}
+                        </button>
                     </li>
 
-                    <li><button @click="nextPage" :disabled="currentPage === totalPages" class="px-3 py-1 rounded-r-lg border hover:bg-gray-300 dark:hover:bg-slate-600">Next</button></li>
+                    <!-- Next Button -->
+                    <li>
+                        <button 
+                            @click="nextPage" 
+                            :disabled="!audits?.next_page_url"
+                            class="px-3 py-1 rounded-r-lg border hover:bg-gray-300 dark:hover:bg-slate-600 disabled:opacity-50"
+                            :class="{ 'cursor-not-allowed': !audits?.next_page_url }"
+                        >
+                            Next
+                        </button>
+                    </li>
                 </ul>
             </nav>
+
         </div>
 </template>
 

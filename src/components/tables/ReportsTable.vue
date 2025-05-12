@@ -81,7 +81,6 @@ const {
 } = Object.fromEntries(
     Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
 );
-console.log('%c', 'color: red', reports, 'reports');
 
 // 
 watch([classifications, urgencies, actions],
@@ -301,19 +300,19 @@ const closeDropdowns = (event) => {
 
 document.addEventListener("click", closeDropdowns);
 
-const {
-    currentPage,
-    itemsPerPage,
-    totalPages,
-    paginatedData,   // <-- this replaces paginatedReports
-    visiblePages,    // <-- replaces paginationStart/paginationEnd logic
-    nextPage,
-    prevPage,
-    goToPage,
-    resetPage
-} = usePagination(filteredReports, { itemsPerPage: 10, maxVisiblePages: 3 })
+// const {
+//     currentPage,
+//     itemsPerPage,
+//     totalPages,
+//     paginatedData,   // <-- this replaces paginatedReports
+//     visiblePages,    // <-- replaces paginationStart/paginationEnd logic
+//     nextPage,
+//     prevPage,
+//     goToPage,
+//     resetPage
+// } = usePagination(filteredReports, { itemsPerPage: 10, maxVisiblePages: 3 })
 
-watch(searchQuery, () => resetPage())
+// watch(searchQuery, () => resetPage())
 
 
 
@@ -656,7 +655,7 @@ const handleJSON = (filteredReports) => {
 
 
 
-const result = ref([]);
+// const result = ref([]);
 
 // Update your searchAPI function to handle the response
 // const searchAPI = async () => {
@@ -677,34 +676,151 @@ const result = ref([]);
 //     }
 // };
 
+// const searchTesting = ref('');
+
+// // Use a ref to store the timeout
+// const searchTimeout = ref(null);
+
+// //call here the testReports: [], from databaseStore
+// result.value = databaseStore.testReports;
+
+
+// watch([searchTesting, startDate, endDate], async () => {
+//   if (searchTimeout.value) {
+//     clearTimeout(searchTimeout.value);
+//   }
+  
+//   searchTimeout.value = setTimeout(async () => {
+//     await databaseStore.Reports({
+//       searchTesting: searchTesting.value,
+//       startDate: startDate.value,
+//       endDate: endDate.value
+//     });
+//     result.value = databaseStore.testReports;
+//     console.table(result.value);
+//   }, 300);
+// }, { immediate: true });
+
+// // Add cleanup in onUnmounted
+// onUnmounted(() => {
+//     if (searchTimeout.value) {
+//         clearTimeout(searchTimeout.value);
+//     }
+// });
+
+// In your component's script setup
 const searchTesting = ref('');
 
 // Use a ref to store the timeout
-const searchTimeout = ref(null);
+let searchTimeout = null;
 
-watch([searchTesting, startDate, endDate], async () => {
-  if (searchTimeout.value) {
-    clearTimeout(searchTimeout.value);
+// Create a computed property for testReports
+const results = computed(() => databaseStore.testReports);
+console.log("🚀 ~ onMounted ~ results:", results.value.last_page_url);
+
+// Initial data fetch
+onMounted(() => {
+  // Initial fetch
+  databaseStore.Reports({
+    startDate: startDate.value,
+    endDate: endDate.value,
+    page: results.value.current_page || 1,
+  });
+
+  // Set up auto-refresh every 50 seconds like your other data
+  refreshInterval = setInterval(() => {
+    databaseStore.Reports({
+      searchTesting: searchTesting.value,
+      startDate: startDate.value,
+      endDate: endDate.value,
+      page: results.value.current_page || 1,
+    });
+    
+  }, 50000);
+});
+
+// Watch for search parameter changes
+watch([searchTesting, startDate, endDate], () => {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout);
   }
   
-  searchTimeout.value = setTimeout(async () => {
-    await databaseStore.Reports({
+  searchTimeout = setTimeout(() => {
+    databaseStore.Reports({
       searchTesting: searchTesting.value,
+      startDate: startDate.value,
+      endDate: endDate.value,
+      page: results.value.current_page,
+    });
+  }, 300);
+});
+// Add cleanup in onUnmounted
+onUnmounted(() => {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout);
+  }
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+  }
+  databaseStore.Reports({
+      searchTesting: '',
       startDate: startDate.value,
       endDate: endDate.value
     });
-  }, 300);
-}, { immediate: true });
-
-// Add cleanup in onUnmounted
-onUnmounted(() => {
-    if (searchTimeout.value) {
-        clearTimeout(searchTimeout.value);
-    }
 });
 
-console.log(startDate);
-console.log(endDate);
+
+// Computed properties
+// const results = computed(() => databaseStore.testReports ?? {});
+const visiblePages = computed(() => {
+    if (!results.value || !results.value.last_page) return;
+    
+    const current = results.value.current_page;
+    const last = results.value.last_page;
+    const delta = 2;
+    const range = [];
+    
+    for (let i = Math.max(2, current - delta); i <= Math.min(last - 1, current + delta); i++) {
+        range.push(i);
+    }
+    
+    if (current - delta > 2) {
+        range.unshift('...');
+    }
+    if (current + delta < last - 1) {
+        range.push('...');
+    }
+    
+    range.unshift(1);
+    if (last !== 1) range.push(last);
+    
+    return range;
+});
+
+// Methods
+const goToPage = (page) => {
+    if (page === '...') return;
+    databaseStore.Reports({
+        page: page,
+        searchTesting: searchTesting.value,
+        startDate: startDate.value,
+        endDate: endDate.value
+    });
+};
+
+const nextPage = () => {
+    if (results.value.next_page_url) {
+        goToPage(results.value.current_page + 1);
+    }
+};
+
+//goods
+const prevPage = () => {
+    if (results.value.prev_page_url) {
+        goToPage(results.value.current_page - 1);
+    }
+};
+
 </script>
 
 <template>
@@ -978,7 +1094,7 @@ console.log(endDate);
                     <tbody>
                         <!-- <tr v-for="report in paginatedData" :key="report.id"
                             class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700"> -->
-                            <tr v-for="report in paginatedData" :key="report.id"
+                            <tr v-for="report in results.data" :key="report.id"
                             class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
                                 
                             
@@ -1064,44 +1180,70 @@ console.log(endDate);
                 </table>
                 </div>
 
-                <nav
-                    class="flex flex-col md:flex-row justify-between items-start sm:items-center gap-4 space-y-3 md:space-y-0 p-4">
-                    <span class="text-sm font-normal">Showing {{ filteredReports.length > 0 ? (currentPage - 1) *
-                        itemsPerPage + 1 : 0
-                        }} to {{
-                            Math.min(currentPage *
-                                itemsPerPage, filteredReports.length) }} of {{ filteredReports.length }}</span>
+                <nav class="flex flex-col md:flex-row justify-between items-start sm:items-center gap-4 space-y-3 md:space-y-0 p-4">
+                    <!-- Update the showing text to use the pagination data from the API -->
+                    <span class="text-sm font-normal">
+                        Showing {{ results.from ? results.from : 0 }} to {{ results.to ? results.to : 0 }} of {{ results.total ? results.total : 0 }}
+                    </span>
+                    
                     <ul class="inline-flex items-stretch -space-x-px">
+                        <!-- Previous Button -->
                         <li>
-                            <button @click="prevPage" :disabled="currentPage === 1"
-                                class="px-3 py-1 rounded-l-lg border hover:bg-gray-300 dark:hover:bg-slate-600">
+                            <button 
+                                @click="prevPage" 
+                                :disabled="!results?.prev_page_url"
+                                class="px-3 py-1 rounded-l-lg border hover:bg-gray-300 dark:hover:bg-slate-600 disabled:opacity-50"
+                                :class="{ 'cursor-not-allowed': !results?.prev_page_url }"
+                            >
                                 Previous
                             </button>
                         </li>
 
-                        <li v-if="visiblePages[0] > 1">
-                            <button @click="goToPage(1)"
-                                class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600">1</button>
-                            <button disabled class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</button>
+                        <!-- First Page -->
+                        <li v-if="results.current_page > 2">
+                            <button 
+                                @click="goToPage(1)" 
+                                class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600"
+                            >
+                                1
+                            </button>
+                            <span v-if="results?.current_page > 3" class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</span>
                         </li>
 
+                        <!-- Page Numbers -->
                         <li v-for="page in visiblePages" :key="page">
-                            <button @click="goToPage(page)"
-                                :class="['px-3 py-1 border', currentPage === page ? 'bg-slate-500 text-white border-black' : 'hover:bg-gray-300 dark:hover:bg-slate-600']">
+                            <button 
+                                @click="goToPage(page)"
+                                :class="[
+                                    'px-3 py-1 border', 
+                                    results.current_page === page 
+                                        ? 'bg-teal-500 text-white border-teal-800' 
+                                        : 'hover:bg-gray-300 dark:hover:bg-slate-600'
+                                ]"
+                            >
                                 {{ page }}
                             </button>
                         </li>
 
-                        <li v-if="visiblePages[visiblePages.length - 1] < totalPages">
-                            <button disabled class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</button>
-                            <button @click="goToPage(totalPages)"
-                                class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600">{{
-                                    totalPages }}</button>
+                        <!-- Last Page -->
+                        <li v-if="results?.current_page < results?.last_page - 1">
+                            <span v-if="results?.current_page < results?.last_page - 2" class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</span>
+                            <button 
+                                @click="goToPage(results.last_page)" 
+                                class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600"
+                            >
+                                {{ results.last_page }}
+                            </button>
                         </li>
 
+                        <!-- Next Button -->
                         <li>
-                            <button @click="nextPage" :disabled="currentPage === totalPages"
-                                class="px-3 py-1 rounded-r-lg border hover:bg-gray-300 dark:hover:bg-slate-600">
+                            <button 
+                                @click="nextPage" 
+                                :disabled="!results?.next_page_url"
+                                class="px-3 py-1 rounded-r-lg border hover:bg-gray-300 dark:hover:bg-slate-600 disabled:opacity-50"
+                                :class="{ 'cursor-not-allowed': !results?.next_page_url }"
+                            >
                                 Next
                             </button>
                         </li>

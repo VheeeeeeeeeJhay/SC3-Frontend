@@ -6,7 +6,6 @@ export const useDatabaseStore = defineStore('database', {
   state: () => ({
     SC3_API_KEY: import.meta.env.VITE_API_KEY,
     
-    search: '',
 
 
     users: [],
@@ -21,6 +20,7 @@ export const useDatabaseStore = defineStore('database', {
     logs: [],
     contacts: [],
     testReports: [],
+    audits: [],
   }),
   actions: {
     async Reports(searchParams = {}) {
@@ -28,12 +28,44 @@ export const useDatabaseStore = defineStore('database', {
         searchTesting: searchParams.searchTesting || '',
         startDate: searchParams.startDate || '',
         endDate: searchParams.endDate || '',
+        page: searchParams.page || 1,
       };
-      console.table(params);
+      
       try {
         const res = await axiosClient.get('/api/911/report-pagination', { headers: { 'x-api-key': this.SC3_API_KEY }, params: params });
         this.testReports = res.data;
-        console.table(this.testReports);
+      } catch (error) {
+        console.error('Error fetching sources:', error)
+      }
+    },
+
+    async Audits(searchParams = {}) {
+      const params = {
+        search: searchParams.search || '',
+        startDate: searchParams.startDate || '',
+        endDate: searchParams.endDate || '',
+        page: searchParams.page || 1,
+      };
+
+      try {
+        const res = await axiosClient.get('/api/911/audit-pagination', { headers: { 'x-api-key': this.SC3_API_KEY }, params: params });
+        this.audits = res.data;
+      } catch (error) {
+        console.error('Error fetching sources:', error)
+      }
+    },
+
+    async Contacts(searchParams = {}) {
+      const params = {
+        search: searchParams.search || '',
+        startDate: searchParams.startDate || '',
+        endDate: searchParams.endDate || '',
+        page: searchParams.page || 1,
+      };
+
+      try {
+        const res = await axiosClient.get('/api/911/audit-pagination', { headers: { 'x-api-key': this.SC3_API_KEY }, params: params });
+        this.audits = res.data;
       } catch (error) {
         console.error('Error fetching sources:', error)
       }
@@ -42,7 +74,6 @@ export const useDatabaseStore = defineStore('database', {
 
 
     async fetchData() {
-      // this.Reports();
       const API_KEY = this.SC3_API_KEY
       try {
         // Execute all requests concurrently
@@ -104,7 +135,7 @@ export const useDatabaseStore = defineStore('database', {
             return { data: [] }; 
           }),
 
-          axiosClient.get('/api/911/tracking', { headers: { 'x-api-key': API_KEY } }).catch(error => {
+          axiosClient.get('/api/911/audit', { headers: { 'x-api-key': API_KEY } }).catch(error => {
             console.error('Error fetching recent data:', error);
             return { data: [] }; 
           }),
