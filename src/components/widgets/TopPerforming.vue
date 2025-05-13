@@ -44,9 +44,6 @@ const topBarangays = computed(() => {
       if (end && date > end) return false;
       return true;
     });
-
-    // console.log(`📆 Filtering by date range: ${props.startDate} to ${props.endDate}`);
-    // console.log(`✅ Found ${filteredReports.length} reports in date range.`);
   } 
 
   // 🧠 Count per barangay using ID
@@ -73,8 +70,6 @@ const topBarangays = computed(() => {
 
   const sorted = Object.values(barangayMap).sort((a, b) => b.count - a.count);
 
-  // console.log('🏆 Sorted top barangays:', sorted);
-
   return sorted.slice(0, 3); // top 3 as array of objects
 });
 
@@ -83,7 +78,6 @@ const passingData = (barangay) => {
     store.clearBarangayData();
 
     store.setBarangayData(barangay);
-    // console.log(store.getBarangayData());
 }
 
 </script>

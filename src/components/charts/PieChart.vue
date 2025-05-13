@@ -47,32 +47,11 @@ const {
     Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
 );
 
-// onMounted(() => {
-//   // axiosClient.get('/api/911/dashboard', {
-//   //   headers: {
-//   //     'x-api-key': import.meta.env.VITE_API_KEY
-//   //   }
-//   // })
-//   //   .then((res) => {
-//   //     console.log(res);
-//   //     incidents.value = res.data.incidents;
-//   //     assistance.value = res.data.assistance;
-//   //     report.value = res.data.report;
-
-//   //     // updateChart(); // Update the chart after fetching data
-//   //   })
-//   //   .catch((error) => {
-//   //     console.error('Error fetching data:', error);
-//   //     errorMessage.value = 'Failed to load data. Please try again later.';
-//   //   });
-// });
-
 // Run updateChart whenever reports change
 watch(
   () => [report.value, incidents.value, assistance.value],
   () => {
     updateChart();
-    // console.log("%cData updated, chart re-rendered.", "color: red; font-weight: bold;");
   }
 );
 // // Filter The Incident/Case Base On The Assistance Type
@@ -140,7 +119,6 @@ const updateChart = () => {
     const startISO = new Date(props.startDate).toISOString().split("T")[0];
     const endISO = new Date(props.endDate).toISOString().split("T")[0];
 
-    // console.log("📅 Filtering reports from", startISO, "to", endISO);
 
     filteredReports = report.value.filter(reportItem => {
       if (!reportItem.date_received) return false;

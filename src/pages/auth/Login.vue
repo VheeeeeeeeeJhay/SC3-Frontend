@@ -41,12 +41,10 @@ const submit = () => {
         router.push({ name: 'Overview' })
       })
       .catch(error => {
-        // console.log(error.response.data.message)
         errors.value = error.response.data.errors;
         for (const key in errors.value) {
           addToast(errors.value[key][0], 'error', 'error');
         }
-        // addToast(error.response.data.message, 'error', 'error');
       })
       .finally(() => {
         submitLoading.value = false

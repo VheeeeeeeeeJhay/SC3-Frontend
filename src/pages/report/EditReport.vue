@@ -13,7 +13,6 @@ import { useDatabaseStore } from '../../stores/databaseStore';
 // Get Auth User Information
 const userStore = useUserStore();
 const user = computed(() => userStore.user);
-console.log("USER ID:", user.value.id);
 
 const route = useRoute();
 const router = useRouter();
@@ -76,29 +75,23 @@ const updateForm = async () => {
         urgency_id: data.value.urgency,
         description: data.value.description
     };
-    console.log(data.value.longitude, 'lngitude');
-    console.log(data.value.latitude, 'latitude');
-        axiosClient.put(`/api/911/report/${report_Id}`, payload, {
-            headers: {
-                'x-api-key': import.meta.env.VITE_API_KEY,
-            }
-        })
-        .then(response => {
-            console.log('Report updated successfully:', response.data);
-            // Optionally, refresh the originalData reference
-            originalData.value = { ...data.value };
-            addToast(response.data.message, 'success', 'check_circle');
-            router.push({ name: 'ReportTable' });
-        })
-        .catch (error => {
-            console.error('Error updating report:', error.response?.data.errors);
-            errors.value = error.response?.data.errors || 'Failed to update report. Please try again later.';
-            console.log(error.response.data);
-            addToast(error.response.data.message, 'error', 'error');
-        })
+
+    axiosClient.put(`/api/911/report/${report_Id}`, payload, {
+        headers: {
+            'x-api-key': import.meta.env.VITE_API_KEY,
+        }
+    })
+    .then(response => {
+        originalData.value = { ...data.value };
+        addToast(response.data.message, 'success', 'check_circle');
+        router.push({ name: 'ReportTable' });
+    })
+    .catch (error => {
+        errors.value = error.response?.data.errors || 'Failed to update report. Please try again later.';
+        addToast(error.response.data.message, 'error', 'error');
+    })
 };
 
-// console.log(data.value);
 
 onMounted(() => {
     databaseStore.fetchData();
@@ -108,7 +101,6 @@ onMounted(() => {
     refreshInterval = setInterval(() => {
         databaseStore.fetchData();
     }, 50000);
-    
 });
 
 onUnmounted(() => {
@@ -152,7 +144,6 @@ const { coords } = useGeolocation();
 
 const initMap = () => {
     if (!latitude || !longitude) {
-        console.error("Latitude or Longitude is missing");
         return;
     }
 
@@ -208,9 +199,9 @@ const initMap = () => {
 
 // Watch geolocation changes but don’t override manual marker selection
 watchEffect(() => {
-    if (storage.value.barangay.latitude && storage.value.barangay.longitude) {
-        console.log("Updated Coordinates:", storage.value.barangay.latitude, storage.value.barangay.longitude);
-    }
+    // if (storage.value.barangay.latitude && storage.value.barangay.longitude) {
+    //     console.log("Updated Coordinates:", storage.value.barangay.latitude, storage.value.barangay.longitude);
+    // }
 
     if (coords.value.latitude && coords.value.longitude &&
         isFinite(coords.value.latitude) && isFinite(coords.value.longitude)) {

@@ -88,10 +88,6 @@ const toggleDatepicker = () => {
   isOpen.value = !isOpen.value
 }
 
-//   const handleApply = () => {
-//     console.log('Applied:', selectedStartDate.value, selectedEndDate.value)
-//     isOpen.value = false
-//   }
 const formatDateToISO = (date) => {
   const d = new Date(date);
   const year = d.getFullYear();
@@ -106,8 +102,6 @@ const handleApply = () => {
     const endISO = formatDateToISO(selectedEndDate.value);
 
     emit("dateRangeSelected", { start: startISO, end: endISO });
-    console.log("📅 Applied Date Range:", startISO, "to", endISO);
-
     isOpen.value = false;
   }
 };
@@ -126,7 +120,6 @@ const handleReset = () => {
 
   emit('dateRangeSelected', { start, end });
 
-  console.log('🗑 Cleared Date Range');
   isOpen.value = false;
 }
 

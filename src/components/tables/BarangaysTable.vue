@@ -22,7 +22,6 @@ onMounted(() => {
 
   refreshInterval = setInterval(() => {
     databaseStore.fetchData();
-    console.log(combinedList.value, '%cBookmark', 'color: blue')
   }, 50000);
 
 });
@@ -48,14 +47,12 @@ const props = defineProps({
 
 const store = useArrayStore();
 const passingData = (barangay) => {
-    store.setBarangayData(barangay);
-    console.log(store.getBarangayData(),'=================================================================');
+  store.clearData();
+  store.setBarangayData(barangay);
 }
 
 const message = ref('');
 const errors = ref('');
-
-
 
 const computedProperties = {
   barangaysList: "barangays",
@@ -135,7 +132,6 @@ const formSubmit = (barangay_Id) => {
     }
   })
     .then(response => {
-      console.log('Barangay deleted successfully');
       addToast(response.data.message, 'success', 'check_circle');
       databaseStore.fetchData();
       refreshInterval = setInterval(() => {
@@ -144,7 +140,6 @@ const formSubmit = (barangay_Id) => {
       isDeleteModalOpen.value = false;
     })
     .catch(error => {
-      console.error('Error deleting data:', error);
       addToast(error.response.data.message, 'error', 'error'); // Add error toast
       errors.value = error.response?.data?.message || 'Something went wrong!';
     })

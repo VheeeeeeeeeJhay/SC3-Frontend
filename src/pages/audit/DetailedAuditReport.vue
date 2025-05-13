@@ -18,7 +18,7 @@ const parsedInnerData = computed(() => {
     const data = JSON.parse(storage.value.data);
     return Array.isArray(data) ? data : [data];
   } catch (error) {
-    console.error("Invalid JSON in storage.data", error);
+    addToast("Invalid JSON in storage.data", "error", "error");
     return [];
   }
 });

@@ -23,6 +23,9 @@ export const useDatabaseStore = defineStore('database', {
     testReports: [],
     audits: [],
     emergencyContacts: [],
+
+    data1: [],
+    data2: [],
   }),
   actions: {
     async Reports(searchParams = {}) {
@@ -30,7 +33,7 @@ export const useDatabaseStore = defineStore('database', {
         search: searchParams.search || '',
         startDate: searchParams.startDate || '',
         endDate: searchParams.endDate || '',
-        page: searchParams.page || 1,
+        page: searchParams.page,
         per_page: searchParams.per_page || 10,
       };
       
@@ -38,7 +41,7 @@ export const useDatabaseStore = defineStore('database', {
         const res = await axiosClient.get('/api/911/report-pagination', { headers: { 'x-api-key': this.SC3_API_KEY }, params: params });
         this.testReports = res.data;
       } catch (error) {
-        console.error('Error fetching sources:', error)
+        return error.response.data.message || 'Something went wrong';
       }
     },
 
@@ -47,7 +50,7 @@ export const useDatabaseStore = defineStore('database', {
         search: searchParams.search || '',
         startDate: searchParams.startDate || '',
         endDate: searchParams.endDate || '',
-        page: searchParams.page || 1,
+        page: searchParams.page,
         per_page: searchParams.per_page || 10,
       };
 
@@ -55,17 +58,21 @@ export const useDatabaseStore = defineStore('database', {
         const res = await axiosClient.get('/api/911/audit-pagination', { headers: { 'x-api-key': this.SC3_API_KEY }, params: params });
         this.audits = res.data;
       } catch (error) {
-        console.error('Error fetching sources:', error)
+        return error.response.data.message || 'Something went wrong';
       }
     },
 
 
-    async fetchData() {
-      try {
-        console.log('Fetching reports...')
-      } catch (error) {
-        console.error('Error fetching reports:', error)
-      }
+    async fetcherData() {
+      await Promise.all([this.Reports({page: 1, per_page: 10}), this.Audits({page: 1, per_page: 10})])
+      .then((response) => {
+        this.data1 = response[0].data;
+        this.data2 = response[1].data;
+        console.log(response, this.data1, this.data2)
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error)
+      });
     },
 
     async fetchData() {
@@ -86,52 +93,42 @@ export const useDatabaseStore = defineStore('database', {
           resContacts
         ] = await Promise.all([
           axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }).catch(error => {
-            console.error('Error fetching active users:', error);
             return { data: [] }; 
           }),
 
           axiosClient.get('/api/911/barangay', { headers: { 'x-api-key': API_KEY } }).catch(error => {
-            console.error('Error fetching barangays:', error);
             return { data: [] }; 
           }),
 
           axiosClient.get('/api/911/report', { headers: { 'x-api-key': API_KEY } }).catch(error => {
-            console.error('Error fetching report:', error);
             return { data: [] }; 
           }),
 
           axiosClient.get('/api/911/source', { headers: { 'x-api-key': API_KEY } }).catch(error => {
-            console.error('Error fetching sources:', error);
             return { data: [] }; 
           }),
 
           axiosClient.get('/api/911/action-taken', { headers: { 'x-api-key': API_KEY } }).catch(error => {
-            console.error('Error fetching actions:', error);
             return { data: [] }; 
           }),
 
           axiosClient.get('/api/911/incident', { headers: { 'x-api-key': API_KEY } }).catch(error => {
-            console.error('Error fetching incidents:', error);
             return { data: [] }; 
           }),
 
           axiosClient.get('/api/911/assistance', { headers: { 'x-api-key': API_KEY } }).catch(error => {
-            console.error('Error fetching assistance:', error);
             return { data: [] }; 
           }),
 
           axiosClient.get('/api/911/urgency', { headers: { 'x-api-key': API_KEY } }).catch(error => {
-            console.error('Error fetching urgencies:', error);
             return { data: [] }; 
           }),
 
           axiosClient.get('/api/911/recent', { headers: { 'x-api-key': API_KEY } }).catch(error => {
-            console.error('Error fetching recent data:', error);
             return { data: [] }; 
           }),
 
           axiosClient.get('/api/911/audit', { headers: { 'x-api-key': API_KEY } }).catch(error => {
-            console.error('Error fetching recent data:', error);
             return { data: [] }; 
           }),
 
@@ -139,7 +136,6 @@ export const useDatabaseStore = defineStore('database', {
             headers: { 'x-api-key': API_KEY } 
           })
           .catch(error => {
-            console.error('Error fetching emergency contacts:', error);
             return { data: [] }; 
           })
         ]);
@@ -166,9 +162,8 @@ export const useDatabaseStore = defineStore('database', {
         
         this.contacts = resContacts.data || [];
       } catch (error) {
-        console.error('Error fetching data:', error)
+        return error.response.data.message || 'Something went wrong fetching data';
       }
     },
-
   },
 })

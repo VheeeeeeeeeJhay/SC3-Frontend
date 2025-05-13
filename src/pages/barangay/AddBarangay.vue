@@ -31,8 +31,6 @@ const emit = defineEmits(['close']);
 
 
 const formSubmit = async () => {
-  // try {
-  console.log(data.value);
   const formData = new FormData();
   formData.append('name', data.value.name);
   formData.append('longitude', data.value.longitude);
@@ -43,15 +41,15 @@ const formSubmit = async () => {
       'x-api-key': import.meta.env.VITE_API_KEY
     }
   })
-    .then((response) => {
-      addToast(response.data.message, 'success', 'check_circle'); // Add success toast
-      clearData();
-      emit('close');
-    })
-    .catch ((error) => {
-      errors.value = error.response.data.errors;
-      addToast(error.response.data.message, 'error', 'error'); // Add error toast
-    })
+  .then((response) => {
+    addToast(response.data.message, 'success', 'check_circle'); // Add success toast
+    clearData();
+    emit('close');
+  })
+  .catch ((error) => {
+    errors.value = error.response.data.errors;
+    addToast(error.response.data.message, 'error', 'error'); // Add error toast
+  })
 };
 </script>
 

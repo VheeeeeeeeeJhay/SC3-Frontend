@@ -27,7 +27,6 @@ const updateDateRange = ({ start, end }) => {
   endDate.value = end;
   localStorage.setItem('dashboardStartDate', start);
   localStorage.setItem('dashboardEndDate', end);
-  console.log("Date Range:", startDate.value, endDate.value);
 };
 
 // Fullscreen card logic
@@ -102,7 +101,7 @@ const exportAsImage = (chartNumber) => {
       exportedImageUrls.value.push(dataUrl);
     })
     .catch((error) => {
-      console.error('Error exporting image:', error);
+      addToast('Error exporting image', 'error', 'error');
     });
 };
 
@@ -216,13 +215,7 @@ const dropdownRef = ref(null)
 const minimized = ref(false);
 const toggleMinimize = () => {
   minimized.value = !minimized.value;
-  console.log(minimized.value);
 };
-
-// Initialize the store
-const userStore = useUserStore()
-userStore.fetchUser()
-console.log(userStore.user)
 </script>
 
 <template>

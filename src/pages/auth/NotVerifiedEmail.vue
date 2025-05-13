@@ -19,11 +19,9 @@ const Verify = () => {
         }
     })
     .then(response => {
-        console.log('Email verification link sent');
         addToast('Email verification link sent', 'success', 'check_circle');
     })
     .catch(error => {
-        console.log(error.response.data.message);
         addToast(error.response.data.message, 'error', 'error');
     })
 };

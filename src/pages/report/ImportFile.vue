@@ -121,7 +121,6 @@ const verifyFileData = async () => {
         currentStep.value = 2;
     })
     .catch(error => {
-        console.error('Error uploading file:', error);
         errorMessage.value = error.response?.data?.message || 'Something went wrong!';
         addToast(error.response?.data.message, 'error', 'error');
     })
@@ -132,7 +131,6 @@ const verifyFileData = async () => {
 
 const submitFileData = async () => {
     isLoading.value = true;
-    console.table(contained_data.value);
     try {
         await axiosClient.post('/api/911/import-excel-data', { data: contained_data.value }, {
             headers: {

@@ -70,9 +70,7 @@ const routes = [
         }
        
         if (!userStore?.user.for_911) {
-          console.log(userStore.user);
           next('/no-access');
-          console.log(userStore.user);
           return
         } else if(!userStore?.user.email_verified_at) {
           next('/email_not_verified');

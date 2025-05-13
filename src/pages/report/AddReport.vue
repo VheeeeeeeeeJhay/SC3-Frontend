@@ -115,18 +115,15 @@ const submitForm = async () => {
   formData.append('latitude', data.value.latitude)
   formData.append('urgency_id', data.value.urgency_id)
   formData.append('description', data.value.description)
-  console.log(formData)
   await axiosClient.post('/api/911/report', formData, {
     headers: {
       'x-api-key': import.meta.env.VITE_API_KEY
     }
   })
     .then(response => {
-      console.log('Form submitted successfully:', response.data);
       message.value = response.data.message;
       addToast(message.value, 'success', 'check_circle');
       clearForm();
-      console.log(message.value)
       databaseStore.fetchData();
       refreshInterval = setInterval(() => {
             databaseStore.fetchData(); // runs again every 50s

@@ -11,7 +11,6 @@ import { useArrayStore } from '../../stores/arrayStore';
 
 const router = useRouter();
 const id = Number(useRoute().params.id);
-console.log(id);
 
 const errors = ref([]);
 const startDate = ref(null);

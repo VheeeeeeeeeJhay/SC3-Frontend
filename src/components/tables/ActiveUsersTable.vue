@@ -59,7 +59,6 @@ const dashboardRole = async (user) => {
             databaseStore.fetchData(); // runs again every 50s
         }, 50000);
     } catch (error) {
-        console.error(error.response?.data?.error);
         errors.value = error.response?.data?.error;
         addToast(errors.value, 'error', 'error');
     }
@@ -146,7 +145,6 @@ const archiveUser = async (user) => {
             databaseStore.fetchData(); // runs again every 50s
         }, 50000);
     } catch (error) {
-        console.error(error.response?.data?.message || error.message);
         errors.value = error.response?.data?.error || 'Failed to archive user';
         addToast(errors.value, 'error', 'error');
     }
@@ -161,7 +159,6 @@ const toggleSortName = () => {
     } else {
         sortName.value = 'none';
     }
-    console.log('Sort Name:', sortName.value);
 };
 
 const sortEmail = ref('none'); // 'none', 'asc', 'desc'
@@ -173,7 +170,6 @@ const toggleSortEmail = () => {
     } else {
         sortEmail.value = 'none';
     }
-    console.log('Sort Email:', sortEmail.value);
 };
 
 // Computed property for dynamic search and filtering

@@ -16,7 +16,6 @@ const props = defineProps({
 
 // const barangay_Id = ref(props.barangay); // Make it reactive
 
-// console.log("Barangay ID from Props:", barangay_Id.value);
 
 const barangayData = ref({
     id: '',

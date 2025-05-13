@@ -5,17 +5,13 @@ import logo from '../../assets/baguio-logo.png';
 import smart from '../../assets/smart-city1.jpg';
 import breathe from '../../assets/breathe-baguio.png';
 import useUserStore from '../../stores/user.js';
-import { onMounted } from 'vue';
+import { onMounted, computed } from 'vue';
 
 // Initialize the store
-// const userStore = useUserStore()
-// userStore.fetchUser()
-// console.log(userStore.user,'dsad')
 const userStore = useUserStore();
 
 onMounted(async () => {
   await userStore.fetchUser();
-  console.log('User data:', userStore.user);
 });
 </script>
 

@@ -22,14 +22,13 @@ const props = defineProps({
     }
 })
 
-const searchQuery = ref("");
 const selectedClassifications = ref([]);
 const selectedUrgencies = ref([]);
 const selectedActions = ref([]);
 const startDate = ref();
 const endDate = ref();
+
 watch(() => [props.startDate, props.endDate], ([newStart, newEnd]) => {
-    console.log('Date range changed:', { newStart, newEnd });
     // This will trigger a re-computation of filteredReports
     startDate.value = newStart;
     endDate.value = newEnd;
@@ -45,36 +44,17 @@ const passingData = (report) => {
 
 const addToast = inject('addToast');
 
-// onUnmounted(() => {
-//     store.clearData();
-// })
-
 let refreshInterval = null;
-onMounted(() => {
-    databaseStore.fetchData();
 
-    refreshInterval = setInterval(() => {
-        databaseStore.fetchData();
-    }, 50000);
-});
-
-onUnmounted(() => {
-    // Clear the interval when the component is unmounted or page is reloaded
-    if (refreshInterval) {
-        clearInterval(refreshInterval);
-    }
-});
 
 // Computed properties
 const computedProperties = {
-    reports: "reports",
     classifications: "assistance",
     urgencies: "urgencies",
     actions: "actions",
 };
 
 const {
-    reports,
     classifications,
     urgencies,
     actions,
@@ -92,74 +72,32 @@ watch([classifications, urgencies, actions],
 
 const sortSource = ref('none'); // 'none', 'asc', 'desc'
 const toggleSortSource = () => {
-    if (sortSource.value === 'none') {
-        sortSource.value = 'asc';
-    } else if (sortSource.value === 'asc') {
-        sortSource.value = 'desc';
-    } else {
-        sortSource.value = 'none';
-    }
-    console.log('Sort Source:', sortSource.value);
+    sortSource.value = sortSource.value === 'none' ? 'asc' : sortSource.value === 'asc' ? 'desc' : 'none';
 };
 
 const sortAssistance = ref('none'); // 'none', 'asc', 'desc'
 const toggleSortAssistance = () => {
-    if (sortAssistance.value === 'none') {
-        sortAssistance.value = 'asc';
-    } else if (sortAssistance.value === 'asc') {
-        sortAssistance.value = 'desc';
-    } else {
-        sortAssistance.value = 'none';
-    }
-    console.log('Sort Assistance:', sortAssistance.value);
+    sortAssistance.value = sortAssistance.value === 'none' ? 'asc' : sortAssistance.value === 'asc' ? 'desc' : 'none';
 };
 
 const sortIncident = ref('none');
 const toggleSortIncident = () => {
-    if (sortIncident.value === 'none') {
-        sortIncident.value = 'asc';
-    } else if (sortIncident.value === 'asc') {
-        sortIncident.value = 'desc';
-    } else {
-        sortIncident.value = 'none';
-    }
-    console.log('Sort Incident:', sortIncident.value);
+    sortIncident.value = sortIncident.value === 'none' ? 'asc' : sortIncident.value === 'asc' ? 'desc' : 'none';
 };
 
 const sortActions = ref('none');
 const toggleSortActions = () => {
-    if (sortActions.value === 'none') {
-        sortActions.value = 'asc';
-    } else if (sortActions.value === 'asc') {
-        sortActions.value = 'desc';
-    } else {
-        sortActions.value = 'none';
-    }
-    console.log('Sort Actions:', sortActions.value);
+    sortActions.value = sortActions.value === 'none' ? 'asc' : sortActions.value === 'asc' ? 'desc' : 'none';
 };
 
 const sortUrgency = ref('none');
 const toggleSortUrgency = () => {
-    if (sortUrgency.value === 'none') {
-        sortUrgency.value = 'asc';
-    } else if (sortUrgency.value === 'asc') {
-        sortUrgency.value = 'desc';
-    } else {
-        sortUrgency.value = 'none';
-    }
-    console.log('Sort Urgency:', sortUrgency.value);
+    sortUrgency.value = sortUrgency.value === 'none' ? 'asc' : sortUrgency.value === 'asc' ? 'desc' : 'none';
 };
 
 const sortBarangay = ref('none');
 const toggleSortBarangay = () => {
-    if (sortBarangay.value === 'none') {
-        sortBarangay.value = 'asc';
-    } else if (sortBarangay.value === 'asc') {
-        sortBarangay.value = 'desc';
-    } else {
-        sortBarangay.value = 'none';
-    }
-    console.log('Sort Assistance:', sortAssistance.value);
+    sortBarangay.value = sortBarangay.value === 'none' ? 'asc' : sortBarangay.value === 'asc' ? 'desc' : 'none';
 };
 
 // Computed property for dynamic search and filtering
@@ -300,22 +238,6 @@ const closeDropdowns = (event) => {
 
 document.addEventListener("click", closeDropdowns);
 
-// const {
-//     currentPage,
-//     itemsPerPage,
-//     totalPages,
-//     paginatedData,   // <-- this replaces paginatedReports
-//     visiblePages,    // <-- replaces paginationStart/paginationEnd logic
-//     nextPage,
-//     prevPage,
-//     goToPage,
-//     resetPage
-// } = usePagination(filteredReports, { itemsPerPage: 10, maxVisiblePages: 3 })
-
-// watch(searchQuery, () => resetPage())
-
-
-
 const isModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);
 
@@ -406,13 +328,10 @@ const handlePrint = async () => {
 
         printWindow.document.close();
 
-
-
         // Wait for the new window to finish rendering before printing
         await new Promise((resolve) => setTimeout(resolve, 500));
 
         printWindow.print();
-        addToast('Exported PDF successfully!', 'success', 'check_circle');
         printWindow.onafterprint = () => {
             printWindow.close();
         };
@@ -435,19 +354,19 @@ const formSubmit = async (report_Id) => {
             'x-api-key': import.meta.env.VITE_API_KEY
         }
     })
-        .then(response => {
-            // Remove the deleted barangay from the list without refreshing the page
-            // reports.value = reports.value.filter(b => b.id !== report_Id); // ================================================================ revise
-            success.value = 'Report deleted successfully';
-            addToast(response.data.message, 'success', 'check_circle');
-            databaseStore.fetchData();
-            refreshInterval = setInterval(() => {
-                databaseStore.fetchData(); // runs again every 50s
-            }, 50000);
-        })
-        .catch(error => {
-            addToast(error.response?.data?.message || error.response?.data?.error, 'error', 'error');
-        });
+    .then(response => {
+        // Remove the deleted barangay from the list without refreshing the page
+        // reports.value = reports.value.filter(b => b.id !== report_Id); // ================================================================ revise
+        success.value = 'Report deleted successfully';
+        addToast(response.data.message, 'success', 'check_circle');
+        databaseStore.fetchData();
+        refreshInterval = setInterval(() => {
+            databaseStore.fetchData(); // runs again every 50s
+        }, 50000);
+    })
+    .catch(error => {
+        addToast(error.response?.data?.message || error.response?.data?.error, 'error', 'error');
+    });
 };
 
 // show all filter
@@ -497,7 +416,6 @@ const checkboxDelete = async () => {
         });
 
         // Handle success message
-        console.log(response.data.message); // You can show this success message in the UI
         success.value = 'Reports deleted successfully!';
 
         // Clear selected reports
@@ -510,18 +428,15 @@ const checkboxDelete = async () => {
             databaseStore.fetchData(); // runs again every 50s
         }, 50000);
     } catch (error) {
-        // Handle error message
-        console.error('Error deleting data:', error);
         errors.value = error.response?.data?.message || 'Something went wrong!';
         addToast(error.response?.data.error || error.response?.data.message, 'error', 'error');
     }
 };
 
-const updateDateRange = ({ start, end }) => {
-    startDate.value = props.startDate;
-    endDate.value = props.endDate;
-    console.log("Date Range:", startDate.value, endDate.value);
-};
+// const updateDateRange = ({ start, end }) => {
+//     startDate.value = props.startDate;
+//     endDate.value = props.endDate;
+// };
 
 //For Export Option
 onMounted(() => {
@@ -549,7 +464,6 @@ const toggleExportDropdown = (exportId) => {
 // //handle CSV generation
 const handleCSV = (filteredReports) => {
     if (!filteredReports || filteredReports.length === 0) {
-        console.warn("No data to export.");
         return;
     }
 
@@ -617,7 +531,6 @@ const handleCSV = (filteredReports) => {
             document.body.removeChild(link);
         }, 100);
     } catch (error) {
-        console.error('Error exporting CSV:', error);
         addToast('Failed to export CSV. Please try again.', 'error', 'error');
     }
 };
@@ -625,7 +538,6 @@ const handleCSV = (filteredReports) => {
 //handle JSON
 const handleJSON = (filteredReports) => {
     if (!filteredReports || filteredReports.length === 0) {
-        console.warn("No data to export.");
         return;
     }
 
@@ -648,7 +560,6 @@ const handleJSON = (filteredReports) => {
             document.body.removeChild(link);
         }, 100);
     } catch (error) {
-        console.error('Error exporting JSON:', error);
         addToast('Failed to export JSON. Please try again.', 'error', 'error');
     }
 };
@@ -662,7 +573,23 @@ let searchTimeout = null;
 
 // Create a computed property for testReports
 const results = computed(() => databaseStore.testReports);
-console.log("🚀 ~ onMounted ~ results:", results.value.last_page_url);
+
+watch([search, startDate, endDate], () => {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout);
+  }
+  
+  searchTimeout = setTimeout(() => {
+    databaseStore.Reports({
+      search: search.value,
+      startDate: startDate.value,
+      endDate: endDate.value,
+      page: results.value.current_page || 1,
+    });
+  }, 300);
+});
+
+import Loader1 from '../loading/Loader1.vue';
 
 // Initial data fetch
 onMounted(() => {
@@ -711,7 +638,8 @@ onUnmounted(() => {
   databaseStore.Reports({
       search: '',
       startDate: startDate.value,
-      endDate: endDate.value
+      endDate: endDate.value,
+      page: 1,
     });
 });
 
@@ -719,26 +647,39 @@ onUnmounted(() => {
 // Computed properties
 // const results = computed(() => databaseStore.testReports ?? {});
 const visiblePages = computed(() => {
-    if (!results.value || !results.value.last_page) return;
+    if (!results.value || !results.value.last_page) return [];
     
     const current = results.value.current_page;
     const last = results.value.last_page;
     const delta = 2;
     const range = [];
     
-    for (let i = Math.max(2, current - delta); i <= Math.min(last - 1, current + delta); i++) {
-        range.push(i);
-    }
+    // Always include first page
+    range.push(1);
     
-    if (current - delta > 2) {
-        range.unshift('...');
-    }
-    if (current + delta < last - 1) {
+    // Add pages around current page
+    let start = Math.max(2, current - delta);
+    let end = Math.min(last - 1, current + delta);
+    
+    // Add ellipsis if needed
+    if (start > 2) {
         range.push('...');
     }
     
-    range.unshift(1);
-    if (last !== 1) range.push(last);
+    // Add middle pages
+    for (let i = start; i <= end; i++) {
+        range.push(i);
+    }
+    
+    // Add ellipsis if needed
+    if (end < last - 1) {
+        range.push('...');
+    }
+    
+    // Add last page if not already included
+    if (last > 1) {
+        range.push(last);
+    }
     
     return range;
 });
@@ -1040,7 +981,12 @@ const prevPage = () => {
                     <tbody>
                         <!-- <tr v-for="report in paginatedData" :key="report.id"
                             class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700"> -->
-                            <tr v-for="report in results.data" :key="report.id"
+                            
+                            <div v-if="results.length === 0">
+                                <p>fetching data...</p>
+                                <Loader1 />
+                            </div>
+                            <tr v-else v-for="report in results.data" :key="report.id"
                             class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
                                 
                             
@@ -1127,74 +1073,59 @@ const prevPage = () => {
                 </div>
 
                 <nav class="flex flex-col md:flex-row justify-between items-start sm:items-center gap-4 space-y-3 md:space-y-0 p-4">
-                    <!-- Update the showing text to use the pagination data from the API -->
-                    <span class="text-sm font-normal">
-                        Showing {{ results.from ? results.from : 0 }} to {{ results.to ? results.to : 0 }} of {{ results.total ? results.total : 0 }}
-                    </span>
-                    
-                    <ul class="inline-flex items-stretch -space-x-px">
-                        <!-- Previous Button -->
-                        <li>
-                            <button 
-                                @click="prevPage" 
-                                :disabled="!results?.prev_page_url"
-                                class="px-3 py-1 rounded-l-lg border hover:bg-gray-300 dark:hover:bg-slate-600 disabled:opacity-50"
-                                :class="{ 'cursor-not-allowed': !results?.prev_page_url }"
-                            >
-                                Previous
-                            </button>
-                        </li>
+    <span class="text-sm font-normal">
+        Showing {{ results.from || 0 }} to {{ results.to || 0 }} of {{ results.total || 0 }}
+    </span>
+    
+    <ul v-if="visiblePages.length > 0" class="inline-flex items-stretch -space-x-px">
+        <!-- Previous Button -->
+        <li>
+            <button 
+                @click="prevPage" 
+                :disabled="!results?.prev_page_url"
+                class="px-3 py-1 rounded-l-lg border hover:bg-gray-300 dark:hover:bg-slate-600 disabled:opacity-50"
+                :class="{ 'cursor-not-allowed': !results?.prev_page_url }"
+            >
+                Previous
+            </button>
+        </li>
 
-                        <!-- First Page -->
-                        <li v-if="results.current_page > 2">
-                            <button 
-                                @click="goToPage(1)" 
-                                class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600"
-                            >
-                                1
-                            </button>
-                            <span v-if="results?.current_page > 3" class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</span>
-                        </li>
+        <!-- Page Numbers -->
+        <li v-for="(page, index) in visiblePages" :key="index">
+            <button 
+                v-if="page === '...'"
+                class="px-3 py-1 border bg-gray-100 dark:bg-gray-700"
+                disabled
+            >
+                {{ page }}
+            </button>
+            <button 
+                v-else
+                @click="goToPage(page)"
+                :class="[
+                    'px-3 py-1 border', 
+                    results.current_page === page 
+                        ? 'bg-teal-500 text-white border-teal-800' 
+                        : 'hover:bg-gray-300 dark:hover:bg-slate-600'
+                ]"
+            >
+                {{ page }}
+            </button>
+        </li>
 
-                        <!-- Page Numbers -->
-                        <li v-for="page in visiblePages" :key="page">
-                            <button 
-                                @click="goToPage(page)"
-                                :class="[
-                                    'px-3 py-1 border', 
-                                    results.current_page === page 
-                                        ? 'bg-teal-500 text-white border-teal-800' 
-                                        : 'hover:bg-gray-300 dark:hover:bg-slate-600'
-                                ]"
-                            >
-                                {{ page }}
-                            </button>
-                        </li>
-
-                        <!-- Last Page -->
-                        <li v-if="results?.current_page < results?.last_page - 1">
-                            <span v-if="results?.current_page < results?.last_page - 2" class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</span>
-                            <button 
-                                @click="goToPage(results.last_page)" 
-                                class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600"
-                            >
-                                {{ results.last_page }}
-                            </button>
-                        </li>
-
-                        <!-- Next Button -->
-                        <li>
-                            <button 
-                                @click="nextPage" 
-                                :disabled="!results?.next_page_url"
-                                class="px-3 py-1 rounded-r-lg border hover:bg-gray-300 dark:hover:bg-slate-600 disabled:opacity-50"
-                                :class="{ 'cursor-not-allowed': !results?.next_page_url }"
-                            >
-                                Next
-                            </button>
-                        </li>
-                    </ul>
-                </nav>
+        <!-- Next Button -->
+        <li>
+            <button 
+                @click="nextPage" 
+                :disabled="!results?.next_page_url"
+                class="px-3 py-1 rounded-r-lg border hover:bg-gray-300 dark:hover:bg-slate-600 disabled:opacity-50"
+                :class="{ 'cursor-not-allowed': !results?.next_page_url }"
+            >
+                Next
+            </button>
+        </li>
+    </ul>
+</nav>
             </div>
         </div>
 </template>
