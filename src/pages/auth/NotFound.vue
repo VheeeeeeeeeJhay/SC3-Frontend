@@ -4,6 +4,19 @@ import PrimaryButton from '../../components/PrimaryButton.vue';
 import logo from '../../assets/baguio-logo.png';
 import smart from '../../assets/smart-city1.jpg';
 import breathe from '../../assets/breathe-baguio.png';
+import useUserStore from '../../stores/user.js';
+import { onMounted } from 'vue';
+
+// Initialize the store
+// const userStore = useUserStore()
+// userStore.fetchUser()
+// console.log(userStore.user,'dsad')
+const userStore = useUserStore();
+
+onMounted(async () => {
+  await userStore.fetchUser();
+  console.log('User data:', userStore.user);
+});
 </script>
 
 <template>
@@ -21,7 +34,8 @@ import breathe from '../../assets/breathe-baguio.png';
         </div>
         <h1 class="text-[90px] font-bold tracking-tigh text-red-500">404</h1>
         <p class="text-white text-[45px] font-bold">Ooops, Page not found</p>
-        <RouterLink :to="{ name: 'Overview' }">
+        <!-- <RouterLink :to="{ name: 'Overview' }"> -->
+        <RouterLink v-if="userStore.user" :to="userStore.user ? { name: 'Overview' } : { name: 'Login' }">
           <PrimaryButton class="bg-teal-500 hover:bg-teal-600 hover:shadow-md font-bold text-white" name="Go Back"
             type="submit" />
         </RouterLink>
@@ -30,4 +44,4 @@ import breathe from '../../assets/breathe-baguio.png';
   </div>
 </template>
 
-<style scoped></style>
+<style scoped></style>php artisan migrate:refresh --path=/database/migrations/your_audit_migration_file.php

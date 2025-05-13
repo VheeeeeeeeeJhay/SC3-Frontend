@@ -654,62 +654,8 @@ const handleJSON = (filteredReports) => {
 };
 
 
-
-// const result = ref([]);
-
-// Update your searchAPI function to handle the response
-// const searchAPI = async () => {
-//     try {
-//         const response = await axiosClient.get('/api/911/report-pagination', {
-//             search: search.value
-//         }, {
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 'x-api-key': import.meta.env.VITE_API_KEY
-//             }
-//         });
-//         result.value = response.data;
-//         console.log(result.value);
-//     } catch (error) {
-//         console.error('API Error:', error);
-//         // Add proper error handling here
-//     }
-// };
-
-// const searchTesting = ref('');
-
-// // Use a ref to store the timeout
-// const searchTimeout = ref(null);
-
-// //call here the testReports: [], from databaseStore
-// result.value = databaseStore.testReports;
-
-
-// watch([searchTesting, startDate, endDate], async () => {
-//   if (searchTimeout.value) {
-//     clearTimeout(searchTimeout.value);
-//   }
-  
-//   searchTimeout.value = setTimeout(async () => {
-//     await databaseStore.Reports({
-//       searchTesting: searchTesting.value,
-//       startDate: startDate.value,
-//       endDate: endDate.value
-//     });
-//     result.value = databaseStore.testReports;
-//     console.table(result.value);
-//   }, 300);
-// }, { immediate: true });
-
-// // Add cleanup in onUnmounted
-// onUnmounted(() => {
-//     if (searchTimeout.value) {
-//         clearTimeout(searchTimeout.value);
-//     }
-// });
-
 // In your component's script setup
-const searchTesting = ref('');
+const search = ref('');
 
 // Use a ref to store the timeout
 let searchTimeout = null;
@@ -730,7 +676,7 @@ onMounted(() => {
   // Set up auto-refresh every 50 seconds like your other data
   refreshInterval = setInterval(() => {
     databaseStore.Reports({
-      searchTesting: searchTesting.value,
+      search: search.value,
       startDate: startDate.value,
       endDate: endDate.value,
       page: results.value.current_page || 1,
@@ -740,14 +686,14 @@ onMounted(() => {
 });
 
 // Watch for search parameter changes
-watch([searchTesting, startDate, endDate], () => {
+watch([search, startDate, endDate], () => {
   if (searchTimeout) {
     clearTimeout(searchTimeout);
   }
   
   searchTimeout = setTimeout(() => {
     databaseStore.Reports({
-      searchTesting: searchTesting.value,
+      search: search.value,
       startDate: startDate.value,
       endDate: endDate.value,
       page: results.value.current_page,
@@ -763,7 +709,7 @@ onUnmounted(() => {
     clearInterval(refreshInterval);
   }
   databaseStore.Reports({
-      searchTesting: '',
+      search: '',
       startDate: startDate.value,
       endDate: endDate.value
     });
@@ -802,7 +748,7 @@ const goToPage = (page) => {
     if (page === '...') return;
     databaseStore.Reports({
         page: page,
-        searchTesting: searchTesting.value,
+        search: search.value,
         startDate: startDate.value,
         endDate: endDate.value
     });
@@ -836,7 +782,7 @@ const prevPage = () => {
                                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                     <span class="material-icons text-gray-500 dark:text-gray-300">search</span>
                                 </div>
-                                <input v-model="searchTesting" type="text" id="simple-search"
+                                <input v-model="search" type="text" id="simple-search"
                                     class="border text-sm rounded-lg block w-full pl-10 p-2 bg-white dark:bg-slate-700 dark:text-white dark:border-black placeholder-gray-500 dark:placeholder-gray-300"
                                     placeholder="Search..." />
                             </div>

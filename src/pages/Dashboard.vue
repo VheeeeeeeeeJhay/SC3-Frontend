@@ -13,6 +13,7 @@ import monthYearPicker from "../components/monthYearPicker.vue";
 import StackedBarChart from "../components/charts/StackedBarChart.vue";
 import Heatmap from "../components/charts/Heatmap.vue";
 import domtoimage from 'dom-to-image';
+import useUserStore from '../stores/user.js';
 
 //for filters
 const currentYear = new Date().getFullYear();
@@ -218,6 +219,10 @@ const toggleMinimize = () => {
   console.log(minimized.value);
 };
 
+// Initialize the store
+const userStore = useUserStore()
+userStore.fetchUser()
+console.log(userStore.user)
 </script>
 
 <template>

@@ -5,6 +5,11 @@ import useUserStore from "../../stores/user.js";
 import axiosClient from "../../axios.js";
 import router from "../../router.js";
 
+// Initialize the store
+const userStore = useUserStore();
+const user = computed(() => userStore.user);
+const route = useRoute();
+
 // Ref for dropdown modal
 const dropdownOpen = ref(false);
 const dropdownModalRef = ref(null);
@@ -46,15 +51,19 @@ const toggleTheme = () => {
 };
 
 onMounted(() => {
+  // if (!user.value) {
+  //   userStore.fetchUser();
+  //   axiosClient.post("/logout").then(() => {
+  //     router.push({ name: "Login" });
+  //   });
+  // }
+
   if (localStorage.getItem("theme") === "dark") {
     document.documentElement.classList.add("dark");
     theme.value = "dark";
   }
 });
 
-const userStore = useUserStore();
-const user = computed(() => userStore.user);
-const route = useRoute();
 
 const navigation = [
   // User Only Access
@@ -84,11 +93,11 @@ const filteredNavigation = computed(() => {
   });
 });
 
-// const logout = () => {
-//   axiosClient.post("/logout").then(() => {
-//     router.push({ name: "Login" });
-//   });
-// };
+const logout = () => {
+  axiosClient.post("/logout").then(() => {
+    router.push({ name: "Login" });
+  });
+};
 
 const signoutConfirmationVisible = ref(false);
 const showSignoutConfirmation = () => {
@@ -249,7 +258,7 @@ const closeSidebar = () => {
             <button @click="cancelSignout" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">
               Cancel
             </button>
-            <button @click="(() => router.push({ name: 'Login' }))"
+            <button @click="logout"
               class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
               Sign out
             </button>

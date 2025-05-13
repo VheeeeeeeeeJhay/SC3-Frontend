@@ -6,7 +6,6 @@ import logo from '../../assets/baguio-logo.png';
 import smart from '../../assets/smart-city1.jpg';
 import { useAuthValidation } from "../../composables/useAuthValidation.js";
 
-
 const data = ref({
   email: '',
   password: '',

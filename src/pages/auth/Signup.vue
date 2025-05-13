@@ -7,7 +7,9 @@ import smart from "../../assets/smart-city1.jpg";
 import { useAuthValidation } from "../../composables/useAuthValidation.js";
 
 const data = ref({
-  name: '',
+  firstName: '',
+  middleName: '',
+  lastName: '',
   email: '',
   password: '',
   password_confirmation: '',
@@ -23,7 +25,9 @@ const success = ref({
 })
 
 const errors = ref({
-  name: [],
+  firstName: [],
+  middleName: [],
+  lastName: [],
   email: [],
   password: [],
   password_confirmation: [],

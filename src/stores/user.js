@@ -22,22 +22,7 @@ const useUserStore = defineStore("user", {
         // Optionally, handle the error here (e.g., show an error message in the UI)
         this.user = null; // Clear user data on error
       }
-    },
-
-    // Update the user profile data
-    // async updateUser(updatedData) {
-    //   try {
-    //     const { data } = await axiosClient.put(`/api/911/user/${this.user.id}`, updatedData, {
-    //       headers: {
-    //         "x-api-key": import.meta.env.VITE_API_KEY
-    //       }
-    //     });
-    //     this.user = data.data;
-    //   } catch (error) {
-    //     console.error("Error updating user:", error);
-    //     throw error;
-    //   }
-    // }    
+    },  
   }
 });
 

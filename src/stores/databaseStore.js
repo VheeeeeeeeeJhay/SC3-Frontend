@@ -7,7 +7,6 @@ export const useDatabaseStore = defineStore('database', {
     SC3_API_KEY: import.meta.env.VITE_API_KEY,
     
 
-
     users: [],
     barangays: [],
     reports: [],
@@ -19,16 +18,20 @@ export const useDatabaseStore = defineStore('database', {
     recents: [],
     logs: [],
     contacts: [],
+
+
     testReports: [],
     audits: [],
+    emergencyContacts: [],
   }),
   actions: {
     async Reports(searchParams = {}) {
       const params = {
-        searchTesting: searchParams.searchTesting || '',
+        search: searchParams.search || '',
         startDate: searchParams.startDate || '',
         endDate: searchParams.endDate || '',
         page: searchParams.page || 1,
+        per_page: searchParams.per_page || 10,
       };
       
       try {
@@ -45,22 +48,7 @@ export const useDatabaseStore = defineStore('database', {
         startDate: searchParams.startDate || '',
         endDate: searchParams.endDate || '',
         page: searchParams.page || 1,
-      };
-
-      try {
-        const res = await axiosClient.get('/api/911/audit-pagination', { headers: { 'x-api-key': this.SC3_API_KEY }, params: params });
-        this.audits = res.data;
-      } catch (error) {
-        console.error('Error fetching sources:', error)
-      }
-    },
-
-    async Contacts(searchParams = {}) {
-      const params = {
-        search: searchParams.search || '',
-        startDate: searchParams.startDate || '',
-        endDate: searchParams.endDate || '',
-        page: searchParams.page || 1,
+        per_page: searchParams.per_page || 10,
       };
 
       try {
@@ -72,6 +60,13 @@ export const useDatabaseStore = defineStore('database', {
     },
 
 
+    async fetchData() {
+      try {
+        console.log('Fetching reports...')
+      } catch (error) {
+        console.error('Error fetching reports:', error)
+      }
+    },
 
     async fetchData() {
       const API_KEY = this.SC3_API_KEY
@@ -87,7 +82,7 @@ export const useDatabaseStore = defineStore('database', {
           resAssistance,
           resUrgencies,
           resRecents,
-          resLogs,
+          resAudit,
           resContacts
         ] = await Promise.all([
           axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }).catch(error => {
@@ -110,7 +105,7 @@ export const useDatabaseStore = defineStore('database', {
             return { data: [] }; 
           }),
 
-          axiosClient.get('/api/911/action_taken', { headers: { 'x-api-key': API_KEY } }).catch(error => {
+          axiosClient.get('/api/911/action-taken', { headers: { 'x-api-key': API_KEY } }).catch(error => {
             console.error('Error fetching actions:', error);
             return { data: [] }; 
           }),
@@ -167,7 +162,7 @@ export const useDatabaseStore = defineStore('database', {
         
         this.recents = resRecents.data.recents || [];
         
-        this.logs = resLogs.data || [];
+        this.logs = resAudit.data || [];
         
         this.contacts = resContacts.data || [];
       } catch (error) {
@@ -175,42 +170,5 @@ export const useDatabaseStore = defineStore('database', {
       }
     },
 
-    async searchReports(searchParams = {}) {
-        const params = {
-            search: searchParams.search || '',
-            start_date: searchParams.start_date || '',
-            end_date: searchParams.end_date || '',
-        };
-        
-        try {
-            const res = await axiosClient.get('/api/911/report', 
-            { 
-                headers: { 'x-api-key': import.meta.env.VITE_API_KEY },
-                params: params
-            });
-            this.reports = res.data;
-            console.log(this.reports);
-        } catch (error) {
-            console.error('Error fetching reports:', error)
-        }
-    },
-
-    async updateBarangays() {
-      try {
-        const res = await axiosClient.get('/api/911/barangay', { headers: { 'x-api-key': import.meta.env.VITE_API_KEY } });
-        this.barangays = res.data;
-      } catch (error) {
-        console.error('Error fetching barangays:', error)
-      }
-    },
-
-    async restoreReports() {
-      try {
-        const res = await axiosClient.get('/api/911/report', { headers: { 'x-api-key': import.meta.env.VITE_API_KEY } });
-        this.reports = res.data;
-      } catch (error) {
-        console.error('Error fetching sources:', error)
-      }
-    }
   },
 })
