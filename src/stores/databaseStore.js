@@ -23,9 +23,6 @@ export const useDatabaseStore = defineStore('database', {
     testReports: [],
     audits: [],
     emergencyContacts: [],
-
-    data1: [],
-    data2: [],
   }),
   actions: {
     async Reports(searchParams = {}) {
@@ -35,6 +32,15 @@ export const useDatabaseStore = defineStore('database', {
         endDate: searchParams.endDate || '',
         page: searchParams.page,
         per_page: searchParams.per_page || 10,
+        sortSource: searchParams.sortSource || '',
+        sortAssistance: searchParams.sortAssistance || '',
+        sortIncident: searchParams.sortIncident || '',
+        sortActions: searchParams.sortActions || '',
+        sortUrgency: searchParams.sortUrgency || '',
+        sortBarangay: searchParams.sortBarangay || '',
+        assistance_ids: searchParams.assistance_ids || [],
+        actions_ids: searchParams.actions_ids || [],
+        urgency_ids: searchParams.urgency_ids || [],
       };
       
       try {
@@ -62,18 +68,41 @@ export const useDatabaseStore = defineStore('database', {
       }
     },
 
+    async Barangays(searchParams = {}) {
+      const params = {
+        search: searchParams.search || '',
+        startDate: searchParams.startDate || '',
+        endDate: searchParams.endDate || '',
+        page: searchParams.page,
+        per_page: searchParams.per_page || 10,
+      };
 
-    async fetcherData() {
-      await Promise.all([this.Reports({page: 1, per_page: 10}), this.Audits({page: 1, per_page: 10})])
-      .then((response) => {
-        this.data1 = response[0].data;
-        this.data2 = response[1].data;
-        console.log(response, this.data1, this.data2)
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error)
-      });
+      try {
+        const res = await axiosClient.get('/api/911/barangay', { headers: { 'x-api-key': this.SC3_API_KEY }, params: params });
+        this.barangays = res.data;
+      } catch (error) {
+        return error.response.data.message || 'Something went wrong';
+      }
     },
+
+    async Users(searchParams = {}) {
+      const params = {
+        search: searchParams.search || '',
+        startDate: searchParams.startDate || '',
+        endDate: searchParams.endDate || '',
+        page: searchParams.page,
+        per_page: searchParams.per_page || 10,
+      };
+
+      try {
+        const res = await axiosClient.get('/api/911/users', { headers: { 'x-api-key': this.SC3_API_KEY }, params: params });
+        this.users = res.data;
+      } catch (error) {
+        return error.response.data.message || 'Something went wrong';
+      }
+    },
+
+    
 
     async fetchData() {
       const API_KEY = this.SC3_API_KEY

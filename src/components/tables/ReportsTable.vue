@@ -29,7 +29,6 @@ const startDate = ref();
 const endDate = ref();
 
 watch(() => [props.startDate, props.endDate], ([newStart, newEnd]) => {
-    // This will trigger a re-computation of filteredReports
     startDate.value = newStart;
     endDate.value = newEnd;
 }, { immediate: true });
@@ -64,139 +63,12 @@ const {
 
 // 
 watch([classifications, urgencies, actions],
-    ([newClassifications, newUrgencies, newActions]) => {
-        selectedClassifications.value = newClassifications.map(c => c.id);
-        selectedUrgencies.value = newUrgencies.map(u => u.id);
-        selectedActions.value = newActions.map(a => a.id);
-    }, { immediate: true });
+([newClassifications, newUrgencies, newActions]) => {
+    selectedClassifications.value = newClassifications.map(c => c.id);
+    selectedUrgencies.value = newUrgencies.map(u => u.id);
+    selectedActions.value = newActions.map(a => a.id);
+}, { immediate: true });
 
-const sortSource = ref('none'); // 'none', 'asc', 'desc'
-const toggleSortSource = () => {
-    sortSource.value = sortSource.value === 'none' ? 'asc' : sortSource.value === 'asc' ? 'desc' : 'none';
-};
-
-const sortAssistance = ref('none'); // 'none', 'asc', 'desc'
-const toggleSortAssistance = () => {
-    sortAssistance.value = sortAssistance.value === 'none' ? 'asc' : sortAssistance.value === 'asc' ? 'desc' : 'none';
-};
-
-const sortIncident = ref('none');
-const toggleSortIncident = () => {
-    sortIncident.value = sortIncident.value === 'none' ? 'asc' : sortIncident.value === 'asc' ? 'desc' : 'none';
-};
-
-const sortActions = ref('none');
-const toggleSortActions = () => {
-    sortActions.value = sortActions.value === 'none' ? 'asc' : sortActions.value === 'asc' ? 'desc' : 'none';
-};
-
-const sortUrgency = ref('none');
-const toggleSortUrgency = () => {
-    sortUrgency.value = sortUrgency.value === 'none' ? 'asc' : sortUrgency.value === 'asc' ? 'desc' : 'none';
-};
-
-const sortBarangay = ref('none');
-const toggleSortBarangay = () => {
-    sortBarangay.value = sortBarangay.value === 'none' ? 'asc' : sortBarangay.value === 'asc' ? 'desc' : 'none';
-};
-
-// Computed property for dynamic search and filtering
-const filteredReports = computed(() => {
-    if (selectedClassifications.value.length === 0) return [];
-    if (selectedUrgencies.value.length === 0) return [];
-    if (selectedActions.value.length === 0) return [];
-
-    // 1. Filter reports
-    let result = reports.value.filter(report => {
-        const matchesSearch = searchQuery.value
-            ? report.source.sources.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            report.assistance.assistance.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            report.incident.type.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            report.actions.actions.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            report.barangay.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            report.urgency.urgency.toLowerCase().includes(searchQuery.value.toLowerCase())
-            : true;
-
-        const matchesClassification = selectedClassifications.value.length === 0 ||
-            selectedClassifications.value.includes(report.assistance_id);
-
-        const matchesUrgency = selectedUrgencies.value.length === 0 ||
-            selectedUrgencies.value.includes(report.urgency_id);
-
-        const matchesAction = selectedActions.value.length === 0 ||
-            selectedActions.value.includes(report.actions_id);
-
-        const reportDate = new Date(report.date_received);
-
-        const matchesDateRange =
-            (!startDate.value || reportDate >= new Date(startDate.value)) &&
-            (!endDate.value || reportDate <= new Date(endDate.value));
-
-        return matchesSearch && matchesClassification && matchesUrgency && matchesAction && matchesDateRange;
-    });
-
-    // 2. Apply search on the filtered result
-    if (searchQuery.value) {
-        const query = searchQuery.value.toLowerCase();
-        result = result.filter(report =>
-            // Adjust these fields as needed for your data
-            report.source.sources.toLowerCase().includes(query) ||
-            report.assistance.assistance.toLowerCase().includes(query) ||
-            report.incident.type.toLowerCase().includes(query) ||
-            report.actions.actions.toLowerCase().includes(query) ||
-            report.barangay.name.toLowerCase().includes(query) ||
-            report.urgency.urgency.toLowerCase().includes(query)
-            // Add more fields if needed
-        );
-    }
-
-    // 3. Sort the filtered array
-    return [...result].sort((a, b) => {
-        // First: sort by source if enabled
-        if (sortSource.value !== 'none') {
-            const cmpSource = sortSource.value === 'asc'
-                ? a.source.sources.localeCompare(b.source.sources)
-                : b.source.sources.localeCompare(a.source.sources);
-            if (cmpSource !== 0) return cmpSource;
-        }
-        // Then: sort by assistance if enabled
-        if (sortAssistance.value !== 'none') {
-            const cmpAssist = sortAssistance.value === 'asc'
-                ? a.assistance.assistance.localeCompare(b.assistance.assistance)
-                : b.assistance.assistance.localeCompare(a.assistance.assistance);
-            if (cmpAssist !== 0) return cmpAssist;
-        }
-
-        if (sortIncident.value !== 'none') {
-            const cmpIncident = sortIncident.value === 'asc'
-                ? a.incident.type.localeCompare(b.incident.type)
-                : b.incident.type.localeCompare(a.incident.type);
-            if (cmpIncident !== 0) return cmpIncident;
-        }
-
-        if (sortActions.value !== 'none') {
-            const cmpAction = sortActions.value === 'asc'
-                ? a.actions.actions.localeCompare(b.actions.actions)
-                : b.actions.actions.localeCompare(a.actions.actions);
-            if (cmpAction !== 0) return cmpAction;
-        }
-
-        if (sortUrgency.value !== 'none') {
-            const cmpUrgency = sortUrgency.value === 'asc'
-                ? a.urgency.urgency.localeCompare(b.urgency.urgency)
-                : b.urgency.urgency.localeCompare(a.urgency.urgency);
-            if (cmpUrgency !== 0) return cmpUrgency;
-        }
-
-        if (sortBarangay.value !== 'none') {
-            const cmpBarangay = sortBarangay.value === 'asc'
-                ? a.barangay.name.localeCompare(b.barangay.name)
-                : b.barangay.name.localeCompare(a.barangay.name);
-            if (cmpBarangay !== 0) return cmpBarangay;
-        }
-        return 0;
-    });
-});
 
 const { openDropdownId, dropdownRefs, toggleDropdown } = useActionDropdown();
 
@@ -565,6 +437,38 @@ const handleJSON = (filteredReports) => {
 };
 
 
+
+
+const sortSource = ref('none'); // 'none', 'asc', 'desc'
+const toggleSortSource = () => {
+    sortSource.value = sortSource.value === 'none' ? 'asc' : sortSource.value === 'asc' ? 'desc' : 'none';
+};
+
+const sortAssistance = ref('none'); // 'none', 'asc', 'desc'
+const toggleSortAssistance = () => {
+    sortAssistance.value = sortAssistance.value === 'none' ? 'asc' : sortAssistance.value === 'asc' ? 'desc' : 'none';
+};
+
+const sortIncident = ref('none');
+const toggleSortIncident = () => {
+    sortIncident.value = sortIncident.value === 'none' ? 'asc' : sortIncident.value === 'asc' ? 'desc' : 'none';
+};
+
+const sortActions = ref('none');
+const toggleSortActions = () => {
+    sortActions.value = sortActions.value === 'none' ? 'asc' : sortActions.value === 'asc' ? 'desc' : 'none';
+};
+
+const sortUrgency = ref('none');
+const toggleSortUrgency = () => {
+    sortUrgency.value = sortUrgency.value === 'none' ? 'asc' : sortUrgency.value === 'asc' ? 'desc' : 'none';
+};
+
+const sortBarangay = ref('none');
+const toggleSortBarangay = () => {
+    sortBarangay.value = sortBarangay.value === 'none' ? 'asc' : sortBarangay.value === 'asc' ? 'desc' : 'none';
+};
+
 // In your component's script setup
 const search = ref('');
 
@@ -574,17 +478,27 @@ let searchTimeout = null;
 // Create a computed property for testReports
 const results = computed(() => databaseStore.testReports);
 
-watch([search, startDate, endDate], () => {
+watch([search, startDate, endDate, sortSource, sortAssistance, sortIncident, sortActions, sortUrgency, sortBarangay, selectedClassifications, selectedActions, selectedUrgencies], () => {
   if (searchTimeout) {
     clearTimeout(searchTimeout);
   }
   
   searchTimeout = setTimeout(() => {
+    const currentPage = results.value?.current_page || 1;
     databaseStore.Reports({
       search: search.value,
       startDate: startDate.value,
       endDate: endDate.value,
-      page: results.value.current_page || 1,
+      page: currentPage,
+      sortSource: sortSource.value,
+      sortAssistance: sortAssistance.value,
+      sortIncident: sortIncident.value,
+      sortActions: sortActions.value,
+      sortUrgency: sortUrgency.value,
+      sortBarangay: sortBarangay.value,
+      assistance_ids: selectedClassifications.value?.length ? selectedClassifications.value : [0],
+      actions_ids: selectedActions.value?.length ? selectedActions.value : [0],
+      urgency_ids: selectedUrgencies.value?.length ? selectedUrgencies.value : [0],
     });
   }, 300);
 });
@@ -593,11 +507,22 @@ import Loader1 from '../loading/Loader1.vue';
 
 // Initial data fetch
 onMounted(() => {
+    databaseStore.fetchData();
+
   // Initial fetch
   databaseStore.Reports({
     startDate: startDate.value,
     endDate: endDate.value,
     page: results.value.current_page || 1,
+    sortSource: sortSource.value,
+    sortAssistance: sortAssistance.value,
+    sortIncident: sortIncident.value,
+    sortActions: sortActions.value,
+    sortUrgency: sortUrgency.value,
+    sortBarangay: sortBarangay.value,
+    assistance_ids: selectedClassifications.value,
+    actions_ids: selectedActions.value,
+    urgency_ids: selectedUrgencies.value,
   });
 
   // Set up auto-refresh every 50 seconds like your other data
@@ -607,26 +532,20 @@ onMounted(() => {
       startDate: startDate.value,
       endDate: endDate.value,
       page: results.value.current_page || 1,
+      sortSource: sortSource.value,
+      sortAssistance: sortAssistance.value,
+      sortIncident: sortIncident.value,
+      sortActions: sortActions.value,
+      sortUrgency: sortUrgency.value,
+      sortBarangay: sortBarangay.value,
+      assistance_ids: selectedClassifications.value,
+      actions_ids: selectedActions.value,
+      urgency_ids: selectedUrgencies.value,
     });
     
   }, 50000);
 });
 
-// Watch for search parameter changes
-watch([search, startDate, endDate], () => {
-  if (searchTimeout) {
-    clearTimeout(searchTimeout);
-  }
-  
-  searchTimeout = setTimeout(() => {
-    databaseStore.Reports({
-      search: search.value,
-      startDate: startDate.value,
-      endDate: endDate.value,
-      page: results.value.current_page,
-    });
-  }, 300);
-});
 // Add cleanup in onUnmounted
 onUnmounted(() => {
   if (searchTimeout) {
@@ -640,6 +559,15 @@ onUnmounted(() => {
       startDate: startDate.value,
       endDate: endDate.value,
       page: 1,
+      sortSource: '',
+      sortAssistance: '',
+      sortIncident: '',
+      sortActions: '',
+      sortUrgency: '',
+      sortBarangay: '',
+      assistance_ids: selectedClassifications.value,
+      actions_ids: selectedActions.value,
+      urgency_ids: selectedUrgencies.value,
     });
 });
 
@@ -691,7 +619,16 @@ const goToPage = (page) => {
         page: page,
         search: search.value,
         startDate: startDate.value,
-        endDate: endDate.value
+        endDate: endDate.value,
+        sortSource: sortSource.value,
+        sortAssistance: sortAssistance.value,
+        sortIncident: sortIncident.value,
+        sortActions: sortActions.value,
+        sortUrgency: sortUrgency.value,
+        sortBarangay: sortBarangay.value,
+        assistance_ids: selectedClassifications.value,
+        actions_ids: selectedActions.value,
+        urgency_ids: selectedUrgencies.value,
     });
 };
 
@@ -860,7 +797,9 @@ const prevPage = () => {
                 <div class="overflow-x-auto w-full">
                 <table class="w-full text-sm text-left">
                     <thead class="text-xs uppercase bg-teal-300 text-gray-800 dark:bg-slate-950 dark:text-gray-300">
-                        <tr>
+                        <div v-if="results.length === 0" class="">
+                        </div>
+                        <tr v-else>
                             <th scope="col" class="px-4 py-3 text-center text-wrap break-words"></th>
                             <!-- <th scope="col" class="px-4 py-3 text-center">ID</th> -->
                             <th scope="col" class="px-4 py-3 text-center text-wrap break-words">
@@ -982,9 +921,8 @@ const prevPage = () => {
                         <!-- <tr v-for="report in paginatedData" :key="report.id"
                             class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700"> -->
                             
-                            <div v-if="results.length === 0">
-                                <p>fetching data...</p>
-                                <Loader1 />
+                            <div v-if="results.length === 0" class="flex items-center justify-center h-[100px]">
+                                <span class=loader></span>
                             </div>
                             <tr v-else v-for="report in results.data" :key="report.id"
                             class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
@@ -1131,5 +1069,37 @@ const prevPage = () => {
 </template>
 
 <style scoped>
+.loader{
+      display: block;
+      position: relative;
+      height: 12px;
+      width: 80%;
+      border: 1px solid #fff;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .loader::after {
+      content: '';
+      width: 40%;
+      height: 100%;
+      background: #FF3D00;
+      position: absolute;
+      top: 0;
+      left: 0;
+      box-sizing: border-box;
+      animation: animloader 2s linear infinite;
+    }
+    
+    @keyframes animloader {
+      0% {
+        left: 0;
+        transform: translateX(-100%);
+      }
+      100% {
+        left: 100%;
+        transform: translateX(0%);
+      }
+    }
+    
 </style>
 
