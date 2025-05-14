@@ -24,13 +24,16 @@ import ResetPassword from "./pages/auth/ResetPassword.vue";
 import NoAccess from "./pages/auth/NoAccess.vue";
 import NotVerifiedEmail from "./pages/auth/NotVerifiedEmail.vue";
 import VerifiedEmail from "./pages/auth/VerifiedEmail.vue";
+import LandingPage from "./pages/webpage/LandingPage.vue";
+
+
 
 const routes = [
   {
     path: "/",
     component: DefaultLayout,
     children: [
-      {path: '/', name: 'Overview', component: Dashboard, meta: { title: 'Overview' }},
+      { path: '/dashboard', name: 'Overview', component: Dashboard, meta: { title: 'Overview' } },
 
       {path: '/map', name: 'Map', component: Map, meta: { title: 'Map' }},
 
@@ -82,6 +85,13 @@ const routes = [
   //     {path: '/login', name: 'Login', component: Login, meta: { title: 'Login' }},
   //   ],
   // },
+  {
+  path: '/Home',
+  name: 'LandingPage',
+  component: LandingPage,
+  meta: { title: 'Welcome' }
+},
+
   {
     path: '/login',
     name: 'Login',

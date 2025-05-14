@@ -5,6 +5,7 @@ import router from "../../router.js";
 import logo from '../../assets/baguio-logo.png';
 import smart from '../../assets/smart-city1.jpg';
 import { useAuthValidation } from "../../composables/useAuthValidation.js";
+import Navbar from '../../components/navbar/Navbar.vue'
 
 
 const data = ref({
@@ -67,8 +68,12 @@ const submit = () => {
       backgroundRepeat: 'no-repeat'
     }"
   >
+  <Navbar />
+  
     <!-- Full-Width Transparent Wrapper Card -->
-    <div class="w-full px-4 sm:px-8 py-8 bg-black/50 backdrop-blur-md  shadow-inner">
+    <header
+      class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full text-center z-50 bg-black/90 backdrop-blur-md py-6 px-4 shadow-[0_0_20px_rgba(0,255,0,0.6)]"
+    >
       <!-- Centered Inner Content -->
       <div class="flex flex-col sm:flex-row justify-center items-center gap-8 max-w-6xl mx-auto">
         <!-- City Logo and Title -->
@@ -131,6 +136,20 @@ const submit = () => {
           </div>
         </div>
       </div>
+    </header>
+
+        <div id="full-width-carousel" class="relative w-full h-screen overflow-hidden">
+      <div class="relative w-full h-full">
+        <div
+          v-for="(slide, index) in slides"
+          :key="index"
+          class="absolute inset-0 transition-opacity duration-1000 ease-in-out"
+          :class="{ 'opacity-100 z-10': index === currentSlide, 'opacity-0 z-0': index !== currentSlide }"
+        >
+          <img :src="slide" class="w-full h-full object-cover" />
+        </div>
+      </div>
     </div>
+    
   </div>
 </template>
