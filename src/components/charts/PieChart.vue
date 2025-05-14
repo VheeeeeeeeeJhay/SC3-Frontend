@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, onUnmounted, watch } from 'vue';
+import { ref, onMounted, computed, onUnmounted, watch, toRaw } from 'vue';
 import axiosClient from "../../axios.js";
 import ApexCharts from 'apexcharts';
 import { useDatabaseStore } from "../../stores/databaseStore";
@@ -47,6 +47,11 @@ const {
     Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
 );
 
+// Cache previous values for comparison
+let previousReportJson = JSON.stringify(toRaw(report.value));
+let previousIncidentsJson = JSON.stringify(toRaw(incidents.value));
+let previousAssistanceJson = JSON.stringify(toRaw(assistance.value));
+
 // onMounted(() => {
 //   // axiosClient.get('/api/911/dashboard', {
 //   //   headers: {
@@ -69,10 +74,26 @@ const {
 
 // Run updateChart whenever reports change
 watch(
-  () => [report.value, incidents.value, assistance.value],
+  [() => report.value, () => incidents.value, () => assistance.value],
   () => {
-    updateChart();
-    // console.log("%cData updated, chart re-rendered.", "color: red; font-weight: bold;");
+    const currentReportJson = JSON.stringify(toRaw(report.value));
+    const currentIncidentsJson = JSON.stringify(toRaw(incidents.value));
+    const currentAssistanceJson = JSON.stringify(toRaw(assistance.value));
+
+    // Check if the data has changed meaningfully
+    if (
+      previousReportJson !== currentReportJson ||
+      previousIncidentsJson !== currentIncidentsJson ||
+      previousAssistanceJson !== currentAssistanceJson
+    ) {
+      // Update the chart if data has changed
+      updateChart();
+
+      // Update previous data snapshots
+      previousReportJson = currentReportJson;
+      previousIncidentsJson = currentIncidentsJson;
+      previousAssistanceJson = currentAssistanceJson;
+    }
   }
 );
 // // Filter The Incident/Case Base On The Assistance Type
@@ -132,7 +153,10 @@ const props = defineProps({
 const pieChart = ref(null);
 let chart = null;
 
+let count = 0;
 const updateChart = () => {
+  count++;
+  console.log("🔄 Chart update count in pie chart:", count);
   let filteredReports = [];
 
   if (props.startDate && props.endDate) {
