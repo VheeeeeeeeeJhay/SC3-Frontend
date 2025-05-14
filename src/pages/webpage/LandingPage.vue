@@ -31,12 +31,15 @@
         </div>
       </div>
     </div>
+    <!-- Footer -->
+     <Footer />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import Navbar from '../../components/navbar/Navbar.vue'
+import Footer from '../../components/footer/Footer.vue'
 
 // ✅ FIXED: correct relative path from /src/pages/landing/ to /src/assets/
 import slide1 from '../../assets/Baguio-Smart-City-1.jpg'

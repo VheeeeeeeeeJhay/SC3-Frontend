@@ -30,7 +30,7 @@ import LandingPage from "./pages/webpage/LandingPage.vue";
 
 const routes = [
   {
-    path: "/",
+    path: "/dashboard",
     component: DefaultLayout,
     children: [
       { path: '/dashboard', name: 'Overview', component: Dashboard, meta: { title: 'Overview' } },
@@ -86,7 +86,7 @@ const routes = [
   //   ],
   // },
   {
-  path: '/Home',
+  path: '/',
   name: 'LandingPage',
   component: LandingPage,
   meta: { title: 'Welcome' }
