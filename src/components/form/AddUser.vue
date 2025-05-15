@@ -33,14 +33,51 @@ const isModalOpen = ref(false);
 
 const isLoading = ref(false);
 
-const submit = () => {
-    console.log('testing');
+const submit = async () => {
+    const formData = new FormData();
+    formData.append('firstName', data.value.firstName)
+    formData.append('middleName', data.value.middleName)
+    formData.append('lastName', data.value.lastName)
+    formData.append('email', data.value.email)
+    formData.append('password', data.value.password)
+    formData.append('password_confirmation', data.value.password_confirmation)
+    formData.append('for_911', data.value.for_911)
+    formData.append('for_inventory', data.value.for_inventory)
+    formData.append('for_traffic', data.value.for_traffic)
+    await axiosClient.post('/api/911/users', formData, {
+        headers: {
+        'x-api-key': import.meta.env.VITE_API_KEY
+        }
+    })
+    .then(response => {
+        console.log('sana gumana');
+    // message.value = response.data.message;
+    addToast(response.data.message, 'success', 'check_circle');
+    // clearForm();
+    databaseStore.fetchData();
+    refreshInterval = setInterval(() => {
+            databaseStore.fetchData(); // runs again every 50s
+        }, 50000);
+    })
+    .catch(error => {
+    errors.value = error.response.data.errors;
+    if (errors.value) {
+        for (const key in errors.value) {
+        const messages = errors.value[key]; // This is an array of messages
+        messages.forEach(message => {
+            addToast(message, 'error', 'error');
+        });
+        }
+    } else if (error.response.data.error) {
+        addToast(error.response.data.error, 'error', 'error');
+    }
+    })
 }
 
 </script>
 
 <template>
-    <form @submit.prevent="submit" class="grid grid-cols-3 gap-4">
+    <form @submit="submit" class="grid grid-cols-3 gap-4">
         <div>
             <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>
             <input type="text" name="firstName" id="firstName" v-model="data.firstName"

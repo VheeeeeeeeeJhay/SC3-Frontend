@@ -6,23 +6,37 @@ export const useDatabaseStore = defineStore('database', {
   state: () => ({
     SC3_API_KEY: import.meta.env.VITE_API_KEY,
     
+    users: [], //refactor
+    barangays: [],//refactor
+    reports: [],//refactor
+    sources: [],//refactor
+    actions: [],//refactor
+    incidents: [],//refactor
+    assistance: [],//refactor
+    urgencies: [],//refactor
+    recents: [],//goods
+    logs: [],//refactor
+    contacts: [],//refactor
 
-    users: [],
-    barangays: [],
-    reports: [],
-    sources: [],
-    actions: [],
-    incidents: [],
-    assistance: [],
-    urgencies: [],
-    recents: [],
-    logs: [],
-    contacts: [],
 
-
-    testReports: [],
-    audits: [],
+    testReports: [], //goods, refactor
+    audits: [], //goods, refactor
     emergencyContacts: [],
+
+
+    usersList: [],
+    incidentsList: [],
+    assistanceList: [],
+    actionsList: [],
+    urgenciesList: [],
+    sourcesList: [],
+    barangaysList: [],
+    reportsList: [],
+    contactsList: [],
+
+
+    //graphs and charts
+    
   }),
   actions: {
     async Reports(searchParams = {}) {
@@ -96,11 +110,70 @@ export const useDatabaseStore = defineStore('database', {
 
       try {
         const res = await axiosClient.get('/api/911/users', { headers: { 'x-api-key': this.SC3_API_KEY }, params: params });
-        this.users = res.data;
+        this.usersList = res.data;
       } catch (error) {
         return error.response.data.message || 'Something went wrong';
       }
     },
+
+    async Incidents() {
+      try {
+        const res = await axiosClient.get('/api/911/incident', { headers: { 'x-api-key': this.SC3_API_KEY } });
+        this.incidentsList = res.data;
+      } catch (error) {
+        return error.response.data.message || 'Something went wrong';
+      }
+    },
+
+    async Assistances() {
+      try {
+        const res = await axiosClient.get('/api/911/assistance', { headers: { 'x-api-key': this.SC3_API_KEY } });
+        this.assistanceList = res.data;
+      } catch (error) {
+        return error.response.data.message || 'Something went wrong';
+      }
+    },
+
+    async Actions() {
+      try {
+        const res = await axiosClient.get('/api/911/action-taken', { headers: { 'x-api-key': this.SC3_API_KEY } });
+        this.actionsList = res.data;
+      } catch (error) {
+        return error.response.data.message || 'Something went wrong';
+      }
+    },
+
+    async Urgencies() {
+      try {
+        const res = await axiosClient.get('/api/911/urgency', { headers: { 'x-api-key': this.SC3_API_KEY } });
+        this.urgenciesList = res.data;
+      } catch (error) {
+        return error.response.data.message || 'Something went wrong';
+      }
+    },
+
+    async Sources() {
+      try {
+        const res = await axiosClient.get('/api/911/source', { headers: { 'x-api-key': this.SC3_API_KEY } });
+        this.sourcesList = res.data;
+      } catch (error) {
+        return error.response.data.message || 'Something went wrong';
+      }
+    },
+
+    async Contacts() {
+      try {
+        const res = await axiosClient.get('/api/911/emergency-contacts', { headers: { 'x-api-key': this.SC3_API_KEY } });
+        this.contactsList = res.data;
+      } catch (error) {
+        return error.response.data.message || 'Something went wrong';
+      }
+    },
+
+
+    ///here lies he charts and graphs fetch data api's
+
+    
 
     
 
