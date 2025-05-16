@@ -318,7 +318,7 @@ const handlePrint = () => {
             </div>
           </div>
 
-          <div class="overflow-x-auto">
+          <div class="overflow-x-auto md:overflow-visible">
             <table class="w-full text-sm text-left">
               <thead class="text-xs uppercase dark:bg-slate-950 dark:text-gray-300 bg-teal-300 text-gray-800">
                 <tr>
