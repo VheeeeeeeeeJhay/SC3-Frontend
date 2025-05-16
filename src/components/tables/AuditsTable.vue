@@ -260,11 +260,11 @@ const prevPage = () => {
                                 @click.stop>
                                 <ul class="text-sm">
                                     <li>
-                                        <!-- <RouterLink @click="passingData(log)"
+                                        <RouterLink @click="passingData(log)"
                                             :to="{ name: 'DetailedAuditReport', params: { id: log.id } }"
                                             class="block px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-slate-600">
                                             View Details {{ log.id }}
-                                        </RouterLink> -->
+                                        </RouterLink>
                                     </li>
                                 </ul>
                             </div>

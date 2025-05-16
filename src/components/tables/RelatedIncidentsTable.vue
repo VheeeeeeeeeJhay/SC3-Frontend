@@ -266,28 +266,27 @@ const filteredReports = computed(() => {
 });
 
 
-const formSubmit = async (report_Id) => {
+const formSubmit = async (id) => {
     // Close modal
     isDeleteModalOpen.value = false;
-
     // errors.value = ''; // 🔹 Reset errors before making a request
-    await axiosClient.delete(`/api/911/report-delete/${report_Id}`, {
+    await axiosClient.put(`/api/911/report-archive/${id}`, null, {
         headers: {
             'x-api-key': import.meta.env.VITE_API_KEY
         }
     })
-        .then(response => {
-            // Remove the deleted barangay from the list without refreshing the page
-            // reports.value = reports.value.filter(b => b.id !== report_Id); // ================================================================ revise
-            addToast(response.data.message, 'success', 'check_circle');
-            databaseStore.fetchData();
-            // refreshInterval = setInterval(() => {
-            //     databaseStore.fetchData(); // runs again every 50s
-            // }, 50000);
-        })
-        .catch(error => {
-            addToast(error.response?.data?.message || error.response?.data?.error, 'error', 'error');
-        });
+    .then(response => {
+        // Remove the deleted barangay from the list without refreshing the page
+        // reports.value = reports.value.filter(b => b.id !== report_Id); // ================================================================ revise
+        addToast(response.data.message, 'success', 'check_circle');
+        databaseStore.fetchData();
+        // refreshInterval = setInterval(() => {
+        //     databaseStore.fetchData(); // runs again every 50s
+        // }, 50000);
+    })
+    .catch(error => {
+        addToast(error.response?.data?.message || error.response?.data?.error, 'error', 'error');
+    });
 };
 
 
@@ -356,19 +355,17 @@ const checkboxDelete = async () => {
 
     try {
         // Send the full reports data
-        const response = await axiosClient.delete('/api/911/report-delete', {
+        const response = await axiosClient.put('/api/911/report-multiple-archive', {
+            selectedReportsData
+        },
+        {
             headers: {
                 'Content-Type': 'application/json',
                 'x-api-key': import.meta.env.VITE_API_KEY
             },
-            data: { data: selectedReportsData }, // Pass the full report objects
         });
-
         addToast(response.data.message, 'success', 'check_circle');
-
-        // Clear selected reports
         selectedReports.value = [];
-
         // Refresh the reports list
         databaseStore.fetchData();
         // refreshInterval = setInterval(() => {

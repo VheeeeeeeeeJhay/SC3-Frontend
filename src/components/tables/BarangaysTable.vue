@@ -126,7 +126,7 @@ const filteredBarangays = computed(() => {
 
 // Pass The ID To Delete
 const formSubmit = (barangay_Id) => {
-  axiosClient.delete(`/api/911/barangay-delete/${barangay_Id}`, {
+  axiosClient.put(`/api/911/barangay-archive/${barangay_Id}`, null, {
     headers: {
       'x-api-key': import.meta.env.VITE_API_KEY
     }

@@ -44,8 +44,8 @@ const routes = [
 
       {path: '/barangay-management', name: 'BarangayManagement', component: BarangayManagement, meta: { title: 'Barangay Management' }},
       {path: '/barangay-fetch/:id', name: 'EditBarangay', component: EditBarangay, meta: { title: 'Edit Barangay' }},
-      {path: '/barangay-update/:id', name: 'UpdateBarangay', component: BarangayManagement, meta: { title: 'Update Barangay' }},
-      {path: '/barangay-delete/:id', name: 'DeleteBarangay', component: BarangayManagement, meta: { title: 'Delete Barangay' }},
+      // {path: '/barangay-update/:id', name: 'UpdateBarangay', component: BarangayManagement, meta: { title: 'Update Barangay' }},
+      // {path: '/barangay-delete/:id', name: 'DeleteBarangay', component: BarangayManagement, meta: { title: 'Delete Barangay' }},
       {path: '/barangay-informations/:id', name: 'BarangayInformations', component: BarangayInfo, meta: { title: 'Barangay Information' }},
 
       {path: '/users-management', name: 'UsersManagement', component: UsersManagement, meta: { title: 'User Management' }},

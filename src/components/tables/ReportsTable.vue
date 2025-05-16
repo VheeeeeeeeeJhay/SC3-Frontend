@@ -216,12 +216,13 @@ const handlePrint = async () => {
 const errors = ref('');
 const success = ref('');
 
-const formSubmit = async (report_Id) => {
+const formSubmit = async (id) => {
     // Close modal
     isDeleteModalOpen.value = false;
+    console.log(id);
 
     // errors.value = ''; // 🔹 Reset errors before making a request
-    await axiosClient.delete(`/api/911/report-delete/${report_Id}`, {
+    await axiosClient.put(`/api/911/report-archive/${id}`, null,{
         headers: {
             'x-api-key': import.meta.env.VITE_API_KEY
         }
@@ -229,7 +230,6 @@ const formSubmit = async (report_Id) => {
     .then(response => {
         // Remove the deleted barangay from the list without refreshing the page
         // reports.value = reports.value.filter(b => b.id !== report_Id); // ================================================================ revise
-        success.value = 'Report deleted successfully';
         addToast(response.data.message, 'success', 'check_circle');
         databaseStore.fetchData();
         // refreshInterval = setInterval(() => {
@@ -260,6 +260,7 @@ const removedSplice = (id) => {
 
             // After removing the last item, close the delete modal
             isDeleteModalOpen.value = false;
+
         }
     } else if (selectedReports.value.length > 1) {
         const index = selectedReports.value.findIndex(report => report.id === id);
@@ -270,6 +271,7 @@ const removedSplice = (id) => {
     }
 };
 
+
 const checkboxDelete = async () => {
     // Close the delete modal
     isDeleteModalOpen.value = false;
@@ -278,17 +280,18 @@ const checkboxDelete = async () => {
     const selectedReportsData = selectedReports.value;
 
     try {
+
         // Send the full reports data
-        const response = await axiosClient.delete('/api/911/report-delete', {
+        const response = await axiosClient.put('/api/911/report-multiple-archive', 
+        {
+            selectedReportsData
+        }, 
+        {
             headers: {
                 'Content-Type': 'application/json',
                 'x-api-key': import.meta.env.VITE_API_KEY
-            },
-            data: { data: selectedReportsData }, // Pass the full report objects
+            }
         });
-
-        // Handle success message
-        success.value = 'Reports deleted successfully!';
 
         // Clear selected reports
         selectedReports.value = [];
