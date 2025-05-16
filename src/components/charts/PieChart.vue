@@ -126,7 +126,17 @@ const options = ref({
   },
   stroke: { colors: ["white"], width: 1 },
   labels: [],
-  dataLabels: { enabled: true },
+  dataLabels: {
+  enabled: true,
+  formatter: function (val, opts) {
+    const count = opts.w.config.series[opts.seriesIndex];
+    const percentage = val.toFixed(1);
+    return `${count} (${percentage}%)`;
+  },
+  style: {
+    colors: ['white'] // Make sure it's visible depending on your background
+  }
+},
   legend: {
     position: "bottom",
     fontSize: "12px",
