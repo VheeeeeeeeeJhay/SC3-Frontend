@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted, watch, computed} from "vue";
+import { ref, onMounted, onUnmounted, watch, computed, toRaw } from "vue";
 import ApexCharts from 'apexcharts';
 import { useDatabaseStore } from '../../stores/databaseStore';
 
@@ -34,6 +34,9 @@ const databaseStore = useDatabaseStore();
 const report = computed(() => databaseStore.reports || []);
 const source = computed(() => databaseStore.sources || []);
 
+// Cache previous snapshots
+let previousReportJson = JSON.stringify(toRaw(report.value));
+let previousSourceJson = JSON.stringify(toRaw(source.value));
 
 const options = ref({
     colors: ["#4A90E2", "#E24A4A", "#4AE24A", "#E2E24A"], // Blue, Red, Green, Yellow
@@ -163,7 +166,6 @@ const props = defineProps({
 const barChart = ref(null);
 let chart = null;
 
-
 const updateChart = () => {
     if (!source.value.length || !report.value.length) {
         console.log("No data to update the chart.");// run 1
@@ -238,12 +240,26 @@ onMounted(() => {
     updateChart();
 });
 
-watch([source, report], ([newSource, newReport]) => {
-    if (newSource.length && newReport.length) {
-        // console.log("🔄 Data updated! Running updateChart()");
+watch(
+  [() => source.value, () => report.value],
+  ([newSource, newReport]) => {
+    const currentSourceJson = JSON.stringify(toRaw(newSource));
+    const currentReportJson = JSON.stringify(toRaw(newReport));
+
+    if (
+      previousSourceJson !== currentSourceJson ||
+      previousReportJson !== currentReportJson
+    ) {
+      if (newSource.length && newReport.length) {
         updateChart();
+      }
+
+      // Update cached versions
+      previousSourceJson = currentSourceJson;
+      previousReportJson = currentReportJson;
     }
-});
+  }
+);
 
 
 watch([() => props.startDate, () => props.endDate], () => {

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, watch, onUnmounted, nextTick } from 'vue'
+import { ref, onMounted, computed, watch, onUnmounted, toRaw, nextTick } from 'vue'
 import ApexCharts from 'apexcharts'
 import { useDatabaseStore } from '../../stores/databaseStore'
 
@@ -44,11 +44,9 @@ const observeThemeChange = () => {
 
 // Store Fetch Data From Backend In An Array
 const report = computed(() => databaseStore.reports);
+// Cache previous report to check if data really changed
+let previousReportJson = JSON.stringify(toRaw(report.value));
 
-// const report = computed(() => {
-//   console.log('Reports:', databaseStore.reportsList)  // Check reportsList
-//   return databaseStore.reportsList
-// })
 
 // Helper: Get months between start and end date
 const getMonthsBetweenDates = () => {
@@ -56,16 +54,29 @@ const getMonthsBetweenDates = () => {
   const startDateObj = new Date(props.startDate)
   const endDateObj = new Date(props.endDate)
 
-  // console.log('Start Date:', startDateObj, 'End Date:', endDateObj)  // Verify date parsing
+  const d = new Date(startDateObj)
 
-  for (let d = startDateObj; d <= endDateObj; d.setMonth(d.getMonth() + 1)) {
-    const monthName = new Date(d).toLocaleString('default', { month: 'short' })
-    months.push(monthName)
+  while (d <= endDateObj) {
+    const startOfMonth = new Date(d.getFullYear(), d.getMonth(), 1)
+    const endOfMonth = new Date(d.getFullYear(), d.getMonth() + 1, 1)
+
+    const clampedStart = new Date(Math.max(startOfMonth, startDateObj))
+    const clampedEnd = new Date(Math.min(endOfMonth, endDateObj))
+
+    const monthLabel = d.toLocaleString('default', { month: 'short' })
+
+    months.push({
+      label: monthLabel,
+      start: clampedStart,
+      end: clampedEnd
+    })
+
+    d.setMonth(d.getMonth() + 1)
   }
 
-  // console.log('Months:', months)  // Verify the month list
   return months
 }
+
 
 // Helper: Group reports by month and urgency level
 const groupReportsByMonth = () => {
@@ -78,46 +89,38 @@ const groupReportsByMonth = () => {
   }
 
   const months = getMonthsBetweenDates()
-  const startDateObj = new Date(props.startDate)
-
-  // Create a map of urgency IDs to their names
   const urgencyMap = new Map(databaseStore.urgencies.map(u => [u.id, u.urgency]))
+  
     months.forEach(month => {
-    const monthReports = report.value.filter(report => {
-      try {
-        const reportDate = new Date(report.date_received)
-        const monthStart = new Date(startDateObj)
-        monthStart.setMonth(startDateObj.getMonth() + months.indexOf(month))
-        const monthEnd = new Date(monthStart)
-        monthEnd.setMonth(monthStart.getMonth() + 1)
-        
-        return reportDate >= monthStart && reportDate < monthEnd
-      } catch (e) {
-        console.error('Error processing report:', report, e)
-        return false
-      }
-    })
 
-    // console.log('Month:', month, 'Reports:', monthReports)
+    const monthReports = report.value.filter(report => {
+      const reportDate = new Date(report.date_received)
+      return reportDate >= start && reportDate < end
+    })
 
     Object.keys(groupedReports).forEach(level => {
       const count = monthReports.filter(r => {
-        const urgencyId = r.urgency_id
-        const urgencyName = urgencyMap.get(urgencyId) || 'Unknown'
+        const urgencyName = urgencyMap.get(r.urgency_id) || 'Unknown'
         return urgencyName === level
       }).length
       groupedReports[level].push(count)
     })
   })
 
-  // console.log('Final Grouped Reports:', groupedReports)
   return groupedReports
 }
 
+
+let count = 0;
+
 const updateChart = () => {
+  count++
+  console.log('Update Chart in StackedBarChart.vue:', count)
   try {
     const months = getMonthsBetweenDates()
     const groupedReports = groupReportsByMonth()
+    // Use month labels from months object
+const categories = months.map(m => m.label)
     const colors = [
       '#EF4444', // text-red-500 for Life-Saving
       '#F97316', // text-orange-500 for Critical
@@ -190,7 +193,7 @@ const updateChart = () => {
       },
       colors: colors.reverse(), // Reverse colors array to match series order
       xaxis: {
-        categories: months,
+        categories,
         title: {
           text: 'Month',
           style: {
@@ -293,11 +296,16 @@ onUnmounted(() => {
 watch(
   [() => props.startDate, () => props.endDate, () => report.value],
   () => {
-    if (chartRef.value) {
+    const currentReportJson = JSON.stringify(toRaw(report.value));
+    
+    // Only update chart if report data changed meaningfully
+    if (previousReportJson !== currentReportJson && chartRef.value) {
+      previousReportJson = currentReportJson;
       updateChart();
     }
   }
 );
+
 //TBD
 watch(() => props.fullscreenCard, async (newVal) => {
   if (newVal === 'StackedBarChart') {
@@ -307,6 +315,13 @@ watch(() => props.fullscreenCard, async (newVal) => {
     }
   }
 });
+
+watch(
+  [() => props.startDate, () => props.endDate],
+  () => {
+    updateChart();
+  }
+);
 
 </script>
 

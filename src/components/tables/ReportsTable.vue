@@ -779,7 +779,7 @@ const prevPage = () => {
 
                     </div>
                 </div>
-                <div class="overflow-x-auto w-full">
+                <div class="overflow-x-auto w-full  md:overflow-visible">
                 <table class="w-full text-sm text-left">
                     <thead class="text-xs uppercase bg-teal-300 text-gray-800 dark:bg-slate-950 dark:text-gray-300">
                         <div v-if="results.length === 0" class="">

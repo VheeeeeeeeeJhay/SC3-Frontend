@@ -390,7 +390,7 @@ const handlePrint = () => {
                 </div>
 
                
-                <div class="overflow-x-auto w-full">
+                <div class="overflow-x-auto w-full  md:overflow-visible">
                     <div v-if="isLoading" class="flex justify-center">
                     <Loader1 />
                 </div>
