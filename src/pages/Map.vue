@@ -34,19 +34,19 @@ const heatmapPoints = ref([]); // Store report locations
 let refreshInterval = null;
 const databaseStore = useDatabaseStore();
 
-onMounted(() => {
-    databaseStore.fetchData();
-    refreshInterval = setInterval(() => {
-        databaseStore.fetchData();
-    }, 50000);
-});
+// onMounted(() => {
+//     databaseStore.fetchData();
+//     refreshInterval = setInterval(() => {
+//         databaseStore.fetchData();
+//     }, 50000);
+// });
 
-onUnmounted(() => {
-  // Clear the interval when the component is unmounted or page is reloaded
-  if (refreshInterval) {
-    clearInterval(refreshInterval);
-  }
-});
+// onUnmounted(() => {
+//   // Clear the interval when the component is unmounted or page is reloaded
+//   if (refreshInterval) {
+//     clearInterval(refreshInterval);
+//   }
+// });
 
 const computedProperties = {
     reports: "reports",

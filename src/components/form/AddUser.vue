@@ -77,37 +77,38 @@ const submit = async () => {
 </script>
 
 <template>
+  <div class="max-w-lg mx-auto p-2">
     <form @submit="submit" class="grid grid-cols-3 gap-4">
         <div>
-            <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>
-            <input type="text" name="firstName" id="firstName" v-model="data.firstName"
-                class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <label for="firstName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">First Name</label>
+            <input type="text" name="firstName" id="firstName" v-model="data.firstName" placeholder="First Name"
+                class="w-full px-2 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50 dark:bg-slate-800 dark:border-gray-700 dark:text-white" />
             <p class="text-sm mt-1 text-red-600">
                 {{ errors.firstName ? errors.firstName[0] : '' }}
                 {{ firstNameError }}
             </p>
         </div>
         <div>
-            <label for="middleName" class="block text-sm font-medium text-gray-700">Middle Name</label>
-            <input type="text" v-model="data.middleName" id="middleName"
-                class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <label for="middleName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Middle Name</label>
+            <input type="text" v-model="data.middleName" id="middleName" placeholder="Middle Name"
+                class="w-full px-2 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50 dark:bg-slate-800 dark:border-gray-700 dark:text-white" />
             <p class="text-sm mt-1 text-red-600">
                 {{ errors.middleName ? errors.middleName[0] : '' }}
             </p>
         </div>
         <div>
-            <label for="lastName" class="block text-sm font-medium text-gray-700">Last Name</label>
-            <input type="text" v-model="data.lastName" id="lastName"
-                class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <label for="lastName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Last Name</label>
+            <input type="text" v-model="data.lastName" id="lastName" placeholder="Last Name"
+                class="w-full px-2 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50 dark:bg-slate-800 dark:border-gray-700 dark:text-white" />
             <p class="text-sm mt-1 text-red-600">
                 {{ errors.lastName ? errors.lastName[0] : '' }}
                 {{ lastNameError }}
             </p>
         </div>
         <div class="col-span-3">
-            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-            <input type="email" name="email" id="email" autocomplete="email" v-model="data.email"
-                class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+            <input type="email" name="email" id="email" autocomplete="email" v-model="data.email" placeholder="Enter Email"
+                class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50 dark:bg-slate-800 dark:border-gray-700 dark:text-white" />
             <p class="text-sm mt-1 text-red-600">
                 {{ errors.email ? errors.email[0] : '' }}
                 {{ emailError }}
@@ -115,9 +116,9 @@ const submit = async () => {
         </div>
 
         <div class="col-span-3">
-            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-            <input type="password" name="password" id="password" v-model="data.password"
-                class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+            <input type="password" name="password" id="password" v-model="data.password" placeholder="Enter Password"
+                class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50 dark:bg-slate-800 dark:border-gray-700 dark:text-white" />
             <p class="text-sm mt-1 text-red-600">
                 {{ errors.password ? errors.password[0] : '' }}
                 {{ passwordError }}
@@ -125,9 +126,9 @@ const submit = async () => {
         </div>
 
         <div class="col-span-3">
-            <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Confirm Password</label>
-            <input type="password" name="password" id="passwordConfirmation" v-model="data.password_confirmation"
-                class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <label for="confirmPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Confirm Password</label>
+            <input type="password" name="password" id="passwordConfirmation" v-model="data.password_confirmation" placeholder="Confirm Password"
+                class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50 dark:bg-slate-800 dark:border-gray-700 dark:text-white" />
             <p class="text-sm mt-1 text-red-600">
                 {{ errors.password_confirmation ? errors.password_confirmation[0] : '' }}
                 {{ confirmPasswordError }}
@@ -139,6 +140,8 @@ const submit = async () => {
             {{ isLoading ? 'Creating User...' : 'Create User' }}
         </button>
     </form>
+  </div>
+
 </template>
 
 <style scoped></style>

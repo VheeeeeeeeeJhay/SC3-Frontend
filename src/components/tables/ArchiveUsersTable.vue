@@ -10,18 +10,18 @@ const addToast = inject('addToast');
 
 let refreshInterval = null;
 const databaseStore = useDatabaseStore();
-onMounted(() => {
-    databaseStore.fetchData();
-    refreshInterval = setInterval(() => {
-        databaseStore.fetchData();
-    }, 50000);
-});
-onUnmounted(() => {
-  // Clear the interval when the component is unmounted or page is reloaded
-  if (refreshInterval) {
-    clearInterval(refreshInterval);
-  }
-});
+// onMounted(() => {
+//     databaseStore.fetchData();
+//     refreshInterval = setInterval(() => {
+//         databaseStore.fetchData();
+//     }, 50000);
+// });
+// onUnmounted(() => {
+//   // Clear the interval when the component is unmounted or page is reloaded
+//   if (refreshInterval) {
+//     clearInterval(refreshInterval);
+//   }
+// });
 const computedProperties = {
     usersList: "users",
 };
@@ -225,9 +225,9 @@ const archiveUser = async (user) => {
         user.is_deleted = 0;
         addToast(response.data.message, 'success', 'check_circle');
         databaseStore.fetchData();
-        refreshInterval = setInterval(() => {
-            databaseStore.fetchData(); // runs again every 50s
-        }, 50000);
+        // refreshInterval = setInterval(() => {
+        //     databaseStore.fetchData(); // runs again every 50s
+        // }, 50000);
     } catch (error) {
         errors.value = error.response?.data?.error;
         addToast(errors.value, 'error', 'error');

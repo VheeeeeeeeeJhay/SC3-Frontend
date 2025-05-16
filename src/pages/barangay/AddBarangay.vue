@@ -54,7 +54,7 @@ const formSubmit = async () => {
 </script>
 
 <template>
-  <div class="max-w-lg mx-auto bg-sky-50 dark:bg-slate-900 p-2">
+  <div class="max-w-lg mx-auto bg-sky-50 dark:bg-slate-950 p-2">
     <!-- <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Add Barangay</h2> -->
     <form @submit.prevent="formSubmit" class="space-y-4">
 

@@ -17,21 +17,21 @@ const errorMessage = ref('');
 
 const databaseStore = useDatabaseStore();
 
-let refreshInterval = null;
+// let refreshInterval = null;
 
-onMounted(() => {
-    databaseStore.fetchData();
+// onMounted(() => {
+//     databaseStore.fetchData();
 
-    refreshInterval = setInterval(() => {
-        databaseStore.fetchData();
-    }, 50000);
-});
+//     refreshInterval = setInterval(() => {
+//         databaseStore.fetchData();
+//     }, 50000);
+// });
 
-onUnmounted(() => {
-    if (refreshInterval) {
-        clearInterval(refreshInterval);
-    }
-});
+// onUnmounted(() => {
+//     if (refreshInterval) {
+//         clearInterval(refreshInterval);
+//     }
+// });
 
 const computedProperties = {
     report: "reports",
@@ -73,7 +73,7 @@ const options = ref({
     type: "pie",
     redrawOnParentResize: false, 
     parentHeightOffset: 0,
-    animations: { enabled: false }
+    animations: { enabled: true }
   },
   plotOptions: {
     pie: {
@@ -188,7 +188,10 @@ const updateChart = () => {
   }
 
   // Update the chart only if it's initialized
-  if (chart) {
+  if (!chart) {
+    chart = new ApexCharts(pieChart.value, options.value);
+    chart.render();
+  } else if (chart) {
     chart.updateOptions(options.value);
   }
 };
@@ -202,10 +205,11 @@ watch([() => props.startDate, () => props.endDate], () => {
 watch(() => data.value.incidentType, updateChart);
 
 onMounted(() => {
-  if (pieChart.value) {
-    chart = new ApexCharts(pieChart.value, options.value);
-    chart.render();
-  }
+  // if (pieChart.value) {
+  //   chart = new ApexCharts(pieChart.value, options.value);
+  //   chart.render();
+  // }
+  updateChart();
 });
 
 onUnmounted(() => {

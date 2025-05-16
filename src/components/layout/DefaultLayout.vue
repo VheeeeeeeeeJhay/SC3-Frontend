@@ -1,9 +1,26 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, onBeforeUnmount } from "vue";
 import { RouterLink, useRoute } from "vue-router";
 import useUserStore from "../../stores/user.js";
 import axiosClient from "../../axios.js";
 import router from "../../router.js";
+import { useDatabaseStore } from "../../stores/databaseStore";
+
+
+const databaseStore = useDatabaseStore();
+let refreshInterval = null;
+
+onMounted(() => {
+databaseStore.fetchData();
+  
+refreshInterval = setInterval(() => {
+  databaseStore.fetchData();
+}, 50000);
+});
+
+onBeforeUnmount(() => {
+  clearInterval(refreshInterval);
+});
 
 // Initialize the store
 const userStore = useUserStore();

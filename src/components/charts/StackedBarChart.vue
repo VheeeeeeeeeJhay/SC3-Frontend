@@ -1,11 +1,12 @@
 <script setup>
-import { ref, onMounted, computed, watch, onUnmounted } from 'vue'
+import { ref, onMounted, computed, watch, onUnmounted, nextTick } from 'vue'
 import ApexCharts from 'apexcharts'
 import { useDatabaseStore } from '../../stores/databaseStore'
 
 const props = defineProps({
   startDate: String,
-  endDate: String
+  endDate: String,
+  fullscreenCard: String
 })
 
 const databaseStore = useDatabaseStore()
@@ -81,8 +82,7 @@ const groupReportsByMonth = () => {
 
   // Create a map of urgency IDs to their names
   const urgencyMap = new Map(databaseStore.urgencies.map(u => [u.id, u.urgency]))
-
-  months.forEach(month => {
+    months.forEach(month => {
     const monthReports = report.value.filter(report => {
       try {
         const reportDate = new Date(report.date_received)
@@ -158,6 +158,19 @@ const updateChart = () => {
           opacity: 0.5
         },
         foreColor: isDarkMode ? '#F9FAFB' : '#000000', // light text for dark mode
+        animations: {
+        enabled: true,
+        easing: 'easeinout',
+        speed: 800,
+        animateGradually: {
+          enabled: true,
+          delay: 150
+        },
+        dynamicAnimation: {
+          enabled: true,
+          speed: 350
+        }
+      }
       },
       plotOptions: {
         bar: {
@@ -255,14 +268,14 @@ const updateChart = () => {
 }
 
 onMounted(() => {
-  // isLoading.value = true
-  if (!report.value.length) {
-    databaseStore.fetchData(); // only fetch if not already loaded
-  }
+  // // isLoading.value = true
+  // if (!report.value.length) {
+  //   databaseStore.fetchData(); // only fetch if not already loaded
+  // }
 
-  refreshInterval = setInterval(() => {
-    databaseStore.fetchData();
-  }, 50000);
+  // refreshInterval = setInterval(() => {
+  //   databaseStore.fetchData();
+  // }, 50000);
 
   updateChart();
   observeThemeChange(); // Watch for theme changes
@@ -270,7 +283,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  if (refreshInterval) clearInterval(refreshInterval);
+  // if (refreshInterval) clearInterval(refreshInterval);
   if (chart) {
     chart.destroy();
     chart = null;
@@ -285,6 +298,16 @@ watch(
     }
   }
 );
+//TBD
+watch(() => props.fullscreenCard, async (newVal) => {
+  if (newVal === 'StackedBarChart') {
+    await nextTick(); // wait for DOM changes
+    if (chart) {
+      // chart.resize(); // trigger chart to resize to new container
+    }
+  }
+});
+
 </script>
 
 <template>

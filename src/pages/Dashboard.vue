@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import PieChart from "../components/charts/PieChart.vue";
 import LineChart from "../components/charts/LineChart.vue";
 import BarChart from "../components/charts/BarChart.vue";
@@ -14,6 +14,23 @@ import StackedBarChart from "../components/charts/StackedBarChart.vue";
 import Heatmap from "../components/charts/Heatmap.vue";
 import domtoimage from 'dom-to-image';
 import useUserStore from '../stores/user.js';
+import { useDatabaseStore } from '../stores/databaseStore';
+
+// const databaseStore = useDatabaseStore();
+// let refreshInterval = null;
+
+// onMounted(() => {
+// databaseStore.fetchData();
+  
+//   refreshInterval = setInterval(() => {
+//     databaseStore.fetchData();
+//   }, 50000);
+// });
+
+// onBeforeUnmount(() => {
+//   clearInterval(refreshInterval);
+// });
+
 
 //for filters
 const currentYear = new Date().getFullYear();
@@ -318,7 +335,8 @@ const toggleMinimize = () => {
       </div>
 
       <div class="card relative" ref="captureTarget1">
-        <StackedBarChart :startDate="startDate" :endDate="endDate" />
+        <button @click="expandCard('StackedBarChart')" class="expand-btn">⛶</button>
+        <StackedBarChart :startDate="startDate" :endDate="endDate" :fullscreenCard="fullscreenCard" />
       </div>
 
       <div class="card relative" ref="captureTarget2">

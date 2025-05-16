@@ -13,18 +13,18 @@ const props = defineProps({
 const databaseStore = useDatabaseStore();
 let refreshInterval = null;
 
-onMounted(() => {
-  databaseStore.fetchData();
-  refreshInterval = setInterval(() => {
-    databaseStore.fetchData();
-  }, 50000);
-});
-onUnmounted(() => {
-  // Clear the interval when the component is unmounted or page is reloaded
-  if (refreshInterval) {
-    clearInterval(refreshInterval);
-  }
-});
+// onMounted(() => {
+//   databaseStore.fetchData();
+//   refreshInterval = setInterval(() => {
+//     databaseStore.fetchData();
+//   }, 50000);
+// });
+// onUnmounted(() => {
+//   // Clear the interval when the component is unmounted or page is reloaded
+//   if (refreshInterval) {
+//     clearInterval(refreshInterval);
+//   }
+// });
 
 // Reactive reports list
 const reports = computed(() => databaseStore.reports);

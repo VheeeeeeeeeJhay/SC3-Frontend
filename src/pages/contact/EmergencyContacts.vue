@@ -10,15 +10,15 @@ const backend_url = import.meta.env.VITE_BACKEND_URL;
 
 const databaseStore = useDatabaseStore();
 let refreshInterval = null;
-onMounted(() => {
-  databaseStore.fetchData();
-  refreshInterval = setInterval(() => {
-    databaseStore.fetchData();
-  }, 50000);
-});
-onUnmounted(() => {
-  clearInterval(refreshInterval);
-});
+// onMounted(() => {
+//   databaseStore.fetchData();
+//   refreshInterval = setInterval(() => {
+//     databaseStore.fetchData();
+//   }, 50000);
+// });
+// onUnmounted(() => {
+//   clearInterval(refreshInterval);
+// });
 
 const computedProperties = {
     hotlines: "contacts",

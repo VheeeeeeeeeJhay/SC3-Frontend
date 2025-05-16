@@ -78,7 +78,7 @@ const formSubmit = () => {
 <template>
     <!-- Form -->
     <div class="flex justify-center">
-        <div class="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-lg w-96">
+        <div class="p-6 rounded-lg shadow-lg w-96">
             <form @submit.prevent="formSubmit" class="space-y-4">
                 <!-- Barangay Name -->
                 <div class="space-y-1">

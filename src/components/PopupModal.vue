@@ -52,7 +52,7 @@ defineOptions({ inheritAttrs: false });
                     </button>
 
                     <!-- Modal content -->
-                    <div class="p-4 md:p-5 text-center max-w-lg mx-auto bg-sky-50 dark:bg-slate-900 p-6 rounded-lg shadow-md ">
+                    <div class="p-4 md:p-5 text-center max-w-lg mx-auto bg-sky-50 dark:bg-slate-950 p-6 rounded-lg shadow-md ">
                         <span class="mx-auto mb-2 text-gray-400 w-12 h-6 dark:text-gray-200 material-icons" :class="Classes">{{ Icon }}</span>
                         <h2 class="text-2xl font-semibold text-gray-700 dark:text-white mb-4">{{ Title }}</h2>                    
                         <slot name="modalContent"></slot>

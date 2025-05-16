@@ -31,19 +31,19 @@ const databaseStore = useDatabaseStore();
 
 let refreshInterval = null;
 
-onMounted(() => {
-    databaseStore.fetchData();
+// onMounted(() => {
+//     databaseStore.fetchData();
 
-    refreshInterval = setInterval(() => {
-        databaseStore.fetchData();
-    }, 50000);
-});
+//     refreshInterval = setInterval(() => {
+//         databaseStore.fetchData();
+//     }, 50000);
+// });
 
-onUnmounted(() => {
-    if (refreshInterval) {
-        clearInterval(refreshInterval);
-    }
-});
+// onUnmounted(() => {
+//     if (refreshInterval) {
+//         clearInterval(refreshInterval);
+//     }
+// });
 
 const computedProperties = {
     reportArray: "reports",
@@ -281,9 +281,9 @@ const formSubmit = async (report_Id) => {
             // reports.value = reports.value.filter(b => b.id !== report_Id); // ================================================================ revise
             addToast(response.data.message, 'success', 'check_circle');
             databaseStore.fetchData();
-            refreshInterval = setInterval(() => {
-                databaseStore.fetchData(); // runs again every 50s
-            }, 50000);
+            // refreshInterval = setInterval(() => {
+            //     databaseStore.fetchData(); // runs again every 50s
+            // }, 50000);
         })
         .catch(error => {
             addToast(error.response?.data?.message || error.response?.data?.error, 'error', 'error');
@@ -371,9 +371,9 @@ const checkboxDelete = async () => {
 
         // Refresh the reports list
         databaseStore.fetchData();
-        refreshInterval = setInterval(() => {
-            databaseStore.fetchData(); // runs again every 50s
-        }, 50000);  
+        // refreshInterval = setInterval(() => {
+        //     databaseStore.fetchData(); // runs again every 50s
+        // }, 50000);  
     } catch (error) {
         addToast(error.response?.data?.message || error.response?.data?.error, 'error', 'error');
     }

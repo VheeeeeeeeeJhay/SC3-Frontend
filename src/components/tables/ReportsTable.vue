@@ -232,9 +232,9 @@ const formSubmit = async (report_Id) => {
         success.value = 'Report deleted successfully';
         addToast(response.data.message, 'success', 'check_circle');
         databaseStore.fetchData();
-        refreshInterval = setInterval(() => {
-            databaseStore.fetchData(); // runs again every 50s
-        }, 50000);
+        // refreshInterval = setInterval(() => {
+        //     databaseStore.fetchData(); // runs again every 50s
+        // }, 50000);
     })
     .catch(error => {
         addToast(error.response?.data?.message || error.response?.data?.error, 'error', 'error');
@@ -296,9 +296,9 @@ const checkboxDelete = async () => {
 
         // Refresh the reports list
         databaseStore.fetchData();
-        refreshInterval = setInterval(() => {
-            databaseStore.fetchData(); // runs again every 50s
-        }, 50000);
+        // refreshInterval = setInterval(() => {
+        //     databaseStore.fetchData(); // runs again every 50s
+        // }, 50000);
     } catch (error) {
         errors.value = error.response?.data?.message || 'Something went wrong!';
         addToast(error.response?.data.error || error.response?.data.message, 'error', 'error');
@@ -478,7 +478,7 @@ let searchTimeout = null;
 // Create a computed property for testReports
 const results = computed(() => databaseStore.testReports);
 
-watch([search, startDate, endDate, sortSource, sortAssistance, sortIncident, sortActions, sortUrgency, sortBarangay, selectedClassifications, selectedActions, selectedUrgencies], () => {
+watch([search, startDate, endDate, sortSource, sortAssistance, sortIncident, sortActions, sortUrgency, sortBarangay], () => {
   if (searchTimeout) {
     clearTimeout(searchTimeout);
   }
@@ -496,9 +496,6 @@ watch([search, startDate, endDate, sortSource, sortAssistance, sortIncident, sor
       sortActions: sortActions.value,
       sortUrgency: sortUrgency.value,
       sortBarangay: sortBarangay.value,
-      assistance_ids: selectedClassifications.value?.length ? selectedClassifications.value : [0],
-      actions_ids: selectedActions.value?.length ? selectedActions.value : [0],
-      urgency_ids: selectedUrgencies.value?.length ? selectedUrgencies.value : [0],
     });
   }, 300);
 });
@@ -507,7 +504,7 @@ import Loader1 from '../loading/Loader1.vue';
 
 // Initial data fetch
 onMounted(() => {
-    databaseStore.fetchData();
+    // databaseStore.fetchData();
 
   // Initial fetch
   databaseStore.Reports({
@@ -520,9 +517,6 @@ onMounted(() => {
     sortActions: sortActions.value,
     sortUrgency: sortUrgency.value,
     sortBarangay: sortBarangay.value,
-    assistance_ids: selectedClassifications.value,
-    actions_ids: selectedActions.value,
-    urgency_ids: selectedUrgencies.value,
   });
 
   // Set up auto-refresh every 50 seconds like your other data
@@ -538,9 +532,6 @@ onMounted(() => {
       sortActions: sortActions.value,
       sortUrgency: sortUrgency.value,
       sortBarangay: sortBarangay.value,
-      assistance_ids: selectedClassifications.value,
-      actions_ids: selectedActions.value,
-      urgency_ids: selectedUrgencies.value,
     });
     
   }, 50000);
@@ -565,9 +556,6 @@ onUnmounted(() => {
       sortActions: '',
       sortUrgency: '',
       sortBarangay: '',
-      assistance_ids: selectedClassifications.value,
-      actions_ids: selectedActions.value,
-      urgency_ids: selectedUrgencies.value,
     });
 });
 
@@ -626,9 +614,6 @@ const goToPage = (page) => {
         sortActions: sortActions.value,
         sortUrgency: sortUrgency.value,
         sortBarangay: sortBarangay.value,
-        assistance_ids: selectedClassifications.value,
-        actions_ids: selectedActions.value,
-        urgency_ids: selectedUrgencies.value,
     });
 };
 
@@ -808,7 +793,7 @@ const prevPage = () => {
                             </th>
                             <th scope="col" class="px-4 py-3 text-center text-wrap break-words">
                                 <div class="flex flex-col sm:flex-row sm:items-center gap-2 justify-center">
-                                    <div class="flex items-center md:w-auto relative">
+                                    <!-- <div class="flex items-center md:w-auto relative">
                                         <button @click="toggleFilterDropdown"
                                             class="w-full md:w-auto flex items-center justify-center py-2  text-sm font-medium  text-gray-700 dark:text-gray-200 hover:text-teal-500 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
                                             id="filterDropdownButton">
@@ -834,7 +819,7 @@ const prevPage = () => {
                                                 </li>
                                             </ul>
                                         </div>
-                                    </div>
+                                    </div> -->
                                     <button class="" @click="toggleSortAssistance">ASSISTANCE <i
                                             :class="sortAssistance === 'asc' ? 'pi pi-sort-alpha-up' : (sortAssistance === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
                                 </div>
@@ -845,7 +830,7 @@ const prevPage = () => {
                             </th>
                             <th scope="col" class="px-4 py-3 text-center text-wrap break-words">
                                 <div class="flex flex-col sm:flex-row sm:items-center gap-2 justify-center">
-                                    <div class="flex items-center md:w-auto relative">
+                                    <!-- <div class="flex items-center md:w-auto relative">
                                         <button @click="toggleActionsFilterDropdown"
                                             class="w-full md:w-auto flex items-center justify-center py-2  text-sm font-medium  text-gray-700 dark:text-gray-200 hover:text-teal-500 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
                                             id="actionsFilterDropdownButton">
@@ -871,14 +856,14 @@ const prevPage = () => {
                                                 </li>
                                             </ul>
                                         </div>
-                                    </div>
+                                    </div> -->
                                     <button class="" @click="toggleSortActions">ACTIONS <i
                                             :class="sortActions === 'asc' ? 'pi pi-sort-alpha-up' : (sortActions === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
                                 </div>
                             </th>
                             <th scope="col" class="px-4 py-3 text-center text-wrap break-words">
                                 <div class="flex flex-col sm:flex-row sm:items-center gap-2 justify-center">
-                                    <div class="flex items-center md:w-auto relative">
+                                    <!-- <div class="flex items-center md:w-auto relative">
                                         <button @click="toggleUrgencyFilterDropdown"
                                             class="w-full md:w-auto flex items-center justify-center py-2  text-sm font-medium  text-gray-700 dark:text-gray-200 hover:text-teal-500 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
                                             id="urgencyFilterDropdownButton">
@@ -905,7 +890,7 @@ const prevPage = () => {
                                                 </li>
                                             </ul>
                                         </div>
-                                    </div>
+                                    </div> -->
                                     <button class="" @click="toggleSortUrgency">URGENCY <i
                                             :class="sortUrgency === 'asc' ? 'pi pi-sort-alpha-up' : (sortUrgency === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
                                 </div>

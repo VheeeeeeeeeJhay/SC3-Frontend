@@ -19,17 +19,17 @@ const isLoading = ref(false);
 
 let refreshInterval = null;
 const databaseStore = useDatabaseStore()
-onMounted(() => {
-    databaseStore.fetchData();
-    refreshInterval = setInterval(() => {
-        databaseStore.fetchData();
-    }, 50000);
-});
-onUnmounted(() => {
-    if (refreshInterval) {
-        clearInterval(refreshInterval);
-    }
-});
+// onMounted(() => {
+//     databaseStore.fetchData();
+//     refreshInterval = setInterval(() => {
+//         databaseStore.fetchData();
+//     }, 50000);
+// });
+// onUnmounted(() => {
+//     if (refreshInterval) {
+//         clearInterval(refreshInterval);
+//     }
+// });
 const computedProperties = {
     usersList: "users",
 };
@@ -54,10 +54,10 @@ const dashboardRole = async (user) => {
         user.for_911 = user.for_911 === 1 ? 0 : 1;
         addToast(response.data.message, 'success', 'check_circle');
         databaseStore.fetchData();
-        clearInterval(refreshInterval);
-        refreshInterval = setInterval(() => {
-            databaseStore.fetchData(); // runs again every 50s
-        }, 50000);
+        // clearInterval(refreshInterval);
+        // refreshInterval = setInterval(() => {
+        //     databaseStore.fetchData(); // runs again every 50s
+        // }, 50000);
     } catch (error) {
         errors.value = error.response?.data?.error;
         addToast(errors.value, 'error', 'error');
@@ -141,9 +141,9 @@ const archiveUser = async (user) => {
         user.is_deleted = 1;
         addToast(response.data.message, 'success', 'check_circle');
         databaseStore.fetchData();
-        refreshInterval = setInterval(() => {
-            databaseStore.fetchData(); // runs again every 50s
-        }, 50000);
+        // refreshInterval = setInterval(() => {
+        //     databaseStore.fetchData(); // runs again every 50s
+        // }, 50000);
     } catch (error) {
         errors.value = error.response?.data?.error || 'Failed to archive user';
         addToast(errors.value, 'error', 'error');

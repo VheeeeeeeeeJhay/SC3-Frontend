@@ -26,18 +26,18 @@ const filteredReports = computed(() => {
 
 // Handle automatic refresh
 let refreshInterval = null;
-onMounted(() => {
-  databaseStore.fetchData();
-  refreshInterval = setInterval(() => {
-    databaseStore.fetchData();
-  }, 50000);
-});
+// onMounted(() => {
+//   databaseStore.fetchData();
+//   refreshInterval = setInterval(() => {
+//     databaseStore.fetchData();
+//   }, 50000);
+// });
 
-onUnmounted(() => {
-  if (refreshInterval) {
-    clearInterval(refreshInterval);
-  }
-});
+// onUnmounted(() => {
+//   if (refreshInterval) {
+//     clearInterval(refreshInterval);
+//   }
+// });
 </script>
 
 <template>

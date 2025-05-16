@@ -94,21 +94,21 @@ const updateForm = async () => {
 
 
 onMounted(() => {
-    databaseStore.fetchData();
+    // databaseStore.fetchData();
 
     initMap();
 
-    refreshInterval = setInterval(() => {
-        databaseStore.fetchData();
-    }, 50000);
+    // refreshInterval = setInterval(() => {
+    //     databaseStore.fetchData();
+    // }, 50000);
 });
 
-onUnmounted(() => {
-  // Clear the interval when the component is unmounted or page is reloaded
-  if (refreshInterval) {
-    clearInterval(refreshInterval);
-  }
-});
+// onUnmounted(() => {
+//   // Clear the interval when the component is unmounted or page is reloaded
+//   if (refreshInterval) {
+//     clearInterval(refreshInterval);
+//   }
+// });
 
 const computedProperties = {
     sources: "sources",
@@ -269,7 +269,7 @@ const openDatePicker = () => {
 <template>
     <div>
         <div style="min-height: 100vh;" class="">
-            <!-- Go Back Button -->
+            <!-- Title -->
             <div class="mt-6 px-2 flex justify-between">
                 <h1 class="text-2xl font-bold dark:text-white">Edit Report</h1>
                 <button type="button" name="Back" @click.prevent="router.back()"
@@ -285,9 +285,9 @@ const openDatePicker = () => {
             <main class="flex-1 my-2">
                 <form @submit.prevent="updateForm" class="space-y-6 mt-6 mx-auto max-w-6xl">
                     <div
-                        class="p-6 rounded-lg shadow-lg flex bg-sky-50 text-gray-800 dark:bg-slate-800 dark:text-white">
-                        <div class="w-1/2 pr-4">
-                            <h2 class="text-2xl font-bold mb-4 ">Report Information</h2>
+                        class="p-6 rounded-lg shadow-lg shadow-blue-500/40 ring-2 ring-blue-500/90 flex flex-col lg:flex-row ...">
+                        <div class="w-full lg:w-1/2 lg:pr-4 text-black dark:text-white">
+                            <h2 class="text-2xl font-semibold mb-4  ">Report Information</h2>
                             <div class="grid grid-cols-2 grid-rows-1 gap-2">
 
                             <div class="form-group">
@@ -380,7 +380,7 @@ const openDatePicker = () => {
                             </div>
                             
 
-                            <h2 class="text-2xl font-bold mb-4 mt-6">Time Information</h2>
+                            <h2 class="text-2xl font-semibold mb-4 mt-6">Time Information</h2>
                             <div class="grid grid-cols-2 grid-rows-1 gap-2">
                                 <div class="form-group relative">
                                     <label for="receivedDate" class="block text-sm font-medium mb-2">
@@ -426,8 +426,8 @@ const openDatePicker = () => {
                         <div class="w-px bg-gray-300 mx-4"></div>
 
                         <!-- right side -->
-                        <div class="w-1/2 pl-4">
-                            <h2 class="text-2xl font-bold mb-6">Place Information</h2>
+                        <div class="w-1/2 pl-4 text-black dark:text-white">
+                            <h2 class="text-2xl font-semibold mb-4">Place Information</h2>
                             <div class="space-y-4">
                                 <div class="grid grid-cols-2 gap-4">
                                     <div class="form-group">
@@ -484,7 +484,7 @@ const openDatePicker = () => {
                                 </div>
                                 <div class="flex justify-end space-x-4 mt-8">
                                     <PrimaryButton type="submit" name="Update Report"
-                                        class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200" />
+                                        class="w-full px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition duration-200" />
                                 </div>
                             </div>
                         </div>
