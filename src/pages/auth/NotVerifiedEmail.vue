@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, inject } from 'vue';
 import axiosClient from '../../axios.js';
 import logo from '../../assets/baguio-logo.png';
 import smart from '../../assets/smart-city1.jpg';
@@ -10,6 +10,8 @@ const router = useRouter();
 
 const errors = ref({});
 
+const addToast = inject('addToast');
+
 const Verify = () => {
     axiosClient.post("/email/verification-notification", {
         headers: {
@@ -17,11 +19,10 @@ const Verify = () => {
         }
     })
     .then(response => {
-        console.log('Email verification link sent');
+        addToast('Email verification link sent', 'success', 'check_circle');
     })
     .catch(error => {
-        console.log(error.response.data.message);
-        errors.value = error.response.data.errors;
+        addToast(error.response.data.message, 'error', 'error');
     })
 };
 

@@ -6,7 +6,6 @@ import logo from '../../assets/baguio-logo.png';
 import smart from '../../assets/smart-city1.jpg';
 import { useAuthValidation } from "../../composables/useAuthValidation.js";
 
-
 const data = ref({
   email: '',
   password: '',
@@ -38,17 +37,14 @@ const submit = () => {
       }
     })
       .then(response => {
-        console.log('Login successful:', response.data);
         addToast('Login successful!', 'success', 'check_circle');
         router.push({ name: 'Overview' })
       })
       .catch(error => {
-        // console.log(error.response.data.message)
         errors.value = error.response.data.errors;
         for (const key in errors.value) {
           addToast(errors.value[key][0], 'error', 'error');
         }
-        // addToast(error.response.data.message, 'error', 'error');
       })
       .finally(() => {
         submitLoading.value = false

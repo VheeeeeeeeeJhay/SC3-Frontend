@@ -3,22 +3,22 @@ import { ref, onMounted, onUnmounted, watch, computed, toRaw } from "vue";
 import ApexCharts from 'apexcharts';
 import { useDatabaseStore } from '../../stores/databaseStore';
 
-let refreshInterval = null;
+// let refreshInterval = null;
 const databaseStore = useDatabaseStore();
 
-onMounted(() => {
-    databaseStore.fetchData();
-    refreshInterval = setInterval(() => {
-        databaseStore.fetchData();
-    }, 50000);
-});
+// onMounted(() => {
+//     databaseStore.fetchData();
+//     refreshInterval = setInterval(() => {
+//         databaseStore.fetchData();
+//     }, 50000);
+// });
 
-onUnmounted(() => {
-  // Clear the interval when the component is unmounted or page is reloaded
-  if (refreshInterval) {
-    clearInterval(refreshInterval);
-  }
-});
+// onUnmounted(() => {
+//   // Clear the interval when the component is unmounted or page is reloaded
+//   if (refreshInterval) {
+//     clearInterval(refreshInterval);
+//   }
+// });
 
 // const computedProperties = {
 //     report: "reportsList",
@@ -31,8 +31,8 @@ onUnmounted(() => {
 // } = Object.fromEntries(
 //     Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
 // );
-const report = computed(() => databaseStore.reports);
-const source = computed(() => databaseStore.sources);
+const report = computed(() => databaseStore.reports || []);
+const source = computed(() => databaseStore.sources || []);
 
 // Cache previous snapshots
 let previousReportJson = JSON.stringify(toRaw(report.value));
@@ -165,12 +165,10 @@ const props = defineProps({
 
 const barChart = ref(null);
 let chart = null;
-let count = 0;
+
 const updateChart = () => {
-    count++;
-    console.log("Update Chart in BarChart.vue:", count);
     if (!source.value.length || !report.value.length) {
-        console.log("No data to update the chart.");
+        console.log("No data to update the chart.");// run 1
         return;
     }
 
@@ -228,22 +226,18 @@ const updateChart = () => {
     options.value.series = trimmedSeries;
     options.value.xaxis.categories = filteredMonthLabels;
 
-    if (chart) {
-        chart.updateOptions(options.value);
-    } else {
-        // renderChart();
+    if (!chart) {
+        chart = new ApexCharts(barChart.value, options.value);
         chart.render();
-
+    } else if (chart) {
+        chart.updateOptions(options.value);
     }
 };
 
 
 
 onMounted(() => {
-    if (barChart.value) {
-        chart = new ApexCharts(barChart.value, options.value);
-        chart.render();
-    }
+    updateChart();
 });
 
 watch(
@@ -274,7 +268,10 @@ watch([() => props.startDate, () => props.endDate], () => {
 });
 
 onUnmounted(() => {
-    if (chart) chart.destroy();
+    if (chart) {
+    chart.destroy();
+    chart = null;
+  }
 });
 </script>
 

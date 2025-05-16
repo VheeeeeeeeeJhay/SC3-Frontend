@@ -25,6 +25,7 @@ import NoAccess from "./pages/auth/NoAccess.vue";
 import NotVerifiedEmail from "./pages/auth/NotVerifiedEmail.vue";
 import VerifiedEmail from "./pages/auth/VerifiedEmail.vue";
 import EmergencyContacts from "./pages/contact/EmergencyContacts.vue";
+import axiosClient from "./axios";
 
 const routes = [
   {
@@ -55,16 +56,21 @@ const routes = [
       {path: '/profile', name: 'Profile', component: Profile, meta: { title: 'Profile' }},
 
       {path: '/emergency-contacts', name: 'EmergencyContacts', component: EmergencyContacts, meta: { title: 'Emergency Contacts' }},
+      
     ],
     beforeEnter: async (to, from, next) => {
       try {
         const userStore = useUserStore();
         await userStore.fetchUser();
+
+        if (!userStore.user) {
+          axiosClient.post("/logout").then(() => {
+            router.push({ name: "Login" });
+          });
+        }
        
         if (!userStore?.user.for_911) {
-          console.log(userStore.user);
           next('/no-access');
-          console.log(userStore.user);
           return
         } else if(!userStore?.user.email_verified_at) {
           next('/email_not_verified');

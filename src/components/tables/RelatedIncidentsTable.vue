@@ -17,7 +17,6 @@ import { usePagination } from '../../composables/usePagination';
 
 const router = useRouter();
 const id = String(useRoute().params.id);
-console.log(id);
 
 const errors = ref([]);
 const startDate = ref(null);
@@ -32,19 +31,19 @@ const databaseStore = useDatabaseStore();
 
 let refreshInterval = null;
 
-onMounted(() => {
-    databaseStore.fetchData();
+// onMounted(() => {
+//     databaseStore.fetchData();
 
-    refreshInterval = setInterval(() => {
-        databaseStore.fetchData();
-    }, 50000);
-});
+//     refreshInterval = setInterval(() => {
+//         databaseStore.fetchData();
+//     }, 50000);
+// });
 
-onUnmounted(() => {
-    if (refreshInterval) {
-        clearInterval(refreshInterval);
-    }
-});
+// onUnmounted(() => {
+//     if (refreshInterval) {
+//         clearInterval(refreshInterval);
+//     }
+// });
 
 const computedProperties = {
     reportArray: "reports",
@@ -79,7 +78,6 @@ const toggleSortSource = () => {
     } else {
         sortSource.value = 'none';
     }
-    console.log('Sort Source:', sortSource.value);
 };
 
 const sortAssistance = ref('none'); // 'none', 'asc', 'desc'
@@ -91,7 +89,6 @@ const toggleSortAssistance = () => {
     } else {
         sortAssistance.value = 'none';
     }
-    console.log('Sort Assistance:', sortAssistance.value);
 };
 
 const sortIncident = ref('none');
@@ -103,7 +100,6 @@ const toggleSortIncident = () => {
     } else {
         sortIncident.value = 'none';
     }
-    console.log('Sort Incident:', sortIncident.value);
 };
 
 const sortActions = ref('none');
@@ -115,7 +111,6 @@ const toggleSortActions = () => {
     } else {
         sortActions.value = 'none';
     }
-    console.log('Sort Actions:', sortActions.value);
 };
 
 const sortUrgency = ref('none');
@@ -127,12 +122,10 @@ const toggleSortUrgency = () => {
     } else {
         sortUrgency.value = 'none';
     }
-    console.log('Sort Urgency:', sortUrgency.value);
 };
 
 
 const reports = computed(() => (reportArray.value || []).filter(report => String(report.barangay_id) === id));
-
 
 //Passed report data to ViewReport.vue
 const passingData = (report) => {
@@ -141,7 +134,6 @@ const passingData = (report) => {
 }
 
 const { openDropdownId, dropdownRefs, toggleDropdown } = useActionDropdown();
-
 
 // -----------------------
 const isActionsDropdownOpen = ref(false);
@@ -287,12 +279,11 @@ const formSubmit = async (report_Id) => {
         .then(response => {
             // Remove the deleted barangay from the list without refreshing the page
             // reports.value = reports.value.filter(b => b.id !== report_Id); // ================================================================ revise
-            success.value = 'Report deleted successfully';
             addToast(response.data.message, 'success', 'check_circle');
             databaseStore.fetchData();
-            refreshInterval = setInterval(() => {
-                databaseStore.fetchData(); // runs again every 50s
-            }, 50000);
+            // refreshInterval = setInterval(() => {
+            //     databaseStore.fetchData(); // runs again every 50s
+            // }, 50000);
         })
         .catch(error => {
             addToast(error.response?.data?.message || error.response?.data?.error, 'error', 'error');
@@ -327,13 +318,11 @@ const toggleFilters = () => {
 const updateDateRange = ({ start, end }) => {
     startDate.value = start;
     endDate.value = end;
-    console.log("Date Range:", startDate.value, endDate.value);
 };
 
 
 //multiple delete of reports
 const isDeleteModalOpen = ref(false);
-const success = ref('');
 
 // store multiple id's
 const selectedReports = ref([]);
@@ -375,22 +364,18 @@ const checkboxDelete = async () => {
             data: { data: selectedReportsData }, // Pass the full report objects
         });
 
-        // Handle success message
-        console.log(response.data.message); // You can show this success message in the UI
-        success.value = 'Reports deleted successfully!';
+        addToast(response.data.message, 'success', 'check_circle');
 
         // Clear selected reports
         selectedReports.value = [];
 
         // Refresh the reports list
         databaseStore.fetchData();
-        refreshInterval = setInterval(() => {
-            databaseStore.fetchData(); // runs again every 50s
-        }, 50000);  
+        // refreshInterval = setInterval(() => {
+        //     databaseStore.fetchData(); // runs again every 50s
+        // }, 50000);  
     } catch (error) {
-        // Handle error message
-        console.error('Error deleting data:', error);
-        errors.value = error.response?.data?.message || 'Something went wrong!';
+        addToast(error.response?.data?.message || error.response?.data?.error, 'error', 'error');
     }
 };
 
@@ -515,7 +500,6 @@ const handlePrint = async () => {
         printWindow.close();
     };
     } catch (error) {
-        console.error('Error printing:', error);
         addToast('Failed to export PDF', 'error', 'error');
     }
 };
@@ -523,7 +507,7 @@ const handlePrint = async () => {
 // //handle CSV generation
 const handleCSV = (filteredReports) => {
     if (!filteredReports || filteredReports.length === 0) {
-        console.warn("No data to export.");
+        addToast("No data to export.", 'error', 'error');
         return;
     }
 
@@ -590,7 +574,6 @@ const handleCSV = (filteredReports) => {
         document.body.removeChild(link);
     }, 100);
     } catch (error) {
-        console.error('Error exporting CSV:', error);
         addToast('Failed to export CSV. Please try again.', 'error', 'error');
     }
 };
@@ -598,7 +581,7 @@ const handleCSV = (filteredReports) => {
 //handle JSON
 const handleJSON = (filteredReports) => {
     if (!filteredReports || filteredReports.length === 0) {
-        console.warn("No data to export.");
+        addToast("No data to export.", 'error', 'error');
         return;
     }
 
@@ -621,7 +604,6 @@ const handleJSON = (filteredReports) => {
         document.body.removeChild(link);
     }, 100);
     } catch (error) {
-        console.error('Error exporting JSON:', error);
         addToast('Failed to export JSON. Please try again.', 'error', 'error');
     }
 };

@@ -143,8 +143,8 @@ const renderChart = () => {
       height: 350,
       width: '100%',
       toolbar: { show: true },
-      animations: { enabled: false },
-      background: 'transparent', // Makes background blend with glass UI
+      animations: { enabled: true },
+      // background: 'transparent', // Makes background blend with glass UI
       fontFamily: 'Inter, sans-serif'
     },
     xaxis: {
@@ -158,7 +158,8 @@ const renderChart = () => {
         }
       },
       axisBorder: {
-        show: false
+        show: true,
+        color: '#e0e0e0'
       },
       axisTicks: {
         show: false
@@ -209,7 +210,7 @@ const renderChart = () => {
     {
       from: 0,
       to: 0,
-      color: '#f3f4f6', // light gray
+      color: '#e0f2fe', // light gray
       name: 'No Reports'
     },
     {
@@ -278,15 +279,15 @@ const renderChart = () => {
 
 
 onMounted(() => {
-  // Fetch initial data
-  databaseStore.fetchData()
+//   // Fetch initial data
+//   databaseStore.fetchData()
 
-  // Refresh data every 50 seconds
-  refreshInterval = setInterval(() => {
-    databaseStore.fetchData()
-  }, 50000)
+//   // Refresh data every 50 seconds
+//   refreshInterval = setInterval(() => {
+//     databaseStore.fetchData()
+//   }, 50000)
 
-  // Initial chart render
+//   // Initial chart render
   renderChart()
 })
 
@@ -295,12 +296,12 @@ watch([reports, () => props.startDate, () => props.endDate], () => {
   renderChart()
 })
 
-onUnmounted(() => {
-  // Clear the refresh interval when the component is unmounted
-  if (refreshInterval) {
-    clearInterval(refreshInterval)
-  }
-})
+// onUnmounted(() => {
+//   // Clear the refresh interval when the component is unmounted
+//   if (refreshInterval) {
+//     clearInterval(refreshInterval)
+//   }
+// })
 </script>
 
 <template>

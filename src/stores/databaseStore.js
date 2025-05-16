@@ -4,21 +4,181 @@ import axiosClient from '../axios'
 
 export const useDatabaseStore = defineStore('database', {
   state: () => ({
-    users: [],
-    barangays: [],
-    reports: [],
-    sources: [],
-    actions: [],
-    incidents: [],
-    assistance: [],
-    urgencies: [],
-    recents: [],
-    logs: [],
-    contacts: [],
+    SC3_API_KEY: import.meta.env.VITE_API_KEY,
+    
+    users: [], //refactor
+    barangays: [],//refactor
+    reports: [],//refactor
+    sources: [],//refactor
+    actions: [],//refactor
+    incidents: [],//refactor
+    assistance: [],//refactor
+    urgencies: [],//refactor
+    recents: [],//goods
+    logs: [],//refactor
+    contacts: [],//refactor
+
+
+    testReports: [], //goods, refactor
+    audits: [], //goods, refactor
+    emergencyContacts: [],
+
+
+    usersList: [],
+    incidentsList: [],
+    assistanceList: [],
+    actionsList: [],
+    urgenciesList: [],
+    sourcesList: [],
+    barangaysList: [],
+    reportsList: [],
+    contactsList: [],
+
+
+    //graphs and charts
+    
   }),
   actions: {
+    async Reports(searchParams = {}) {
+      const params = {
+        search: searchParams.search || '',
+        startDate: searchParams.startDate || '',
+        endDate: searchParams.endDate || '',
+        page: searchParams.page,
+        per_page: searchParams.per_page || 10,
+        sortSource: searchParams.sortSource || '',
+        sortAssistance: searchParams.sortAssistance || '',
+        sortIncident: searchParams.sortIncident || '',
+        sortActions: searchParams.sortActions || '',
+        sortUrgency: searchParams.sortUrgency || '',
+        sortBarangay: searchParams.sortBarangay || '',
+        assistance_ids: searchParams.assistance_ids || [],
+        actions_ids: searchParams.actions_ids || [],
+        urgency_ids: searchParams.urgency_ids || [],
+      };
+      
+      try {
+        const res = await axiosClient.get('/api/911/report-pagination', { headers: { 'x-api-key': this.SC3_API_KEY }, params: params });
+        this.testReports = res.data;
+      } catch (error) {
+        return error.response.data.message || 'Something went wrong';
+      }
+    },
+
+    async Audits(searchParams = {}) {
+      const params = {
+        search: searchParams.search || '',
+        startDate: searchParams.startDate || '',
+        endDate: searchParams.endDate || '',
+        page: searchParams.page,
+        per_page: searchParams.per_page || 10,
+      };
+
+      try {
+        const res = await axiosClient.get('/api/911/audit-pagination', { headers: { 'x-api-key': this.SC3_API_KEY }, params: params });
+        this.audits = res.data;
+      } catch (error) {
+        return error.response.data.message || 'Something went wrong';
+      }
+    },
+
+    async Barangays(searchParams = {}) {
+      const params = {
+        search: searchParams.search || '',
+        startDate: searchParams.startDate || '',
+        endDate: searchParams.endDate || '',
+        page: searchParams.page,
+        per_page: searchParams.per_page || 10,
+      };
+
+      try {
+        const res = await axiosClient.get('/api/911/barangay', { headers: { 'x-api-key': this.SC3_API_KEY }, params: params });
+        this.barangays = res.data;
+      } catch (error) {
+        return error.response.data.message || 'Something went wrong';
+      }
+    },
+
+    async Users(searchParams = {}) {
+      const params = {
+        search: searchParams.search || '',
+        startDate: searchParams.startDate || '',
+        endDate: searchParams.endDate || '',
+        page: searchParams.page,
+        per_page: searchParams.per_page || 10,
+      };
+
+      try {
+        const res = await axiosClient.get('/api/911/users', { headers: { 'x-api-key': this.SC3_API_KEY }, params: params });
+        this.usersList = res.data;
+      } catch (error) {
+        return error.response.data.message || 'Something went wrong';
+      }
+    },
+
+    async Incidents() {
+      try {
+        const res = await axiosClient.get('/api/911/incident', { headers: { 'x-api-key': this.SC3_API_KEY } });
+        this.incidentsList = res.data;
+      } catch (error) {
+        return error.response.data.message || 'Something went wrong';
+      }
+    },
+
+    async Assistances() {
+      try {
+        const res = await axiosClient.get('/api/911/assistance', { headers: { 'x-api-key': this.SC3_API_KEY } });
+        this.assistanceList = res.data;
+      } catch (error) {
+        return error.response.data.message || 'Something went wrong';
+      }
+    },
+
+    async Actions() {
+      try {
+        const res = await axiosClient.get('/api/911/action-taken', { headers: { 'x-api-key': this.SC3_API_KEY } });
+        this.actionsList = res.data;
+      } catch (error) {
+        return error.response.data.message || 'Something went wrong';
+      }
+    },
+
+    async Urgencies() {
+      try {
+        const res = await axiosClient.get('/api/911/urgency', { headers: { 'x-api-key': this.SC3_API_KEY } });
+        this.urgenciesList = res.data;
+      } catch (error) {
+        return error.response.data.message || 'Something went wrong';
+      }
+    },
+
+    async Sources() {
+      try {
+        const res = await axiosClient.get('/api/911/source', { headers: { 'x-api-key': this.SC3_API_KEY } });
+        this.sourcesList = res.data;
+      } catch (error) {
+        return error.response.data.message || 'Something went wrong';
+      }
+    },
+
+    async Contacts() {
+      try {
+        const res = await axiosClient.get('/api/911/emergency-contacts', { headers: { 'x-api-key': this.SC3_API_KEY } });
+        this.contactsList = res.data;
+      } catch (error) {
+        return error.response.data.message || 'Something went wrong';
+      }
+    },
+
+
+    ///here lies he charts and graphs fetch data api's
+
+    
+
+    
+
     async fetchData() {
-      const API_KEY = import.meta.env.VITE_API_KEY
+      const API_KEY = this.SC3_API_KEY
       try {
         // Execute all requests concurrently
         const [
@@ -31,56 +191,46 @@ export const useDatabaseStore = defineStore('database', {
           resAssistance,
           resUrgencies,
           resRecents,
-          resLogs,
+          resAudit,
           resContacts
         ] = await Promise.all([
           axiosClient.get('/api/911/users', { headers: { 'x-api-key': API_KEY } }).catch(error => {
-            console.error('Error fetching active users:', error);
             return { data: [] }; 
           }),
 
           axiosClient.get('/api/911/barangay', { headers: { 'x-api-key': API_KEY } }).catch(error => {
-            console.error('Error fetching barangays:', error);
             return { data: [] }; 
           }),
 
           axiosClient.get('/api/911/report', { headers: { 'x-api-key': API_KEY } }).catch(error => {
-            console.error('Error fetching report:', error);
             return { data: [] }; 
           }),
 
           axiosClient.get('/api/911/source', { headers: { 'x-api-key': API_KEY } }).catch(error => {
-            console.error('Error fetching sources:', error);
             return { data: [] }; 
           }),
 
-          axiosClient.get('/api/911/action_taken', { headers: { 'x-api-key': API_KEY } }).catch(error => {
-            console.error('Error fetching actions:', error);
+          axiosClient.get('/api/911/action-taken', { headers: { 'x-api-key': API_KEY } }).catch(error => {
             return { data: [] }; 
           }),
 
           axiosClient.get('/api/911/incident', { headers: { 'x-api-key': API_KEY } }).catch(error => {
-            console.error('Error fetching incidents:', error);
             return { data: [] }; 
           }),
 
           axiosClient.get('/api/911/assistance', { headers: { 'x-api-key': API_KEY } }).catch(error => {
-            console.error('Error fetching assistance:', error);
             return { data: [] }; 
           }),
 
           axiosClient.get('/api/911/urgency', { headers: { 'x-api-key': API_KEY } }).catch(error => {
-            console.error('Error fetching urgencies:', error);
             return { data: [] }; 
           }),
 
           axiosClient.get('/api/911/recent', { headers: { 'x-api-key': API_KEY } }).catch(error => {
-            console.error('Error fetching recent data:', error);
             return { data: [] }; 
           }),
 
-          axiosClient.get('/api/911/tracking', { headers: { 'x-api-key': API_KEY } }).catch(error => {
-            console.error('Error fetching recent data:', error);
+          axiosClient.get('/api/911/audit', { headers: { 'x-api-key': API_KEY } }).catch(error => {
             return { data: [] }; 
           }),
 
@@ -88,7 +238,6 @@ export const useDatabaseStore = defineStore('database', {
             headers: { 'x-api-key': API_KEY } 
           })
           .catch(error => {
-            console.error('Error fetching emergency contacts:', error);
             return { data: [] }; 
           })
         ]);
@@ -111,39 +260,12 @@ export const useDatabaseStore = defineStore('database', {
         
         this.recents = resRecents.data.recents || [];
         
-        this.logs = resLogs.data || [];
+        this.logs = resAudit.data || [];
         
         this.contacts = resContacts.data || [];
       } catch (error) {
-        console.error('Error fetching data:', error)
+        return error.response.data.message || 'Something went wrong fetching data';
       }
     },
-
-    async updateReports() {
-      try {
-        const res = await axiosClient.get('/api/911/report', { headers: { 'x-api-key': import.meta.env.VITE_API_KEY } });
-        this.reports = res.data;
-      } catch (error) {
-        console.error('Error fetching reports:', error)
-      }
-    },
-
-    async updateBarangays() {
-      try {
-        const res = await axiosClient.get('/api/911/barangay', { headers: { 'x-api-key': import.meta.env.VITE_API_KEY } });
-        this.barangays = res.data;
-      } catch (error) {
-        console.error('Error fetching barangays:', error)
-      }
-    },
-
-    async restoreReports() {
-      try {
-        const res = await axiosClient.get('/api/911/report', { headers: { 'x-api-key': import.meta.env.VITE_API_KEY } });
-        this.reports = res.data;
-      } catch (error) {
-        console.error('Error fetching sources:', error)
-      }
-    }
   },
 })

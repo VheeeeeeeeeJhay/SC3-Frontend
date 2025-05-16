@@ -7,7 +7,9 @@ import smart from "../../assets/smart-city1.jpg";
 import { useAuthValidation } from "../../composables/useAuthValidation.js";
 
 const data = ref({
-  name: '',
+  firstName: '',
+  middleName: '',
+  lastName: '',
   email: '',
   password: '',
   password_confirmation: '',
@@ -23,7 +25,9 @@ const success = ref({
 })
 
 const errors = ref({
-  name: [],
+  firstName: [],
+  middleName: [],
+  lastName: [],
   email: [],
   password: [],
   password_confirmation: [],
@@ -34,7 +38,6 @@ const submitLoading = ref(false)
 
 const submit = () => {
   submitLoading.value = true
-  console.log(data.value);
   axiosClient.get('/sanctum/csrf-cookie').then(response => {
     axiosClient.post("/register", data.value, {
       headers: {
@@ -43,7 +46,6 @@ const submit = () => {
     })
       .then(response => {
         success.value.message = response.data.message;
-        console.log(response.data)
         addToast(response.data.message, 'success', 'check_circle');
         // if (!data.value.password_confirmation) {
         //   errors.value.password_confirmation = [];
@@ -53,7 +55,6 @@ const submit = () => {
         router.push({ name: 'Login' })
       })
       .catch(error => {
-        console.log(error.response.data)
         errors.value = error.response.data.errors;
         for (const key in errors.value) {
           addToast(errors.value[key][0], 'error', 'error');

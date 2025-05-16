@@ -13,7 +13,6 @@ import { useDatabaseStore } from '../../stores/databaseStore';
 // Get Auth User Information
 const userStore = useUserStore();
 const user = computed(() => userStore.user);
-console.log("USER ID:", user.value.id);
 
 const route = useRoute();
 const router = useRouter();
@@ -76,47 +75,40 @@ const updateForm = async () => {
         urgency_id: data.value.urgency,
         description: data.value.description
     };
-    console.log(data.value.longitude, 'lngitude');
-    console.log(data.value.latitude, 'latitude');
-        axiosClient.put(`/api/911/report/${report_Id}`, payload, {
-            headers: {
-                'x-api-key': import.meta.env.VITE_API_KEY,
-            }
-        })
-        .then(response => {
-            console.log('Report updated successfully:', response.data);
-            // Optionally, refresh the originalData reference
-            originalData.value = { ...data.value };
-            addToast(response.data.message, 'success', 'check_circle');
-            router.push({ name: 'ReportTable' });
-        })
-        .catch (error => {
-            console.error('Error updating report:', error.response?.data.errors);
-            errors.value = error.response?.data.errors || 'Failed to update report. Please try again later.';
-            console.log(error.response.data);
-            addToast(error.response.data.message, 'error', 'error');
-        })
+
+    axiosClient.put(`/api/911/report/${report_Id}`, payload, {
+        headers: {
+            'x-api-key': import.meta.env.VITE_API_KEY,
+        }
+    })
+    .then(response => {
+        originalData.value = { ...data.value };
+        addToast(response.data.message, 'success', 'check_circle');
+        router.push({ name: 'ReportTable' });
+    })
+    .catch (error => {
+        errors.value = error.response?.data.errors || 'Failed to update report. Please try again later.';
+        addToast(error.response.data.message, 'error', 'error');
+    })
 };
 
-// console.log(data.value);
 
 onMounted(() => {
-    databaseStore.fetchData();
+    // databaseStore.fetchData();
 
     initMap();
 
-    refreshInterval = setInterval(() => {
-        databaseStore.fetchData();
-    }, 50000);
-    
+    // refreshInterval = setInterval(() => {
+    //     databaseStore.fetchData();
+    // }, 50000);
 });
 
-onUnmounted(() => {
-  // Clear the interval when the component is unmounted or page is reloaded
-  if (refreshInterval) {
-    clearInterval(refreshInterval);
-  }
-});
+// onUnmounted(() => {
+//   // Clear the interval when the component is unmounted or page is reloaded
+//   if (refreshInterval) {
+//     clearInterval(refreshInterval);
+//   }
+// });
 
 const computedProperties = {
     sources: "sources",
@@ -152,7 +144,6 @@ const { coords } = useGeolocation();
 
 const initMap = () => {
     if (!latitude || !longitude) {
-        console.error("Latitude or Longitude is missing");
         return;
     }
 
@@ -208,9 +199,9 @@ const initMap = () => {
 
 // Watch geolocation changes but don’t override manual marker selection
 watchEffect(() => {
-    if (storage.value.barangay.latitude && storage.value.barangay.longitude) {
-        console.log("Updated Coordinates:", storage.value.barangay.latitude, storage.value.barangay.longitude);
-    }
+    // if (storage.value.barangay.latitude && storage.value.barangay.longitude) {
+    //     console.log("Updated Coordinates:", storage.value.barangay.latitude, storage.value.barangay.longitude);
+    // }
 
     if (coords.value.latitude && coords.value.longitude &&
         isFinite(coords.value.latitude) && isFinite(coords.value.longitude)) {
@@ -278,7 +269,7 @@ const openDatePicker = () => {
 <template>
     <div>
         <div style="min-height: 100vh;" class="">
-            <!-- Go Back Button -->
+            <!-- Title -->
             <div class="mt-6 px-2 flex justify-between">
                 <h1 class="text-2xl font-bold dark:text-white">Edit Report</h1>
                 <button type="button" name="Back" @click.prevent="router.back()"
@@ -294,9 +285,9 @@ const openDatePicker = () => {
             <main class="flex-1 my-2">
                 <form @submit.prevent="updateForm" class="space-y-6 mt-6 mx-auto max-w-6xl">
                     <div
-                        class="p-6 rounded-lg shadow-lg flex bg-sky-50 text-gray-800 dark:bg-slate-800 dark:text-white">
-                        <div class="w-1/2 pr-4">
-                            <h2 class="text-2xl font-bold mb-4 ">Report Information</h2>
+                        class="p-6 rounded-lg shadow-lg shadow-blue-500/40 ring-2 ring-blue-500/90 flex flex-col lg:flex-row ...">
+                        <div class="w-full lg:w-1/2 lg:pr-4 text-black dark:text-white">
+                            <h2 class="text-2xl font-semibold mb-4  ">Report Information</h2>
                             <div class="grid grid-cols-2 grid-rows-1 gap-2">
 
                             <div class="form-group">
@@ -389,7 +380,7 @@ const openDatePicker = () => {
                             </div>
                             
 
-                            <h2 class="text-2xl font-bold mb-4 mt-6">Time Information</h2>
+                            <h2 class="text-2xl font-semibold mb-4 mt-6">Time Information</h2>
                             <div class="grid grid-cols-2 grid-rows-1 gap-2">
                                 <div class="form-group relative">
                                     <label for="receivedDate" class="block text-sm font-medium mb-2">
@@ -435,8 +426,8 @@ const openDatePicker = () => {
                         <div class="w-px bg-gray-300 mx-4"></div>
 
                         <!-- right side -->
-                        <div class="w-1/2 pl-4">
-                            <h2 class="text-2xl font-bold mb-6">Place Information</h2>
+                        <div class="w-1/2 pl-4 text-black dark:text-white">
+                            <h2 class="text-2xl font-semibold mb-4">Place Information</h2>
                             <div class="space-y-4">
                                 <div class="grid grid-cols-2 gap-4">
                                     <div class="form-group">
@@ -493,7 +484,7 @@ const openDatePicker = () => {
                                 </div>
                                 <div class="flex justify-end space-x-4 mt-8">
                                     <PrimaryButton type="submit" name="Update Report"
-                                        class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200" />
+                                        class="w-full px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition duration-200" />
                                 </div>
                             </div>
                         </div>

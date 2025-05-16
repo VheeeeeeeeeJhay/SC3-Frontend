@@ -17,21 +17,21 @@ const errorMessage = ref('');
 
 const databaseStore = useDatabaseStore();
 
-let refreshInterval = null;
+// let refreshInterval = null;
 
-onMounted(() => {
-    databaseStore.fetchData();
+// onMounted(() => {
+//     databaseStore.fetchData();
 
-    refreshInterval = setInterval(() => {
-        databaseStore.fetchData();
-    }, 50000);
-});
+//     refreshInterval = setInterval(() => {
+//         databaseStore.fetchData();
+//     }, 50000);
+// });
 
-onUnmounted(() => {
-    if (refreshInterval) {
-        clearInterval(refreshInterval);
-    }
-});
+// onUnmounted(() => {
+//     if (refreshInterval) {
+//         clearInterval(refreshInterval);
+//     }
+// });
 
 const computedProperties = {
     report: "reports",
@@ -46,6 +46,7 @@ const {
 } = Object.fromEntries(
     Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
 );
+
 
 // Cache previous values for comparison
 let previousReportJson = JSON.stringify(toRaw(report.value));
@@ -72,6 +73,7 @@ let previousAssistanceJson = JSON.stringify(toRaw(assistance.value));
 //   //   });
 // });
 
+
 // Run updateChart whenever reports change
 watch(
   [() => report.value, () => incidents.value, () => assistance.value],
@@ -94,6 +96,7 @@ watch(
       previousIncidentsJson = currentIncidentsJson;
       previousAssistanceJson = currentAssistanceJson;
     }
+
   }
 );
 // // Filter The Incident/Case Base On The Assistance Type
@@ -115,7 +118,7 @@ const options = ref({
     type: "pie",
     redrawOnParentResize: false, 
     parentHeightOffset: 0,
-    animations: { enabled: false }
+    animations: { enabled: true }
   },
   plotOptions: {
     pie: {
@@ -174,7 +177,6 @@ const updateChart = () => {
     const startISO = new Date(props.startDate).toISOString().split("T")[0];
     const endISO = new Date(props.endDate).toISOString().split("T")[0];
 
-    // console.log("📅 Filtering reports from", startISO, "to", endISO);
 
     filteredReports = report.value.filter(reportItem => {
       if (!reportItem.date_received) return false;
@@ -244,7 +246,10 @@ const updateChart = () => {
   }
 
   // Update the chart only if it's initialized
-  if (chart) {
+  if (!chart) {
+    chart = new ApexCharts(pieChart.value, options.value);
+    chart.render();
+  } else if (chart) {
     chart.updateOptions(options.value);
   }
 };
@@ -258,10 +263,11 @@ watch([() => props.startDate, () => props.endDate], () => {
 watch(() => data.value.incidentType, updateChart);
 
 onMounted(() => {
-  if (pieChart.value) {
-    chart = new ApexCharts(pieChart.value, options.value);
-    chart.render();
-  }
+  // if (pieChart.value) {
+  //   chart = new ApexCharts(pieChart.value, options.value);
+  //   chart.render();
+  // }
+  updateChart();
 });
 
 onUnmounted(() => {

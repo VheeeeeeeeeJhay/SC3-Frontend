@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import PieChart from "../components/charts/PieChart.vue";
 import LineChart from "../components/charts/LineChart.vue";
 import BarChart from "../components/charts/BarChart.vue";
@@ -13,6 +13,24 @@ import monthYearPicker from "../components/monthYearPicker.vue";
 import StackedBarChart from "../components/charts/StackedBarChart.vue";
 import Heatmap from "../components/charts/Heatmap.vue";
 import domtoimage from 'dom-to-image';
+import useUserStore from '../stores/user.js';
+import { useDatabaseStore } from '../stores/databaseStore';
+
+// const databaseStore = useDatabaseStore();
+// let refreshInterval = null;
+
+// onMounted(() => {
+// databaseStore.fetchData();
+  
+//   refreshInterval = setInterval(() => {
+//     databaseStore.fetchData();
+//   }, 50000);
+// });
+
+// onBeforeUnmount(() => {
+//   clearInterval(refreshInterval);
+// });
+
 
 //for filters
 const currentYear = new Date().getFullYear();
@@ -26,7 +44,6 @@ const updateDateRange = ({ start, end }) => {
   endDate.value = end;
   localStorage.setItem('dashboardStartDate', start);
   localStorage.setItem('dashboardEndDate', end);
-  console.log("Date Range:", startDate.value, endDate.value);
 };
 
 // Fullscreen card logic
@@ -101,7 +118,7 @@ const exportAsImage = (chartNumber) => {
       exportedImageUrls.value.push(dataUrl);
     })
     .catch((error) => {
-      console.error('Error exporting image:', error);
+      addToast('Error exporting image', 'error', 'error');
     });
 };
 
@@ -215,9 +232,7 @@ const dropdownRef = ref(null)
 const minimized = ref(false);
 const toggleMinimize = () => {
   minimized.value = !minimized.value;
-  console.log(minimized.value);
 };
-
 </script>
 
 <template>
@@ -320,7 +335,8 @@ const toggleMinimize = () => {
       </div>
 
       <div class="card relative" ref="captureTarget1">
-        <StackedBarChart :startDate="startDate" :endDate="endDate" />
+        <button @click="expandCard('StackedBarChart')" class="expand-btn">⛶</button>
+        <StackedBarChart :startDate="startDate" :endDate="endDate" :fullscreenCard="fullscreenCard" />
       </div>
 
       <div class="card relative" ref="captureTarget2">

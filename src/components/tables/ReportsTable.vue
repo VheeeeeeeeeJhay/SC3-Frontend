@@ -11,12 +11,27 @@ import DateRangePicker from "../../components/DateRangePicker.vue";
 import { useActionDropdown } from '../../composables/useActionDropdown';
 import { usePagination } from '../../composables/usePagination';
 
-const searchQuery = ref("");
+const props = defineProps({
+    startDate: {
+        type: [String, Date],
+        default: null
+    },
+    endDate: {
+        type: [String, Date],
+        default: null
+    }
+})
+
 const selectedClassifications = ref([]);
 const selectedUrgencies = ref([]);
 const selectedActions = ref([]);
-const startDate = ref(null);
-const endDate = ref(null);
+const startDate = ref();
+const endDate = ref();
+
+watch(() => [props.startDate, props.endDate], ([newStart, newEnd]) => {
+    startDate.value = newStart;
+    endDate.value = newEnd;
+}, { immediate: true });
 
 const databaseStore = useDatabaseStore();
 
@@ -28,221 +43,32 @@ const passingData = (report) => {
 
 const addToast = inject('addToast');
 
-// onUnmounted(() => {
-//     store.clearData();
-// })
-
 let refreshInterval = null;
-onMounted(() => {
-    databaseStore.fetchData();
 
-    refreshInterval = setInterval(() => {
-        databaseStore.fetchData();
-    }, 50000);
-});
-
-onUnmounted(() => {
-    // Clear the interval when the component is unmounted or page is reloaded
-    if (refreshInterval) {
-        clearInterval(refreshInterval);
-    }
-});
 
 // Computed properties
 const computedProperties = {
-    reports: "reports",
     classifications: "assistance",
     urgencies: "urgencies",
     actions: "actions",
 };
 
 const {
-    reports,
     classifications,
     urgencies,
     actions,
 } = Object.fromEntries(
     Object.entries(computedProperties).map(([key, value]) => [key, computed(() => databaseStore[value])])
 );
-console.log('%c', 'color: red', reports, 'reports');
 
 // 
 watch([classifications, urgencies, actions],
-    ([newClassifications, newUrgencies, newActions]) => {
-        selectedClassifications.value = newClassifications.map(c => c.id);
-        selectedUrgencies.value = newUrgencies.map(u => u.id);
-        selectedActions.value = newActions.map(a => a.id);
-    }, { immediate: true });
+([newClassifications, newUrgencies, newActions]) => {
+    selectedClassifications.value = newClassifications.map(c => c.id);
+    selectedUrgencies.value = newUrgencies.map(u => u.id);
+    selectedActions.value = newActions.map(a => a.id);
+}, { immediate: true });
 
-const sortSource = ref('none'); // 'none', 'asc', 'desc'
-const toggleSortSource = () => {
-    if (sortSource.value === 'none') {
-        sortSource.value = 'asc';
-    } else if (sortSource.value === 'asc') {
-        sortSource.value = 'desc';
-    } else {
-        sortSource.value = 'none';
-    }
-    console.log('Sort Source:', sortSource.value);
-};
-
-const sortAssistance = ref('none'); // 'none', 'asc', 'desc'
-const toggleSortAssistance = () => {
-    if (sortAssistance.value === 'none') {
-        sortAssistance.value = 'asc';
-    } else if (sortAssistance.value === 'asc') {
-        sortAssistance.value = 'desc';
-    } else {
-        sortAssistance.value = 'none';
-    }
-    console.log('Sort Assistance:', sortAssistance.value);
-};
-
-const sortIncident = ref('none');
-const toggleSortIncident = () => {
-    if (sortIncident.value === 'none') {
-        sortIncident.value = 'asc';
-    } else if (sortIncident.value === 'asc') {
-        sortIncident.value = 'desc';
-    } else {
-        sortIncident.value = 'none';
-    }
-    console.log('Sort Incident:', sortIncident.value);
-};
-
-const sortActions = ref('none');
-const toggleSortActions = () => {
-    if (sortActions.value === 'none') {
-        sortActions.value = 'asc';
-    } else if (sortActions.value === 'asc') {
-        sortActions.value = 'desc';
-    } else {
-        sortActions.value = 'none';
-    }
-    console.log('Sort Actions:', sortActions.value);
-};
-
-const sortUrgency = ref('none');
-const toggleSortUrgency = () => {
-    if (sortUrgency.value === 'none') {
-        sortUrgency.value = 'asc';
-    } else if (sortUrgency.value === 'asc') {
-        sortUrgency.value = 'desc';
-    } else {
-        sortUrgency.value = 'none';
-    }
-    console.log('Sort Urgency:', sortUrgency.value);
-};
-
-const sortBarangay = ref('none');
-const toggleSortBarangay = () => {
-    if (sortBarangay.value === 'none') {
-        sortBarangay.value = 'asc';
-    } else if (sortBarangay.value === 'asc') {
-        sortBarangay.value = 'desc';
-    } else {
-        sortBarangay.value = 'none';
-    }
-    console.log('Sort Assistance:', sortAssistance.value);
-};
-
-// Computed property for dynamic search and filtering
-const filteredReports = computed(() => {
-    if (selectedClassifications.value.length === 0) return [];
-    if (selectedUrgencies.value.length === 0) return [];
-    if (selectedActions.value.length === 0) return [];
-
-    // 1. Filter reports
-    let result = reports.value.filter(report => {
-        const matchesSearch = searchQuery.value
-            ? report.source.sources.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            report.assistance.assistance.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            report.incident.type.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            report.actions.actions.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            report.barangay.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            report.urgency.urgency.toLowerCase().includes(searchQuery.value.toLowerCase())
-            : true;
-
-        const matchesClassification = selectedClassifications.value.length === 0 ||
-            selectedClassifications.value.includes(report.assistance_id);
-
-        const matchesUrgency = selectedUrgencies.value.length === 0 ||
-            selectedUrgencies.value.includes(report.urgency_id);
-
-        const matchesAction = selectedActions.value.length === 0 ||
-            selectedActions.value.includes(report.actions_id);
-
-        const reportDate = new Date(report.date_received);
-
-        const matchesDateRange =
-            (!startDate.value || reportDate >= new Date(startDate.value)) &&
-            (!endDate.value || reportDate <= new Date(endDate.value));
-
-        return matchesSearch && matchesClassification && matchesUrgency && matchesAction && matchesDateRange;
-    });
-
-    // 2. Apply search on the filtered result
-    if (searchQuery.value) {
-        const query = searchQuery.value.toLowerCase();
-        result = result.filter(report =>
-            // Adjust these fields as needed for your data
-            report.source.sources.toLowerCase().includes(query) ||
-            report.assistance.assistance.toLowerCase().includes(query) ||
-            report.incident.type.toLowerCase().includes(query) ||
-            report.actions.actions.toLowerCase().includes(query) ||
-            report.barangay.name.toLowerCase().includes(query) ||
-            report.urgency.urgency.toLowerCase().includes(query)
-            // Add more fields if needed
-        );
-    }
-
-    // 3. Sort the filtered array
-    return [...result].sort((a, b) => {
-        // First: sort by source if enabled
-        if (sortSource.value !== 'none') {
-            const cmpSource = sortSource.value === 'asc'
-                ? a.source.sources.localeCompare(b.source.sources)
-                : b.source.sources.localeCompare(a.source.sources);
-            if (cmpSource !== 0) return cmpSource;
-        }
-        // Then: sort by assistance if enabled
-        if (sortAssistance.value !== 'none') {
-            const cmpAssist = sortAssistance.value === 'asc'
-                ? a.assistance.assistance.localeCompare(b.assistance.assistance)
-                : b.assistance.assistance.localeCompare(a.assistance.assistance);
-            if (cmpAssist !== 0) return cmpAssist;
-        }
-
-        if (sortIncident.value !== 'none') {
-            const cmpIncident = sortIncident.value === 'asc'
-                ? a.incident.type.localeCompare(b.incident.type)
-                : b.incident.type.localeCompare(a.incident.type);
-            if (cmpIncident !== 0) return cmpIncident;
-        }
-
-        if (sortActions.value !== 'none') {
-            const cmpAction = sortActions.value === 'asc'
-                ? a.actions.actions.localeCompare(b.actions.actions)
-                : b.actions.actions.localeCompare(a.actions.actions);
-            if (cmpAction !== 0) return cmpAction;
-        }
-
-        if (sortUrgency.value !== 'none') {
-            const cmpUrgency = sortUrgency.value === 'asc'
-                ? a.urgency.urgency.localeCompare(b.urgency.urgency)
-                : b.urgency.urgency.localeCompare(a.urgency.urgency);
-            if (cmpUrgency !== 0) return cmpUrgency;
-        }
-
-        if (sortBarangay.value !== 'none') {
-            const cmpBarangay = sortBarangay.value === 'asc'
-                ? a.barangay.name.localeCompare(b.barangay.name)
-                : b.barangay.name.localeCompare(a.barangay.name);
-            if (cmpBarangay !== 0) return cmpBarangay;
-        }
-        return 0;
-    });
-});
 
 const { openDropdownId, dropdownRefs, toggleDropdown } = useActionDropdown();
 
@@ -283,22 +109,6 @@ const closeDropdowns = (event) => {
 };
 
 document.addEventListener("click", closeDropdowns);
-
-const {
-    currentPage,
-    itemsPerPage,
-    totalPages,
-    paginatedData,   // <-- this replaces paginatedReports
-    visiblePages,    // <-- replaces paginationStart/paginationEnd logic
-    nextPage,
-    prevPage,
-    goToPage,
-    resetPage
-} = usePagination(filteredReports, { itemsPerPage: 10, maxVisiblePages: 3 })
-
-watch(searchQuery, () => resetPage())
-
-
 
 const isModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);
@@ -390,13 +200,10 @@ const handlePrint = async () => {
 
         printWindow.document.close();
 
-
-
         // Wait for the new window to finish rendering before printing
         await new Promise((resolve) => setTimeout(resolve, 500));
 
         printWindow.print();
-        addToast('Exported PDF successfully!', 'success', 'check_circle');
         printWindow.onafterprint = () => {
             printWindow.close();
         };
@@ -419,19 +226,19 @@ const formSubmit = async (report_Id) => {
             'x-api-key': import.meta.env.VITE_API_KEY
         }
     })
-        .then(response => {
-            // Remove the deleted barangay from the list without refreshing the page
-            // reports.value = reports.value.filter(b => b.id !== report_Id); // ================================================================ revise
-            success.value = 'Report deleted successfully';
-            addToast(response.data.message, 'success', 'check_circle');
-            databaseStore.fetchData();
-            refreshInterval = setInterval(() => {
-                databaseStore.fetchData(); // runs again every 50s
-            }, 50000);
-        })
-        .catch(error => {
-            addToast(error.response?.data?.message || error.response?.data?.error, 'error', 'error');
-        });
+    .then(response => {
+        // Remove the deleted barangay from the list without refreshing the page
+        // reports.value = reports.value.filter(b => b.id !== report_Id); // ================================================================ revise
+        success.value = 'Report deleted successfully';
+        addToast(response.data.message, 'success', 'check_circle');
+        databaseStore.fetchData();
+        // refreshInterval = setInterval(() => {
+        //     databaseStore.fetchData(); // runs again every 50s
+        // }, 50000);
+    })
+    .catch(error => {
+        addToast(error.response?.data?.message || error.response?.data?.error, 'error', 'error');
+    });
 };
 
 // show all filter
@@ -481,7 +288,6 @@ const checkboxDelete = async () => {
         });
 
         // Handle success message
-        console.log(response.data.message); // You can show this success message in the UI
         success.value = 'Reports deleted successfully!';
 
         // Clear selected reports
@@ -490,33 +296,19 @@ const checkboxDelete = async () => {
 
         // Refresh the reports list
         databaseStore.fetchData();
-        refreshInterval = setInterval(() => {
-            databaseStore.fetchData(); // runs again every 50s
-        }, 50000);
+        // refreshInterval = setInterval(() => {
+        //     databaseStore.fetchData(); // runs again every 50s
+        // }, 50000);
     } catch (error) {
-        // Handle error message
-        console.error('Error deleting data:', error);
         errors.value = error.response?.data?.message || 'Something went wrong!';
         addToast(error.response?.data.error || error.response?.data.message, 'error', 'error');
     }
 };
 
-const props = defineProps({
-    startDate: {
-        type: [Date, String],
-        default: null
-    },
-    endDate: {
-        type: [Date, String],
-        default: null
-    }
-});
-
-const updateDateRange = ({ start, end }) => {
-    startDate.value = props.startDate;
-    endDate.value = props.endDate;
-    console.log("Date Range:", startDate.value, endDate.value);
-};
+// const updateDateRange = ({ start, end }) => {
+//     startDate.value = props.startDate;
+//     endDate.value = props.endDate;
+// };
 
 //For Export Option
 onMounted(() => {
@@ -544,7 +336,6 @@ const toggleExportDropdown = (exportId) => {
 // //handle CSV generation
 const handleCSV = (filteredReports) => {
     if (!filteredReports || filteredReports.length === 0) {
-        console.warn("No data to export.");
         return;
     }
 
@@ -612,7 +403,6 @@ const handleCSV = (filteredReports) => {
             document.body.removeChild(link);
         }, 100);
     } catch (error) {
-        console.error('Error exporting CSV:', error);
         addToast('Failed to export CSV. Please try again.', 'error', 'error');
     }
 };
@@ -620,7 +410,6 @@ const handleCSV = (filteredReports) => {
 //handle JSON
 const handleJSON = (filteredReports) => {
     if (!filteredReports || filteredReports.length === 0) {
-        console.warn("No data to export.");
         return;
     }
 
@@ -643,10 +432,204 @@ const handleJSON = (filteredReports) => {
             document.body.removeChild(link);
         }, 100);
     } catch (error) {
-        console.error('Error exporting JSON:', error);
         addToast('Failed to export JSON. Please try again.', 'error', 'error');
     }
 };
+
+
+
+
+const sortSource = ref('none'); // 'none', 'asc', 'desc'
+const toggleSortSource = () => {
+    sortSource.value = sortSource.value === 'none' ? 'asc' : sortSource.value === 'asc' ? 'desc' : 'none';
+};
+
+const sortAssistance = ref('none'); // 'none', 'asc', 'desc'
+const toggleSortAssistance = () => {
+    sortAssistance.value = sortAssistance.value === 'none' ? 'asc' : sortAssistance.value === 'asc' ? 'desc' : 'none';
+};
+
+const sortIncident = ref('none');
+const toggleSortIncident = () => {
+    sortIncident.value = sortIncident.value === 'none' ? 'asc' : sortIncident.value === 'asc' ? 'desc' : 'none';
+};
+
+const sortActions = ref('none');
+const toggleSortActions = () => {
+    sortActions.value = sortActions.value === 'none' ? 'asc' : sortActions.value === 'asc' ? 'desc' : 'none';
+};
+
+const sortUrgency = ref('none');
+const toggleSortUrgency = () => {
+    sortUrgency.value = sortUrgency.value === 'none' ? 'asc' : sortUrgency.value === 'asc' ? 'desc' : 'none';
+};
+
+const sortBarangay = ref('none');
+const toggleSortBarangay = () => {
+    sortBarangay.value = sortBarangay.value === 'none' ? 'asc' : sortBarangay.value === 'asc' ? 'desc' : 'none';
+};
+
+// In your component's script setup
+const search = ref('');
+
+// Use a ref to store the timeout
+let searchTimeout = null;
+
+// Create a computed property for testReports
+const results = computed(() => databaseStore.testReports);
+
+watch([search, startDate, endDate, sortSource, sortAssistance, sortIncident, sortActions, sortUrgency, sortBarangay], () => {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout);
+  }
+  
+  searchTimeout = setTimeout(() => {
+    const currentPage = results.value?.current_page || 1;
+    databaseStore.Reports({
+      search: search.value,
+      startDate: startDate.value,
+      endDate: endDate.value,
+      page: currentPage,
+      sortSource: sortSource.value,
+      sortAssistance: sortAssistance.value,
+      sortIncident: sortIncident.value,
+      sortActions: sortActions.value,
+      sortUrgency: sortUrgency.value,
+      sortBarangay: sortBarangay.value,
+    });
+  }, 300);
+});
+
+import Loader1 from '../loading/Loader1.vue';
+
+// Initial data fetch
+onMounted(() => {
+    // databaseStore.fetchData();
+
+  // Initial fetch
+  databaseStore.Reports({
+    startDate: startDate.value,
+    endDate: endDate.value,
+    page: results.value.current_page || 1,
+    sortSource: sortSource.value,
+    sortAssistance: sortAssistance.value,
+    sortIncident: sortIncident.value,
+    sortActions: sortActions.value,
+    sortUrgency: sortUrgency.value,
+    sortBarangay: sortBarangay.value,
+  });
+
+  // Set up auto-refresh every 50 seconds like your other data
+  refreshInterval = setInterval(() => {
+    databaseStore.Reports({
+      search: search.value,
+      startDate: startDate.value,
+      endDate: endDate.value,
+      page: results.value.current_page || 1,
+      sortSource: sortSource.value,
+      sortAssistance: sortAssistance.value,
+      sortIncident: sortIncident.value,
+      sortActions: sortActions.value,
+      sortUrgency: sortUrgency.value,
+      sortBarangay: sortBarangay.value,
+    });
+    
+  }, 50000);
+});
+
+// Add cleanup in onUnmounted
+onUnmounted(() => {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout);
+  }
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+  }
+  databaseStore.Reports({
+      search: '',
+      startDate: startDate.value,
+      endDate: endDate.value,
+      page: 1,
+      sortSource: '',
+      sortAssistance: '',
+      sortIncident: '',
+      sortActions: '',
+      sortUrgency: '',
+      sortBarangay: '',
+    });
+});
+
+
+// Computed properties
+// const results = computed(() => databaseStore.testReports ?? {});
+const visiblePages = computed(() => {
+    if (!results.value || !results.value.last_page) return [];
+    
+    const current = results.value.current_page;
+    const last = results.value.last_page;
+    const delta = 2;
+    const range = [];
+    
+    // Always include first page
+    range.push(1);
+    
+    // Add pages around current page
+    let start = Math.max(2, current - delta);
+    let end = Math.min(last - 1, current + delta);
+    
+    // Add ellipsis if needed
+    if (start > 2) {
+        range.push('...');
+    }
+    
+    // Add middle pages
+    for (let i = start; i <= end; i++) {
+        range.push(i);
+    }
+    
+    // Add ellipsis if needed
+    if (end < last - 1) {
+        range.push('...');
+    }
+    
+    // Add last page if not already included
+    if (last > 1) {
+        range.push(last);
+    }
+    
+    return range;
+});
+
+// Methods
+const goToPage = (page) => {
+    if (page === '...') return;
+    databaseStore.Reports({
+        page: page,
+        search: search.value,
+        startDate: startDate.value,
+        endDate: endDate.value,
+        sortSource: sortSource.value,
+        sortAssistance: sortAssistance.value,
+        sortIncident: sortIncident.value,
+        sortActions: sortActions.value,
+        sortUrgency: sortUrgency.value,
+        sortBarangay: sortBarangay.value,
+    });
+};
+
+const nextPage = () => {
+    if (results.value.next_page_url) {
+        goToPage(results.value.current_page + 1);
+    }
+};
+
+//goods
+const prevPage = () => {
+    if (results.value.prev_page_url) {
+        goToPage(results.value.current_page - 1);
+    }
+};
+
 </script>
 
 <template>
@@ -662,7 +645,7 @@ const handleJSON = (filteredReports) => {
                                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                     <span class="material-icons text-gray-500 dark:text-gray-300">search</span>
                                 </div>
-                                <input v-model="searchQuery" type="text" id="simple-search"
+                                <input v-model="search" type="text" id="simple-search"
                                     class="border text-sm rounded-lg block w-full pl-10 p-2 bg-white dark:bg-slate-700 dark:text-white dark:border-black placeholder-gray-500 dark:placeholder-gray-300"
                                     placeholder="Search..." />
                             </div>
@@ -799,7 +782,9 @@ const handleJSON = (filteredReports) => {
                 <div class="overflow-x-auto w-full  md:overflow-visible">
                 <table class="w-full text-sm text-left">
                     <thead class="text-xs uppercase bg-teal-300 text-gray-800 dark:bg-slate-950 dark:text-gray-300">
-                        <tr>
+                        <div v-if="results.length === 0" class="">
+                        </div>
+                        <tr v-else>
                             <th scope="col" class="px-4 py-3 text-center text-wrap break-words"></th>
                             <!-- <th scope="col" class="px-4 py-3 text-center">ID</th> -->
                             <th scope="col" class="px-4 py-3 text-center text-wrap break-words">
@@ -808,7 +793,7 @@ const handleJSON = (filteredReports) => {
                             </th>
                             <th scope="col" class="px-4 py-3 text-center text-wrap break-words">
                                 <div class="flex flex-col sm:flex-row sm:items-center gap-2 justify-center">
-                                    <div class="flex items-center md:w-auto relative">
+                                    <!-- <div class="flex items-center md:w-auto relative">
                                         <button @click="toggleFilterDropdown"
                                             class="w-full md:w-auto flex items-center justify-center py-2  text-sm font-medium  text-gray-700 dark:text-gray-200 hover:text-teal-500 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
                                             id="filterDropdownButton">
@@ -834,7 +819,7 @@ const handleJSON = (filteredReports) => {
                                                 </li>
                                             </ul>
                                         </div>
-                                    </div>
+                                    </div> -->
                                     <button class="" @click="toggleSortAssistance">ASSISTANCE <i
                                             :class="sortAssistance === 'asc' ? 'pi pi-sort-alpha-up' : (sortAssistance === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
                                 </div>
@@ -845,7 +830,7 @@ const handleJSON = (filteredReports) => {
                             </th>
                             <th scope="col" class="px-4 py-3 text-center text-wrap break-words">
                                 <div class="flex flex-col sm:flex-row sm:items-center gap-2 justify-center">
-                                    <div class="flex items-center md:w-auto relative">
+                                    <!-- <div class="flex items-center md:w-auto relative">
                                         <button @click="toggleActionsFilterDropdown"
                                             class="w-full md:w-auto flex items-center justify-center py-2  text-sm font-medium  text-gray-700 dark:text-gray-200 hover:text-teal-500 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
                                             id="actionsFilterDropdownButton">
@@ -871,14 +856,14 @@ const handleJSON = (filteredReports) => {
                                                 </li>
                                             </ul>
                                         </div>
-                                    </div>
+                                    </div> -->
                                     <button class="" @click="toggleSortActions">ACTIONS <i
                                             :class="sortActions === 'asc' ? 'pi pi-sort-alpha-up' : (sortActions === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
                                 </div>
                             </th>
                             <th scope="col" class="px-4 py-3 text-center text-wrap break-words">
                                 <div class="flex flex-col sm:flex-row sm:items-center gap-2 justify-center">
-                                    <div class="flex items-center md:w-auto relative">
+                                    <!-- <div class="flex items-center md:w-auto relative">
                                         <button @click="toggleUrgencyFilterDropdown"
                                             class="w-full md:w-auto flex items-center justify-center py-2  text-sm font-medium  text-gray-700 dark:text-gray-200 hover:text-teal-500 rounded-lg shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
                                             id="urgencyFilterDropdownButton">
@@ -905,7 +890,7 @@ const handleJSON = (filteredReports) => {
                                                 </li>
                                             </ul>
                                         </div>
-                                    </div>
+                                    </div> -->
                                     <button class="" @click="toggleSortUrgency">URGENCY <i
                                             :class="sortUrgency === 'asc' ? 'pi pi-sort-alpha-up' : (sortUrgency === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button>
                                 </div>
@@ -918,8 +903,16 @@ const handleJSON = (filteredReports) => {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="report in paginatedData" :key="report.id"
+                        <!-- <tr v-for="report in paginatedData" :key="report.id"
+                            class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700"> -->
+                            
+                            <div v-if="results.length === 0" class="flex items-center justify-center h-[100px]">
+                                <span class=loader></span>
+                            </div>
+                            <tr v-else v-for="report in results.data" :key="report.id"
                             class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-b dark:border-gray-700">
+                                
+                            
                             <td class="px-4 py-3 text-center text-wrap break-words">
                                 <!-- <input type="checkbox" :value="report" v-model="selectedReports" class="w-4 h-4" /> -->
                                 <div class="inline-flex items-center">
@@ -941,7 +934,6 @@ const handleJSON = (filteredReports) => {
                                     </label>
                                 </div>
                             </td>
-                            <!-- <td class="px-4 py-3 text-center">{{ report.id }}</td> -->
                             <td class="px-4 py-3 text-center text-wrap break-words">{{ report.source.sources }}</td>
                             <td class="px-4 py-3 text-center text-wrap break-words">{{ report.assistance.assistance }}</td>
                             <td class="px-4 py-3 text-center text-wrap break-words">{{ report.incident.type }}</td>
@@ -1003,53 +995,96 @@ const handleJSON = (filteredReports) => {
                 </table>
                 </div>
 
-                <nav
-                    class="flex flex-col md:flex-row justify-between items-start sm:items-center gap-4 space-y-3 md:space-y-0 p-4">
-                    <span class="text-sm font-normal">Showing {{ filteredReports.length > 0 ? (currentPage - 1) *
-                        itemsPerPage + 1 : 0
-                        }} to {{
-                            Math.min(currentPage *
-                                itemsPerPage, filteredReports.length) }} of {{ filteredReports.length }}</span>
-                    <ul class="inline-flex items-stretch -space-x-px">
-                        <li>
-                            <button @click="prevPage" :disabled="currentPage === 1"
-                                class="px-3 py-1 rounded-l-lg border hover:bg-gray-300 dark:hover:bg-slate-600">
-                                Previous
-                            </button>
-                        </li>
+                <nav class="flex flex-col md:flex-row justify-between items-start sm:items-center gap-4 space-y-3 md:space-y-0 p-4">
+    <span class="text-sm font-normal">
+        Showing {{ results.from || 0 }} to {{ results.to || 0 }} of {{ results.total || 0 }}
+    </span>
+    
+    <ul v-if="visiblePages.length > 0" class="inline-flex items-stretch -space-x-px">
+        <!-- Previous Button -->
+        <li>
+            <button 
+                @click="prevPage" 
+                :disabled="!results?.prev_page_url"
+                class="px-3 py-1 rounded-l-lg border hover:bg-gray-300 dark:hover:bg-slate-600 disabled:opacity-50"
+                :class="{ 'cursor-not-allowed': !results?.prev_page_url }"
+            >
+                Previous
+            </button>
+        </li>
 
-                        <li v-if="visiblePages[0] > 1">
-                            <button @click="goToPage(1)"
-                                class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600">1</button>
-                            <button disabled class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</button>
-                        </li>
+        <!-- Page Numbers -->
+        <li v-for="(page, index) in visiblePages" :key="index">
+            <button 
+                v-if="page === '...'"
+                class="px-3 py-1 border bg-gray-100 dark:bg-gray-700"
+                disabled
+            >
+                {{ page }}
+            </button>
+            <button 
+                v-else
+                @click="goToPage(page)"
+                :class="[
+                    'px-3 py-1 border', 
+                    results.current_page === page 
+                        ? 'bg-teal-500 text-white border-teal-800' 
+                        : 'hover:bg-gray-300 dark:hover:bg-slate-600'
+                ]"
+            >
+                {{ page }}
+            </button>
+        </li>
 
-                        <li v-for="page in visiblePages" :key="page">
-                            <button @click="goToPage(page)"
-                                :class="['px-3 py-1 border', currentPage === page ? 'bg-slate-500 text-white border-black' : 'hover:bg-gray-300 dark:hover:bg-slate-600']">
-                                {{ page }}
-                            </button>
-                        </li>
-
-                        <li v-if="visiblePages[visiblePages.length - 1] < totalPages">
-                            <button disabled class="px-3 py-1 border bg-gray-100 dark:bg-gray-700">...</button>
-                            <button @click="goToPage(totalPages)"
-                                class="px-3 py-1 border hover:bg-gray-300 dark:hover:bg-slate-600">{{
-                                    totalPages }}</button>
-                        </li>
-
-                        <li>
-                            <button @click="nextPage" :disabled="currentPage === totalPages"
-                                class="px-3 py-1 rounded-r-lg border hover:bg-gray-300 dark:hover:bg-slate-600">
-                                Next
-                            </button>
-                        </li>
-                    </ul>
-                </nav>
+        <!-- Next Button -->
+        <li>
+            <button 
+                @click="nextPage" 
+                :disabled="!results?.next_page_url"
+                class="px-3 py-1 rounded-r-lg border hover:bg-gray-300 dark:hover:bg-slate-600 disabled:opacity-50"
+                :class="{ 'cursor-not-allowed': !results?.next_page_url }"
+            >
+                Next
+            </button>
+        </li>
+    </ul>
+</nav>
             </div>
         </div>
 </template>
 
 <style scoped>
+.loader{
+      display: block;
+      position: relative;
+      height: 12px;
+      width: 80%;
+      border: 1px solid #fff;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .loader::after {
+      content: '';
+      width: 40%;
+      height: 100%;
+      background: #FF3D00;
+      position: absolute;
+      top: 0;
+      left: 0;
+      box-sizing: border-box;
+      animation: animloader 2s linear infinite;
+    }
+    
+    @keyframes animloader {
+      0% {
+        left: 0;
+        transform: translateX(-100%);
+      }
+      100% {
+        left: 100%;
+        transform: translateX(0%);
+      }
+    }
+    
 </style>
 

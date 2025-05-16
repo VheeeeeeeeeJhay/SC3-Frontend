@@ -10,18 +10,18 @@ const addToast = inject('addToast');
 
 let refreshInterval = null;
 const databaseStore = useDatabaseStore();
-onMounted(() => {
-    databaseStore.fetchData();
-    refreshInterval = setInterval(() => {
-        databaseStore.fetchData();
-    }, 50000);
-});
-onUnmounted(() => {
-  // Clear the interval when the component is unmounted or page is reloaded
-  if (refreshInterval) {
-    clearInterval(refreshInterval);
-  }
-});
+// onMounted(() => {
+//     databaseStore.fetchData();
+//     refreshInterval = setInterval(() => {
+//         databaseStore.fetchData();
+//     }, 50000);
+// });
+// onUnmounted(() => {
+//   // Clear the interval when the component is unmounted or page is reloaded
+//   if (refreshInterval) {
+//     clearInterval(refreshInterval);
+//   }
+// });
 const computedProperties = {
     usersList: "users",
 };
@@ -52,7 +52,6 @@ const toggleSortName = () => {
     } else {
         sortName.value = 'none';
     }
-    console.log('Sort Name:', sortName.value);
 };
 
 const sortEmail = ref('none'); // 'none', 'asc', 'desc'
@@ -64,7 +63,6 @@ const toggleSortEmail = () => {
     } else {
         sortEmail.value = 'none';
     }
-    console.log('Sort Email:', sortEmail.value);
 };
 
 // Computed property for dynamic search and filtering
@@ -84,23 +82,23 @@ const filteredUsers = computed(() => {
         return matchesSearch && matchesClassification;
     });
 
-    // Step 2: Sort the filtered users if sort is enabled
-    if (sortName.value !== 'none') {
-        return [...result].sort((a, b) => {
-            return sortName.value === 'asc'
-                ? a.firstName.localeCompare(b.firstName)
-                : b.firstName.localeCompare(a.firstName);
-        });
-    }
+    // // Step 2: Sort the filtered users if sort is enabled
+    // if (sortName.value !== 'none') {
+    //     return [...result].sort((a, b) => {
+    //         return sortName.value === 'asc'
+    //             ? a.firstName.localeCompare(b.firstName)
+    //             : b.firstName.localeCompare(a.firstName);
+    //     });
+    // }
     
-    if (sortEmail.value !== 'none') {
-        return [...result].sort((a, b) => {
-            return sortEmail.value === 'asc'
-                ? a.email.localeCompare(b.email)
-                : b.email.localeCompare(a.email);
-        });
-    }
-    // Step 3: Return the filtered (but unsorted) users
+    // if (sortEmail.value !== 'none') {
+    //     return [...result].sort((a, b) => {
+    //         return sortEmail.value === 'asc'
+    //             ? a.email.localeCompare(b.email)
+    //             : b.email.localeCompare(a.email);
+    //     });
+    // }
+    // // Step 3: Return the filtered (but unsorted) users
     return result;
 });
 
@@ -227,9 +225,9 @@ const archiveUser = async (user) => {
         user.is_deleted = 0;
         addToast(response.data.message, 'success', 'check_circle');
         databaseStore.fetchData();
-        refreshInterval = setInterval(() => {
-            databaseStore.fetchData(); // runs again every 50s
-        }, 50000);
+        // refreshInterval = setInterval(() => {
+        //     databaseStore.fetchData(); // runs again every 50s
+        // }, 50000);
     } catch (error) {
         errors.value = error.response?.data?.error;
         addToast(errors.value, 'error', 'error');
@@ -269,8 +267,8 @@ const archiveUser = async (user) => {
                     <thead class="text-xs uppercase bg-teal-300 text-gray-800 dark:bg-slate-950 dark:text-gray-300">
                         <tr>
                             <th scope="col" class="px-4 py-3 text-center">ID</th>
-                            <th scope="col" class="px-4 py-3 text-center"><button class="" @click="toggleSortName">NAME <i :class="sortName === 'asc' ? 'pi pi-sort-alpha-up' : (sortName === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button></th>
-                            <th scope="col" class="px-4 py-3 text-center"><button class="" @click="toggleSortEmail">EMAIL <i :class="sortEmail === 'asc' ? 'pi pi-sort-alpha-up' : (sortEmail === 'desc' ? 'pi pi-sort-alpha-down-alt' : 'pi pi-sort-alt')"></i></button></th>
+                            <th scope="col" class="px-4 py-3 text-center">Name</th>
+                            <th scope="col" class="px-4 py-3 text-center">Email</th>
                             <th scope="col" class="px-4 py-3 text-center">Access</th>
                             <th scope="col" class="px-4 py-3 text-center">Actions</th>
                         </tr>

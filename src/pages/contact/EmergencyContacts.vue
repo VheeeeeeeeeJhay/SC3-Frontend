@@ -10,15 +10,15 @@ const backend_url = import.meta.env.VITE_BACKEND_URL;
 
 const databaseStore = useDatabaseStore();
 let refreshInterval = null;
-onMounted(() => {
-  databaseStore.fetchData();
-  refreshInterval = setInterval(() => {
-    databaseStore.fetchData();
-  }, 50000);
-});
-onUnmounted(() => {
-  clearInterval(refreshInterval);
-});
+// onMounted(() => {
+//   databaseStore.fetchData();
+//   refreshInterval = setInterval(() => {
+//     databaseStore.fetchData();
+//   }, 50000);
+// });
+// onUnmounted(() => {
+//   clearInterval(refreshInterval);
+// });
 
 const computedProperties = {
     hotlines: "contacts",
@@ -68,7 +68,6 @@ const addHotline = () => {
     })
     .catch((error) => {
       errors.value = error.response.data.errors;
-      console.log(errors.value);
       addToast(error.response.data.error, "error", "error");
     });
 };
@@ -82,7 +81,7 @@ const { openDropdownId, dropdownRefs, closeDropdown, toggleDropdown } =
   <section class="w-full min-h-screen p-4">
     <!-- Titleee -->
     <div class="mt-6 px-2 flex justify-between">
-      <h1 class="text-2xl font-bold dark:text-white">Hotline Management</h1>
+      <h1 class="text-2xl font-bold dark:text-white">Emergency Contacts List</h1>
       <div
         class="w-full md:w-auto flex flex-col md:flex-row items-stretch md:items-center justify-end flex-shrink-0 gap-4"
       >

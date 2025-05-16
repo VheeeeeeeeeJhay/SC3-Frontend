@@ -31,8 +31,6 @@ const emit = defineEmits(['close']);
 
 
 const formSubmit = async () => {
-  // try {
-  console.log(data.value);
   const formData = new FormData();
   formData.append('name', data.value.name);
   formData.append('longitude', data.value.longitude);
@@ -43,20 +41,20 @@ const formSubmit = async () => {
       'x-api-key': import.meta.env.VITE_API_KEY
     }
   })
-    .then((response) => {
-      addToast(response.data.message, 'success', 'check_circle'); // Add success toast
-      clearData();
-      emit('close');
-    })
-    .catch ((error) => {
-      errors.value = error.response.data.errors;
-      addToast(error.response.data.message, 'error', 'error'); // Add error toast
-    })
+  .then((response) => {
+    addToast(response.data.message, 'success', 'check_circle'); // Add success toast
+    clearData();
+    emit('close');
+  })
+  .catch ((error) => {
+    errors.value = error.response.data.errors;
+    addToast(error.response.data.message, 'error', 'error'); // Add error toast
+  })
 };
 </script>
 
 <template>
-  <div class="max-w-lg mx-auto bg-sky-50 dark:bg-slate-900 p-2">
+  <div class="max-w-lg mx-auto bg-sky-50 dark:bg-slate-950 p-2">
     <!-- <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Add Barangay</h2> -->
     <form @submit.prevent="formSubmit" class="space-y-4">
 

@@ -63,7 +63,6 @@ const saveChanges = async () => {
         editData.password = ''
         editData.password_confirmation = ''
       } catch (error) {
-        console.error("Error updating user:", error);
         addToast(error.response?.data?.error || error.message, 'error', 'error')
       }
 }

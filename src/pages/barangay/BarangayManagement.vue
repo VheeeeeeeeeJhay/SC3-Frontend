@@ -9,7 +9,6 @@ const endDate = ref(null);
 const updateDateRange = ({ start, end }) => {
     startDate.value = start;
     endDate.value = end;
-    console.log("Date Range:", startDate.value, endDate.value);
 };
 </script>
 

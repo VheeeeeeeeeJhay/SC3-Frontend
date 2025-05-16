@@ -32,13 +32,12 @@ const fetchData = () => {
       barangay_lat.value = data.value.latitude;
       barangay_long.value = data.value.longitude;
       barangay_name.value = data.value.name;
-      console.log("📍 Barangay marker:", barangay_lat.value, barangay_long.value);
 
       fetchReports();
       addGeoJSONLayer();
     })
     .catch((error) => {
-      console.error("Error fetching data:", error);
+      addToast(error.response?.data.error || error.response?.data.message || 'Something went wrong!', 'error', 'error');
     });
 };
 
@@ -63,7 +62,6 @@ const fetchReports = () => {
     })
     .then((res) => {
       const allReports = res.data || [];
-      console.log("📦 All Reports:", allReports);
 
       // ✅ Filter reports by barangay name
       reports.value = allReports.filter(
@@ -77,7 +75,9 @@ const fetchReports = () => {
         barangay_name.value,
       );
     })
-    .catch((error) => console.error("Error fetching reports:", error));
+    .catch((error) => {
+      addToast(error.response?.data.error || error.response?.data.message || 'Something went wrong!', 'error', 'error');
+    });
 };
 
 // ✅ **Initialize Map**
@@ -103,22 +103,18 @@ onMounted(() => {
 
 //for marker in reports
     if (barangay_lat.value !== 0 && barangay_long.value !== 0) {
-      console.log("📍 Initial marker:", barangay_lat.value, barangay_long.value);
       map.setView([barangay_lat.value, barangay_long.value], 16);
 
       // ✅ Only add a marker if there is NO `viewID`
       if (!viewId.value) {
-        console.log("📍 Adding marker...", viewId);
         addMarker(barangay_lat.value, barangay_long.value);
       }
     }
 
     watch([barangay_lat, barangay_long], ([lat, lng]) => {
     if (lat !== 0 && lng !== 0) {
-      console.log("📌 Updating marker position:", lat, lng);
       map.setView([lat, lng], 16);
       if (!viewId.value) {
-          console.log("📍 Adding marker...", viewId);
           addMarker(barangay_lat.value, barangay_long.value);
         }
     }
@@ -132,7 +128,6 @@ onMounted(() => {
     const lat = data.value.latitude;
     const lng = data.value.longitude;
     // const name = barangay.name;
-    console.log("📍 Barangay marker:", lat, lng);
 }
 });
 
@@ -201,8 +196,6 @@ const addGeoJSONLayer = () => {
   const filteredFeatures = mapData.features.filter(
     (feature) => feature.properties.name.toUpperCase() === barangay_name.value.toUpperCase()
   );
-
-  console.log(`Filtered GeoJSON for '${barangay_name.value}':`, filteredFeatures);
 
   if (geojsonLayer.value) map.removeLayer(geojsonLayer.value);
   if (maskLayer.value) map.removeLayer(maskLayer.value);

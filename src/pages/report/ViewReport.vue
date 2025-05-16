@@ -9,7 +9,6 @@ const router = useRouter();
 const store = useArrayStore();
 const storage = ref({});
 storage.value = store.getData();
-console.log(storage.value);
 
 const props = defineProps({
   data: Object

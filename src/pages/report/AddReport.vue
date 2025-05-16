@@ -42,21 +42,21 @@ const databaseStore = useDatabaseStore();
 
 let refreshInterval = null;
 
-onMounted(() => {
-  databaseStore.fetchData();
+// onMounted(() => {
+//   databaseStore.fetchData();
 
-  refreshInterval = setInterval(() => {
-    databaseStore.fetchData();
-  }, 50000);
+//   refreshInterval = setInterval(() => {
+//     databaseStore.fetchData();
+//   }, 50000);
 
-});
+// });
 
-onUnmounted(() => {
-  // Clear the interval when the component is unmounted or page is reloaded
-  if (refreshInterval) {
-    clearInterval(refreshInterval);
-  }
-});
+// onUnmounted(() => {
+//   // Clear the interval when the component is unmounted or page is reloaded
+//   if (refreshInterval) {
+//     clearInterval(refreshInterval);
+//   }
+// });
 
 const computedProperties = {
   sources: "sources",
@@ -115,18 +115,15 @@ const submitForm = async () => {
   formData.append('latitude', data.value.latitude)
   formData.append('urgency_id', data.value.urgency_id)
   formData.append('description', data.value.description)
-  console.log(formData)
   await axiosClient.post('/api/911/report', formData, {
     headers: {
       'x-api-key': import.meta.env.VITE_API_KEY
     }
   })
     .then(response => {
-      console.log('Form submitted successfully:', response.data);
       message.value = response.data.message;
       addToast(message.value, 'success', 'check_circle');
       clearForm();
-      console.log(message.value)
       databaseStore.fetchData();
       refreshInterval = setInterval(() => {
             databaseStore.fetchData(); // runs again every 50s
@@ -347,7 +344,7 @@ const closeDropdown = () => {
         <div class="p-6 rounded-lg shadow-lg shadow-blue-500/40 ring-2 ring-blue-500/90 flex flex-col lg:flex-row ...">
 
           <div class="w-full lg:w-1/2 lg:pr-4">
-            <h2 class="text-lg font-semibold mb-4 text-black dark:text-white">Report Information</h2>
+            <h2 class="text-2xl font-semibold mb-4 text-black dark:text-white">Report Information</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
               <div class="form-group">
@@ -439,7 +436,7 @@ const closeDropdown = () => {
               </div>
             </div>
 
-            <h2 class="text-2xl font-bold mb-4 mt-6 text-black dark:text-white">Time Information</h2>
+            <h2 class="text-2xl font-semibold mb-4 mt-6 text-black dark:text-white">Time Information</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="form-group relative">
                 <label for="date_received" class="block text-sm font-medium mb-2 text-black dark:text-white">
@@ -486,7 +483,7 @@ const closeDropdown = () => {
 
           <!-- right side -->
           <div class="w-full lg:w-1/2 lg:pl-4">
-            <h2 class="text-2xl font-bold mb-6 text-black dark:text-white">Place Information</h2>
+            <h2 class="text-2xl font-semibold mb-4 text-black dark:text-white">Place Information</h2>
             <div class="space-y-4">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="form-group relative">
@@ -554,7 +551,7 @@ const closeDropdown = () => {
               </div>
               <div class="flex justify-end space-x-4 mt-8">
                 <PrimaryButton type="submit" name="Add Report"
-                  class="w-1/2 px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition duration-200" />
+                  class="w-full px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition duration-200" />
               </div>
             </div>
           </div>

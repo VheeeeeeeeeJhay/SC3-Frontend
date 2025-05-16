@@ -11,7 +11,6 @@ import { useArrayStore } from '../../stores/arrayStore';
 
 const router = useRouter();
 const id = Number(useRoute().params.id);
-console.log(id);
 
 const errors = ref([]);
 const startDate = ref(null);
@@ -26,19 +25,19 @@ const databaseStore = useDatabaseStore();
 
 let refreshInterval = null;
 
-onMounted(() => {
-    databaseStore.fetchData();
+// onMounted(() => {
+//     databaseStore.fetchData();
 
-    refreshInterval = setInterval(() => {
-        databaseStore.fetchData();
-    }, 50000);
-});
+//     refreshInterval = setInterval(() => {
+//         databaseStore.fetchData();
+//     }, 50000);
+// });
 
-onUnmounted(() => {
-    if (refreshInterval) {
-        clearInterval(refreshInterval);
-    }
-});
+// onUnmounted(() => {
+//     if (refreshInterval) {
+//         clearInterval(refreshInterval);
+//     }
+// });
 
 const computedProperties = {
     reportArray: "reports",

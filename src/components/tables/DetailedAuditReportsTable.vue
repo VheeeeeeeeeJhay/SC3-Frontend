@@ -20,7 +20,6 @@ const parsedInnerData = computed(() => {
     const data = JSON.parse(storage.value.data);
     return Array.isArray(data) ? data : [data];
   } catch (error) {
-    console.error("Invalid JSON in storage.data", error);
     return [];
   }
 });
@@ -90,10 +89,7 @@ const restoreReport = async (event, report) => {
     restoredReports.value.add(report.id);
     addToast(response.data.message, 'success', 'check_circle');
 
-    console.log('Report restored successfully:', response.data);
-
   } catch (error) {
-    console.error('Error restoring report:', error.response?.data?.message || error.message);
     addToast(error.response?.data?.message, 'error', 'error');
     if (button) {
       button.disabled = false;
