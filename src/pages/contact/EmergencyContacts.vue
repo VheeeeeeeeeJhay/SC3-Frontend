@@ -222,7 +222,22 @@ const { openDropdownId, dropdownRefs, closeDropdown, toggleDropdown } =
               d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
           </svg>
         </button>
-          
+          <!-- ✅ Dropdown menu placed here -->
+          <div
+              v-if="openDropdownId === hotline.id"
+              ref="dropdownRefs"
+              class="absolute top-10 right-2 mt-1 z-50 text-black dark:text-white w-44 shadow-sm border rounded-md bg-white dark:bg-slate-700"
+              @click.stop
+            >
+              <div class="py-2 text-sm flex flex-col w-full items-center">
+                <span class="inline-flex w-full px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600 cursor-pointer">
+                  Edit
+                </span>
+                <span class="inline-flex w-full px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600 cursor-pointer">
+                  Delete
+                </span>
+              </div>
+            </div>
         </div>
         <div class="p-4">
           <a href="#">
@@ -246,22 +261,7 @@ const { openDropdownId, dropdownRefs, closeDropdown, toggleDropdown } =
               {{ hotline.email }}
             </p>
           </div>
-          <!-- ✅ Dropdown menu placed here -->
-            <div
-              v-if="openDropdownId === hotline.id"
-              ref="dropdownRefs"
-              class="absolute top-full right-2 mt-1 z-100 w-44 shadow-sm border rounded-md bg-white dark:bg-slate-700"
-              @click.stop
-            >
-              <div class="py-2 text-sm flex flex-col w-full items-center">
-                <span class="inline-flex w-full px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600 cursor-pointer">
-                  Edit
-                </span>
-                <span class="inline-flex w-full px-4 py-2 hover:bg-gray-200 dark:hover:bg-slate-600 cursor-pointer">
-                  Delete
-                </span>
-              </div>
-            </div>
+          
         </div>
       </div>
     </div>
