@@ -166,12 +166,8 @@ const props = defineProps({
 const pieChart = ref(null);
 let chart = null;
 
-let count = 0;
 const updateChart = () => {
-  count++;
-  console.log("🔄 Chart update count in pie chart:", count);
   let filteredReports = [];
-
   if (props.startDate && props.endDate) {
     // Filter by Date Range
     const startISO = new Date(props.startDate).toISOString().split("T")[0];

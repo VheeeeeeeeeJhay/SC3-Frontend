@@ -279,15 +279,6 @@ const renderChart = () => {
 
 
 onMounted(() => {
-//   // Fetch initial data
-//   databaseStore.fetchData()
-
-//   // Refresh data every 50 seconds
-//   refreshInterval = setInterval(() => {
-//     databaseStore.fetchData()
-//   }, 50000)
-
-//   // Initial chart render
   renderChart()
 })
 
@@ -296,12 +287,17 @@ watch([reports, () => props.startDate, () => props.endDate], () => {
   renderChart()
 })
 
-// onUnmounted(() => {
+onUnmounted(() => {
 //   // Clear the refresh interval when the component is unmounted
 //   if (refreshInterval) {
 //     clearInterval(refreshInterval)
 //   }
-// })
+if (chartInstance) {
+    chartInstance.destroy()
+    chartInstance = null
+  }
+})
+
 </script>
 
 <template>
