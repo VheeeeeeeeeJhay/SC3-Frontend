@@ -58,7 +58,7 @@ const getReportCountForMonth = (monthName, year) => {
     if (!monthName || !year) return 0; 
         const monthIndex = months.indexOf(monthName) + 1; // Convert to 1-based index (Jan = 1)
         const filteredReports = reports.value.filter(report => {
-            const reportDate = new Date(report.date_received);
+            const reportDate = new Date(report.date_occurred);
             const reportMonth = reportDate.getMonth() + 1;
             const reportYear = reportDate.getFullYear();
             return reportMonth === monthIndex && reportYear === year;

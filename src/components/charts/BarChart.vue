@@ -180,7 +180,7 @@ const updateChart = () => {
     // Apply date range filter
     if (props.startDate || props.endDate) {
         filteredReports = filteredReports.filter(rep => {
-            const reportDate = new Date(rep.date_received);
+            const reportDate = new Date(rep.date_occurred);
 
             // Filter by startDate 
             if (props.startDate && reportDate < new Date(props.startDate)) return false;
@@ -196,7 +196,7 @@ const updateChart = () => {
         const sourceIndex = source.value.findIndex(src => src.id === rep.source_id);
         if (sourceIndex === -1) return;
 
-        const reportMonthIndex = new Date(rep.date_received).getMonth(); // 0-based
+        const reportMonthIndex = new Date(rep.date_occurred).getMonth(); // 0-based
         seriesData[sourceIndex][reportMonthIndex]++;
     });
 

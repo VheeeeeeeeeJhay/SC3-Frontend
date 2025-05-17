@@ -78,7 +78,7 @@ const combinedList = computed(() => {
 
   return barangaysList.value.map(barangay => {
     const filteredReports = reports.value.filter(report => {
-      const reportDate = new Date(report.date_received);
+      const reportDate = new Date(report.date_occurred);
       const isInRange =
         (!start || reportDate >= start) &&
         (!end || reportDate <= end);

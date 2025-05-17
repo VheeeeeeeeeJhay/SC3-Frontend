@@ -347,8 +347,9 @@ const handleCSV = (filteredReports) => {
         const flatReports = filteredReports.map(report => ({
             id: report.id,
             name: report.name,
-            date_received: report.date_received,
-            time: report.time,
+            date_occurred: report.date_occurred,
+            time_arrival_on_site: report.time_arrival_on_site,
+            time_occurred: report.time_occurred,
             arrival_on_site: report.arrival_on_site,
             landmark: report.landmark,
             description: report.description,

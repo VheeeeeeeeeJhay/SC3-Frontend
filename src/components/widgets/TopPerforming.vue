@@ -39,7 +39,7 @@ const topBarangays = computed(() => {
     const end = props.endDate ? new Date(props.endDate) : null;
 
     filteredReports = filteredReports.filter(rep => {
-      const date = new Date(rep.date_received);
+      const date = new Date(rep.date_occurred);
       if (start && date < start) return false;
       if (end && date > end) return false;
       return true;

@@ -89,7 +89,7 @@ const generateHeatmapData = () => {
 
   // Process reports
   reports.value.forEach(report => {
-    const dateField = report.date_received || report.date
+    const dateField = report.date_occurred || report.date
     if (!dateField) {
       console.log('Report without date:', report)
       return

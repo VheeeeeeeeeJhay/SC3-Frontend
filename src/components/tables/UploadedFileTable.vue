@@ -36,6 +36,22 @@ const {
 
 watch(searchQuery, () => resetPage())
 
+const TableHeaders = [
+    'Time Occurred',
+    'Date Occurred',
+    'Time Arrival on Site',
+    'Name',
+    'Landmark',
+    'Longitude',
+    'Latitude',
+    'Source Id',
+    'Incident Id',
+    'Barangay Id',
+    'Actions Id',
+    'Assistance Id',
+    'Urgency Id'
+]
+
 </script>
 
 <template>
@@ -62,26 +78,14 @@ watch(searchQuery, () => resetPage())
             <table class="w-full text-sm text-left">
                 <thead class="text-xs uppercase bg-teal-300 text-gray-800 dark:bg-slate-950 dark:text-gray-300">
                     <tr>
-                        <th scope="col" class="px-4 py-3">Time</th>
-                        <th scope="col" class="px-4 py-3">Date Received</th>
-                        <th scope="col" class="px-4 py-3">Arrival on Site</th>
-                        <th scope="col" class="px-4 py-3">Name</th>
-                        <th scope="col" class="px-4 py-3">Landmark</th>
-                        <th scope="col" class="px-4 py-3">Longitude</th>
-                        <th scope="col" class="px-4 py-3">Latitude</th>
-                        <th scope="col" class="px-4 py-3">Source Id</th>
-                        <th scope="col" class="px-4 py-3">Incident Id</th>
-                        <th scope="col" class="px-4 py-3">Barangay Id</th>
-                        <th scope="col" class="px-4 py-3">Actions Id</th>
-                        <th scope="col" class="px-4 py-3">Assistance Id</th>
-                        <th scope="col" class="px-4 py-3">Urgency Id</th>
+                        <th v-for="(header, index) in TableHeaders" :key="index" scope="col" class="px-4 py-3">{{ header }}</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="(report, index) in paginatedData" :key="index"
                         class="bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700">
                         <td class="dark:text-white px-4 py-3">{{ report.time }}</td>
-                        <td class="dark:text-white px-4 py-3">{{ report.date_received }}</td>
+                        <td class="dark:text-white px-4 py-3">{{ report.date_occurred }}</td>
                         <td class="dark:text-white px-4 py-3">{{ report.arrival_on_site }}</td>
                         <td class="dark:text-white px-4 py-3">{{ report.name }}</td>
                         <td class="dark:text-white px-4 py-3">{{ report.landmark }}</td>

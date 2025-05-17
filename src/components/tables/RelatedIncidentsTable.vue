@@ -1,5 +1,4 @@
 <script setup>
-
 import { onMounted, onUnmounted, inject } from 'vue';
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -63,65 +62,36 @@ const {
 
 // 
 watch([classifications, urgencies, actions],
-    ([newClassifications, newUrgencies, newActions]) => {
-        selectedClassifications.value = newClassifications.map(c => c.id);
-        selectedUrgencies.value = newUrgencies.map(u => u.id);
-        selectedActions.value = newActions.map(a => a.id);
-    }, { immediate: true });
+([newClassifications, newUrgencies, newActions]) => {
+    selectedClassifications.value = newClassifications.map(c => c.id);
+    selectedUrgencies.value = newUrgencies.map(u => u.id);
+    selectedActions.value = newActions.map(a => a.id);
+}, { immediate: true });
 
-const sortSource = ref('none'); // 'none', 'asc', 'desc'
+
+const sortSource = ref('');
 const toggleSortSource = () => {
-    if (sortSource.value === 'none') {
-        sortSource.value = 'asc';
-    } else if (sortSource.value === 'asc') {
-        sortSource.value = 'desc';
-    } else {
-        sortSource.value = 'none';
-    }
+    sortSource.value = sortSource.value === '' ? 'asc' : sortSource.value === 'asc' ? 'desc' : '';
 };
 
-const sortAssistance = ref('none'); // 'none', 'asc', 'desc'
+const sortAssistance = ref('');
 const toggleSortAssistance = () => {
-    if (sortAssistance.value === 'none') {
-        sortAssistance.value = 'asc';
-    } else if (sortAssistance.value === 'asc') {
-        sortAssistance.value = 'desc';
-    } else {
-        sortAssistance.value = 'none';
-    }
+    sortAssistance.value = sortAssistance.value === '' ? 'asc' : sortAssistance.value === 'asc' ? 'desc' : '';
 };
 
-const sortIncident = ref('none');
+const sortIncident = ref('');
 const toggleSortIncident = () => {
-    if (sortIncident.value === 'none') {
-        sortIncident.value = 'asc';
-    } else if (sortIncident.value === 'asc') {
-        sortIncident.value = 'desc';
-    } else {
-        sortIncident.value = 'none';
-    }
+    sortIncident.value = sortIncident.value === '' ? 'asc' : sortIncident.value === 'asc' ? 'desc' : '';
 };
 
-const sortActions = ref('none');
+const sortActions = ref('');
 const toggleSortActions = () => {
-    if (sortActions.value === 'none') {
-        sortActions.value = 'asc';
-    } else if (sortActions.value === 'asc') {
-        sortActions.value = 'desc';
-    } else {
-        sortActions.value = 'none';
-    }
+    sortActions.value = sortActions.value === '' ? 'asc' : sortActions.value === 'asc' ? 'desc' : '';
 };
 
-const sortUrgency = ref('none');
+const sortUrgency = ref('');
 const toggleSortUrgency = () => {
-    if (sortUrgency.value === 'none') {
-        sortUrgency.value = 'asc';
-    } else if (sortUrgency.value === 'asc') {
-        sortUrgency.value = 'desc';
-    } else {
-        sortUrgency.value = 'none';
-    }
+    sortUrgency.value = sortUrgency.value === '' ? 'asc' : sortUrgency.value === 'asc' ? 'desc' : '';
 };
 
 
@@ -199,7 +169,7 @@ const filteredReports = computed(() => {
         const matchesAction = selectedActions.value.length === 0 ||
             selectedActions.value.includes(report.actions_id);
 
-        const reportDate = new Date(report.date_received);
+        const reportDate = new Date(report.date_occurred);
 
         const matchesDateRange =
             (!startDate.value || reportDate >= new Date(startDate.value)) &&
@@ -226,35 +196,35 @@ const filteredReports = computed(() => {
     // 3. Sort the filtered array
     return [...result].sort((a, b) => {
         // First: sort by source if enabled
-        if (sortSource.value !== 'none') {
+        if (sortSource.value !== '') {
             const cmpSource = sortSource.value === 'asc'
                 ? a.source.sources.localeCompare(b.source.sources)
                 : b.source.sources.localeCompare(a.source.sources);
             if (cmpSource !== 0) return cmpSource;
         }
         // Then: sort by assistance if enabled
-        if (sortAssistance.value !== 'none') {
+        if (sortAssistance.value !== '') {
             const cmpAssist = sortAssistance.value === 'asc'
                 ? a.assistance.assistance.localeCompare(b.assistance.assistance)
                 : b.assistance.assistance.localeCompare(a.assistance.assistance);
             if (cmpAssist !== 0) return cmpAssist;
         }
 
-        if (sortIncident.value !== 'none') {
+        if (sortIncident.value !== '') {
             const cmpIncident = sortIncident.value === 'asc'
                 ? a.incident.type.localeCompare(b.incident.type)
                 : b.incident.type.localeCompare(a.incident.type);
             if (cmpIncident !== 0) return cmpIncident;
         }
 
-        if (sortActions.value !== 'none') {
+        if (sortActions.value !== '') {
             const cmpAction = sortActions.value === 'asc'
                 ? a.actions.actions.localeCompare(b.actions.actions)
                 : b.actions.actions.localeCompare(a.actions.actions);
             if (cmpAction !== 0) return cmpAction;
         }
 
-        if (sortUrgency.value !== 'none') {
+        if (sortUrgency.value !== '') {
             const cmpUrgency = sortUrgency.value === 'asc'
                 ? a.urgency.urgency.localeCompare(b.urgency.urgency)
                 : b.urgency.urgency.localeCompare(a.urgency.urgency);
@@ -513,7 +483,7 @@ const handleCSV = (filteredReports) => {
     const flatReports = filteredReports.map(report => ({
         id: report.id,
         name: report.name,
-        date_received: report.date_received,
+        date_occurred: report.date_occurred,
         time: report.time,
         arrival_on_site: report.arrival_on_site,
         landmark: report.landmark,

@@ -175,9 +175,9 @@ const updateChart = () => {
 
 
     filteredReports = report.value.filter(reportItem => {
-      if (!reportItem.date_received) return false;
+      if (!reportItem.date_occurred) return false;
 
-      const reportDate = new Date(reportItem.date_received).toISOString().split("T")[0];
+      const reportDate = new Date(reportItem.date_occurred).toISOString().split("T")[0];
       return reportDate >= startISO && reportDate <= endISO;
     });
 

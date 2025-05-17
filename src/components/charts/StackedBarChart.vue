@@ -85,7 +85,7 @@ const groupReportsByMonth = () => {
     months.forEach(month => {
     const monthReports = report.value.filter(report => {
       try {
-        const reportDate = new Date(report.date_received)
+        const reportDate = new Date(report.date_occurred)
         const monthStart = new Date(startDateObj)
         monthStart.setMonth(startDateObj.getMonth() + months.indexOf(month))
         const monthEnd = new Date(monthStart)

@@ -35,7 +35,7 @@ const filteredData = computed(() => {
     return (
       String(item.id).includes(query) ||
       item.name?.toLowerCase().includes(query) ||
-      item.date_received?.toLowerCase().includes(query) ||
+      item.date_occurred?.toLowerCase().includes(query) ||
       item.incident?.type?.toLowerCase().includes(query) ||
       item.barangay?.name?.toLowerCase().includes(query)
     );
@@ -136,7 +136,7 @@ const restoreReport = async (event, report) => {
                             <dl class="grid gap-1">
                                 <div>
                                     <dt class="font-medium">Received Time:</dt>
-                                    <dd class="ml-2">{{ item.time }} - {{ item.date_received }}</dd>
+                                    <dd class="ml-2">{{ item.time }} - {{ item.date_occurred }}</dd>
                                 </div>
                                 <div>
                                     <dt class="font-medium">Arrival Time:</dt>

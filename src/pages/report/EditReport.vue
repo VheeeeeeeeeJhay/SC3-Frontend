@@ -32,9 +32,9 @@ const data = ref({
     assistance: storage.value.assistance.id,
     incident: storage.value.incident.id,
     actions: storage.value.actions.id,
-    date_received: storage.value.date_received,
-    arrival_on_site: storage.value.arrival_on_site,
-    time: storage.value.time,
+    date_occurred: storage.value.date_occurred,
+    time_arrival_on_site: storage.value.time_arrival_on_site,
+    time_occurred: storage.value.time_occurred,
     barangay: storage.value.barangay.id,
     landmark: storage.value.landmark,
     longitude: storage.value.longitude,
@@ -61,10 +61,10 @@ const updateForm = async () => {
     const payload = {
         // user_id: user.value.id,
         source_id: data.value.source,
-        time: data.value.time,
+        time_occurred: data.value.time_occurred,
         incident_id: data.value.incident,
-        date_received: data.value.date_received,
-        arrival_on_site: data.value.arrival_on_site,
+        date_occurred: data.value.date_occurred,
+        time_arrival_on_site: data.value.time_arrival_on_site,
         name: data.value.name,
         landmark: data.value.landmark,
         barangay_id: data.value.barangay,
@@ -383,23 +383,23 @@ const openDatePicker = () => {
                             <h2 class="text-2xl font-semibold mb-4 mt-6">Time Information</h2>
                             <div class="grid grid-cols-2 grid-rows-1 gap-2">
                                 <div class="form-group relative">
-                                    <label for="receivedDate" class="block text-sm font-medium mb-2">
-                                        Date Received
+                                    <label for="date_occurred" class="block text-sm font-medium mb-2">
+                                        Date Occurred
                                         <ToolTip Information="This is the date when the report was received." />
                                     </label>
-                                    <input type="date" id="receivedDate" v-model="data.date_received"
+                                    <input type="date" id="date_occurred" v-model="data.date_occurred"
                                         @click="openDatePicker"
                                         class=" appearance-none w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                                     <span @click="openDatePicker"
                                         class="material-icons calendar_month absolute right-3 top-11 text-gray-800 dark:text-white" />
                                 </div>
                                 <div class="form-group relative">
-                                    <label for="arrival_on_site" class="block text-sm font-medium mb-2">
+                                    <label for="time_arrival_on_site" class="block text-sm font-medium mb-2">
                                         Time of Arrival on Site
                                         <ToolTip Information="This is the time when the report was received." />
                                     </label>
 
-                                    <input type="time" id="arrival_on_site" v-model="data.arrival_on_site"
+                                    <input type="time" id="time_arrival_on_site" v-model="data.time_arrival_on_site"
                                         @click="openTimePicker"
                                         class="appearance-none w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 
                                             bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white pr-10" />
@@ -409,11 +409,11 @@ const openDatePicker = () => {
                                         class="material-icons schedule absolute right-3 top-11 text-gray-800 dark:text-white" />
                                 </div>
                                 <div class="form-group relative">
-                                    <label for="time" class="block text-sm font-medium mb-2">
+                                    <label for="time_occurred" class="block text-sm font-medium mb-2">
                                         Time of Incident
                                         <ToolTip Information="This is the time when the incident occurred." />
                                     </label>
-                                    <input type="time" id="time" v-model="data.time" @click="openTimePicker2" step="60"
+                                    <input type="time" id="time_occurred" v-model="data.time_occurred" @click="openTimePicker2" step="60"
                                         class="appearance-none w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 
                                         bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white pr-10" />
 

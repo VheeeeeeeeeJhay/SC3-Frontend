@@ -14,9 +14,9 @@ const filteredReports = computed(() => {
   if (!reports.value || reports.value.length === 0) return 0;
 
   return reports.value.filter(report => {
-    if (!report.date_received) return false;
+    if (!report.date_occurred) return false;
 
-    const reportDate = report.date_received.split("T")[0];
+    const reportDate = report.date_occurred.split("T")[0];
 
     return props.startDate && props.endDate
       ? reportDate >= props.startDate && reportDate <= props.endDate

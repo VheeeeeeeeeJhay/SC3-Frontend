@@ -89,9 +89,9 @@ const groupedReportsByBarangay = computed(() => {
 
   reports.value
     .filter((report) => {
-      if (!report.date_received) return false;
+      if (!report.date_occurred) return false;
 
-      const reportDate = new Date(report.date_received).toISOString().split("T")[0];
+      const reportDate = new Date(report.date_occurred).toISOString().split("T")[0];
 
       return reportDate >= startISO && reportDate <= endISO;
     })

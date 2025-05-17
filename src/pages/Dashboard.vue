@@ -1,7 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import PieChart from "../components/charts/PieChart.vue";
-import LineChart from "../components/charts/LineChart.vue";
 import BarChart from "../components/charts/BarChart.vue";
 import IncidentGrowthRate from "../components/widgets/IncidentGrowthRate.vue";
 import RecentIncident from "../components/widgets/RecentIncident.vue";
@@ -70,7 +69,6 @@ const componentMap = {
   IncidentGrowthRate,
   TotalReportsReceived,
   TopPerforming,
-  LineChart,
   BarChart,
   PieChart,
   RecentIncident,

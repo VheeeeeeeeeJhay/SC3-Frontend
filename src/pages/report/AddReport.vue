@@ -1,6 +1,5 @@
 <script setup>
 import { ref, computed, onMounted, watchEffect, watch, onUnmounted, inject } from 'vue';
-import PrimaryButton from '../../components/PrimaryButton.vue';
 import axiosClient from '../../axios.js';
 import { useGeolocation } from '@vueuse/core';
 import { userMarker } from '../../stores/mapStore.js';
@@ -22,9 +21,9 @@ const fullName = computed(() => {
 })
 
 const data = ref({
-  time: '',
-  date_received: '',
-  arrival_on_site: '',
+  time_occurred: '',
+  date_occurred: '',
+  time_arrival_on_site: '',
   name: fullName.value,
   landmark: '',
   longitude: '',
@@ -88,9 +87,9 @@ const clearForm = () => {
     assistance_id: '',
     incident_id: '',
     actions_id: '',
-    date_received: '',
-    arrival_on_site: '',
-    time: '',
+    date_occurred: '',
+    time_occurred: '',
+    time_arrival_on_site: '',
     barangay_id: '',
     landmark: '',
     longitude: '',
@@ -102,10 +101,10 @@ const clearForm = () => {
 const submitForm = async () => {
   const formData = new FormData();
   formData.append('source_id', data.value.source_id)
-  formData.append('time', data.value.time)
+  formData.append('time_occurred', data.value.time_occurred)
   formData.append('incident_id', data.value.incident_id)
-  formData.append('date_received', data.value.date_received)
-  formData.append('arrival_on_site', data.value.arrival_on_site)
+  formData.append('date_occurred', data.value.date_occurred)
+  formData.append('time_arrival_on_site', data.value.time_arrival_on_site)
   formData.append('name', data.value.name)
   formData.append('landmark', data.value.landmark)
   formData.append('barangay_id', data.value.barangay_id)
@@ -299,7 +298,7 @@ const openTimePicker2 = () => {
   document.getElementById("time").showPicker();
 };
 const openDatePicker = () => {
-  document.getElementById("date_received").showPicker();
+  document.getElementById("date_occurred").showPicker();
 };
 
 //testing
@@ -439,42 +438,43 @@ const closeDropdown = () => {
             <h2 class="text-2xl font-semibold mb-4 mt-6 text-black dark:text-white">Time Information</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="form-group relative">
-                <label for="date_received" class="block text-sm font-medium mb-2 text-black dark:text-white">
-                  Date Received
+                <label for="date_occurred" class="block text-sm font-medium mb-2 text-black dark:text-white">
+                  Date Occurred
                   <ToolTip Information="This is the date the report was received." />
                 </label>
-                <input type="date" id="date_received" v-model="data.date_received" @click="openDatePicker"
+                <input type="date" id="date_occurred" v-model="data.date_occurred" @click="openDatePicker"
                   class="appearance-none w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                 <span @click="openDatePicker"
                   class="material-icons calendar_month absolute right-3 top-11 text-gray-800 dark:text-white" />
 
-                <span class="text-sm text-red-500" v-if="errors.date_received && errors.date_received.length">{{
-                  errors.date_received[0] }}</span>
+                <span class="text-sm text-red-500" v-if="errors.date_occurred && errors.date_occurred.length">{{
+                  errors.date_occurred[0] }}</span>
               </div>
               <div class="form-group relative">
                 <label for="arrivalDate" class="block text-sm font-medium mb-2 text-black dark:text-white">
                   Time of Arrival on Site
                   <ToolTip Information="This is the time the report was received." />
                 </label>
-                <input type="time" id="arrival_on_site" v-model="data.arrival_on_site" @click="openTimePicker"
+                <input type="time" id="arrival_on_site" v-model="data.time_arrival_on_site" @click="openTimePicker"
                   class="appearance-none w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                 <span @click="openTimePicker"
                   class="material-icons schedule absolute right-3 top-11 text-gray-800 dark:text-white" />
 
-                <span class="text-sm text-red-500" v-if="errors.arrival_on_site && errors.arrival_on_site.length">{{
-                  errors.arrival_on_site[0] }}</span>
+                <span class="text-sm text-red-500" v-if="errors.time_arrival_on_site && errors.time_arrival_on_site.length">{{
+                  errors.time_arrival_on_site[0] }}</span>
               </div>
               <div class="form-group relative">
                 <label for="time" class="block text-sm font-medium mb-2 text-black dark:text-white">
                   Time of Incident
                   <ToolTip Information="This is the time of the incident." />
                 </label>
-                <input type="time" id="time" v-model="data.time" @click="openTimePicker2"
+                <input type="time" id="time" v-model="data.time_occurred" @click="openTimePicker2"
                   class="appearance-none w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white border-gray-200 text-gray-800 dark:bg-slate-900 dark:border-black dark:text-white" />
                 <span @click="openTimePicker2"
                   class="material-icons schedule absolute right-3 top-11 text-gray-800 dark:text-white" />
 
-                <span class="text-sm text-red-500" v-if="errors.time && errors.time.length">{{ errors.time[0] }}</span>
+                <span class="text-sm text-red-500" v-if="errors.time_occurred && errors.time_occurred.length">{{
+                  errors.time_occurred[0] }}</span>
               </div>
             </div>
           </div>

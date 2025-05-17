@@ -71,9 +71,9 @@ const data = ref({
   assistance: storage.value.assistance.assistance,
   incident: storage.value.incident.type,
   actions: storage.value.actions.actions,
-  date_received: storage.value.date_received,
-  arrival_on_site: storage.value.arrival_on_site,
-  time: storage.value.time,
+  date_occurred: storage.value.date_occurred,
+  time_arrival_on_site: storage.value.time_arrival_on_site,
+  time_occurred: storage.value.time_occurred,
   barangay: storage.value.barangay.name,
   landmark: storage.value.landmark,
   longitude: storage.value.barangay.longitude,
@@ -144,9 +144,9 @@ const data = ref({
             </div>
             <div>
               <p><span class="font-semibold text-blue-500 dark:text-blue-300">Urgency:</span> {{ data.urgency }}</p>
-              <p><span class="font-semibold text-blue-500 dark:text-blue-300">Date Received:</span> {{ data.date_received }}</p>
-              <p><span class="font-semibold text-blue-500 dark:text-blue-300">Arrival Time:</span> {{ data.arrival_on_site }}</p>
-              <p><span class="font-semibold text-blue-500 dark:text-blue-300">Incident Time:</span> {{ data.time }}</p>
+              <p><span class="font-semibold text-blue-500 dark:text-blue-300">Date Occurred:</span> {{ data.date_occurred }}</p>
+              <p><span class="font-semibold text-blue-500 dark:text-blue-300">Arrival Time:</span> {{ data.time_arrival_on_site }}</p>
+              <p><span class="font-semibold text-blue-500 dark:text-blue-300">Incident Time:</span> {{ data.time_occurred }}</p>
             </div>
             <div class="col-span-2">
               <p><span class="font-semibold text-blue-500 dark:text-blue-300">Description:</span> {{ data.description }}</p>
