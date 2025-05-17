@@ -442,34 +442,34 @@ const handleJSON = (filteredReports) => {
 
 
 
-const sortSource = ref('none'); // 'none', 'asc', 'desc'
+const sortSource = ref(''); // 'none', 'asc', 'desc'
 const toggleSortSource = () => {
-    sortSource.value = sortSource.value === 'none' ? 'asc' : sortSource.value === 'asc' ? 'desc' : 'none';
+    sortSource.value = sortSource.value === '' ? 'asc' : sortSource.value === 'asc' ? 'desc' : '';
 };
 
-const sortAssistance = ref('none'); // 'none', 'asc', 'desc'
+const sortAssistance = ref(''); // 'none', 'asc', 'desc'
 const toggleSortAssistance = () => {
-    sortAssistance.value = sortAssistance.value === 'none' ? 'asc' : sortAssistance.value === 'asc' ? 'desc' : 'none';
+    sortAssistance.value = sortAssistance.value === '' ? 'asc' : sortAssistance.value === 'asc' ? 'desc' : '';
 };
 
-const sortIncident = ref('none');
+const sortIncident = ref('');
 const toggleSortIncident = () => {
-    sortIncident.value = sortIncident.value === 'none' ? 'asc' : sortIncident.value === 'asc' ? 'desc' : 'none';
+    sortIncident.value = sortIncident.value === '' ? 'asc' : sortIncident.value === 'asc' ? 'desc' : '';
 };
 
-const sortActions = ref('none');
+const sortActions = ref('');
 const toggleSortActions = () => {
-    sortActions.value = sortActions.value === 'none' ? 'asc' : sortActions.value === 'asc' ? 'desc' : 'none';
+    sortActions.value = sortActions.value === '' ? 'asc' : sortActions.value === 'asc' ? 'desc' : '';
 };
 
-const sortUrgency = ref('none');
+const sortUrgency = ref('');
 const toggleSortUrgency = () => {
-    sortUrgency.value = sortUrgency.value === 'none' ? 'asc' : sortUrgency.value === 'asc' ? 'desc' : 'none';
+    sortUrgency.value = sortUrgency.value === '' ? 'asc' : sortUrgency.value === 'asc' ? 'desc' : '';
 };
 
-const sortBarangay = ref('none');
+const sortBarangay = ref('');
 const toggleSortBarangay = () => {
-    sortBarangay.value = sortBarangay.value === 'none' ? 'asc' : sortBarangay.value === 'asc' ? 'desc' : 'none';
+    sortBarangay.value = sortBarangay.value === '' ? 'asc' : sortBarangay.value === 'asc' ? 'desc' : '';
 };
 
 // In your component's script setup
@@ -548,18 +548,18 @@ onUnmounted(() => {
   if (refreshInterval) {
     clearInterval(refreshInterval);
   }
-  databaseStore.Reports({
-      search: '',
-      startDate: startDate.value,
-      endDate: endDate.value,
-      page: 1,
-      sortSource: '',
-      sortAssistance: '',
-      sortIncident: '',
-      sortActions: '',
-      sortUrgency: '',
-      sortBarangay: '',
-    });
+//   databaseStore.Reports({
+//       search: '',
+//       startDate: startDate.value,
+//       endDate: endDate.value,
+//       page: 1,
+//       sortSource: '',
+//       sortAssistance: '',
+//       sortIncident: '',
+//       sortActions: '',
+//       sortUrgency: '',
+//       sortBarangay: '',
+//     });
 });
 
 

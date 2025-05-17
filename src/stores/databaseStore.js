@@ -40,28 +40,31 @@ export const useDatabaseStore = defineStore('database', {
   }),
   actions: {
     async Reports(searchParams = {}) {
+      // Only include sort parameters if they have valid values
       const params = {
         search: searchParams.search || '',
         startDate: searchParams.startDate || '',
         endDate: searchParams.endDate || '',
         page: searchParams.page,
         per_page: searchParams.per_page || 10,
-        sortSource: searchParams.sortSource || '',
-        sortAssistance: searchParams.sortAssistance || '',
-        sortIncident: searchParams.sortIncident || '',
-        sortActions: searchParams.sortActions || '',
-        sortUrgency: searchParams.sortUrgency || '',
-        sortBarangay: searchParams.sortBarangay || '',
-        assistance_ids: searchParams.assistance_ids || [],
-        actions_ids: searchParams.actions_ids || [],
-        urgency_ids: searchParams.urgency_ids || [],
+        ...(searchParams.sortSource && { sortSource: searchParams.sortSource }),
+        ...(searchParams.sortAssistance && { sortAssistance: searchParams.sortAssistance }),
+        ...(searchParams.sortIncident && { sortIncident: searchParams.sortIncident }),
+        ...(searchParams.sortActions && { sortActions: searchParams.sortActions }),
+        ...(searchParams.sortUrgency && { sortUrgency: searchParams.sortUrgency }),
+        ...(searchParams.sortBarangay && { sortBarangay: searchParams.sortBarangay }),
       };
       
       try {
-        const res = await axiosClient.get('/api/911/report-pagination', { headers: { 'x-api-key': this.SC3_API_KEY }, params: params });
+        const res = await axiosClient.get('/api/911/report-pagination', { 
+          headers: { 'x-api-key': this.SC3_API_KEY }, 
+          params: params 
+        });
         this.testReports = res.data;
+        return res.data;
       } catch (error) {
-        return error.response.data.message || 'Something went wrong';
+        console.error('Error fetching reports:', error);
+        return error.response?.data?.message || 'Something went wrong';
       }
     },
 
