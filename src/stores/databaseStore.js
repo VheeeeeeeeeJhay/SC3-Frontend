@@ -47,12 +47,12 @@ export const useDatabaseStore = defineStore('database', {
         endDate: searchParams.endDate || '',
         page: searchParams.page,
         per_page: searchParams.per_page || 10,
-        ...(searchParams.sortSource && { sortSource: searchParams.sortSource }),
-        ...(searchParams.sortAssistance && { sortAssistance: searchParams.sortAssistance }),
-        ...(searchParams.sortIncident && { sortIncident: searchParams.sortIncident }),
-        ...(searchParams.sortActions && { sortActions: searchParams.sortActions }),
-        ...(searchParams.sortUrgency && { sortUrgency: searchParams.sortUrgency }),
-        ...(searchParams.sortBarangay && { sortBarangay: searchParams.sortBarangay }),
+        sortSource: searchParams.sortSource,
+        sortAssistance: searchParams.sortAssistance,
+        sortIncident: searchParams.sortIncident,
+        sortActions: searchParams.sortActions,
+        sortUrgency: searchParams.sortUrgency,
+        sortBarangay: searchParams.sortBarangay
       };
       
       try {

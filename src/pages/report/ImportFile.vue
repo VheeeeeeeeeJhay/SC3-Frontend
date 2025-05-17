@@ -194,6 +194,15 @@ const goToStep1AndClearFiles = () => {
             </ul>
         </div>
 
+        <a
+        href="/src/assets/baguio-logo.png"
+        download="baguio-logo.png"
+        class="inline-block mt-4 mx-2 px-4 py-2 rounded text-white bg-teal-500 hover:bg-teal-600 dark:bg-teal-600 dark:hover:bg-teal-500"
+        >
+        Download File Upload Template
+        </a>
+
+
         <!-- Stepper -->
         <div class="mx-auto px-4 py-8">
             <ol class="flex items-center space-x-4 justify-evenly">
