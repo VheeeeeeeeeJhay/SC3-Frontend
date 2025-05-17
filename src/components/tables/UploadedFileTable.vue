@@ -84,9 +84,9 @@ const TableHeaders = [
                 <tbody>
                     <tr v-for="(report, index) in paginatedData" :key="index"
                         class="bg-sky-50 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700">
-                        <td class="dark:text-white px-4 py-3">{{ report.time }}</td>
+                        <td class="dark:text-white px-4 py-3">{{ report.time_occurred }}</td>
                         <td class="dark:text-white px-4 py-3">{{ report.date_occurred }}</td>
-                        <td class="dark:text-white px-4 py-3">{{ report.arrival_on_site }}</td>
+                        <td class="dark:text-white px-4 py-3">{{ report.time_arrival_on_site }}</td>
                         <td class="dark:text-white px-4 py-3">{{ report.name }}</td>
                         <td class="dark:text-white px-4 py-3">{{ report.landmark }}</td>
                         <td class="dark:text-white px-4 py-3">{{ report.longitude }}</td>

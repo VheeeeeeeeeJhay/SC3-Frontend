@@ -195,8 +195,8 @@ const goToStep1AndClearFiles = () => {
         </div>
 
         <a
-        href="/src/assets/baguio-logo.png"
-        download="baguio-logo.png"
+        href="/src/assets/file-upload-template.xlsx"
+        download="file-upload-template.xlsx"
         class="inline-block mt-4 mx-2 px-4 py-2 rounded text-white bg-teal-500 hover:bg-teal-600 dark:bg-teal-600 dark:hover:bg-teal-500"
         >
         Download File Upload Template
@@ -299,7 +299,7 @@ const goToStep1AndClearFiles = () => {
                     <button @click="goToStep1AndClearFiles" class="px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 w-1/2">
                         Upload A New File
                     </button>
-                    <button @click="(() => router.push('/report-table'))" class="px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 w-1/2">
+                    <button @click="(() => router.push('/reports-management'))" class="px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 w-1/2">
                         Back to Report Table
                     </button>
                 </div>
